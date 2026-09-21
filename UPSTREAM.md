@@ -23,6 +23,14 @@ iteration, deterministic penalty path, contiguous-block extraction and reporting
 are new. Complete-graph flows, ALM/box-QP code, hybrid candidates, Torch/CUDA and
 historical modes were not copied.
 
+Version 0.1.1 replaces the production inner solver with a new bounded weighted-TV
+functional message implementation and linear dual reconstruction. The initial
+primal–dual method remains an attribution reference only. Algorithmic background:
+[Kolmogorov, Pock and Rolinek, Total Variation on a Tree (2016)](https://arxiv.org/abs/1502.07770).
+No external solver implementation was copied; the box handling, certificate and
+common-surrogate profiling are qualified by the independent tests described in
+[revision validation](VALIDATION_REVISION.md).
+
 `tests/fixtures/upstream_reference.npz` contains loss, gradient, expected candidate
 curvature, posterior, slopes and original upper bounds evaluated by the pinned
 upstream on `mixed_cn.tsv`. The adjacent JSON binds its hash, input hash, exact

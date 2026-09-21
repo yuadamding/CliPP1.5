@@ -97,13 +97,16 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False):
             raw.x[chain.inverse_order].copy(), dict(raw.diagnostics), refit.cuts,
             refitted, refit.centers[public_order], labels_chain[chain.inverse_order],
             refit.designated_clonal_block, calls, refit.score, refit.score_components,
-            provenance, search)
+            provenance, search, raw_objective=raw.objective, raw_witness_index=raw.witness,
+            raw_witness_mutation_id=model.mutation_ids[chain.order[raw.witness]],
+            search_status=search["search_status"])
         if destination is not None:
             write_result(result, destination)
         return result
     except Exception as exc:
         if destination is not None and not (destination / "run.json").exists():
-            write_json(destination / "run.json", {"schema": "clipp1d.run.v1", "status": "failure",
+            write_json(destination / "run.json", {"schema": "clipp1d.run.v2", "status": "failure",
+                       "search_status": "not_completed",
                        "error_type": type(exc).__name__, "message": str(exc), "provenance": provenance,
                        "diagnostics": getattr(exc, "diagnostics", {}),
                        "exclusions": {m.mutation_id: m.exclusion for m in data.mutations if m.exclusion}

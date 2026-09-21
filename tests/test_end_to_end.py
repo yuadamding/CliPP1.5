@@ -20,6 +20,10 @@ def test_single_mutation_and_cli(make_input, tmp_path):
                                              "mutation_multiplicity.tsv", "run.json"}
     run = json.loads((out / "run.json").read_text())
     assert run["status"] == "success" and run["provenance"]["backend"] == "cpu"
+    assert run["search_status"] == result.search_status == "complete"
+    assert run["raw_objective"] == result.raw_objective
+    assert run["raw_witness_mutation_id"] == result.raw_witness_mutation_id == "0001"
+    assert run["raw_witness_index"] == result.raw_witness_index == 0
     assert not run["raw_diagnostics"]["global_optimality_proven"]
     before = (out / "run.json").read_bytes()
     with pytest.raises(FileExistsError):
@@ -40,6 +44,10 @@ def test_two_mutations_permutation_and_exclusions(make_input, tmp_path):
     assert first.exclusion_reasons[-1] == "MISSING_COUNTS"
     assert first.search_diagnostics["path_candidates"] >= 26
     assert first.raw_diagnostics["raw_branch_stationarity_qualified"]
+    retained_ids = [mid for mid, keep in zip(first.input_identifiers["mutation_ids"], first.retained_mask) if keep]
+    witness_position = first.frozen_chain.order[first.raw_witness_index]
+    assert first.raw_witness_mutation_id == retained_ids[witness_position]
+    assert first.raw_phi[witness_position] == 1
     assert first.refitted_phi[np.flatnonzero(first.cluster_labels == 0)[0]] == 1
 
 

@@ -102,6 +102,9 @@ class ScalarResult:
     qualified: bool
     alternatives: tuple[float, ...] = ()
     intervals: int = 0
+    evaluations: int = 0
+    bound_evaluations: int = 0
+    method: str = "interval_search"
 
 
 @dataclass(frozen=True)
@@ -112,9 +115,12 @@ class PilotResult:
     curvature: np.ndarray
     alternative_phi: np.ndarray
     gaps: np.ndarray
+    scalar_results: tuple[ScalarResult, ...] = ()
+    scalar_keys: tuple[str, ...] = ()
+    mutation_ids: tuple[str, ...] = ()
 
     def __post_init__(self):
-        for name in self.__dataclass_fields__:
+        for name in ("phi", "lower_bounds", "losses", "curvature", "alternative_phi", "gaps"):
             object.__setattr__(self, name, readonly(getattr(self, name), np.float64))
 
 
@@ -138,6 +144,25 @@ class InnerFit:
     gap: float
     qualified: bool
     iterations: int
+    kkt_residual: float = float("inf")
+    gap_scale: float = 0.0
+    algorithm: str = "primal_dual_reference"
+    work: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class QuadraticWitnessProfile:
+    """Witness values for one common quadratic, not different likelihood iterates."""
+    witness: int
+    fit: InnerFit
+    relative_objectives: np.ndarray
+    objective_offset: float
+    qualified: bool
+    surrogate_sha256: str
+    diagnostics: dict[str, Any]
+
+    def __post_init__(self):
+        object.__setattr__(self, "relative_objectives", readonly(self.relative_objectives, np.float64))
 
 
 @dataclass
@@ -152,6 +177,24 @@ class RawFit:
 
 
 @dataclass(frozen=True)
+class WarmState:
+    """One previous primal/dual state in chain order, with no witness bounds."""
+    x: np.ndarray
+    dual: np.ndarray
+    chain_fingerprint: str
+
+    def __post_init__(self):
+        object.__setattr__(self, "x", readonly(self.x, np.float64))
+        object.__setattr__(self, "dual", readonly(self.dual, np.float64))
+
+    def validate(self, chain):
+        if (self.chain_fingerprint != chain.fingerprint or self.x.shape != chain.order.shape or
+                self.dual.shape != chain.weights.shape or not np.all(np.isfinite(self.x)) or
+                not np.all(np.isfinite(self.dual))):
+            raise ValueError("Warm state must match the frozen chain and contain finite vectors")
+
+
+@dataclass(frozen=True)
 class PartitionRefit:
     cuts: tuple[int, ...]
     centers: np.ndarray
@@ -160,6 +203,9 @@ class PartitionRefit:
     gap: float
     score: float
     score_components: dict[str, float]
+    scalar_fits_performed: int = 0
+    singleton_pilots_reused: int = 0
+    scalar_evaluations: int = 0
 
 
 @dataclass
@@ -182,3 +228,7 @@ class FitResult:
     score_components: dict[str, float]
     provenance: dict[str, Any] = field(default_factory=dict)
     search_diagnostics: dict[str, Any] = field(default_factory=dict)
+    raw_objective: float = float("nan")
+    raw_witness_index: int = -1
+    raw_witness_mutation_id: str = ""
+    search_status: str = "incomplete"

@@ -73,9 +73,12 @@ def write_result(result, outdir):
         for i, mid in enumerate(retained_ids):
             writer.writerow([ids["tumor_id"], ids["sample_id"], mid, result.refitted_phi[i], result.multiplicity_calls[i]])
     tables = {n: hashlib.sha256((outdir / n).read_bytes()).hexdigest() for n in names[:3]}
-    write_json(outdir / "run.json", {"schema": "clipp1d.run.v1", "status": "success",
+    write_json(outdir / "run.json", {"schema": "clipp1d.run.v2", "status": "success",
+               "search_status": result.search_status,
                "input_identifiers": ids, "provenance": result.provenance,
                "selected_lambda": result.selected_lambda, "selection_score": result.selection_score,
+               "raw_objective": result.raw_objective, "raw_witness_index": result.raw_witness_index,
+               "raw_witness_mutation_id": result.raw_witness_mutation_id,
                "score_components": result.score_components, "raw_diagnostics": result.raw_diagnostics,
                "search": result.search_diagnostics, "chain_sha256": result.frozen_chain.fingerprint,
                "chain_gap_floor": result.frozen_chain.gap_floor,
@@ -83,6 +86,9 @@ def write_result(result, outdir):
                "pilot_qualification": {"all_qualified": True,
                    "maximum_scalar_gap": float(np.max(result.pilot.gaps)),
                    "sum_scalar_gaps": float(np.sum(result.pilot.gaps)),
+                   "likelihood_evaluations": sum(r.evaluations for r in result.pilot.scalar_results),
+                   "bound_evaluations": sum(r.bound_evaluations for r in result.pilot.scalar_results),
+                   "exact_scalar_fits": sum(r.method == "same_slope_single_candidate_exact" for r in result.pilot.scalar_results),
                    "alternative_well_mutations": int(np.count_nonzero(result.pilot.alternative_phi != result.pilot.phi))},
                "exclusions": {mid: r for mid, r in zip(ids["mutation_ids"], result.exclusion_reasons) if r},
                "designated_clonal_block": result.designated_clonal_block,

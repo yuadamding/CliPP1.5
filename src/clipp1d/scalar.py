@@ -7,6 +7,8 @@ an arithmetic margin; these are numerical bounds, not interval-arithmetic proofs
 """
 
 import heapq
+import hashlib
+import math
 
 import numpy as np
 from scipy.optimize import minimize_scalar
@@ -52,17 +54,59 @@ def interval_lower_bound(model, left, right):
     return bound - margin
 
 
+def scalar_key(model, index):
+    """Bind a cached scalar result to its exact likelihood and original domain."""
+    digest = hashlib.sha256(float(model.eps).hex().encode())
+    for name in ("alt", "ref", "lower", "upper", "slope", "log_prior", "valid"):
+        digest.update(np.asarray(getattr(model, name)[index]).tobytes())
+    return digest.hexdigest()
+
+
 def minimize_block(model, policy=Policy()):
     lower, upper = float(np.max(model.lower)), float(np.min(model.upper))
     if lower > upper:
         raise ValueError("Block has no common feasible CCF")
+    if np.all(model.valid.sum(axis=1) == 1) and np.all(model.slope[:, 0] == model.slope[0, 0]):
+        slope = float(model.slope[0, 0])
+        alt, ref = math.fsum(model.alt), math.fsum(model.ref)
+        p_lower = float(np.clip(slope * lower, model.eps, 1 - model.eps))
+        p_upper = float(np.clip(slope * upper, model.eps, 1 - model.eps))
+        empirical = alt / (alt + ref) if alt + ref else p_lower
+        if p_lower == p_upper or empirical <= p_lower:
+            point = lower
+        else:
+            point = float(np.clip(min(empirical, 1 - model.eps) / slope, lower, upper))
+        value = float(np.sum(evaluate(model, np.full(len(model), point)).loss))
+        margin = 128 * np.finfo(float).eps * (1 + abs(value))
+        lower_bound = value - margin
+        gap = value - lower_bound
+        return ScalarResult(point, value, lower_bound, gap,
+                            gap <= policy.scalar_atol + policy.scalar_rtol * abs(value),
+                            evaluations=1, method="same_slope_single_candidate_exact")
+    return _minimize_general(model, policy)
+
+
+def _minimize_general(model, policy=Policy()):
+    lower, upper = float(np.max(model.lower)), float(np.min(model.upper))
+    if lower > upper:
+        raise ValueError("Block has no common feasible CCF")
+
+    evaluations = 0
+    bound_evaluations = 0
 
     def loss(t):
+        nonlocal evaluations
+        evaluations += 1
         return float(np.sum(evaluate(model, np.full(len(model), t)).loss))
+
+    def bound(a, b):
+        nonlocal bound_evaluations
+        bound_evaluations += 1
+        return interval_lower_bound(model, a, b)
 
     if lower == upper:
         value = loss(lower)
-        return ScalarResult(lower, value, value, 0, True)
+        return ScalarResult(lower, value, value, 0, True, evaluations=evaluations)
     kinks = clipping_breakpoints(model)
     kinks = kinks[(kinks >= lower) & (kinks <= upper)]
     modes = ((model.alt / (model.alt + model.ref))[:, None] /
@@ -70,7 +114,10 @@ def minimize_block(model, policy=Policy()):
     modes = np.unique(np.clip(modes[np.isfinite(modes)], lower, upper))
     if modes.size > 65:
         modes = np.quantile(modes, np.linspace(0, 1, 65))
-    seeds = np.unique(np.r_[np.linspace(lower, upper, 33), kinks, modes])
+    # A bounded initial grid: many distinct slopes must not force one complete
+    # block evaluation per clipping point before adaptive refinement starts.
+    extreme_kinks = kinks[[0, -1]] if kinks.size else []
+    seeds = np.unique(np.r_[np.linspace(lower, upper, 33), modes, extreme_kinks])
     values = np.array([loss(t) for t in seeds])
     wells = [(float(v), float(t)) for v, t in zip(values, seeds)]
     for i in range(1, len(seeds) - 1):
@@ -83,23 +130,29 @@ def minimize_block(model, policy=Policy()):
     tie = 16 * np.finfo(float).eps * (1 + abs(best_loss))
     best_x = min(x for v, x in wells if v <= best_loss + tie)
     best_loss = loss(best_x)
-    heap = [(interval_lower_bound(model, a, b), float(a), float(b))
+    heap = [(bound(a, b), float(a), float(b))
             for a, b in zip(seeds[:-1], seeds[1:])]
     heapq.heapify(heap)
     subdivisions = 0
     while heap and best_loss - heap[0][0] > policy.scalar_atol + policy.scalar_rtol * abs(best_loss):
         if subdivisions >= policy.scalar_max_intervals:
             break
-        bound, a, b = heapq.heappop(heap)
+        lower_value, a, b = heapq.heappop(heap)
         mid = a + (b - a) / 2
+        first, last = np.searchsorted(kinks, a, side="right"), np.searchsorted(kinks, b, side="left")
+        if first < last:
+            index = int(np.clip(np.searchsorted(kinks, mid), first, last - 1))
+            if index > first and abs(kinks[index - 1] - mid) < abs(kinks[index] - mid):
+                index -= 1
+            mid = float(kinks[index])
         if mid == a or mid == b:
-            heapq.heappush(heap, (bound, a, b))
+            heapq.heappush(heap, (lower_value, a, b))
             break
         value = loss(mid)
         if value < best_loss:
             best_x, best_loss = mid, value
         for lo, hi in ((a, mid), (mid, b)):
-            heapq.heappush(heap, (interval_lower_bound(model, lo, hi), lo, hi))
+            heapq.heappush(heap, (bound(lo, hi), lo, hi))
         subdivisions += 1
     lb = min(best_loss, heap[0][0]) if heap else best_loss
     gap = max(0.0, best_loss - lb)
@@ -114,7 +167,7 @@ def minimize_block(model, policy=Policy()):
             break
     return ScalarResult(best_x, best_loss, lb, gap,
                         gap <= policy.scalar_atol + policy.scalar_rtol * abs(best_loss),
-                        tuple(alternatives), subdivisions)
+                        tuple(alternatives), subdivisions, evaluations, bound_evaluations)
 
 
 def compute_pilot(model, policy=Policy()):
@@ -128,4 +181,5 @@ def compute_pilot(model, policy=Policy()):
                        np.array([r.attained_loss for r in results]),
                        evaluate(model, phi, derivatives=True).curvature,
                        np.array([r.alternatives[0] if r.alternatives else r.argmin for r in results]),
-                       np.array([r.optimality_gap for r in results]))
+                       np.array([r.optimality_gap for r in results]), tuple(results),
+                       tuple(scalar_key(model, i) for i in range(len(model))), model.mutation_ids)

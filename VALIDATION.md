@@ -1,5 +1,10 @@
 # Local implementation validation
 
+Historical initial-release record. The subsequent review found two qualification
+defects in this source. These original observations are preserved below; they
+must not be treated as validation of the repaired solver. See
+[revision validation](VALIDATION_REVISION.md) for the regressions and new evidence.
+
 Snapshot: **2026-09-21 CDT** (`America/Chicago`).
 Environment: conda `ml1`, Python 3.13.2, NumPy 2.2.6, SciPy 1.18.0.
 Execution: local CPU, float64.

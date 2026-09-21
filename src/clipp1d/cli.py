@@ -22,5 +22,6 @@ def main(argv=None):
     except (ValueError, OSError) as exc:
         print(f"clipp1d: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 2
-    print(f"Fitted {len(result.raw_phi)} mutations in {len(result.cluster_centers)} clusters; outputs: {args.outdir}")
+    print(f"Fitted {len(result.raw_phi)} mutations in {len(result.cluster_centers)} clusters; "
+          f"search: {result.search_status}; outputs: {args.outdir}")
     return 0

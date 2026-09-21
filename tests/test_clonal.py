@@ -3,9 +3,12 @@ from numpy.testing import assert_allclose
 import pytest
 
 from clipp1d.chain import build_chain
+from clipp1d.io import read_tumor
+from clipp1d.model import compile_model
+from clipp1d.policy import Policy
 from clipp1d.clonal import fit_fixed_lambda
 from clipp1d.scalar import compute_pilot
-from clipp1d.solver import solve_branch
+from clipp1d.solver import _kink_check, objective, solve_branch, stationarity
 from clipp1d.types import ClonalConstraintInfeasibleError
 from conftest import count_model
 
@@ -57,3 +60,36 @@ def test_zero_alt_exact_clipping_kink_branch():
     assert raw.x[1] == 1
     profiled = fit_fixed_lambda(model, c, p, .1)
     assert profiled.witness == 1 and profiled.diagnostics["witness_search_complete"]
+
+
+def test_fused_clonal_block_cannot_hide_proper_interval_descent(make_input):
+    rows = [{"mutation_id": "m0", "alt_count": 1, "ref_count": 9},
+            {"mutation_id": "m1", "alt_count": 1, "ref_count": 1, "allele_b_cn": 0},
+            {"mutation_id": "m2", "alt_count": 1, "ref_count": 1, "allele_b_cn": 0},
+            {"mutation_id": "m3", "alt_count": 1, "ref_count": 0}]
+    for row in rows:
+        row["purity"] = .99999949999975
+    model = compile_model(read_tumor(make_input(rows)))
+    pilot = compute_pilot(model)
+    chain = build_chain(pilot, model.mutation_ids)
+    model = model.subset(chain.order)
+    x, caps = np.ones(4), 1e6 * chain.weights
+    lower, upper = model.lower.copy(), model.upper.copy()
+    lower[0] = upper[0] = 1
+    trial = np.array([1., 1 - 1e-7, 1 - 1e-7, 1.])
+    assert objective(model, trial, caps) < objective(model, x, caps) - .1
+    residual, feasible = stationarity(model, x, np.zeros(3), lower, upper, caps)
+    assert feasible and residual > Policy().stationarity_tol
+    accepted, restart = _kink_check(model, x, caps, lower, upper, Policy())
+    assert not accepted
+    if restart is not None:
+        assert restart[0] == 1 and objective(model, restart, caps) < objective(model, x, caps)
+    raw = solve_branch(model, chain, 1e6, 0, x)
+    assert not (raw.qualified and np.array_equal(raw.x, x))
+
+
+def test_lower_clipping_endpoint_uses_feasible_right_derivative():
+    model = count_model([10], [90], slope=1.)
+    residual, feasible = stationarity(model, model.lower, np.array([]),
+                                      model.lower, model.upper, np.array([]))
+    assert feasible and residual > .99

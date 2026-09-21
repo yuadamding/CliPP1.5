@@ -1,6 +1,6 @@
 """Independent single-sample adaptive-chain CCF inference."""
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False):
