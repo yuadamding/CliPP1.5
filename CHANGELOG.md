@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.2.0 — 2026-09-21
+
+Move witness profiling into production common-surrogate MM with original boxes,
+a freshly rebuilt profile at every backtrack, and at most four distinct primal
+starts per penalty. Retain independent nonlinear enumeration only as an offline
+reference. Reuse accepted curvature inflation, unchanged inner certificates and
+trial likelihoods; remove unused direct-backend dual continuation. This explicitly
+changes nonlinear search trajectories while preserving the likelihood, constrained
+objective, chain weights, partition/refit/score rules and admission tolerances.
+Numerical policy and run-receipt schema advance to v3; completeness describes
+planned starts and path penalties, not independently optimized nonlinear witnesses.
+
+Repair interior-normal gap cancellation, wide-range dual reconstruction, and
+prefix-value cancellation. Add feasible interval audits across multiple occupied
+witnesses. Retain eight hashed actual production failures as regression fixtures.
+Benchmark workers capture bounded precise failures and progress inside interrupted
+starts. Add CPU/thread controls, sample dispersion, penalty-normalization comparisons,
+separate working-memory measurements and full-path/search-policy validation.
+See [validation and remaining limitations](VALIDATION_SHARED.md).
+
 ## 0.1.1 — 2026-09-21
 
 Repair clipping-endpoint and proper fused-subinterval qualification; use a stable

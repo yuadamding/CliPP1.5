@@ -21,7 +21,8 @@ and backtracks curvature until both true-objective descent and surrogate
 majorization/descent hold. Its quadratic subproblem is
 
 ```text
-min 0.5 sum h_i (x_i-U_i)^2 + sum caps_i |x_{i+1}-x_i|, lower <= x <= upper.
+min 0.5 sum h_i (x_i-U_i)^2 + sum caps_i |x_{i+1}-x_i|,
+original_lower <= x <= original_upper, with some eligible x_k = 1.
 ```
 
 The production inner solve uses convex functional dynamic programming:
@@ -74,6 +75,12 @@ G = sum_i [.5 h_i (x_i-z_i)^2 + (h_i(z_i-U_i)+a_i)(x_i-z_i)]
 ```
 
 Frozen coordinates contribute zero and are omitted before target arithmetic.
+Interior boxed minimizers have exactly zero normal; computing it by subtracting
+rounded large gradients can manufacture a negative gap term. Only active-bound
+normals are evaluated. Message and dual-reconstruction accumulators use
+`numpy.longdouble` guard digits where available. A rounded fused-block mean's normal-equation error
+is distributed by curvature during dual reconstruction; independent float64 gap
+and KKT checks still audit the represented solution at unchanged tolerances.
 Every displayed contribution is nonnegative in exact arithmetic. Materially
 negative terms, nonfinite results, or a failed certificate reject qualification.
 Only negative roundoff within an explicit arithmetic margin is clamped to zero.
@@ -87,7 +94,10 @@ also checks exact nonzero-edge complementarity.
 When a surrogate step crosses a clipping kink, an exact breakpoint step may
 replace it if it improves the true objective and satisfies both descent checks.
 The qualified QP gap and the accepted breakpoint step's surrogate gap are reported
-separately; the latter does not confer an inner-optimality claim.
+separately; the latter does not confer an inner-optimality claim. Unchanged
+breakpoint/fusion proposals reuse the direct gap/KKT certificate. Changed proposals
+receive fresh audits as required; the accepted trial's likelihood is cached across
+all outer acceptance inequalities.
 
 The outer audit checks the componentwise box-normal residual normalized by
 `1+abs(gradient)+abs(D.T q)`, the dual box, and nonzero-edge complementarity.
@@ -101,8 +111,12 @@ restart or an unresolved status. Local trial losses use only the affected
 likelihood rows and internal/boundary edges; a full vector is copied only for an
 accepted proposal. Additional finite plateau escapes inspect nearby transitions;
 these nonlocal proposals do not establish global optimality. An unresolved direction
-returns a typed status instead of a smooth convergence claim. This is branch
-stationarity, not global optimality. The lambda-zero case has separate scalar-gap
+returns a typed status instead of a smooth convergence claim. With multiple
+exact-one coordinates, extra interval audits freeze each extreme occupied witness
+in turn, including smooth directions. Any feasible contiguous move excludes at
+least one extreme, so these two anchor choices cover all admissible intervals.
+A selected branch's certificate alone does not establish union stationarity.
+These are numerical local qualifications, not global optimality. The lambda-zero case has separate scalar-gap
 qualification because it is separable.
 
 Memory remains bounded by a constant number of full raw states: current branch,
@@ -110,13 +124,12 @@ best branch, preceding lambda and selected candidate. Refitting caches only the
 last partition. The fixed path stores scalar diagnostics and hashes, not a raw
 state per candidate or witness. The clonal refit profile is computed in O(K).
 Input parsing additionally requires storage proportional to the supplied CN rows.
-Continuation retains both primal and dual arrays in a chain-fingerprint-bound
-`WarmState`. The dual is projected to the new penalty box, and each witness uses
-fresh bounds from the original model. The direct quadratic minimizer is independent
-of its start; retained primal continuation still initializes the nonlinear branch,
-while the dual also supports the iterative attribution reference. Singleton refits reuse qualified pilot
-results only after matching the mutation ID and exact likelihood/domain digest.
-Unresolved witness lower bounds are rescreened against the final incumbent.
+Production continuation retains only the primal vector in a chain-bound
+`PrimalWarmState`. Legacy `WarmState` input remains valid, but its dual neither
+affects direct solves nor creates a distinct start. The offline fixed-witness
+reference deduplicates primals after imposing each witness; production deduplicates
+after clonal-feasibility projection. Singleton refits reuse qualified pilot results
+only after matching the mutation ID and exact likelihood/domain digest.
 
 `profile_quadratic_witnesses()` computes prefix and suffix values at one for a
 **single common quadratic**, then selects a witness and reconstructs only that
@@ -125,13 +138,26 @@ boxed-unary constant separately, and binds the input arrays to a SHA-256 digest.
 Its message work is O(M log M), versus M separate quadratic solves. Independent
 per-witness solves test these values. The selected branch receives the full gap
 and KKT audit, with an additional check against its predicted message value.
-The nonlinear production search still enumerates witnesses: different branch
-iterates have different curvatures and targets. This shared routine does not
-remove that factor from full mixture fits or prove their global optimum.
+Production invokes this profile inside every outer/backtracking attempt, always
+with the original boxes. No profile survives a curvature or target change. After a successful common
+step, the next iteration starts at half the accepted curvature inflation (floored
+at one), then backtracks normally. A kink restart resets inflation. Only this
+scalar scale is reused, never a prior surrogate or its messages; this avoids
+repeating the same unsuccessful low-curvature attempts at every outer iteration.
+The offline fixed-witness reference keeps its original per-iteration reset.
+`largest_curvature_scale` records the largest accepted inflation.
+The original nonlinear enumeration lives only in `benchmarks/reference_enumeration.py`.
+It remains a finite-start reference, not a global-optimality oracle.
 
-Version 0.1.1 uses numerical policy `clipp1d_chain_v2` and receipt schema
-`clipp1d.run.v2`; the likelihood, chain weights, partition tolerance and statistical
-score are unchanged. A successful receipt has top-level `search_status` equal to
+Version 0.2.0 uses numerical policy `clipp1d_chain_v3` and receipt schema
+`clipp1d.run.v3`. The likelihood, weights, constraints, partition tolerance, score
+and numerical gates remain unchanged; the nonlinear search policy changes to
+`common_surrogate_multistart_v1`. `search_complete` records qualification of every
+planned start, not independent optimization of every nonlinear witness branch.
+`search_profile_calls` and `search_surrogate_witnesses_profiled` count common QPs
+and their eligible witness values. `nonlinear_witness_enumeration_performed` is
+false for the positive-penalty production search.
+A successful receipt has top-level `search_status` equal to
 `complete` or `incomplete`. Each path record has separate raw/refit statuses and
 retains raw diagnostics before attempting the refit. The selected raw objective,
 chain-position witness index and witness mutation ID are explicit API/receipt fields.
@@ -142,12 +168,12 @@ Tests exercise pinned upstream losses/derivatives/posteriors, interval bounds,
 an independent OSQP chain oracle, witness release and screening, clipping,
 original feasibility, ID permutation invariance and complete output/failure flows.
 Fixture generation is separate from normal tests and requires the exact clean
-upstream revision. A success receipt records incomplete witness/path coverage
+upstream revision. A success receipt records incomplete planned-start/path coverage
 explicitly; it does not claim that all candidates qualified.
 
 `benchmarks/simulate.py` creates reproducible read-count data and truth.
 `benchmark_scaling.py` runs each size in a fresh CPU process and records wall
-time, peak process RSS, graph-array bytes, pilot/witness/start/inner/refit time,
+time, peak process RSS, graph-array bytes, pilot/profile/start/inner/refit time,
 scalar reuse counts and numerical coverage. Cases are run sequentially. A per-case
 timeout kills only its worker and retains append-only progress; partial timing
 counts include completed calls, and timeout RSS is an observed lower bound.
@@ -158,7 +184,15 @@ and heterogeneous multiplicity-mixture scenarios.
 QPs with the same first-order algorithm; chain QPs with the direct solver; and
 shared versus independently enumerated common-surrogate witness values. The
 complete-graph arm is a NumPy reference, not the CliPP2 production solver.
-Its arrays are confined to the benchmark. Edge counts, kernel ratios, certified
+Its arrays are confined to the benchmark. Both scripts bind allowed CPU affinity
+and thread controls before loading NumPy, record them, and make no exclusive-host
+claim. Kernel/QP timings retain samples and dispersion. Fixed QPs cover weak,
+moderate and strong penalties, unequal caps, and both equal per-edge strength and
+matched-total-cap normalization. Separate traced-memory passes include heap,
+dictionary and reconstruction allocations; chain-array bytes and lifetime process
+RSS are reported with their distinct scopes. Scaling workers retain up to eight
+failed QP arrays with source identity and precise gate/arithmetic reasons for
+replay, separate from compact fit receipts. Edge counts, kernel ratios, certified
 QP runtimes and full-fit runtimes are distinct evidence.
 `compare_clipp2.py` compares supplied final-refit tables with truth on
 exactly matched retained IDs. It reports CCF error, ARI (including its true-K-one

@@ -18,11 +18,15 @@ class _DerivativeMessage:
         self.right = []
         self.knots = {}
         self.serial = 0
-        self.left_m = self.right_m = 0.
-        self.left_b = self.right_b = 0.
+        # Returned CCFs remain float64; guard digits prevent
+        # large, subsequently clipped unary coefficients from erasing small
+        # surviving message slopes or prefix-value differences.
+        self.left_m = self.right_m = np.longdouble(0)
+        self.left_b = self.right_b = np.longdouble(0)
         self.inserted = self.removed = self.peak_knots = 0
 
     def add_unary(self, h, target):
+        h, target = np.longdouble(h), np.longdouble(target)
         self.left_m += h
         self.right_m += h
         self.left_b -= h * target
@@ -65,9 +69,10 @@ class _DerivativeMessage:
                 self.left_m, self.left_b = m, b
                 return point, m, b
 
-    def threshold_right(self, level, lower, upper, integrate=False):
+    def threshold_right(self, level, lower, upper, integrate=False, integral_state=None):
         m, b = self.right_m, self.right_b
-        position, area = 1., 0.
+        integral_m, integral_b = (m, b) if integral_state is None else integral_state
+        position, area = np.longdouble(1), np.longdouble(0)
         while True:
             if not np.isfinite(m + b) or m <= 0:
                 raise ArithmeticError("Nonpositive/nonfinite message slope")
@@ -75,24 +80,26 @@ class _DerivativeMessage:
             knot = self.peek(right=True)
             if knot is None or root > knot[0]:
                 if integrate:
-                    area += (position - root) * (.5 * m * (position + root) + b)
+                    area += (position - root) * (.5 * integral_m * (position + root) + integral_b)
                 self.right_m, self.right_b = m, b
                 return root, m, b, area
             point, dm, db = self.remove(right=True)
             if integrate:
-                area += (position - point) * (.5 * m * (position + point) + b)
+                area += (position - point) * (.5 * integral_m * (position + point) + integral_b)
                 position = point
             m, b = m - dm, b - db
+            integral_m, integral_b = integral_m - dm, integral_b - db
             if point <= upper and m * point + b <= level:
                 self.right_m, self.right_b = m, b
                 return point, m, b, area
 
-    def convolve(self, cap, lower, upper, integrate=False):
+    def convolve(self, cap, lower, upper, integrate=False, integral_state=None):
+        cap = np.longdouble(cap)
         if lower == upper:
             # A zero-width unary disconnects the messages. Values are needed only
             # by common-surrogate profiling, whose input has no frozen interior.
             if integrate:
-                _, _, _, area = self.threshold_right(np.inf, lower, upper, True)
+                _, _, _, area = self.threshold_right(np.inf, lower, upper, True, integral_state)
             else:
                 area = 0.
             a = b = lower
@@ -100,7 +107,7 @@ class _DerivativeMessage:
             a, am, ab = self.threshold_left(-cap, lower, upper)
             # Left-tail knots are already removed. Monotonicity guarantees the
             # upper threshold is >= a, including two levels inside one box jump.
-            b, bm, bb, area = self.threshold_right(cap, max(lower, a), upper, integrate)
+            b, bm, bb, area = self.threshold_right(cap, max(lower, a), upper, integrate, integral_state)
         if a > b:
             raise ArithmeticError("Inconsistent message clipping thresholds")
         if a == b:
@@ -112,7 +119,7 @@ class _DerivativeMessage:
         else:
             self.add_knot(a, am, ab + cap)
             self.add_knot(b, -bm, cap - bb)
-        self.left_m = self.right_m = 0.
+        self.left_m = self.right_m = np.longdouble(0)
         self.left_b, self.right_b = -cap, cap
         return a, b, area
 
@@ -129,8 +136,8 @@ def forward_messages(h, target, lower, upper, caps, *, values_at_one=False):
         raise ValueError("Witness profiling at one requires upper bounds <= 1")
     message = _DerivativeMessage()
     low, high = np.empty(n - 1), np.empty(n - 1)
-    prefix = np.full(n, np.inf) if values_at_one else None
-    at_one = 0.
+    prefix = np.full(n, np.inf, dtype=np.longdouble) if values_at_one else None
+    at_one = np.longdouble(0)
     for i in range(n):
         if lower[i] == upper[i] and not values_at_one:
             # Avoid even forming a huge, irrelevant frozen unary coefficient.
@@ -139,17 +146,23 @@ def forward_messages(h, target, lower, upper, caps, *, values_at_one=False):
             else:
                 last = lower[i]
             continue
+        previous_right = message.right_m, message.right_b
         message.add_unary(h[i], target[i])
         if values_at_one:
-            reference = min(upper[i], max(lower[i], target[i]))
+            reference = np.longdouble(min(upper[i], max(lower[i], target[i])))
             displacement = 1 - reference
-            at_one += .5 * h[i] * displacement**2 + h[i] * (reference - target[i]) * displacement
             if lower[i] <= 1 <= upper[i]:
-                prefix[i] = at_one
+                prefix[i] = at_one + .5 * h[i] * displacement**2 + h[i] * (reference - target[i]) * displacement
         if i + 1 < n:
-            low[i], high[i], area = message.convolve(caps[i], lower[i], upper[i], values_at_one)
+            a, b, area = message.convolve(caps[i], lower[i], upper[i], values_at_one, previous_right)
+            low[i], high[i] = a, b
             if values_at_one:
-                at_one += caps[i] * (1 - high[i]) - area
+                # Integrate only the *previous* clipped message and evaluate the
+                # new unary at b directly. Subtracting the full area from its
+                # value at one would cancel a huge unary offset every iteration.
+                displacement = b - reference
+                at_one += (.5 * h[i] * displacement**2 + h[i] * (reference - target[i]) * displacement +
+                           caps[i] * (1 - b) - area)
         else:
             last = message.threshold_left(0., lower[i], upper[i])[0]
     return low, high, last, prefix, dict(knots_inserted=message.inserted,
@@ -195,18 +208,38 @@ def split_primal(h, target, lower, upper, caps):
 def reconstruct_dual(x, h, target, lower, upper, caps):
     """Linear reachable-interval pass and backward recovery of box normals/duals."""
     n = len(x)
-    gradients = np.zeros(n)
+    # A represented block mean need not satisfy its summed normal equation in
+    # float64, especially when its curvature spans many orders of magnitude.
+    # Recover the dual at the *unrounded* block mean: distribute that unavoidable
+    # primal rounding error by curvature instead of concentrating it at whichever
+    # small-curvature node happens to end the interval pass. The independent
+    # float64 gap/KKT audit still checks the returned, represented primal/dual.
+    extended = np.longdouble
+    gradients = np.zeros(n, dtype=extended)
     free = lower < upper
-    gradients[free] = h[free] * (x[free] - target[free])
-    reachable_lo, reachable_hi = np.empty(n), np.empty(n)
-    lo = hi = 0.
+    gradients[free] = h[free].astype(extended) * (x[free].astype(extended) - target[free])
+    cuts = np.r_[0, np.flatnonzero(np.diff(x) != 0) + 1, n]
+    for a, b in zip(cuts[:-1], cuts[1:]):
+        if np.any(x[a:b] == lower[a:b]) or np.any(x[a:b] == upper[a:b]):
+            continue
+        left = extended(caps[a - 1]) * np.sign(x[a] - x[a - 1]) if a else extended(0)
+        right = extended(caps[b - 1]) * np.sign(x[b] - x[b - 1]) if b < n else extended(0)
+        curvature = h[a:b].astype(extended)
+        adjustment = (np.sum(gradients[a:b]) - (right - left)) / np.sum(curvature)
+        gradients[a:b] -= curvature * adjustment
+    reachable_lo, reachable_hi = np.empty(n, dtype=extended), np.empty(n, dtype=extended)
+    lo = hi = extended(0)
+    accumulated_rounding = extended(0)
     for i in range(n):
         edge_lo = edge_hi = 0.
         if i + 1 < n:
             jump = x[i + 1] - x[i]
             edge_lo, edge_hi = (-caps[i], caps[i]) if jump == 0 else (caps[i] * np.sign(jump),) * 2
         unary_scale = h[i] * (abs(x[i]) + abs(target[i])) if free[i] else 0.
-        rounding = 128 * np.finfo(float).eps * (1 + unary_scale + abs(lo) + abs(hi) + abs(edge_lo) + abs(edge_hi))
+        accumulated_rounding += 128 * np.finfo(extended).eps * (
+            1 + abs(gradients[i]) + abs(lo) + abs(hi))
+        rounding = accumulated_rounding + 128 * np.finfo(float).eps * (
+            1 + unary_scale + abs(lo) + abs(hi) + abs(edge_lo) + abs(edge_hi))
         if lower[i] == upper[i]:
             lo, hi = edge_lo, edge_hi
         else:
@@ -224,6 +257,8 @@ def reconstruct_dual(x, h, target, lower, upper, caps):
             # when huge caps coexist with small unary gradients.
             lo = hi = min(edge_hi, max(edge_lo, .5 * lo + .5 * hi))
         reachable_lo[i], reachable_hi[i] = lo, hi
+        if edge_lo == edge_hi or lower[i] == upper[i]:
+            accumulated_rounding = extended(0)
     dual = np.empty(n - 1)
     next_q = 0.
     for i in range(n - 1, 0, -1):

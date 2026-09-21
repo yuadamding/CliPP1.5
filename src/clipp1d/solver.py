@@ -9,7 +9,7 @@ from .chain import adjoint, difference
 from .model import clipping_breakpoints, evaluate, one_sided_derivatives
 from .policy import Policy
 from .tv import forward_messages, polish_blocks, reconstruct_dual, split_primal
-from .types import InnerFit, QuadraticWitnessProfile, RawFit, WarmState
+from .types import InnerFit, QuadraticWitnessProfile, RawFit, WarmState, PrimalWarmState
 
 
 def quadratic_gap(x, q, h, target, lower, upper, caps):
@@ -29,7 +29,12 @@ def quadratic_gap(x, q, h, target, lower, upper, caps):
     z = np.clip(uf - af / hf, lower[free], upper[free])
     delta = xf - z
     quadratic = .5 * hf * delta**2
-    normal = (hf * (z - uf) + af) * delta
+    # Interior boxed minimizers have exactly zero normal. Computing a
+    # cancelled gradient there can invent a negative normal and an infinite gap.
+    unconstrained = uf - af / hf
+    normal_gradient = np.where(unconstrained < lower[free], hf * (lower[free] - uf) + af,
+                               np.where(unconstrained > upper[free], hf * (upper[free] - uf) + af, 0.0))
+    normal = normal_gradient * delta
     jumps = difference(x)
     edge = caps * np.abs(jumps) - q * jumps
     normal_margin = 128 * np.finfo(float).eps * (1 + np.abs(hf * (z - uf)) + np.abs(af)) * np.abs(delta)
@@ -85,7 +90,12 @@ def solve_quadratic(h, target, lower, upper, caps, start, policy=Policy(), dual=
     Starts remain accepted/validated for API parity and outer primal continuation.
     Arithmetic or certificate failure returns unresolved, without an iterative fallback.
     """
-    h, target, lower, upper, caps, x, q = _quadratic_inputs(h, target, lower, upper, caps, start, dual)
+    # Validate a supplied legacy dual without copying/projecting an unused start.
+    if dual is not None:
+        supplied = np.asarray(dual)
+        if supplied.shape != (len(h) - 1,) or not np.all(np.isfinite(supplied)):
+            raise ValueError("Dual start must be a finite chain-edge vector")
+    h, target, lower, upper, caps, x, q = _quadratic_inputs(h, target, lower, upper, caps, start, None)
     work = {}
     try:
         if not np.any(caps):
@@ -101,6 +111,9 @@ def solve_quadratic(h, target, lower, upper, caps, start, policy=Policy(), dual=
     except ArithmeticError as exc:
         gap, scale, kkt, qualified = np.inf, 0., np.inf, False
         work["failure_reason"] = str(exc)
+    if not qualified and "failure_reason" not in work:
+        work["failure_reason"] = ("quadratic_gap_gate" if not np.isfinite(gap) or
+                                  gap > policy.inner_atol + policy.inner_rtol * scale else "quadratic_kkt_gate")
     return InnerFit(x, q, gap, qualified, 1, kkt, scale, "bounded_weighted_tv_dp", work)
 
 
@@ -140,8 +153,8 @@ def solve_quadratic_iterative(h, target, lower, upper, caps, start, policy=Polic
 def profile_quadratic_witnesses(h, target, lower, upper, caps, policy=Policy()):
     """Share two message passes across all witnesses of *one identical surrogate*.
 
-    The nonconvex outer branch search is deliberately separate: its witnesses may
-    have different h/target arrays, so these messages cannot be reused across them.
+    Production rebuilds these messages at each common-surrogate outer/backtrack
+    step. Messages are never shared across differing h/target arrays.
     Values omit only the common sum of original boxed unary minima; the offset is
     returned explicitly. Only the selected witness is reconstructed/certified.
     """
@@ -171,7 +184,7 @@ def profile_quadratic_witnesses(h, target, lower, upper, caps, policy=Policy()):
     return QuadraticWitnessProfile(witness, fit, values, math.fsum(.5 * h * (reference - target)**2),
                                    bool(fit.qualified and np.all(np.isfinite(values[eligible])) and error <= tolerance),
                                    digest.hexdigest(), dict(scope="one_common_quadratic", reconstruction_count=1,
-                                   prefix_value_error=error, forward=forward_stats, reverse=reverse_stats))
+                                   prefix_value_error=float(error), forward=forward_stats, reverse=reverse_stats))
 
 
 def objective(model, x, caps):
@@ -221,7 +234,7 @@ def stationarity(model, x, q, lower, upper, caps):
     return max(node, edge, dual), feasible
 
 
-def _snap_crossed_breakpoints(model, previous, trial, lower, upper, caps):
+def _snap_crossed_breakpoints(model, previous, trial, lower, upper, caps, cache=None):
     """Keep exact clipping candidates when a smooth surrogate crosses a kink.
 
     Only objective-improving proposals survive. The outer iteration still checks
@@ -229,7 +242,11 @@ def _snap_crossed_breakpoints(model, previous, trial, lower, upper, caps):
     """
     slopes = np.where(model.valid, model.slope, np.nan)
     result = trial
-    value = objective(model, trial, caps)
+    def value_at(values):
+        loss = float(np.sum(evaluate(model, values).loss))
+        return loss, loss + float(np.dot(caps, np.abs(difference(values))))
+
+    loss, value = value_at(trial)
     for threshold in (model.eps, 1 - model.eps):
         points = threshold / slopes
         for c in range(points.shape[1]):
@@ -238,9 +255,13 @@ def _snap_crossed_breakpoints(model, previous, trial, lower, upper, caps):
                        (point >= lower) & (point <= upper))
             if np.any(crossed):
                 proposal = np.where(crossed, point, result)
-                candidate_value = objective(model, proposal, caps)
+                if np.array_equal(proposal, result):
+                    continue
+                candidate_loss, candidate_value = value_at(proposal)
                 if candidate_value < value:
-                    result, value = proposal, candidate_value
+                    result, loss, value = proposal, candidate_loss, candidate_value
+    if cache is not None:
+        cache.update(loss=loss, objective=value)
     return result
 
 
@@ -307,7 +328,7 @@ def local_interval_delta(block, x, caps, start, stop, new_values, old_losses=Non
     return delta
 
 
-def _kink_check(model, x, caps, lower, upper, policy):
+def _kink_check(model, x, caps, lower, upper, policy, *, force_intervals=False):
     """Audit every signed fused subinterval; screen finite plateau moves locally."""
     mass = model.slope * x[:, None]
     slopes = np.where(model.valid, model.slope, np.nan)
@@ -315,7 +336,7 @@ def _kink_check(model, x, caps, lower, upper, policy):
                      (x[:, None] == (1 - model.eps) / slopes), axis=1)
     plateau = np.any(model.valid & (((mass <= model.eps) & (model.alt[:, None] > 0)) |
                                     ((mass >= 1 - model.eps) & (model.ref[:, None] > 0))), axis=1)
-    if not np.any((at_kink | plateau) & (lower < upper)):
+    if not force_intervals and not np.any((at_kink | plateau) & (lower < upper)):
         return True, None
     left, right = one_sided_derivatives(model, x)
     direction = interval_descent(x, left, right, lower, upper, caps, policy.stationarity_tol)
@@ -368,90 +389,156 @@ def _kink_check(model, x, caps, lower, upper, policy):
 
 
 def solve_branch(model, chain, lambda_value, witness_index, start, policy=Policy()):
-    """model and start are in chain order; witness index is a chain position."""
-    if not np.isfinite(lambda_value) or lambda_value < 0:
-        raise ValueError("lambda must be finite and nonnegative")
+    """Fixed-witness nonlinear solver for the offline enumeration reference."""
     if not 0 <= witness_index < len(model) or model.upper[witness_index] != 1:
         raise ValueError("Witness must be eligible under the original float64 box")
+    return _solve_outer(model, chain, lambda_value, start, policy, witness_index)
+
+
+def solve_profiled(model, chain, lambda_value, start, policy=Policy()):
+    """Common-surrogate MM over the union of all eligible witness constraints."""
+    return _solve_outer(model, chain, lambda_value, start, policy, None)
+
+
+def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
+    if not np.isfinite(lambda_value) or lambda_value < 0:
+        raise ValueError("lambda must be finite and nonnegative")
     lower, upper = model.lower.copy(), model.upper.copy()
-    # No inherited witness bound is carried over from the preceding branch.
-    lower[witness_index] = upper[witness_index] = 1.0
+    if fixed_witness is not None:
+        lower[fixed_witness] = upper[fixed_witness] = 1.
     caps = lambda_value * chain.weights
-    if isinstance(start, WarmState):
+    if isinstance(start, (WarmState, PrimalWarmState)):
         start.validate(chain)
-        x = np.clip(start.x, lower, upper)
-        q = np.clip(start.dual, -caps, caps).copy()
-    else:
-        x = np.clip(start, lower, upper)
-        q = np.zeros(len(model) - 1)
-    total_inner, accepted, backtracks = 0, 0, 0
+        start = start.x
+    x = np.clip(np.asarray(start, dtype=float), lower, upper)
+    if x.shape != lower.shape or not np.all(np.isfinite(x)) or not np.any(x == 1):
+        raise ValueError("Outer start must be finite, correctly shaped and clonal feasible")
+    witness_index = int(np.flatnonzero(x == 1)[0]) if fixed_witness is None else fixed_witness
+    q = np.zeros(len(model) - 1)
+    total_inner = accepted = backtracks = profile_calls = witness_switches = reused = 0
     status, residual, inner_gap = "outer_iteration_limit", np.inf, np.inf
     accepted_surrogate_gap = np.inf
     qualified = False
     current = objective(model, x, caps)
-    last_inner_qualified = False
-    last_gap_qualified = last_kkt_qualified = False
+    last_inner_qualified = last_gap_qualified = last_kkt_qualified = False
     inner_kkt, inner_scale, inner_seconds = np.inf, 0.0, 0.0
-    inner_algorithm, inner_work = "not_attempted", {}
+    inner_algorithm, inner_work, profile_work = "not_attempted", {}, {}
     kink_seconds = 0.0
+    curvature_scale = 1.0
+    largest_curvature_scale = 1.0
+    audit_lower, audit_upper = lower.copy(), upper.copy()
+    audit_lower[witness_index] = audit_upper[witness_index] = 1.
     for outer in range(policy.outer_max_iterations):
         terms = evaluate(model, x, derivatives=True)
-        h = np.maximum(terms.curvature, 1.0)
+        # A common profile is relatively expensive. Reuse only the last accepted
+        # scalar inflation, trying half of it at the next iterate; the new h,
+        # target and both messages are always rebuilt and all gates still apply.
+        trial_scale = max(1.0, curvature_scale / 2) if fixed_witness is None else 1.0
+        h = np.maximum(terms.curvature, 1.0) * trial_scale
         successful = False
         for attempt in range(policy.max_backtracks):
             target = x - terms.gradient / h
             inner_started = perf_counter()
-            inner = solve_quadratic(h, target, lower, upper, caps, x, policy, dual=q)
+            if fixed_witness is None:
+                profile_calls += 1
+                try:
+                    # Original boxes release the previous witness. Every new
+                    # curvature/target gets fresh prefix and suffix messages.
+                    profile = profile_quadratic_witnesses(h, target, model.lower, model.upper, caps, policy)
+                except ArithmeticError as exc:
+                    inner_seconds += perf_counter() - inner_started
+                    inner_work = {"failure_reason": str(exc), "stage": "witness_profile"}
+                    status = "inner_qualification_unresolved"
+                    last_inner_qualified = last_gap_qualified = last_kkt_qualified = False
+                    inner_gap = inner_kkt = np.inf
+                    break
+                inner, selected = profile.fit, profile.witness
+                profile_work = dict(profile.diagnostics, surrogate_sha256=profile.surrogate_sha256)
+                last_inner_qualified = profile.qualified
+                if not profile.qualified and inner.qualified:
+                    inner.work["failure_reason"] = "witness_profile_value_gate"
+            else:
+                selected = fixed_witness
+                inner = solve_quadratic(h, target, lower, upper, caps, x, policy)
+                last_inner_qualified = inner.qualified
             inner_seconds += perf_counter() - inner_started
             total_inner += inner.iterations
-            inner_gap = inner.gap
-            last_inner_qualified = inner.qualified
-            inner_kkt, inner_scale = inner.kkt_residual, inner.gap_scale
+            inner_gap, inner_kkt, inner_scale = inner.gap, inner.kkt_residual, inner.gap_scale
             inner_algorithm, inner_work = inner.algorithm, inner.work
             last_gap_qualified = np.isfinite(inner.gap) and inner.gap <= policy.inner_atol + policy.inner_rtol * inner.gap_scale
             last_kkt_qualified = inner.kkt_residual <= policy.inner_kkt_tol
-            if not inner.qualified:
+            if not last_inner_qualified:
                 status = "inner_qualification_unresolved"
                 break
-            trial = inner.x
-            breakpoint_trial = _snap_crossed_breakpoints(model, x, trial, lower, upper, caps)
-            # Breakpoint steps are valid inexact MM steps when they reduce Q.
-            # Keep the QP's own qualified gap distinct from this accepted step.
-            if not np.array_equal(breakpoint_trial, trial):
-                trial = breakpoint_trial
-            polished = _snap_fusions(trial, lower, upper, min(1e-8, policy.fusion_tol / 10))
-            polish_gap, polish_scale = quadratic_gap(polished, inner.dual, h, target, lower, upper, caps)
-            if (polish_gap <= policy.inner_atol + policy.inner_rtol * polish_scale and
-                    quadratic_kkt(polished, inner.dual, h, target, lower, upper, caps) <= policy.inner_kkt_tol and
-                    objective(model, polished, caps) <= objective(model, trial, caps) + 1e-12 * (1 + current)):
-                trial = polished
+            trial_lower, trial_upper = model.lower.copy(), model.upper.copy()
+            trial_lower[selected] = trial_upper[selected] = 1.
+            cache = {}
+            trial = _snap_crossed_breakpoints(model, x, inner.x, trial_lower, trial_upper, caps, cache)
+            unchanged = np.array_equal(trial, inner.x)
+            trial_gap = inner.gap if unchanged else None
+            polished = _snap_fusions(trial, trial_lower, trial_upper, min(1e-8, policy.fusion_tol / 10))
+            if not np.array_equal(polished, trial):
+                polish_gap, polish_scale = quadratic_gap(polished, inner.dual, h, target, trial_lower, trial_upper, caps)
+                if (polish_gap <= policy.inner_atol + policy.inner_rtol * polish_scale and
+                        quadratic_kkt(polished, inner.dual, h, target, trial_lower, trial_upper, caps) <= policy.inner_kkt_tol):
+                    polish_loss = float(np.sum(evaluate(model, polished).loss))
+                    polish_value = polish_loss + float(np.dot(caps, np.abs(difference(polished))))
+                    if polish_value <= cache["objective"] + 1e-12 * (1 + current):
+                        trial, trial_gap = polished, polish_gap
+                        cache.update(loss=polish_loss, objective=polish_value)
+            if np.array_equal(trial, inner.x):
+                trial_gap = inner.gap
+                reused += 1
             step = trial - x
-            new_loss = float(np.sum(evaluate(model, trial).loss))
-            surrogate = float(np.sum(terms.loss) + np.dot(terms.gradient, step) + 0.5 * np.dot(h, step**2))
-            new_objective = new_loss + float(np.dot(caps, np.abs(difference(trial))))
+            surrogate = float(np.sum(terms.loss) + np.dot(terms.gradient, step) + .5 * np.dot(h, step**2))
+            trial_tv = float(np.dot(caps, np.abs(difference(trial))))
             margin = 128 * np.finfo(float).eps * (1 + abs(current))
-            # Both the observed objective and surrogate descent must hold.
-            old_surrogate = float(np.sum(terms.loss) + np.dot(caps, np.abs(difference(x))))
-            if (new_loss <= surrogate + margin and new_objective <= current + margin and
-                    surrogate + np.dot(caps, np.abs(difference(trial))) <= old_surrogate + margin):
-                x, q, current = trial, inner.dual, float(new_objective)
-                accepted_surrogate_gap = max(0.0, quadratic_gap(x, q, h, target, lower, upper, caps)[0])
+            # Cached observed likelihood, majorization and surrogate descent are
+            # distinct from the reused direct-QP certificate and remain mandatory.
+            if (cache["loss"] <= surrogate + margin and cache["objective"] <= current + margin and
+                    surrogate + trial_tv <= current + margin):
+                x, q, current = trial, inner.dual, cache["objective"]
+                audit_lower, audit_upper = trial_lower, trial_upper
+                witness_switches += int(selected != witness_index)
+                witness_index = selected
+                if trial_gap is None:
+                    trial_gap = quadratic_gap(x, q, h, target, audit_lower, audit_upper, caps)[0]
+                accepted_surrogate_gap = max(0.0, trial_gap)
                 successful = True
                 accepted += 1
+                curvature_scale = trial_scale
+                largest_curvature_scale = max(largest_curvature_scale, trial_scale)
                 break
             h *= 2
+            trial_scale *= 2
             backtracks += 1
         if not successful:
             if last_inner_qualified:
                 status = "majorization_unresolved"
             break
-        residual, feasible = stationarity(model, x, q, lower, upper, caps)
+        residual, feasible = stationarity(model, x, q, audit_lower, audit_upper, caps)
         kink_started = perf_counter()
-        kink_ok, restart = _kink_check(model, x, caps, lower, upper, policy)
+        kink_ok, restart = _kink_check(model, x, caps, audit_lower, audit_upper, policy)
+        if fixed_witness is None and restart is None and kink_ok:
+            # Any clonal-feasible interval excludes at least one extreme occupied
+            # witness. Two endpoint anchors cover these interval directions.
+            occupied = np.flatnonzero(x == 1)
+            for anchor in dict.fromkeys((int(occupied[0]), int(occupied[-1]))):
+                if anchor == witness_index:
+                    continue
+                check_lower, check_upper = model.lower.copy(), model.upper.copy()
+                check_lower[anchor] = check_upper[anchor] = 1.
+                kink_ok, restart = _kink_check(model, x, caps, check_lower, check_upper, policy, force_intervals=True)
+                if restart is not None or not kink_ok:
+                    break
         kink_seconds += perf_counter() - kink_started
         if restart is not None:
             x = restart
+            witness_index = int(np.flatnonzero(x == 1)[0]) if fixed_witness is None else fixed_witness
+            audit_lower, audit_upper = model.lower.copy(), model.upper.copy()
+            audit_lower[witness_index] = audit_upper[witness_index] = 1.
             current = objective(model, x, caps)
+            curvature_scale = 1.0
             continue
         if feasible and residual <= policy.stationarity_tol and kink_ok:
             status, qualified = "qualified", True
@@ -459,21 +546,23 @@ def solve_branch(model, chain, lambda_value, witness_index, start, policy=Policy
         if not kink_ok:
             status = "clipping_kink_unresolved"
             break
-        # Crossing a clipped plateau may require a finite scalar move. These
-        # starts are normally supplied by the global pilot; do not certify stagnation.
         if not np.any(step):
             status = "stationarity_unresolved"
             break
-    residual, feasible = stationarity(model, x, q, lower, upper, caps)
-    return RawFit(x, q, objective(model, x, caps), witness_index, qualified,
+    residual, feasible = stationarity(model, x, q, audit_lower, audit_upper, caps)
+    return RawFit(x, q, current, witness_index, qualified,
                   {"status": status, "inner_gap_qualified": bool(last_gap_qualified),
                    "inner_kkt_qualified": bool(last_kkt_qualified), "inner_kkt_residual": inner_kkt,
-                   "inner_gap_scale": inner_scale,
-                   "inner_algorithm": inner_algorithm, "last_inner_work": inner_work,
+                   "inner_gap_scale": inner_scale, "inner_algorithm": inner_algorithm,
+                   "last_inner_work": inner_work, "last_profile_work": profile_work,
+                   "failure_reason": inner_work.get("failure_reason", status) if not qualified else None,
                    "inner_gap": float(inner_gap), "raw_branch_stationarity_qualified": qualified,
                    "accepted_surrogate_gap": accepted_surrogate_gap,
                    "stationarity_residual": residual, "clonal_feasible": feasible and x[witness_index] == 1,
-                   "witness_search_complete": False, "global_optimality_proven": False,
+                   "global_optimality_proven": False, "profile_calls": profile_calls,
+                   "surrogate_witnesses_profiled": profile_calls * int(np.sum(model.upper == 1)),
+                   "witness_switches": witness_switches, "inner_certificates_reused": reused,
+                   "largest_curvature_scale": largest_curvature_scale,
                    "outer_iterations": outer + 1, "accepted_steps": accepted,
                    "inner_iterations": total_inner, "backtracks": backtracks,
                    "inner_solve_seconds": inner_seconds, "kink_check_seconds": kink_seconds})

@@ -7,7 +7,7 @@ to CCF exactly one.
 
 Its Python package and command are `clipp1d`. It is an independent NumPy/SciPy
 implementation, with CPU float64
-execution and no runtime dependency on CliPP2, PyTorch, or a graph library.
+arrays and guarded internal message accumulation, with no runtime dependency on CliPP2, PyTorch, or a graph library.
 
 ```bash
 git clone https://github.com/yuadamding/CliPP1.5.git
@@ -60,7 +60,7 @@ The original probability-safe upper bounds determine clonal eligibility.
 ## Method and outputs
 
 Counts → qualified marginal pilots → frozen adaptive chain → clonal-witness
-fusion fits → contiguous blocks → constrained likelihood refits → partition score.
+shared-surrogate fusion fits → contiguous blocks → constrained likelihood refits → partition score.
 There is no hard ordering constraint, reordering during fitting, nonadjacent
 merge, Ward/CEM proposal, or permanent highest-pilot clonal witness.
 
@@ -74,7 +74,7 @@ blocks remain distinct even if their centers coincide.
 | `mutation_clusters.tsv` | All input IDs, retained/exclusion status, zero-based chain rank, pilot/raw/refitted CCFs, label |
 | `cluster_centers.tsv` | Public label, size, refitted CCF, designated-clonal flag |
 | `mutation_multiplicity.tsv` | Retained IDs and posterior MAP multiplicity conditional on refitted CCF |
-| `run.json` | Policy, source/input/table hashes, environment, score terms, scalar gaps, numerical and witness/path coverage |
+| `run.json` | Policy, source/input/table hashes, environment, score terms, scalar gaps, numerical and start/path coverage |
 
 Excluded numeric fields are `.`. Failed validation or numerical admission writes
 `run.json` with `status: failure` and no fallback fit tables. A publication I/O
@@ -93,13 +93,28 @@ directions, including proper sub-blocks beside a frozen witness. Scalar searches
 return attained losses, conservative float64 lower bounds and gaps. These are
 numerical qualifications, not formal interval-arithmetic proofs.
 
-Witnesses and starts are streamed. Safe lower-bound screening is distinguished
-from unresolved branches; every initial path penalty is attempted. A qualified
-candidate can be selected even when another branch or penalty is unresolved;
+Production uses one common surrogate per outer step: prefix/suffix messages
+profile every eligible witness under the original boxes, then reconstruct and
+certify the selected minimizer. Backtracking rebuilds both messages. The previous
+witness is released; observed-likelihood majorization and descent remain mandatory.
+At most four distinct, clonal-feasible primal starts are tried per penalty.
+Continuation carries only the primal vector; differences in unused duals never
+create a new start. This changes the nonlinear search policy relative to 0.1.1,
+while preserving the likelihood, constrained objective, weights, score and
+numerical tolerances. Independent nonlinear witness enumeration is retained only
+as an [offline reference](benchmarks/reference_enumeration.py).
+
+A qualified candidate can be selected when another start or penalty is unresolved.
 The CLI, `FitResult.search_status`, and top-level `run.json.search_status` report
 `complete` or `incomplete`. Each penalty records separate `raw_status` and
-`refit_status`, preserving successful raw diagnostics even if the refit fails.
-`witness_search_complete` and `path_search_complete` provide detailed coverage.
+`refit_status`, preserving raw diagnostics if the refit fails. `search_complete`
+means all planned primal starts qualified; `path_search_complete` also requires
+every path penalty and refit to qualify. Neither means independent nonlinear
+witness enumeration or a global optimum. `search_profile_calls` counts common
+QP profiles; `search_surrogate_witnesses_profiled` counts witness values across
+those profiles. The zero-penalty case reports its qualified separable scalar-gap
+search separately. Version 0.2.0 uses numerical policy `clipp1d_chain_v3` and receipt
+schema `clipp1d.run.v3` to make these changed search semantics explicit.
 The selected raw objective and witness mutation ID are retained in both the API
 result and receipt; `raw_witness_index` is a zero-based **chain** position.
 `global_optimality_proven` remains false. The zero-penalty separable solution also
@@ -110,12 +125,14 @@ Numerical state is O(M Cmax + M), with Cmax ≤ 4; each primal–dual iteration 
 O(M) in the retained reference solver. Production uses a direct bounded,
 weighted TV message pass with O(M log M) heap work, O(M) storage and a linear
 dual certificate pass. A fixed clonal witness separates its two sides.
-Shared prefix/suffix profiling is available for one common quadratic; nonlinear
-branches still require distinct surrogates. Sorting costs O(M log M).
-Full runtime also depends on scalar search,
-penalties, witnesses, starts and solver iterations; witness enumeration can
-add a worst-case factor M. No unconditional linear fitting-time or speedup
-claim is made. Ambiguous multiplicities can produce an unreliable pilot order.
+Shared prefix/suffix profiling and one selected reconstruction cost O(M log M)
+per common surrogate, with O(M) storage. Sorting costs O(M log M). Full runtime
+also depends on scalar search, penalties, starts, outer iterations and backtracks;
+production has no independent witness-enumeration factor. No unconditional linear
+fitting-time or speedup claim is made. Ambiguous multiplicities can produce an
+unreliable pilot order. Heap/message arithmetic uses `numpy.longdouble` guard
+digits where available; output arrays and all admission tolerances remain float64.
+The unchanged gap and KKT audits reject unqualified arithmetic.
 
 The adaptive floor/weight policy and CliPP2-compatible score are development
 choices. Statistical adequacy and end-to-end speed relative to CliPP2 require
@@ -156,7 +173,8 @@ python benchmarks/compare_clipp2.py --help
 
 The comparison tool consumes already validated CliPP2 outputs; it does not submit
 remote work. See [formulation](docs/formulation.md),
-[implementation](docs/implementation.md), [revision validation](VALIDATION_REVISION.md),
+[implementation](docs/implementation.md), [current validation](VALIDATION_SHARED.md),
+[historical 0.1.1 validation](VALIDATION_REVISION.md),
 and [upstream provenance](UPSTREAM.md). Scaling receipts retain partial stages
 and explicit timeouts; a timeout does not produce a qualified full-fit result.
 

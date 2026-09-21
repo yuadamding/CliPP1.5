@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Policy:
-    policy_id: str = "clipp1d_chain_v2"
+    policy_id: str = "clipp1d_chain_v3"
     weight_rule: str = "adaptive_adjacent_gap_v1"
     score_rule: str = "clipp2_compatible_partition_score_v1"
     max_major_cn: int = 4

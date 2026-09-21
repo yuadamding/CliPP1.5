@@ -105,7 +105,7 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False):
         return result
     except Exception as exc:
         if destination is not None and not (destination / "run.json").exists():
-            write_json(destination / "run.json", {"schema": "clipp1d.run.v2", "status": "failure",
+            write_json(destination / "run.json", {"schema": "clipp1d.run.v3", "status": "failure",
                        "search_status": "not_completed",
                        "error_type": type(exc).__name__, "message": str(exc), "provenance": provenance,
                        "diagnostics": getattr(exc, "diagnostics", {}),

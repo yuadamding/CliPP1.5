@@ -1,0 +1,177 @@
+{
+  "source": {
+    "package_version": "0.1.1",
+    "upstream_commit": "77525a6875e698f6834cb73e6d2a1c27af2af8bf",
+    "source_commit": null,
+    "source_sha256": "e3478d0f33b59d02f5cf14f0ab103171073c0ce085c1966e41fa02645643da72",
+    "source_files": {
+      "__init__.py": "5bd7db53ea627452f05a43be0f8a5efb4ee3812d4f617fab3d46ee7282750096",
+      "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "api.py": "a1472cea6d8871def32236db0fab7fe084d8f122c9f164701b6126adb7c5759a",
+      "chain.py": "ba39f9531e32712aecc9ac94e253ad37f4c4a09ef008223e6d4194e001efd8e1",
+      "cli.py": "e4abfca921f810922de31474c885574b704a0abf6056db883c0fcbe0d5b90294",
+      "clonal.py": "274eccca457be1338868e113841f09e69f2aa27a9072574fec451fc41ce6bcf6",
+      "io.py": "fd34fc9a01c68399489dfb650b80a32f784dc6eb16affc09aaa3ac655858ad74",
+      "model.py": "79dfb4cfbf0a812b1b7eed73411ca2c3fc6754ca2a08110e398d0d3ea7151430",
+      "policy.py": "3bd1a463a1fea4b9f9928736d61496664cfb4a4fcb683d24000a60f3beb6f291",
+      "report.py": "e762d00916130150c1c79bb3d7c9afd46309a07d614bbd11591bbea281ffc61c",
+      "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+      "selection.py": "64f83b8d8882623060db55150e46fef39823169eababddad18fcb07ba35e213c",
+      "solver.py": "c4a584efd03b9a295c6c7f67dae69ad9cc05951ad396680bb00bdc75b584f25c",
+      "tv.py": "b6874f8a31d7f0abeefe39f5d310d647391d410e8f191a1d2c2e084e5a97823f",
+      "types.py": "7fbfd8000eaf3a0bede027168afd6db26350cb48083e3438543481993f35a6fd"
+    },
+    "python": "3.13.2",
+    "interpreter": "/home/yding1995/miniforge3/envs/ml1/bin/python",
+    "numpy": "2.2.6",
+    "scipy": "1.18.0",
+    "backend": "cpu",
+    "dtype": "float64"
+  },
+  "cases": [
+    {
+      "scenario": "easy",
+      "input_sha256": "36eb529e6533e54b77fd7c59c52a5ad94149f7bb31dbd3b7a904f74798830ee5",
+      "lambda_value": 1701.2032186929428,
+      "witness": 744,
+      "start_name": "pooled",
+      "file": "production-00.npz",
+      "sha256": "f19c2f1285d33fca9192552ee7a0ef1e3f6fd80eae31b5db8b85fcef46f0c39f",
+      "failure_reason": "certificate_gate",
+      "gap": null,
+      "kkt": 1.3917252337225917e-12,
+      "work": {
+        "knots_inserted": 1993,
+        "knots_removed": 1991,
+        "peak_live_knots": 16,
+        "free_segments": 2
+      }
+    },
+    {
+      "scenario": "easy",
+      "input_sha256": "36eb529e6533e54b77fd7c59c52a5ad94149f7bb31dbd3b7a904f74798830ee5",
+      "lambda_value": 1701.2032186929428,
+      "witness": 737,
+      "start_name": "pooled",
+      "file": "production-01.npz",
+      "sha256": "06fefa2be010d22048d0f00a4571ef285ee2d705d7983c2a06156c22c61aec8e",
+      "failure_reason": "certificate_gate",
+      "gap": null,
+      "kkt": 1.3917252337225917e-12,
+      "work": {
+        "knots_inserted": 1994,
+        "knots_removed": 1992,
+        "peak_live_knots": 16,
+        "free_segments": 2
+      }
+    },
+    {
+      "scenario": "easy",
+      "input_sha256": "36eb529e6533e54b77fd7c59c52a5ad94149f7bb31dbd3b7a904f74798830ee5",
+      "lambda_value": 1701.2032186929428,
+      "witness": 741,
+      "start_name": "pooled",
+      "file": "production-02.npz",
+      "sha256": "4d77c22863bf65a12fd624298b7e040458fb575d70a2ced13169661f1d154d31",
+      "failure_reason": "certificate_gate",
+      "gap": null,
+      "kkt": 1.3917252337225917e-12,
+      "work": {
+        "knots_inserted": 1993,
+        "knots_removed": 1989,
+        "peak_live_knots": 16,
+        "free_segments": 2
+      }
+    },
+    {
+      "scenario": "easy",
+      "input_sha256": "36eb529e6533e54b77fd7c59c52a5ad94149f7bb31dbd3b7a904f74798830ee5",
+      "lambda_value": 1701.2032186929428,
+      "witness": 747,
+      "start_name": "pooled",
+      "file": "production-03.npz",
+      "sha256": "fa8c9768b50e45aee7d600d6aa7d26b3cfad11044fed7b93116cf5dc7ca2fa37",
+      "failure_reason": "certificate_gate",
+      "gap": null,
+      "kkt": 1.3917252337225917e-12,
+      "work": {
+        "knots_inserted": 1994,
+        "knots_removed": 1993,
+        "peak_live_knots": 16,
+        "free_segments": 2
+      }
+    },
+    {
+      "scenario": "mixture",
+      "input_sha256": "f5960f3dffb21c559a69f1d95ec61b194c21f91a036560511478aa4c8f7788be",
+      "lambda_value": 3651.9057716670955,
+      "witness": 831,
+      "start_name": "pilot",
+      "file": "production-04.npz",
+      "sha256": "5eafd11effb9b649945aa7aeb317ff86883ef287ef8ca26380d144be8bcfdc3e",
+      "failure_reason": "certificate_gate",
+      "gap": null,
+      "kkt": 3.647911050109043e-12,
+      "work": {
+        "knots_inserted": 1828,
+        "knots_removed": 1828,
+        "peak_live_knots": 11,
+        "free_segments": 2
+      }
+    },
+    {
+      "scenario": "mixture",
+      "input_sha256": "f5960f3dffb21c559a69f1d95ec61b194c21f91a036560511478aa4c8f7788be",
+      "lambda_value": 3651.9057716670955,
+      "witness": 831,
+      "start_name": "pooled",
+      "file": "production-05.npz",
+      "sha256": "9903cf902c295b6a54446f662d5ef44af87b16a3e5eb830f5635f65fbe08512a",
+      "failure_reason": "certificate_gate",
+      "gap": null,
+      "kkt": 3.8122599303615867e-13,
+      "work": {
+        "knots_inserted": 1828,
+        "knots_removed": 1828,
+        "peak_live_knots": 11,
+        "free_segments": 2
+      }
+    },
+    {
+      "scenario": "mixture",
+      "input_sha256": "f5960f3dffb21c559a69f1d95ec61b194c21f91a036560511478aa4c8f7788be",
+      "lambda_value": 3651.9057716670955,
+      "witness": 831,
+      "start_name": "alternative",
+      "file": "production-06.npz",
+      "sha256": "c135c81b8e519edcdaa913fc09f100ee3323e9ab6fd6530a1734828e64d90e57",
+      "failure_reason": "certificate_gate",
+      "gap": null,
+      "kkt": 3.049526087102391e-13,
+      "work": {
+        "knots_inserted": 1828,
+        "knots_removed": 1828,
+        "peak_live_knots": 11,
+        "free_segments": 2
+      }
+    },
+    {
+      "scenario": "mixture",
+      "input_sha256": "f5960f3dffb21c559a69f1d95ec61b194c21f91a036560511478aa4c8f7788be",
+      "lambda_value": 3651.9057716670955,
+      "witness": 832,
+      "start_name": "pilot",
+      "file": "production-07.npz",
+      "sha256": "c8d2b3b9fdca144172de871711ce1a5fc2e711931b77bf6b80b0c203af06c370",
+      "failure_reason": "certificate_gate",
+      "gap": null,
+      "kkt": 3.647911050109043e-12,
+      "work": {
+        "knots_inserted": 1829,
+        "knots_removed": 1829,
+        "peak_live_knots": 11,
+        "free_segments": 2
+      }
+    }
+  ]
+}

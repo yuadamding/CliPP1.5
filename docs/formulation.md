@@ -40,12 +40,23 @@ F_lambda(x) = sum_j f_order[j](x_j) + lambda sum_j w_j |x_{j+1}-x_j|
 eps <= x_j <= u_order[j], with at least one x_j exactly 1.
 ```
 
-The occupied-clonal constraint is a union of branches, each fixing only one
-originally eligible witness to one. Release all previous witness bounds. A safe
-screening lower bound is f_j(1) + sum_{i != j} scalar_lower_bound_i. At lambda zero,
-profile the cost f_j(1)-min f_j directly. For positive lambda, each branch uses
-warm, pilot, clipped pooled and available alternative-well starts. A finite start
-bank and complete witness coverage do not prove a nonconvex global minimum.
+The occupied-clonal constraint is a union of branches, each fixing one
+originally eligible witness to one. At lambda zero, profile the cost
+f_j(1)-min f_j directly. At positive lambda, production tries at most four
+clonal-feasible initial primal vectors: preceding penalty, pilot, clipped pooled
+and alternative-well estimates. When a vector has no exact-one coordinate, impose
+the eligible witness with smallest observed cost increase; deduplicate the
+resulting primals. This initial witness is never permanent.
+
+For each outer iterate, form one quadratic surrogate and minimize it over the
+entire union using shared prefix/suffix values at one. Pass the original boxes,
+reconstruct the selected witness once, and check its gap/KKT and predicted value.
+Backtracking recomputes the shared messages. Acceptance requires observed
+likelihood majorization, surrogate descent and true-objective descent. A finite
+start bank and numerically qualified stationary candidates do not prove a
+nonconvex global minimum. The former independent nonlinear witness enumeration,
+including its safe scalar-lower-bound screening, is an offline validation
+reference; the new search need not attain the same stationary points.
 
 The raw path is `{0} union {lambda_ref * 2**k: k=-12,...,12}`. The reference uses
 the weighted pooled pilot quadratic and cumulative adjusted gradients, including

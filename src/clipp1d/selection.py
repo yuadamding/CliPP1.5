@@ -12,7 +12,7 @@ from .clonal import fit_fixed_lambda
 from .model import evaluate
 from .policy import Policy
 from .scalar import minimize_block, scalar_key
-from .types import ClonalConstraintInfeasibleError, NumericalQualificationError, PartitionRefit, WarmState
+from .types import ClonalConstraintInfeasibleError, NumericalQualificationError, PartitionRefit, PrimalWarmState
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +121,7 @@ def select_fit(model, chain, pilot, policy=Policy()):
                           raw_objective=raw.objective, raw_witness_index=raw.witness,
                           raw_witness_mutation_id=ordered.mutation_ids[raw.witness])
             record["raw_diagnostics"] = dict(raw.diagnostics)
-            warm = WarmState(raw.x, raw.dual, chain.fingerprint)
+            warm = PrimalWarmState(raw.x, chain.fingerprint)
             cuts = extract_blocks(raw.x, policy.fusion_tol)
             signature = hashlib.sha256(np.array(cuts, dtype=np.int64).tobytes()).hexdigest()
             record["partition_sha256"] = signature
@@ -160,7 +160,7 @@ def select_fit(model, chain, pilot, policy=Policy()):
         raise NumericalQualificationError("No qualified chain partition was found", path=records)
     _, lam, raw, refit = best
     complete = all(r["raw_status"] == r["refit_status"] == "qualified" and
-                   r.get("witness_search_complete", False) for r in records)
+                   r.get("search_complete", r.get("witness_search_complete", False)) for r in records)
     return lam, raw, refit, {"lambda_reference": reference, "path": records,
                             "path_candidates": len(records), "extensions": extensions,
                             "extension_limit": policy.path_extensions,

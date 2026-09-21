@@ -24,13 +24,13 @@ def test_best_witness_not_highest_pilot_and_release():
     assert_allclose(next_branch.x[0], .5, atol=2e-5)
 
 
-def test_original_bounds_and_screening():
+def test_original_bounds_and_shared_profile():
     model = count_model([10, 40], [90, 60])
     p = compute_pilot(model)
     c = build_chain(p, model.mutation_ids)
     weights = c.weights.copy()
     raw = fit_fixed_lambda(model, c, p, .01)
-    assert raw.qualified and raw.diagnostics["witnesses_screened"] == 1
+    assert raw.qualified and raw.diagnostics["search_profile_calls"] > 0
     for i in range(2):
         direct = solve_branch(model, c, .01, i, p.phi)
         assert raw.objective <= direct.objective + 1e-7
@@ -59,7 +59,7 @@ def test_zero_alt_exact_clipping_kink_branch():
     assert raw.x[0] == model.eps / model.slope[0, 0]
     assert raw.x[1] == 1
     profiled = fit_fixed_lambda(model, c, p, .1)
-    assert profiled.witness == 1 and profiled.diagnostics["witness_search_complete"]
+    assert profiled.witness == 1 and profiled.diagnostics["search_complete"]
 
 
 def test_fused_clonal_block_cannot_hide_proper_interval_descent(make_input):

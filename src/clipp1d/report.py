@@ -11,6 +11,8 @@ import numpy as np
 def _json_default(value):
     if isinstance(value, np.ndarray):
         return value.tolist()
+    if isinstance(value, np.floating):
+        return float(value)
     if isinstance(value, np.generic):
         return value.item()
     raise TypeError(f"Not JSON serializable: {type(value)}")
@@ -73,7 +75,7 @@ def write_result(result, outdir):
         for i, mid in enumerate(retained_ids):
             writer.writerow([ids["tumor_id"], ids["sample_id"], mid, result.refitted_phi[i], result.multiplicity_calls[i]])
     tables = {n: hashlib.sha256((outdir / n).read_bytes()).hexdigest() for n in names[:3]}
-    write_json(outdir / "run.json", {"schema": "clipp1d.run.v2", "status": "success",
+    write_json(outdir / "run.json", {"schema": "clipp1d.run.v3", "status": "success",
                "search_status": result.search_status,
                "input_identifiers": ids, "provenance": result.provenance,
                "selected_lambda": result.selected_lambda, "selection_score": result.selection_score,

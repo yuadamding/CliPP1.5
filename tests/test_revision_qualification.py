@@ -112,7 +112,7 @@ def test_singleton_refits_reuse_only_source_bound_pilots(monkeypatch):
     assert calls == [("m0",)] and result.singleton_pilots_reused == 2
 
 
-def test_warm_dual_projection_and_witness_release(monkeypatch):
+def test_direct_primal_continuation_and_witness_release(monkeypatch):
     import clipp1d.solver as solver
     model = count_model([1, 300], [4, 700])
     pilot = compute_pilot(model)
@@ -123,14 +123,14 @@ def test_warm_dual_projection_and_witness_release(monkeypatch):
 
     def inspect(*args, **kwargs):
         if not seen:
-            seen.append((kwargs["dual"].copy(), args[2].copy(), args[3].copy()))
+            seen.append((kwargs.get("dual"), args[2].copy(), args[3].copy()))
         return original(*args, **kwargs)
 
     monkeypatch.setattr(solver, "solve_quadratic", inspect)
     warm = solve_branch(model, chain, .05, 1, old)
     cold = solve_branch(model, chain, .05, 1, pilot.phi)
     assert warm.qualified and cold.qualified
-    assert_allclose(seen[0][0], [.05], rtol=0, atol=0)
+    assert seen[0][0] is None
     assert seen[0][1][0] == model.lower[0] and seen[0][2][0] == model.upper[0]
     assert warm.x[0] < .6 and warm.x[1] == 1
     assert_allclose(warm.x, cold.x, atol=5e-5)

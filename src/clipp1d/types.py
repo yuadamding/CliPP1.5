@@ -177,6 +177,21 @@ class RawFit:
 
 
 @dataclass(frozen=True)
+class PrimalWarmState:
+    """Chain-bound primal continuation for the direct production backend."""
+    x: np.ndarray
+    chain_fingerprint: str
+
+    def __post_init__(self):
+        object.__setattr__(self, "x", readonly(self.x, np.float64))
+
+    def validate(self, chain):
+        if (self.chain_fingerprint != chain.fingerprint or self.x.shape != chain.order.shape or
+                not np.all(np.isfinite(self.x))):
+            raise ValueError("Warm state must match the frozen chain and contain a finite primal")
+
+
+@dataclass(frozen=True)
 class WarmState:
     """One previous primal/dual state in chain order, with no witness bounds."""
     x: np.ndarray
