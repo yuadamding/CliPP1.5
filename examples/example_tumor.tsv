@@ -1,0 +1,5 @@
+##tumor_id=example
+mutation_id	sample_id	alt_count	ref_count	count_observed	purity	normal_cn	segment_id	cn_state_id	cn_state_fraction	allele_a_cn	allele_b_cn
+m001	01	10	90	1	0.8	2	seg1	state1	1	1	1
+m002	01	11	89	1	0.8	2	seg1	state1	1	1	1
+m003	01	40	60	1	0.8	2	seg1	state1	1	1	1

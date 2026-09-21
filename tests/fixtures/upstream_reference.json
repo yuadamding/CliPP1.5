@@ -1,0 +1,13 @@
+{
+  "commit": "77525a6875e698f6834cb73e6d2a1c27af2af8bf",
+  "npz_sha256": "4613ecfdcf5f79d2108bd8cbf2ef652b1723caf90296965ca94e051ad710ad3c",
+  "input_sha256": "0419adef1422ef7943c5e2032106fe02a0ecb7b48caa9d03d4b72131db6d9db7",
+  "source_sha256": {
+    "core/objective.py": "111b53d1b823fed3edfcf83e3a8868152c4698b0495634433fe7fb2d8d9c1f0e",
+    "io/tumor_txt.py": "584d11534cb66ecd139b529e787463d9e23f92f1de9ecf74bd950de3b8919470",
+    "core/scalar.py": "e763621f087dfcbd438db995e5c1ad290e36c23a2efcc6749dc6704842272a89",
+    "core/bic.py": "c05b2b9be29711883bf0b200c2096ca82aa638958b93b4d5b8e06770262e6c68"
+  },
+  "python": "/home/yding1995/miniforge3/envs/ml1/bin/python",
+  "numpy": "2.2.6"
+}
