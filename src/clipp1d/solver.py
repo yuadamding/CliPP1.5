@@ -2,14 +2,15 @@
 
 import hashlib
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import numpy as np
 from time import perf_counter
 
 from .chain import adjoint, difference
 from .intervals import interval_descent
-from .model import clipping_breakpoints, evaluate, one_sided_derivatives
+from .model import clipping_breakpoints, evaluate, loss, one_sided_derivatives
 from .policy import Policy
+from .proposals import FiniteProposal, ProposalLossMemo, iter_proposal_deltas
 from .tv import forward_messages, polish_blocks, reconstruct_at_witness, reconstruct_dual, split_primal
 from .types import InnerFit, QuadraticWitnessProfile, RawFit, WarmState, PrimalWarmState, readonly
 
@@ -240,7 +241,11 @@ def _snap_fusions(x, lower, upper, tolerance):
 
 @dataclass(frozen=True)
 class AuditContext:
-    """Immutable likelihood quantities bound to one model and exact primal vector."""
+    """Immutable likelihood quantities with a bounded derived-loss memo.
+
+    Numeric audit data and model/x identity are immutable. The separate memo
+    stores only repeatable proposal likelihood deltas, never feasibility or TV.
+    """
 
     model: object
     x: np.ndarray
@@ -252,6 +257,8 @@ class AuditContext:
     at_kink: np.ndarray
     plateau: np.ndarray
     cuts: np.ndarray
+    proposal_losses: ProposalLossMemo = field(default_factory=ProposalLossMemo,
+                                             init=False, repr=False, compare=False)
 
     def __post_init__(self):
         for name in ("x", "losses", "posterior", "gradient", "left", "right", "at_kink", "plateau", "cuts"):
@@ -343,8 +350,8 @@ def local_interval_delta(block, x, caps, start, stop, new_values, old_losses=Non
     old = x[start:stop]
     new = np.broadcast_to(np.asarray(new_values, dtype=float), old.shape)
     if old_losses is None:
-        old_losses = evaluate(block, old).loss
-    new_losses = evaluate(block, new).loss
+        old_losses = loss(block, old)
+    new_losses = loss(block, new)
     delta = float(np.sum(new_losses - old_losses))
     delta += float(np.dot(caps[start:stop - 1], np.abs(difference(new)) - np.abs(difference(old))))
     if start:
@@ -376,10 +383,10 @@ def _kink_check(model, x, caps, lower, upper, policy, *, force_intervals=False,
             metrics["audit_finite_search_seconds"] += perf_counter() - started
 
 
-def _finite_interval_check(model, x, caps, lower, upper, context, direction):
+def _finite_proposals(model, x, lower, upper, context, direction):
+    """The original interval/point/offset order, independent of batching."""
     if direction is not None:
         start, stop, sign, derivative, _ = direction
-        block = model.subset(np.arange(start, stop))
         old_losses = context.losses[start:stop]
         margin = 128 * np.finfo(float).eps * (1 + float(np.sum(np.abs(old_losses))))
         room = float(np.min(upper[start:stop] - x[start:stop]) if sign > 0 else
@@ -387,17 +394,13 @@ def _finite_interval_check(model, x, caps, lower, upper, context, direction):
         step = min(1e-3, room)
         for _ in range(48):
             values = x[start:stop] + sign * step
-            delta = local_interval_delta(block, x, caps, start, stop, values, old_losses)
-            if delta < -margin and delta <= 1e-4 * step * derivative:
-                trial = x.copy()  # allocate the full vector only for an accepted move
-                trial[start:stop] = values
-                return False, trial
+            yield FiniteProposal(start, stop, values, margin, step)
             step *= .5
-        return False, None
+        return
 
     affected = context.plateau & (lower < upper)
     if not np.any(affected):
-        return True, None
+        return
     cuts = context.cuts
     intervals = [(i, i + 1) for i in np.flatnonzero(affected)]
     intervals.extend((int(a), int(b)) for a, b in zip(cuts[:-1], cuts[1:])
@@ -418,11 +421,30 @@ def _finite_interval_check(model, x, caps, lower, upper, context, direction):
         for point in points:
             for offset in (-1e-5, 0.0, 1e-5):
                 value = float(np.clip(point + offset, lo, hi))
-                if local_interval_delta(block, x, caps, start, stop, value, old_losses) < -margin:
-                    trial = x.copy()
-                    trial[start:stop] = value
-                    return False, trial
-    return True, None
+                yield FiniteProposal(start, stop, value, margin)
+
+
+def _finite_interval_check(model, x, caps, lower, upper, context, direction):
+    context.validate(model, x)
+    proposals = _finite_proposals(model, x, lower, upper, context, direction)
+    options = {"initial_batch_size": 1} if direction is not None else {}
+    for proposal, delta in iter_proposal_deltas(context, proposals, **options):
+        start, stop = proposal.start, proposal.stop
+        old = x[start:stop]
+        new = np.broadcast_to(np.asarray(proposal.value, dtype=float), old.shape)
+        # Preserve the scalar penalty operations and their addition order. All
+        # generated intervals are fused, but this also handles general vectors.
+        delta += float(np.dot(caps[start:stop - 1], np.abs(difference(new)) - np.abs(difference(old))))
+        if start:
+            delta += caps[start - 1] * (abs(new[0] - x[start - 1]) - abs(old[0] - x[start - 1]))
+        if stop < len(x):
+            delta += caps[stop - 1] * (abs(x[stop] - new[-1]) - abs(x[stop] - old[-1]))
+        if delta < -proposal.margin and (direction is None or
+                                        delta <= 1e-4 * proposal.step * direction[3]):
+            trial = x.copy()
+            trial[start:stop] = new
+            return False, trial
+    return direction is None, None
 
 
 def solve_branch(model, chain, lambda_value, witness_index, start, policy=Policy()):

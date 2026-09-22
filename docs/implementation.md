@@ -106,7 +106,26 @@ box endpoints use only the inward derivative (left at the upper bound, right at
 the lower bound). One immutable audit context binds the exact accepted vector and
 model, sharing losses, posterior, gradient, one-sided derivatives, clipping masks
 and fused boundaries across stationarity and every anchor. Stale contexts are
-rejected. Local proposals reuse slices of its old losses.
+rejected. Local proposals reuse slices of its old losses. Loss-only calls share
+the same candidate log-kernel and logsumexp arithmetic as full evaluation,
+without constructing an unused posterior.
+
+Finite proposals retain their original interval, breakpoint and offset order.
+Likelihood evaluations batch at most 64 proposals and 4,096 mutation rows,
+including singleton proposals from different mutations. One interval longer
+than this row limit runs alone, so allocation remains O(max(M,4096) Cmax).
+Per-interval reductions keep the original contiguous scalar summation order;
+the first qualifying proposal is accepted, even if a later prefetched proposal
+has a larger improvement. Directional backtracking starts with one proposal
+before increasing its batch size.
+
+The immutable scientific audit snapshot owns a separate bounded memo of at
+most 4,096 likelihood deltas, keyed by exact interval and float64 value bytes.
+Feasibility and TV penalties are recomputed for each anchor. This memo neither
+changes the stored arrays nor survives a changed model or primal vector.
+Speculatively evaluated proposals, considered candidates and cache hits are
+different workload counts. Prefetch can add overhead to immediate acceptance;
+component and full-fit measurements must report that tradeoff separately.
 
 At clipping kinks, a signed prefix/boundary scan covers
 every feasible contiguous subinterval of every exact fused block. Frozen and

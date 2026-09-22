@@ -57,13 +57,13 @@ def test_local_delta_matches_full_objective_without_full_evaluation(monkeypatch,
     trial[start:stop] = .33
     expected = objective(model, trial, caps) - objective(model, x, caps)
     sizes = []
-    original = solver.evaluate
+    original = solver.loss
 
     def counted(subset, *args, **kwargs):
         sizes.append(len(subset))
         return original(subset, *args, **kwargs)
 
-    monkeypatch.setattr(solver, "evaluate", counted)
+    monkeypatch.setattr(solver, "loss", counted)
     delta = local_interval_delta(model.subset(np.arange(start, stop)), x, caps, start, stop, .33)
     assert_allclose(delta, expected, atol=1e-12)
     assert sizes and max(sizes) == stop - start

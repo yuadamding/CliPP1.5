@@ -47,21 +47,23 @@ def test_context_arrays_are_immutable_and_stale_context_is_rejected():
 
 
 def test_interval_proposal_reuses_old_loss_slice(monkeypatch):
+    from clipp1d import proposals
     model = count_model([10, 40], [90, 60])
     x = np.array([1., .5])
     context = solver.prepare_audit(model, x)
     lower, upper = model.lower.copy(), model.upper.copy()
     lower[0] = upper[0] = 1.
-    original = solver.evaluate
+    original = proposals.loss_at_rows
     calls = []
 
-    def evaluate(block, values, **kwargs):
-        assert block is not model
+    def evaluate(block, rows, values):
+        assert block is model
+        np.testing.assert_array_equal(rows, [1])
         assert not np.array_equal(values, x[1:])
         calls.append(values.copy())
-        return original(block, values, **kwargs)
+        return original(block, rows, values)
 
-    monkeypatch.setattr(solver, "evaluate", evaluate)
+    monkeypatch.setattr(proposals, "loss_at_rows", evaluate)
     okay, restart = solver._kink_check(model, x, np.zeros(1), lower, upper, Policy(),
                                        context=context, force_intervals=True)
     assert not okay and restart is not None

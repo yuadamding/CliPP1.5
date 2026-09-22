@@ -112,10 +112,12 @@ The CLI, `FitResult.search_status`, and top-level `run.json.search_status` repor
 `refit_status`, preserving raw diagnostics if the refit fails. `search_complete`
 means all planned primal starts qualified; `path_search_complete` also requires
 every path penalty and refit to qualify. Neither means independent nonlinear
-witness enumeration or a global optimum. `search_profile_calls` counts common
+witness enumeration, exhaustive contiguous-partition coverage, or a global
+optimum. The [matched SimClone investigation](VALIDATION_SIMCLONE.md) includes
+a completed path that misses a better contiguous partition. `search_profile_calls` counts common
 QP profiles; `search_surrogate_witnesses_profiled` counts witness values across
 those profiles. The zero-penalty case reports its qualified separable scalar-gap
-search separately. Version 0.2.1 uses numerical policy `clipp1d_chain_v3` and receipt
+search separately. Version 0.2.2 retains numerical policy `clipp1d_chain_v3` and receipt
 schema `clipp1d.run.v3` to make these changed search semantics explicit.
 The selected raw objective and witness mutation ID are retained in both the API
 result and receipt; `raw_witness_index` is a zero-based **chain** position.
@@ -175,7 +177,9 @@ python benchmarks/compare_clipp2.py --help
 
 The comparison tool consumes already validated CliPP2 outputs; it does not submit
 remote work. See [formulation](docs/formulation.md),
-[implementation](docs/implementation.md), [current validation](VALIDATION_REUSE.md),
+[implementation](docs/implementation.md), [current validation](VALIDATION_FINITE_PROPOSALS.md),
+[reuse validation](VALIDATION_REUSE.md),
+[matched SimClone investigation](VALIDATION_SIMCLONE.md),
 [historical 0.1.1 validation](VALIDATION_REVISION.md),
 and [upstream provenance](UPSTREAM.md). Scaling receipts retain partial stages
 and explicit timeouts; a timeout does not produce a qualified full-fit result.

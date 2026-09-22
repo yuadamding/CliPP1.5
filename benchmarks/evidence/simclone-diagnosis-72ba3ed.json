@@ -1,0 +1,1014 @@
+{
+  "audit": [
+    {
+      "case": "simnwk1j1",
+      "chain_partition_initial_grid_score_bound": {
+        "advantage_over_saved_clipp2_selection": 2.168271306759607,
+        "assignment_log_evidence": -24.918190024481067,
+        "assignment_penalty": 34.88546603427349,
+        "center_penalty": 7.427144133408616,
+        "chosen_initial_grid_points": {
+          "0": 1.0,
+          "1": 0.52381
+        },
+        "interpretation": "Attainable score upper bound under CliPP2 initial grid and the same occupied clonal block; local refinement and profiling may only improve it",
+        "loglik": -634.8228554242833,
+        "loss": 634.8228554242833,
+        "n_eff": 41,
+        "score": 1311.9583210162486,
+        "sizes": [
+          11,
+          30
+        ],
+        "twice_loss": 1269.6457108485665
+      },
+      "claims": [
+        "Saved scores are comparable: independent common-formula evaluation reproduces both.",
+        "The CliPP1.5 partition would already beat the saved CliPP2 score at mandatory initial-grid points.",
+        "Grid/local refit resolution alone cannot explain rejection of this partition under the recorded source/config.",
+        "Conditional on the recorded selection contract, that partition was absent from the admitted candidate pool.",
+        "Available receipts cannot distinguish never proposed from only encountered as an ineligible raw partition; candidate inventory was not saved."
+      ],
+      "clipp2_search": {
+        "num_candidates": 106,
+        "num_candidates_certified": 96,
+        "raw_lambda_path_complete": false,
+        "search_stop_reason": "online_lambda_refinement_budget_reached",
+        "selected_refit_global_certificate_method": "vectorized_grid_local_v1",
+        "selected_refit_global_optimum_certified": false,
+        "selected_refit_numerically_resolved": true,
+        "selection_optimum_resolved": false,
+        "selection_status": "provisional_unresolved",
+        "ward_candidate_pool_complete": true
+      },
+      "clipp2_selected_partition": {
+        "family": "direct_partition",
+        "labels_hash": "65de7350327d70ad964494893f2ae1447cb3e6943bd29e3f1506296d2a61f2e4",
+        "n_clusters": 2,
+        "parent_raw_candidate_id": 1,
+        "parent_raw_lambda": 66.71500064914173,
+        "parent_raw_phi_hash": "d302c80db881fb14eb10b47cfb1abc39",
+        "raw_partition_certified": false,
+        "signature": "2:ab967c1046c7a0bb60f02c47",
+        "source": "final_phi_hessian_ward_cem"
+      },
+      "missing_evidence": [
+        "full candidate labels/signatures/eligibility/refit score table",
+        "raw-parent Phi array",
+        "complete raw lambda trace"
+      ]
+    },
+    {
+      "case": "sim1y9z5f",
+      "chain_partition_initial_grid_score_bound": {
+        "advantage_over_saved_clipp2_selection": -14.214338114876227,
+        "assignment_log_evidence": 0.0,
+        "assignment_penalty": -0.0,
+        "center_penalty": 4.5217885770490405,
+        "chosen_initial_grid_points": {
+          "0": 1.0
+        },
+        "interpretation": "Attainable score upper bound under CliPP2 initial grid and the same occupied clonal block; local refinement and profiling may only improve it",
+        "loglik": -2423.7547720008165,
+        "loss": 2423.7547720008165,
+        "n_eff": 92,
+        "score": 4852.031332578682,
+        "sizes": [
+          92
+        ],
+        "twice_loss": 4847.509544001633
+      },
+      "claims": [],
+      "clipp2_search": {
+        "num_candidates": 110,
+        "num_candidates_certified": 98,
+        "raw_lambda_path_complete": false,
+        "search_stop_reason": "online_lambda_refinement_budget_reached",
+        "selected_refit_global_certificate_method": "vectorized_grid_local_v1",
+        "selected_refit_global_optimum_certified": false,
+        "selected_refit_numerically_resolved": true,
+        "selection_optimum_resolved": false,
+        "selection_status": "provisional_unresolved",
+        "ward_candidate_pool_complete": true
+      },
+      "clipp2_selected_partition": {
+        "family": "direct_partition",
+        "labels_hash": "6c22c102f4b7ce5ecf3ee186ea91ccdb3f909d298842bc9989b41cd1e7ef10da",
+        "n_clusters": 2,
+        "parent_raw_candidate_id": 9,
+        "parent_raw_lambda": 3928.862985466769,
+        "parent_raw_phi_hash": "e4858f6ee9080e77e51804ad6b5ba1e8",
+        "raw_partition_certified": false,
+        "signature": "2:d061158b444a593ce348493e",
+        "source": "final_phi_hessian_ward_cem"
+      },
+      "missing_evidence": [
+        "full candidate labels/signatures/eligibility/refit score table",
+        "raw-parent Phi array",
+        "complete raw lambda trace"
+      ]
+    }
+  ],
+  "cases": {
+    "sim1y9z5f": {
+      "all_scalar_blocks": 4278,
+      "all_scalar_blocks_qualified": true,
+      "best_contiguous_all_k": {
+        "all_partitions_same_k_lower_score_bound": 4837.816677692457,
+        "all_partitions_same_k_score_gap": 1.4551915228366852e-11,
+        "centers": [
+          0.4812962913446884,
+          1.0
+        ],
+        "cuts": [
+          0,
+          15,
+          92
+        ],
+        "designated_block": 1,
+        "dp_accumulation_score": 4837.816677692473,
+        "k": 2,
+        "loss": 2384.5941809067217,
+        "metrics": {
+          "ari": 0.27366590788821604,
+          "ccf_mae": 0.09708931708168628,
+          "ccf_rmse": 0.17967028718086597,
+          "designated_smf": 0.16304347826086957,
+          "exact_one_smf": 0.16304347826086957
+        },
+        "numerical_profile_gap": 7.73070496506989e-12,
+        "score": 4837.816677692472,
+        "score_components": {
+          "center_penalty": 9.043577154098081,
+          "partition_log_mass": -42.56052766066441,
+          "partition_penalty": 59.584738724930176,
+          "twice_refit_loss": 4769.188361813443
+        },
+        "sizes": [
+          15,
+          77
+        ]
+      },
+      "best_contiguous_all_k_numerical_score_gap": 1.4551915228366852e-11,
+      "frozen_regression": {
+        "controls": {
+          "affinity_supported": true,
+          "allowed_cpus_before": [
+            0
+          ],
+          "controls_set_before_numpy_import": true,
+          "load_average_at_start": [
+            0.771484375,
+            1.06591796875,
+            1.1591796875
+          ],
+          "logical_cpus_reported": 30,
+          "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+          "python_version": "3.13.2",
+          "requested_cpu_count": 1,
+          "resource_scope": "Process affinity and numerical thread limits; shared host, no exclusivity claim",
+          "selected_cpus": [
+            0
+          ],
+          "thread_environment": {
+            "BLIS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "VECLIB_MAXIMUM_THREADS": "1"
+          }
+        },
+        "elapsed_seconds": 1.3220816203393042,
+        "finished_utc": "2026-09-22T00:38:52.448670+00:00",
+        "frozen_commit": "ff5b5c3a4509e1bae9ecdbf17ec899c6e4b1f4b4",
+        "input_sha256": "39f80d25623c8d40cd9653ef6773ca53ae49673025b782b96d215731738c67fb",
+        "output_comparison": {
+          "cluster_centers.tsv": {
+            "byte_identical": true,
+            "current_sha256": "105f586ba202c9264714cdbb2a9f524ee9d4ff3a16e3ea5a62c589257849057b",
+            "frozen_sha256": "105f586ba202c9264714cdbb2a9f524ee9d4ff3a16e3ea5a62c589257849057b"
+          },
+          "mutation_clusters.tsv": {
+            "byte_identical": true,
+            "current_sha256": "809699f4e0bb973b632f4d29186304996b378c1630273f4708d98950e200abb5",
+            "frozen_sha256": "809699f4e0bb973b632f4d29186304996b378c1630273f4708d98950e200abb5"
+          },
+          "mutation_multiplicity.tsv": {
+            "byte_identical": true,
+            "current_sha256": "7edf78937fdf7a521d3a701e2099ad676e04ca4c2fe297e4846a8432048b8d90",
+            "frozen_sha256": "7edf78937fdf7a521d3a701e2099ad676e04ca4c2fe297e4846a8432048b8d90"
+          }
+        },
+        "score": 4852.031332578682,
+        "search_status": "complete",
+        "source": {
+          "backend": "cpu",
+          "dtype": "float64",
+          "interpreter": "/home/yding1995/miniforge3/envs/ml1/bin/python",
+          "numpy": "2.2.6",
+          "package_version": "0.2.0",
+          "python": "3.13.2",
+          "scipy": "1.18.0",
+          "source_commit": null,
+          "source_files": {
+            "__init__.py": "9d1119ba3298879f49a939790734744f6cdc802cf56599d27dfeff608f696236",
+            "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+            "api.py": "d641a878d6a96cd042cbb57b82be4a88f70d887f5ec7dd7812d67d3620996daa",
+            "chain.py": "ba39f9531e32712aecc9ac94e253ad37f4c4a09ef008223e6d4194e001efd8e1",
+            "cli.py": "e4abfca921f810922de31474c885574b704a0abf6056db883c0fcbe0d5b90294",
+            "clonal.py": "795e8211e964e81271c4b6ad844265e1532fa0d72bc29b365e4a76d063429fbb",
+            "io.py": "fd34fc9a01c68399489dfb650b80a32f784dc6eb16affc09aaa3ac655858ad74",
+            "model.py": "79dfb4cfbf0a812b1b7eed73411ca2c3fc6754ca2a08110e398d0d3ea7151430",
+            "policy.py": "f7660ff2d1d3441df7b1448fbd0429bf1ad02b16ff6e6394019179ef64e52134",
+            "report.py": "7b1a91abffab0e527680e340c155d71436bc4f6eebe733bfdfedd00f25828d06",
+            "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+            "selection.py": "021a4fb779007761ad544b5452d801ff53529f7285c0079ff5271b3d1e04ec03",
+            "solver.py": "56ab57dae9e2859c65eaaf2903fb283e95dfbae133f5e846b1df89fe265f9b66",
+            "tv.py": "f88cacfe225ff5ef4a57879ecc4c28d2f74bd739ff97fbe1626484962b6a7b43",
+            "types.py": "f312df5095f008f162dba36ec12d06cc1d52818b6b76319f8e2a301d5f285c73"
+          },
+          "source_sha256": "2db79fd19d8e05a1e386d133de37b60f19ce0be588717b46076de069c4750146",
+          "upstream_commit": "77525a6875e698f6834cb73e6d2a1c27af2af8bf"
+        },
+        "verified_git_file_hashes": {
+          "__init__.py": "9d1119ba3298879f49a939790734744f6cdc802cf56599d27dfeff608f696236",
+          "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+          "api.py": "d641a878d6a96cd042cbb57b82be4a88f70d887f5ec7dd7812d67d3620996daa",
+          "chain.py": "ba39f9531e32712aecc9ac94e253ad37f4c4a09ef008223e6d4194e001efd8e1",
+          "cli.py": "e4abfca921f810922de31474c885574b704a0abf6056db883c0fcbe0d5b90294",
+          "clonal.py": "795e8211e964e81271c4b6ad844265e1532fa0d72bc29b365e4a76d063429fbb",
+          "io.py": "fd34fc9a01c68399489dfb650b80a32f784dc6eb16affc09aaa3ac655858ad74",
+          "model.py": "79dfb4cfbf0a812b1b7eed73411ca2c3fc6754ca2a08110e398d0d3ea7151430",
+          "policy.py": "f7660ff2d1d3441df7b1448fbd0429bf1ad02b16ff6e6394019179ef64e52134",
+          "report.py": "7b1a91abffab0e527680e340c155d71436bc4f6eebe733bfdfedd00f25828d06",
+          "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+          "selection.py": "021a4fb779007761ad544b5452d801ff53529f7285c0079ff5271b3d1e04ec03",
+          "solver.py": "56ab57dae9e2859c65eaaf2903fb283e95dfbae133f5e846b1df89fe265f9b66",
+          "tv.py": "f88cacfe225ff5ef4a57879ecc4c28d2f74bd739ff97fbe1626484962b6a7b43",
+          "types.py": "f312df5095f008f162dba36ec12d06cc1d52818b6b76319f8e2a301d5f285c73"
+        },
+        "wrapper_sha256": "892ddb149b82458706f4be1a2ce9d5ed27bf3e18b0fe0551ead8e66696a1ad3f"
+      },
+      "input_sha256": "39f80d25623c8d40cd9653ef6773ca53ae49673025b782b96d215731738c67fb",
+      "observed_partitions": {
+        "clipp1d": {
+          "published": {
+            "loss": 2423.7547720008165,
+            "metrics": {
+              "ari": 0.0,
+              "ccf_mae": 0.08768140677281706,
+              "ccf_rmse": 0.1655339666888577,
+              "designated_smf": null,
+              "exact_one_smf": 0.0
+            },
+            "score": 4852.031332578682,
+            "score_components": {
+              "center_penalty": 4.5217885770490405,
+              "partition_log_mass": 0.0,
+              "partition_penalty": -0.0,
+              "twice_refit_loss": 4847.509544001633
+            }
+          },
+          "refit": {
+            "centers": [
+              1.0
+            ],
+            "chain_runs": 1,
+            "contiguous": true,
+            "metrics": {
+              "ari": 0.0,
+              "ccf_mae": 0.08768140677281706,
+              "ccf_rmse": 0.1655339666888577,
+              "designated_smf": 0.0,
+              "exact_one_smf": 0.0
+            },
+            "score": 4852.031332578682,
+            "score_components": {
+              "center_penalty": 4.5217885770490405,
+              "partition_log_mass": 0.0,
+              "partition_penalty": -0.0,
+              "twice_refit_loss": 4847.509544001633
+            },
+            "sizes": [
+              92
+            ]
+          }
+        },
+        "clipp2": {
+          "published": {
+            "loss": 2384.5943392923873,
+            "metrics": {
+              "ari": 0.27366590788821604,
+              "ccf_mae": 0.09695120561614635,
+              "ccf_rmse": 0.17944893666774192,
+              "designated_smf": null,
+              "exact_one_smf": 0.16304347826086957
+            },
+            "score": 4837.816994463803,
+            "score_components": {
+              "center_penalty": 9.043577154098081,
+              "partition_log_mass": -42.56052766066441,
+              "partition_penalty": 59.584738724930176,
+              "twice_refit_loss": 4769.188678584775
+            }
+          },
+          "refit": {
+            "centers": [
+              1.0,
+              0.4812962913446884
+            ],
+            "chain_runs": 2,
+            "contiguous": true,
+            "metrics": {
+              "ari": 0.27366590788821604,
+              "ccf_mae": 0.09708931708168628,
+              "ccf_rmse": 0.17967028718086597,
+              "designated_smf": 0.16304347826086957,
+              "exact_one_smf": 0.16304347826086957
+            },
+            "score": 4837.816677692472,
+            "score_components": {
+              "center_penalty": 9.043577154098081,
+              "partition_log_mass": -42.56052766066441,
+              "partition_penalty": 59.584738724930176,
+              "twice_refit_loss": 4769.188361813443
+            },
+            "sizes": [
+              77,
+              15
+            ]
+          }
+        },
+        "truth": {
+          "published": {
+            "loss": 2398.961459743694,
+            "metrics": {
+              "ari": 1.0,
+              "ccf_mae": 0.0,
+              "ccf_rmse": 0.0,
+              "designated_smf": null,
+              "exact_one_smf": 0.29347826086956524
+            },
+            "score": 4911.133306893694,
+            "score_components": {
+              "center_penalty": 13.565365731147121,
+              "partition_log_mass": -71.1750154822564,
+              "partition_penalty": 99.64502167515896,
+              "twice_refit_loss": 4797.922919487388
+            }
+          },
+          "refit": {
+            "centers": [
+              1.0,
+              0.9238408684104163,
+              0.6442630963136302
+            ],
+            "chain_runs": 33,
+            "contiguous": false,
+            "metrics": {
+              "ari": 1.0,
+              "ccf_mae": 0.011110336085362793,
+              "ccf_rmse": 0.024280410297855885,
+              "designated_smf": 0.29347826086956524,
+              "exact_one_smf": 0.29347826086956524
+            },
+            "score": 4909.995889801764,
+            "score_components": {
+              "center_penalty": 13.565365731147121,
+              "partition_log_mass": -71.1750154822564,
+              "partition_penalty": 99.64502167515896,
+              "twice_refit_loss": 4796.785502395458
+            },
+            "sizes": [
+              65,
+              5,
+              22
+            ]
+          }
+        }
+      },
+      "source": {
+        "backend": "cpu",
+        "dtype": "float64",
+        "floating_point_formats": {
+          "float64": {
+            "dtype": "float64",
+            "eps": "2.220446049250313e-16",
+            "epsneg": "1.1102230246251565e-16",
+            "exponent_bits": 11,
+            "machep": -52,
+            "max_finite": "1.7976931348623157e+308",
+            "maxexp": 1024,
+            "minexp": -1022,
+            "nmant": 52,
+            "significand_bits": 53,
+            "smallest_normal": "2.2250738585072014e-308",
+            "storage_bits": 64
+          },
+          "longdouble": {
+            "dtype": "float128",
+            "eps": "1.084202172485504434e-19",
+            "epsneg": "5.42101086242752217e-20",
+            "exponent_bits": 15,
+            "machep": -63,
+            "max_finite": "1.189731495357231765e+4932",
+            "maxexp": 16384,
+            "minexp": -16382,
+            "nmant": 63,
+            "significand_bits": 64,
+            "smallest_normal": "3.3621031431120935063e-4932",
+            "storage_bits": 128
+          }
+        },
+        "interpreter": "/home/yding1995/miniforge3/envs/ml1/bin/python",
+        "machine": "x86_64",
+        "numpy": "2.2.6",
+        "package_version": "0.2.1",
+        "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+        "precision_scope": "Runtime format metadata for this process; input/output use float64 and selected internal message/dual arithmetic uses NumPy longdouble. Storage bits do not establish significand precision. This receipt does not qualify other platforms.",
+        "python": "3.13.2",
+        "scipy": "1.18.0",
+        "source_commit": "72ba3edce3988e9281dd9dcbc856b791ffb163a3",
+        "source_files": {
+          "__init__.py": "bbc54a466c3a59a492323761cd58b7292eb288d174b31a257fedb54bc98f8e47",
+          "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+          "api.py": "8bb7b54f7a02c4a0c0aaf7b2e7b7d9042680a28e0b9eb1ac7b2cf8dff08f6d8b",
+          "chain.py": "ba39f9531e32712aecc9ac94e253ad37f4c4a09ef008223e6d4194e001efd8e1",
+          "cli.py": "e4abfca921f810922de31474c885574b704a0abf6056db883c0fcbe0d5b90294",
+          "clonal.py": "bfb90c50281a99ab9cbf163bfe736a81195d5d2b1ea4ca439c8abe799fa9b5a2",
+          "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+          "io.py": "fd34fc9a01c68399489dfb650b80a32f784dc6eb16affc09aaa3ac655858ad74",
+          "model.py": "90f8e74383445b976287a676a1454f2caa7cef275567a9a463da18489ee7af42",
+          "policy.py": "f7660ff2d1d3441df7b1448fbd0429bf1ad02b16ff6e6394019179ef64e52134",
+          "report.py": "7b1a91abffab0e527680e340c155d71436bc4f6eebe733bfdfedd00f25828d06",
+          "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+          "selection.py": "021a4fb779007761ad544b5452d801ff53529f7285c0079ff5271b3d1e04ec03",
+          "solver.py": "ef31addf84d022a7514f50b4d09f7a624085d1baf46f64489523491a0acaeae5",
+          "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+          "types.py": "f312df5095f008f162dba36ec12d06cc1d52818b6b76319f8e2a301d5f285c73"
+        },
+        "source_sha256": "30a019eba2c99dbfae23b26200164893ab6ac54d82d2ef60a1dec2ce4f8e4055",
+        "upstream_commit": "77525a6875e698f6834cb73e6d2a1c27af2af8bf"
+      },
+      "truth_sha256": "ba3369bc11734eba2ea97706252705b0331e22815a2685107691df254a956349"
+    },
+    "simnwk1j1": {
+      "all_scalar_blocks": 861,
+      "all_scalar_blocks_qualified": true,
+      "best_contiguous_all_k": {
+        "all_partitions_same_k_lower_score_bound": 1311.9496662044796,
+        "all_partitions_same_k_score_gap": 1.8553464542492293e-08,
+        "centers": [
+          0.5282430633960582,
+          1.0
+        ],
+        "cuts": [
+          0,
+          30,
+          41
+        ],
+        "designated_block": 1,
+        "dp_accumulation_score": 1311.9496662230333,
+        "k": 2,
+        "loss": 634.8185280276755,
+        "metrics": {
+          "ari": 0.17571179546775129,
+          "ccf_mae": 0.19591446060221143,
+          "ccf_rmse": 0.2660593420441223,
+          "designated_smf": 0.7317073170731707,
+          "exact_one_smf": 0.7317073170731707
+        },
+        "numerical_profile_gap": 9.276732271246146e-09,
+        "score": 1311.949666223033,
+        "score_components": {
+          "center_penalty": 7.427144133408616,
+          "partition_log_mass": -24.918190024481067,
+          "partition_penalty": 34.88546603427349,
+          "twice_refit_loss": 1269.637056055351
+        },
+        "sizes": [
+          30,
+          11
+        ]
+      },
+      "best_contiguous_all_k_numerical_score_gap": 1.8553464542492293e-08,
+      "frozen_regression": {
+        "controls": {
+          "affinity_supported": true,
+          "allowed_cpus_before": [
+            0
+          ],
+          "controls_set_before_numpy_import": true,
+          "load_average_at_start": [
+            0.771484375,
+            1.06591796875,
+            1.1591796875
+          ],
+          "logical_cpus_reported": 30,
+          "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+          "python_version": "3.13.2",
+          "requested_cpu_count": 1,
+          "resource_scope": "Process affinity and numerical thread limits; shared host, no exclusivity claim",
+          "selected_cpus": [
+            0
+          ],
+          "thread_environment": {
+            "BLIS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "OMP_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "VECLIB_MAXIMUM_THREADS": "1"
+          }
+        },
+        "elapsed_seconds": 0.7492286651395261,
+        "finished_utc": "2026-09-22T00:38:50.908729+00:00",
+        "frozen_commit": "ff5b5c3a4509e1bae9ecdbf17ec899c6e4b1f4b4",
+        "input_sha256": "1e211af1f97e1af994af2516a346b9a3b0962b5e8bb5af282c06f45bb009e6f3",
+        "output_comparison": {
+          "cluster_centers.tsv": {
+            "byte_identical": true,
+            "current_sha256": "aa7f01fa7bcf6ee7c9a3b1c96b1e6bc841997263f3d3b9569398b86ef0a17041",
+            "frozen_sha256": "aa7f01fa7bcf6ee7c9a3b1c96b1e6bc841997263f3d3b9569398b86ef0a17041"
+          },
+          "mutation_clusters.tsv": {
+            "byte_identical": true,
+            "current_sha256": "7034f47049ed815a01004a380f60e108b08edee2e14d5ddec47842cedfce0628",
+            "frozen_sha256": "7034f47049ed815a01004a380f60e108b08edee2e14d5ddec47842cedfce0628"
+          },
+          "mutation_multiplicity.tsv": {
+            "byte_identical": true,
+            "current_sha256": "df6ae1eb2c085cbdd4874a6c120a1fee2440570a8caafbf713fd4989799f710b",
+            "frozen_sha256": "df6ae1eb2c085cbdd4874a6c120a1fee2440570a8caafbf713fd4989799f710b"
+          }
+        },
+        "score": 1311.949666223033,
+        "search_status": "complete",
+        "source": {
+          "backend": "cpu",
+          "dtype": "float64",
+          "interpreter": "/home/yding1995/miniforge3/envs/ml1/bin/python",
+          "numpy": "2.2.6",
+          "package_version": "0.2.0",
+          "python": "3.13.2",
+          "scipy": "1.18.0",
+          "source_commit": null,
+          "source_files": {
+            "__init__.py": "9d1119ba3298879f49a939790734744f6cdc802cf56599d27dfeff608f696236",
+            "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+            "api.py": "d641a878d6a96cd042cbb57b82be4a88f70d887f5ec7dd7812d67d3620996daa",
+            "chain.py": "ba39f9531e32712aecc9ac94e253ad37f4c4a09ef008223e6d4194e001efd8e1",
+            "cli.py": "e4abfca921f810922de31474c885574b704a0abf6056db883c0fcbe0d5b90294",
+            "clonal.py": "795e8211e964e81271c4b6ad844265e1532fa0d72bc29b365e4a76d063429fbb",
+            "io.py": "fd34fc9a01c68399489dfb650b80a32f784dc6eb16affc09aaa3ac655858ad74",
+            "model.py": "79dfb4cfbf0a812b1b7eed73411ca2c3fc6754ca2a08110e398d0d3ea7151430",
+            "policy.py": "f7660ff2d1d3441df7b1448fbd0429bf1ad02b16ff6e6394019179ef64e52134",
+            "report.py": "7b1a91abffab0e527680e340c155d71436bc4f6eebe733bfdfedd00f25828d06",
+            "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+            "selection.py": "021a4fb779007761ad544b5452d801ff53529f7285c0079ff5271b3d1e04ec03",
+            "solver.py": "56ab57dae9e2859c65eaaf2903fb283e95dfbae133f5e846b1df89fe265f9b66",
+            "tv.py": "f88cacfe225ff5ef4a57879ecc4c28d2f74bd739ff97fbe1626484962b6a7b43",
+            "types.py": "f312df5095f008f162dba36ec12d06cc1d52818b6b76319f8e2a301d5f285c73"
+          },
+          "source_sha256": "2db79fd19d8e05a1e386d133de37b60f19ce0be588717b46076de069c4750146",
+          "upstream_commit": "77525a6875e698f6834cb73e6d2a1c27af2af8bf"
+        },
+        "verified_git_file_hashes": {
+          "__init__.py": "9d1119ba3298879f49a939790734744f6cdc802cf56599d27dfeff608f696236",
+          "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+          "api.py": "d641a878d6a96cd042cbb57b82be4a88f70d887f5ec7dd7812d67d3620996daa",
+          "chain.py": "ba39f9531e32712aecc9ac94e253ad37f4c4a09ef008223e6d4194e001efd8e1",
+          "cli.py": "e4abfca921f810922de31474c885574b704a0abf6056db883c0fcbe0d5b90294",
+          "clonal.py": "795e8211e964e81271c4b6ad844265e1532fa0d72bc29b365e4a76d063429fbb",
+          "io.py": "fd34fc9a01c68399489dfb650b80a32f784dc6eb16affc09aaa3ac655858ad74",
+          "model.py": "79dfb4cfbf0a812b1b7eed73411ca2c3fc6754ca2a08110e398d0d3ea7151430",
+          "policy.py": "f7660ff2d1d3441df7b1448fbd0429bf1ad02b16ff6e6394019179ef64e52134",
+          "report.py": "7b1a91abffab0e527680e340c155d71436bc4f6eebe733bfdfedd00f25828d06",
+          "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+          "selection.py": "021a4fb779007761ad544b5452d801ff53529f7285c0079ff5271b3d1e04ec03",
+          "solver.py": "56ab57dae9e2859c65eaaf2903fb283e95dfbae133f5e846b1df89fe265f9b66",
+          "tv.py": "f88cacfe225ff5ef4a57879ecc4c28d2f74bd739ff97fbe1626484962b6a7b43",
+          "types.py": "f312df5095f008f162dba36ec12d06cc1d52818b6b76319f8e2a301d5f285c73"
+        },
+        "wrapper_sha256": "892ddb149b82458706f4be1a2ce9d5ed27bf3e18b0fe0551ead8e66696a1ad3f"
+      },
+      "input_sha256": "1e211af1f97e1af994af2516a346b9a3b0962b5e8bb5af282c06f45bb009e6f3",
+      "observed_partitions": {
+        "clipp1d": {
+          "published": {
+            "loss": 634.8185280276756,
+            "metrics": {
+              "ari": 0.17571179546775129,
+              "ccf_mae": 0.19591446060221143,
+              "ccf_rmse": 0.2660593420441223,
+              "designated_smf": null,
+              "exact_one_smf": 0.7317073170731707
+            },
+            "score": 1311.9496662230333,
+            "score_components": {
+              "center_penalty": 7.427144133408616,
+              "partition_log_mass": -24.918190024481067,
+              "partition_penalty": 34.88546603427349,
+              "twice_refit_loss": 1269.6370560553512
+            }
+          },
+          "refit": {
+            "centers": [
+              1.0,
+              0.5282430633960582
+            ],
+            "chain_runs": 2,
+            "contiguous": true,
+            "metrics": {
+              "ari": 0.17571179546775129,
+              "ccf_mae": 0.19591446060221143,
+              "ccf_rmse": 0.2660593420441223,
+              "designated_smf": 0.7317073170731707,
+              "exact_one_smf": 0.7317073170731707
+            },
+            "score": 1311.949666223033,
+            "score_components": {
+              "center_penalty": 7.427144133408616,
+              "partition_log_mass": -24.918190024481067,
+              "partition_penalty": 34.88546603427349,
+              "twice_refit_loss": 1269.637056055351
+            },
+            "sizes": [
+              11,
+              30
+            ]
+          }
+        },
+        "clipp2": {
+          "published": {
+            "loss": 648.6190579417007,
+            "metrics": {
+              "ari": 0.02443729903536978,
+              "ccf_mae": 0.2551136344435449,
+              "ccf_rmse": 0.27148514143846225,
+              "designated_smf": null,
+              "exact_one_smf": 0.975609756097561
+            },
+            "score": 1314.126592323009,
+            "score_components": {
+              "center_penalty": 7.427144133408616,
+              "partition_log_mass": -6.758094504427747,
+              "partition_penalty": 9.461332306198846,
+              "twice_refit_loss": 1297.2381158834014
+            }
+          },
+          "refit": {
+            "centers": [
+              1.0,
+              0.6730342055317324
+            ],
+            "chain_runs": 3,
+            "contiguous": false,
+            "metrics": {
+              "ari": 0.02443729903536978,
+              "ccf_mae": 0.255194576986322,
+              "ccf_rmse": 0.2715764807721195,
+              "designated_smf": 0.975609756097561,
+              "exact_one_smf": 0.975609756097561
+            },
+            "score": 1314.1265144280278,
+            "score_components": {
+              "center_penalty": 7.427144133408616,
+              "partition_log_mass": -6.758094504427747,
+              "partition_penalty": 9.461332306198846,
+              "twice_refit_loss": 1297.2380379884203
+            },
+            "sizes": [
+              1,
+              40
+            ]
+          }
+        },
+        "truth": {
+          "published": {
+            "loss": 652.43299446264,
+            "metrics": {
+              "ari": 1.0,
+              "ccf_mae": 0.0,
+              "ccf_rmse": 0.0,
+              "designated_smf": null,
+              "exact_one_smf": 0.6829268292682927
+            },
+            "score": 1369.9532240230865,
+            "score_components": {
+              "center_penalty": 11.140716200112923,
+              "partition_log_mass": -38.53322778406695,
+              "partition_penalty": 53.94651889769373,
+              "twice_refit_loss": 1304.86598892528
+            }
+          },
+          "refit": {
+            "centers": [
+              0.8784847633351377,
+              1.0,
+              0.570253636646263
+            ],
+            "chain_runs": 19,
+            "contiguous": false,
+            "metrics": {
+              "ari": 1.0,
+              "ccf_mae": 0.16595067842315572,
+              "ccf_rmse": 0.17354773824010705,
+              "designated_smf": 0.9024390243902439,
+              "exact_one_smf": 0.9024390243902439
+            },
+            "score": 1357.3973464198136,
+            "score_components": {
+              "center_penalty": 11.140716200112923,
+              "partition_log_mass": -38.53322778406695,
+              "partition_penalty": 53.94651889769373,
+              "twice_refit_loss": 1292.310111322007
+            },
+            "sizes": [
+              13,
+              4,
+              24
+            ]
+          }
+        }
+      },
+      "source": {
+        "backend": "cpu",
+        "dtype": "float64",
+        "floating_point_formats": {
+          "float64": {
+            "dtype": "float64",
+            "eps": "2.220446049250313e-16",
+            "epsneg": "1.1102230246251565e-16",
+            "exponent_bits": 11,
+            "machep": -52,
+            "max_finite": "1.7976931348623157e+308",
+            "maxexp": 1024,
+            "minexp": -1022,
+            "nmant": 52,
+            "significand_bits": 53,
+            "smallest_normal": "2.2250738585072014e-308",
+            "storage_bits": 64
+          },
+          "longdouble": {
+            "dtype": "float128",
+            "eps": "1.084202172485504434e-19",
+            "epsneg": "5.42101086242752217e-20",
+            "exponent_bits": 15,
+            "machep": -63,
+            "max_finite": "1.189731495357231765e+4932",
+            "maxexp": 16384,
+            "minexp": -16382,
+            "nmant": 63,
+            "significand_bits": 64,
+            "smallest_normal": "3.3621031431120935063e-4932",
+            "storage_bits": 128
+          }
+        },
+        "interpreter": "/home/yding1995/miniforge3/envs/ml1/bin/python",
+        "machine": "x86_64",
+        "numpy": "2.2.6",
+        "package_version": "0.2.1",
+        "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+        "precision_scope": "Runtime format metadata for this process; input/output use float64 and selected internal message/dual arithmetic uses NumPy longdouble. Storage bits do not establish significand precision. This receipt does not qualify other platforms.",
+        "python": "3.13.2",
+        "scipy": "1.18.0",
+        "source_commit": "72ba3edce3988e9281dd9dcbc856b791ffb163a3",
+        "source_files": {
+          "__init__.py": "bbc54a466c3a59a492323761cd58b7292eb288d174b31a257fedb54bc98f8e47",
+          "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+          "api.py": "8bb7b54f7a02c4a0c0aaf7b2e7b7d9042680a28e0b9eb1ac7b2cf8dff08f6d8b",
+          "chain.py": "ba39f9531e32712aecc9ac94e253ad37f4c4a09ef008223e6d4194e001efd8e1",
+          "cli.py": "e4abfca921f810922de31474c885574b704a0abf6056db883c0fcbe0d5b90294",
+          "clonal.py": "bfb90c50281a99ab9cbf163bfe736a81195d5d2b1ea4ca439c8abe799fa9b5a2",
+          "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+          "io.py": "fd34fc9a01c68399489dfb650b80a32f784dc6eb16affc09aaa3ac655858ad74",
+          "model.py": "90f8e74383445b976287a676a1454f2caa7cef275567a9a463da18489ee7af42",
+          "policy.py": "f7660ff2d1d3441df7b1448fbd0429bf1ad02b16ff6e6394019179ef64e52134",
+          "report.py": "7b1a91abffab0e527680e340c155d71436bc4f6eebe733bfdfedd00f25828d06",
+          "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+          "selection.py": "021a4fb779007761ad544b5452d801ff53529f7285c0079ff5271b3d1e04ec03",
+          "solver.py": "ef31addf84d022a7514f50b4d09f7a624085d1baf46f64489523491a0acaeae5",
+          "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+          "types.py": "f312df5095f008f162dba36ec12d06cc1d52818b6b76319f8e2a301d5f285c73"
+        },
+        "source_sha256": "30a019eba2c99dbfae23b26200164893ab6ac54d82d2ef60a1dec2ce4f8e4055",
+        "upstream_commit": "77525a6875e698f6834cb73e6d2a1c27af2af8bf"
+      },
+      "truth_sha256": "09131f7595977b23a695fc473f5dc981fe15b447114b5cde544ecdb1fd362c97"
+    }
+  },
+  "clipp1d_commit": "72ba3edce3988e9281dd9dcbc856b791ffb163a3",
+  "clipp2_commit": "77525a6875e698f6834cb73e6d2a1c27af2af8bf",
+  "grid_refit_replay": {
+    "cases": [
+      {
+        "case": "simnwk1j1",
+        "results": {
+          "clipp1d": {
+            "assignment_log_evidence": -24.918190024481067,
+            "assignment_penalty": 34.88546603427349,
+            "center_penalty": 7.427144133408616,
+            "centers": {
+              "0": 1.0,
+              "1": 0.52777825
+            },
+            "clonal_label": 0,
+            "free_grid_points": [
+              74,
+              72
+            ],
+            "loglik": -634.8185753869343,
+            "loss": 634.8185753869343,
+            "n_eff": 41,
+            "score": 1311.9497609415507,
+            "score_advantage_over_saved_clipp2": 2.176831381457532,
+            "sizes": [
+              11,
+              30
+            ],
+            "twice_loss": 1269.6371507738686
+          },
+          "clipp2": {
+            "assignment_log_evidence": -6.758094504427747,
+            "assignment_penalty": 9.461332306198846,
+            "center_penalty": 7.427144133408616,
+            "centers": {
+              "0": 1.0,
+              "1": 0.672619375
+            },
+            "clonal_label": 0,
+            "free_grid_points": [
+              74,
+              73
+            ],
+            "loglik": -648.6190579417006,
+            "loss": 648.6190579417006,
+            "maximum_saved_center_discrepancy": 0.0,
+            "n_eff": 41,
+            "saved_score_discrepancy": 4.547473508864641e-13,
+            "score": 1314.1265923230087,
+            "score_advantage_over_saved_clipp2": -4.547473508864641e-13,
+            "sizes": [
+              1,
+              40
+            ],
+            "twice_loss": 1297.2381158834012
+          }
+        }
+      },
+      {
+        "case": "sim1y9z5f",
+        "results": {
+          "clipp1d": {
+            "assignment_log_evidence": 0.0,
+            "assignment_penalty": -0.0,
+            "center_penalty": 4.5217885770490405,
+            "centers": {
+              "0": 1.0
+            },
+            "clonal_label": 0,
+            "free_grid_points": [
+              0
+            ],
+            "loglik": -2423.7547720008165,
+            "loss": 2423.7547720008165,
+            "n_eff": 92,
+            "score": 4852.031332578682,
+            "score_advantage_over_saved_clipp2": -14.214338114876227,
+            "sizes": [
+              92
+            ],
+            "twice_loss": 4847.509544001633
+          },
+          "clipp2": {
+            "assignment_log_evidence": -42.56052766066441,
+            "assignment_penalty": 59.584738724930176,
+            "center_penalty": 9.043577154098081,
+            "centers": {
+              "0": 1.0,
+              "1": 0.48214337499999993
+            },
+            "clonal_label": 0,
+            "free_grid_points": [
+              74,
+              71
+            ],
+            "loglik": -2384.5943392923873,
+            "loss": 2384.5943392923873,
+            "maximum_saved_center_discrepancy": 0.0,
+            "n_eff": 92,
+            "saved_score_discrepancy": -2.7284841053187847e-12,
+            "score": 4837.816994463803,
+            "score_advantage_over_saved_clipp2": 2.7284841053187847e-12,
+            "sizes": [
+              77,
+              15
+            ],
+            "twice_loss": 4769.188678584775
+          }
+        }
+      }
+    ],
+    "clipp1d_source_files": {
+      "src/clipp1d/chain.py": "ba39f9531e32712aecc9ac94e253ad37f4c4a09ef008223e6d4194e001efd8e1",
+      "src/clipp1d/io.py": "fd34fc9a01c68399489dfb650b80a32f784dc6eb16affc09aaa3ac655858ad74",
+      "src/clipp1d/model.py": "90f8e74383445b976287a676a1454f2caa7cef275567a9a463da18489ee7af42",
+      "src/clipp1d/policy.py": "f7660ff2d1d3441df7b1448fbd0429bf1ad02b16ff6e6394019179ef64e52134",
+      "src/clipp1d/scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+      "src/clipp1d/selection.py": "021a4fb779007761ad544b5452d801ff53529f7285c0079ff5271b3d1e04ec03"
+    },
+    "imported_formula_script_sha256": "0fb4dbcc71b62ac5f081f6528e1d5c6c7f0b9c0fe67e059d20c73a3d2d7854a8",
+    "original_scalar_rule": "64 grid points, clipping breakpoints, three 5-point local refinements, profile occupied exact-one block",
+    "schema": "clipp1d.fixed_saved_labels_grid_arithmetic.v1",
+    "scope": "Replay only the recorded finite-grid fixed-label arithmetic on saved labels.\n\nNo CliPP2 import, raw solver, candidate generation, model selection, or GPU work.\nThe selected CliPP2 labels are controls: this replay must reproduce their saved\ncenters and scores before interpreting the other algorithm's label set.\n",
+    "script_sha256": "847717d1d6a5e6505010f0070c35877d14fac2aba7a52330f371f42197afa16a"
+  },
+  "inventory_sha256": "9ad2ac9daa73ac31f4a454980bee7b7fe4d273b90eb23765feb86a94b1bab8f6",
+  "lambda_scan": {
+    "all_raw_qualified": true,
+    "all_searches_complete": true,
+    "comparisons": [
+      {
+        "banks": [
+          "dense_ascending",
+          "dense_descending"
+        ],
+        "different_cut_count": 0,
+        "matched_lambda_count": 161,
+        "max_abs_raw_objective_difference": 4.547473508864641e-13,
+        "max_abs_raw_phi_difference": 8.461468392617633e-08
+      },
+      {
+        "banks": [
+          "dense_ascending",
+          "dense_cold"
+        ],
+        "different_cut_count": 0,
+        "matched_lambda_count": 41,
+        "max_abs_raw_objective_difference": 7.821654435247183e-11,
+        "max_abs_raw_phi_difference": 1.2247731331349598e-06
+      }
+    ],
+    "max_stationarity_residual": 4.079430445724309e-06,
+    "path_record_count": 389,
+    "tight_incompatible_constraints": [
+      {
+        "a_bound": 0.6954839601133052,
+        "c": -33.40230769230749,
+        "d": -23.230769230769127,
+        "edge": 9,
+        "kind": "lower",
+        "mutation_ids": [
+          "chr22:11233024",
+          "chr6:110105844"
+        ],
+        "sign": 1,
+        "weight": 0.1170492600535879,
+        "weight_ratio": 0.769230769230768
+      },
+      {
+        "a_bound": 0.12838320656363378,
+        "c": 23.7904841628959,
+        "d": 3.0542986425339222,
+        "edge": 6,
+        "kind": "upper",
+        "mutation_ids": [
+          "chr4:102047028",
+          "chr21:28386998"
+        ],
+        "sign": 1,
+        "weight": 0.040485273477358724,
+        "weight_ratio": 0.26606334841628976
+      }
+    ],
+    "transitions": [
+      {
+        "bracket_width": 7.414366898217395e-10,
+        "lambda_high": 3.6313114825139325,
+        "lambda_low": 3.631311481772496,
+        "name": "cut15_disappears",
+        "policy_fusion_tol": 2e-05
+      },
+      {
+        "bracket_width": 1.8980790628120303e-07,
+        "lambda_high": 1531.2986452213108,
+        "lambda_low": 1531.298645031503,
+        "name": "two_blocks_first_appear",
+        "policy_fusion_tol": 2e-05
+      },
+      {
+        "bracket_width": 1.5184014046099037e-08,
+        "lambda_high": 4908.591107278815,
+        "lambda_low": 4908.591107263631,
+        "name": "all_fused_first_appears",
+        "policy_fusion_tol": 2e-05
+      }
+    ]
+  },
+  "local_evidence_root": "/storage/CliPP2/CliPP1.5/results/simclone-investigation-20260921-v1",
+  "report_sha256": "ea5eb738f544b05467cf42d9b3784ab0d5ae7101dd01de985b04de29a0c4696a",
+  "schema": "clipp1d.simclone_diagnosis.v1",
+  "scope": "Two discordant cases in four-case matched latest completed main-source CliPP2 panel; not full-cohort qualification"
+}

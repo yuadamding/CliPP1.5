@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.2 — 2026-09-21
+
+Batch finite audit likelihood proposals with bounded storage, exact-order first
+acceptance and duplicate reuse. Add a loss-only evaluator sharing the existing
+log-kernel, and preserve all numerical policies and gates. Add differential
+proposal comparisons and separate observed-dual/rejection diagnostics for the
+retained outer-limit states. See [validation](VALIDATION_FINITE_PROPOSALS.md).
+
+Document the two distinct causes of the matched SimClone discrepancies and the
+limits of fusion-path search completion in [the investigation](VALIDATION_SIMCLONE.md).
+
 ## 0.2.1 — 2026-09-21
 
 Reuse the common profile's forward/reverse reconstruction thresholds and share

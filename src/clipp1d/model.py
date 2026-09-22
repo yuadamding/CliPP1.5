@@ -36,14 +36,45 @@ def compile_model(data, policy=Policy()):
                       slope, np.where(valid, -np.log(count[:, None]), -np.inf), valid, policy.eps)
 
 
-def evaluate(model, phi, *, derivatives=False):
+def _log_kernel(slope, alt, ref, log_prior, eps, phi):
+    """Shared candidate arithmetic; the last axis is always multiplicity."""
+    mass = slope * phi[:, None]
+    p = np.clip(mass, eps, 1 - eps)
+    joint = alt[:, None] * np.log(p) + ref[:, None] * np.log1p(-p) + log_prior
+    return mass, p, joint, logsumexp(joint, axis=1)
+
+
+def _validated_phi(model, phi):
     phi = np.asarray(phi, dtype=np.float64)
     if phi.shape != (len(model),) or not np.all(np.isfinite(phi)):
         raise ValueError("phi must be a finite vector with one value per retained mutation")
-    mass = model.slope * phi[:, None]
-    p = np.clip(mass, model.eps, 1 - model.eps)
-    joint = model.alt[:, None] * np.log(p) + model.ref[:, None] * np.log1p(-p) + model.log_prior
-    normalizer = logsumexp(joint, axis=1)
+    return phi
+
+
+def loss(model, phi):
+    """Exact observed loss, without constructing unused posterior probabilities."""
+    phi = _validated_phi(model, phi)
+    return -_log_kernel(model.slope, model.alt, model.ref, model.log_prior, model.eps, phi)[3]
+
+
+def loss_at_rows(model, rows, phi):
+    """Loss for independent (possibly repeated) rows in a bounded proposal batch.
+
+    Flattening proposal rows leaves each multiplicity reduction identical to
+    ``loss``; interval reductions are deliberately performed by the caller.
+    """
+    rows = np.asarray(rows, dtype=np.intp)
+    phi = np.asarray(phi, dtype=np.float64)
+    if rows.ndim != 1 or phi.shape != rows.shape or not np.all(np.isfinite(phi)):
+        raise ValueError("Proposal rows and finite values must be matching vectors")
+    return -_log_kernel(model.slope[rows], model.alt[rows], model.ref[rows],
+                        model.log_prior[rows], model.eps, phi)[3]
+
+
+def evaluate(model, phi, *, derivatives=False):
+    phi = _validated_phi(model, phi)
+    mass, p, joint, normalizer = _log_kernel(model.slope, model.alt, model.ref,
+                                           model.log_prior, model.eps, phi)
     posterior = np.exp(joint - normalizer[:, None])
     gradient = curvature = None
     if derivatives:
