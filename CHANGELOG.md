@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.1 — 2026-09-21
+
+Reuse the common profile's forward/reverse reconstruction thresholds and share
+polishing, dual recovery and certification with direct solves. Each accepted
+vector has one immutable likelihood audit context across all witness anchors;
+local proposals reuse old losses. Batch signed-interval prefixes with the
+original arithmetic and deterministic tie rules.
+
+Add audit-stage timing, bounded per-start progress diagnostics and actual
+float64/longdouble precision metadata. Diagnose the six archived outer-limit
+starts without changing the step cap, iteration budget, search policy or gates.
+See [controlled comparisons and limitations](VALIDATION_REUSE.md).
+
 ## 0.2.0 — 2026-09-21
 
 Move witness profiling into production common-surrogate MM with original boxes,

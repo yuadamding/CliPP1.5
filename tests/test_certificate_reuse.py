@@ -15,7 +15,7 @@ def test_unchanged_direct_step_reuses_gap_and_kkt_but_evaluates_likelihood(monke
     chain = build_chain(pilot, model.mutation_ids)
     counts = dict(gap=0, kkt=0, likelihood=0, direct=0)
     for name, key in (("quadratic_gap", "gap"), ("quadratic_kkt", "kkt"),
-                      ("evaluate", "likelihood"), ("solve_quadratic", "direct")):
+                      ("evaluate", "likelihood"), ("finalize_quadratic", "direct")):
         original = getattr(solver, name)
 
         def counted(*args, _original=original, _key=key, **kwargs):

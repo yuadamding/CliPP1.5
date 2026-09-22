@@ -2,14 +2,16 @@
 
 import hashlib
 import math
+from dataclasses import dataclass
 import numpy as np
 from time import perf_counter
 
 from .chain import adjoint, difference
+from .intervals import interval_descent
 from .model import clipping_breakpoints, evaluate, one_sided_derivatives
 from .policy import Policy
-from .tv import forward_messages, polish_blocks, reconstruct_dual, split_primal
-from .types import InnerFit, QuadraticWitnessProfile, RawFit, WarmState, PrimalWarmState
+from .tv import forward_messages, polish_blocks, reconstruct_at_witness, reconstruct_dual, split_primal
+from .types import InnerFit, QuadraticWitnessProfile, RawFit, WarmState, PrimalWarmState, readonly
 
 
 def quadratic_gap(x, q, h, target, lower, upper, caps):
@@ -83,25 +85,19 @@ def _quadratic_inputs(h, target, lower, upper, caps, start, dual):
     return h, target, lower, upper, caps, x, q
 
 
-def solve_quadratic(h, target, lower, upper, caps, start, policy=Policy(), dual=None):
-    """Direct bounded weighted TV; independent stable gap and O(M) KKT certificate.
+def finalize_quadratic(h, target, lower, upper, caps, x, policy=Policy(), *, work=None):
+    """Polish and independently certify an already reconstructed direct primal.
 
-    The minimizer of this strictly convex problem does not depend on a warm start.
-    Starts remain accepted/validated for API parity and outer primal continuation.
-    Arithmetic or certificate failure returns unresolved, without an iterative fallback.
+    Inputs are the validated quadratic arrays from the direct solve or common
+    profile. This shared finalization performs no message pass. Instrumentation
+    can wrap this function to observe both reconstruction paths and their exact
+    h/target/box/cap arrays before the unchanged gap and KKT admission gates.
     """
-    # Validate a supplied legacy dual without copying/projecting an unused start.
-    if dual is not None:
-        supplied = np.asarray(dual)
-        if supplied.shape != (len(h) - 1,) or not np.all(np.isfinite(supplied)):
-            raise ValueError("Dual start must be a finite chain-edge vector")
-    h, target, lower, upper, caps, x, q = _quadratic_inputs(h, target, lower, upper, caps, start, None)
-    work = {}
+    work = {} if work is None else dict(work)
+    work.update(finalization="polish_dual_gap_kkt", finalization_count=1)
+    q = np.zeros(len(h) - 1)
     try:
-        if not np.any(caps):
-            x, q = np.clip(target, lower, upper), np.zeros(len(h) - 1)
-        else:
-            x, work = split_primal(h, target, lower, upper, caps)
+        if np.any(caps):
             x = polish_blocks(x, h, target, lower, upper, caps)
             q = reconstruct_dual(x, h, target, lower, upper, caps)
         gap, scale = quadratic_gap(x, q, h, target, lower, upper, caps)
@@ -115,6 +111,33 @@ def solve_quadratic(h, target, lower, upper, caps, start, policy=Policy(), dual=
         work["failure_reason"] = ("quadratic_gap_gate" if not np.isfinite(gap) or
                                   gap > policy.inner_atol + policy.inner_rtol * scale else "quadratic_kkt_gate")
     return InnerFit(x, q, gap, qualified, 1, kkt, scale, "bounded_weighted_tv_dp", work)
+
+
+def solve_quadratic(h, target, lower, upper, caps, start, policy=Policy(), dual=None):
+    """Direct bounded weighted TV; independent stable gap and O(M) KKT certificate.
+
+    The minimizer of this strictly convex problem does not depend on a warm start.
+    Starts remain accepted/validated for API parity and outer primal continuation.
+    Arithmetic or certificate failure returns unresolved, without an iterative fallback.
+    """
+    # Validate a supplied legacy dual without copying/projecting an unused start.
+    if dual is not None:
+        supplied = np.asarray(dual)
+        if supplied.shape != (len(h) - 1,) or not np.all(np.isfinite(supplied)):
+            raise ValueError("Dual start must be a finite chain-edge vector")
+    h, target, lower, upper, caps, x, q = _quadratic_inputs(h, target, lower, upper, caps, start, None)
+    work = {"reconstruction_path": "direct_message_solve"}
+    try:
+        if not np.any(caps):
+            x = np.clip(target, lower, upper)
+            work["reconstruction_path"] = "separable_projection"
+        else:
+            x, stats = split_primal(h, target, lower, upper, caps)
+            work.update(stats)
+    except ArithmeticError as exc:
+        work["failure_reason"] = str(exc)
+        return InnerFit(x, q, np.inf, False, 1, np.inf, 0., "bounded_weighted_tv_dp", work)
+    return finalize_quadratic(h, target, lower, upper, caps, x, policy, work=work)
 
 
 def solve_quadratic_iterative(h, target, lower, upper, caps, start, policy=Policy(), dual=None):
@@ -165,16 +188,21 @@ def profile_quadratic_witnesses(h, target, lower, upper, caps, policy=Policy()):
     digest = hashlib.sha256()
     for value in (h, target, lower, upper, caps):
         digest.update(value.tobytes())
-    _, _, _, prefix, forward_stats = forward_messages(h, target, lower, upper, caps, values_at_one=True)
-    _, _, _, suffix, reverse_stats = forward_messages(h[::-1], target[::-1], lower[::-1], upper[::-1],
-                                                    caps[::-1], values_at_one=True)
+    forward_low, forward_high, _, prefix, forward_stats = forward_messages(
+        h, target, lower, upper, caps, values_at_one=True)
+    reverse_low, reverse_high, _, suffix, reverse_stats = forward_messages(
+        h[::-1], target[::-1], lower[::-1], upper[::-1], caps[::-1], values_at_one=True)
     reference = np.clip(target, lower, upper)
     unary_at_one = .5 * h * (1 - reference)**2 + h * (reference - target) * (1 - reference)
     values = prefix + suffix[::-1] - unary_at_one
     witness = int(np.argmin(values))
     fixed_lower, fixed_upper = lower.copy(), upper.copy()
     fixed_lower[witness] = fixed_upper[witness] = 1.
-    fit = solve_quadratic(h, target, fixed_lower, fixed_upper, caps, reference, policy)
+    primal = reconstruct_at_witness(forward_low, forward_high, reverse_low, reverse_high, witness)
+    fit = finalize_quadratic(h, target, fixed_lower, fixed_upper, caps, primal, policy,
+                             work={"reconstruction_path": "stored_profile_thresholds",
+                                   "threshold_reconstruction_steps": len(h) - 1,
+                                   "message_passes_reused": 2, "message_passes_rebuilt": 0})
     displacement = fit.x - reference
     attained = math.fsum(.5 * h * displacement**2 + h * (reference - target) * displacement)
     attained += float(np.dot(caps, np.abs(difference(fit.x))))
@@ -184,6 +212,7 @@ def profile_quadratic_witnesses(h, target, lower, upper, caps, policy=Policy()):
     return QuadraticWitnessProfile(witness, fit, values, math.fsum(.5 * h * (reference - target)**2),
                                    bool(fit.qualified and np.all(np.isfinite(values[eligible])) and error <= tolerance),
                                    digest.hexdigest(), dict(scope="one_common_quadratic", reconstruction_count=1,
+                                   reconstruction_path="stored_profile_thresholds", message_passes=2,
                                    prefix_value_error=float(error), forward=forward_stats, reverse=reverse_stats))
 
 
@@ -209,13 +238,57 @@ def _snap_fusions(x, lower, upper, tolerance):
     return result
 
 
-def stationarity(model, x, q, lower, upper, caps):
+@dataclass(frozen=True)
+class AuditContext:
+    """Immutable likelihood quantities bound to one model and exact primal vector."""
+
+    model: object
+    x: np.ndarray
+    losses: np.ndarray
+    posterior: np.ndarray
+    gradient: np.ndarray
+    left: np.ndarray
+    right: np.ndarray
+    at_kink: np.ndarray
+    plateau: np.ndarray
+    cuts: np.ndarray
+
+    def __post_init__(self):
+        for name in ("x", "losses", "posterior", "gradient", "left", "right", "at_kink", "plateau", "cuts"):
+            object.__setattr__(self, name, readonly(getattr(self, name)))
+
+    def validate(self, model, x):
+        if model is not self.model or not np.array_equal(x, self.x):
+            raise ValueError("Audit context does not match the model and exact primal vector")
+
+
+def prepare_audit(model, x, metrics=None):
+    started = perf_counter()
     terms = evaluate(model, x, derivatives=True)
+    left, right = one_sided_derivatives(model, x, posterior=terms.posterior)
+    mass = model.slope * x[:, None]
+    slopes = np.where(model.valid, model.slope, np.nan)
+    at_kink = np.any((x[:, None] == model.eps / slopes) |
+                     (x[:, None] == (1 - model.eps) / slopes), axis=1)
+    plateau = np.any(model.valid & (((mass <= model.eps) & (model.alt[:, None] > 0)) |
+                                    ((mass >= 1 - model.eps) & (model.ref[:, None] > 0))), axis=1)
+    cuts = np.r_[0, np.flatnonzero(difference(x) != 0) + 1, len(x)]
+    context = AuditContext(model, x, terms.loss, terms.posterior, terms.gradient, left, right,
+                           at_kink, plateau, cuts)
+    if metrics is not None:
+        metrics["audit_context_count"] += 1
+        metrics["audit_context_seconds"] += perf_counter() - started
+    return context
+
+
+def stationarity(model, x, q, lower, upper, caps, *, context=None):
+    context = prepare_audit(model, x) if context is None else context
+    context.validate(model, x)
     a = adjoint(q)
-    left, right = one_sided_derivatives(model, x)
+    left, right = context.left, context.right
     # At an upward clipping kink, use a valid subgradient from [left,right].
     # A downward kink still needs the explicit directional checks below.
-    gradient = np.where(left <= right, np.clip(-a, left, right), terms.gradient)
+    gradient = np.where(left <= right, np.clip(-a, left, right), context.gradient)
     # At a box endpoint, the inaccessible clipping plateau contributes no
     # derivative to feasible motion. Only the inward one-sided derivative applies.
     gradient = np.where(x == lower, right, gradient)
@@ -265,53 +338,6 @@ def _snap_crossed_breakpoints(model, previous, trial, lower, upper, caps, cache=
     return result
 
 
-def interval_descent(x, left, right, lower, upper, caps, tolerance=0.0):
-    """Find a descending signed subinterval of an exact fused block in O(M).
-
-    Prefix costs plus the best left boundary cover every possible right boundary.
-    Frozen coordinates and infeasible signs split the scan. Negative merit means
-    derivative < -tolerance * (1 + absolute node and boundary contributions).
-    """
-    best, best_merit = None, 0.0
-    n = len(x)
-    for sign in (-1, 1):
-        prefix = absolute = 0.0
-        start_key = np.inf
-        active = False
-        for i in range(n):
-            feasible = x[i] > lower[i] if sign < 0 else x[i] < upper[i]
-            if not feasible:
-                active = False
-                continue
-            if not active or (i and x[i] != x[i - 1]):
-                prefix = absolute = 0.0
-                start_key = np.inf
-            active = True
-            left_cost = 0.0
-            if i:
-                jump = x[i] - x[i - 1]
-                left_cost = caps[i - 1] * (1 if jump == 0 else sign * np.sign(jump))
-            key = left_cost + tolerance * abs(left_cost) - prefix - tolerance * absolute
-            if key < start_key:
-                start_key = key
-                start = i
-                start_prefix, start_absolute, start_cost = prefix, absolute, left_cost
-            value = -left[i] if sign < 0 else right[i]
-            prefix += value
-            absolute += abs(value)
-            right_cost = 0.0
-            if i + 1 < n:
-                jump = x[i + 1] - x[i]
-                right_cost = caps[i] * (1 if jump == 0 else -sign * np.sign(jump))
-            merit = prefix + tolerance * absolute + right_cost + tolerance * abs(right_cost) + start_key + tolerance
-            if merit < best_merit:
-                derivative = prefix - start_prefix + start_cost + right_cost
-                scale = 1 + absolute - start_absolute + abs(start_cost) + abs(right_cost)
-                best = (start, i + 1, sign, float(derivative), float(scale))
-                best_merit = merit
-    return best
-
-
 def local_interval_delta(block, x, caps, start, stop, new_values, old_losses=None):
     """Change in objective using only affected likelihoods and incident edges."""
     old = x[start:stop]
@@ -328,22 +354,33 @@ def local_interval_delta(block, x, caps, start, stop, new_values, old_losses=Non
     return delta
 
 
-def _kink_check(model, x, caps, lower, upper, policy, *, force_intervals=False):
+def _kink_check(model, x, caps, lower, upper, policy, *, force_intervals=False,
+                context=None, metrics=None):
     """Audit every signed fused subinterval; screen finite plateau moves locally."""
-    mass = model.slope * x[:, None]
-    slopes = np.where(model.valid, model.slope, np.nan)
-    at_kink = np.any((x[:, None] == model.eps / slopes) |
-                     (x[:, None] == (1 - model.eps) / slopes), axis=1)
-    plateau = np.any(model.valid & (((mass <= model.eps) & (model.alt[:, None] > 0)) |
-                                    ((mass >= 1 - model.eps) & (model.ref[:, None] > 0))), axis=1)
-    if not force_intervals and not np.any((at_kink | plateau) & (lower < upper)):
+    context = prepare_audit(model, x, metrics) if context is None else context
+    context.validate(model, x)
+    if metrics is not None:
+        metrics["audit_anchor_count"] += 1
+    if not force_intervals and not np.any((context.at_kink | context.plateau) & (lower < upper)):
         return True, None
-    left, right = one_sided_derivatives(model, x)
-    direction = interval_descent(x, left, right, lower, upper, caps, policy.stationarity_tol)
+    started = perf_counter()
+    direction = interval_descent(x, context.left, context.right, lower, upper, caps, policy.stationarity_tol)
+    if metrics is not None:
+        metrics["audit_scan_count"] += 1
+        metrics["audit_scan_seconds"] += perf_counter() - started
+    started = perf_counter()
+    try:
+        return _finite_interval_check(model, x, caps, lower, upper, context, direction)
+    finally:
+        if metrics is not None:
+            metrics["audit_finite_search_seconds"] += perf_counter() - started
+
+
+def _finite_interval_check(model, x, caps, lower, upper, context, direction):
     if direction is not None:
         start, stop, sign, derivative, _ = direction
         block = model.subset(np.arange(start, stop))
-        old_losses = evaluate(block, x[start:stop]).loss
+        old_losses = context.losses[start:stop]
         margin = 128 * np.finfo(float).eps * (1 + float(np.sum(np.abs(old_losses))))
         room = float(np.min(upper[start:stop] - x[start:stop]) if sign > 0 else
                      np.min(x[start:stop] - lower[start:stop]))
@@ -358,10 +395,10 @@ def _kink_check(model, x, caps, lower, upper, policy, *, force_intervals=False):
             step *= .5
         return False, None
 
-    affected = plateau & (lower < upper)
+    affected = context.plateau & (lower < upper)
     if not np.any(affected):
         return True, None
-    cuts = np.r_[0, np.flatnonzero(difference(x) != 0) + 1, len(x)]
+    cuts = context.cuts
     intervals = [(i, i + 1) for i in np.flatnonzero(affected)]
     intervals.extend((int(a), int(b)) for a, b in zip(cuts[:-1], cuts[1:])
                      if b - a > 1 and np.any(affected[a:b]))
@@ -370,7 +407,7 @@ def _kink_check(model, x, caps, lower, upper, policy, *, force_intervals=False):
         if lo >= hi:
             continue
         block = model.subset(np.arange(start, stop))
-        old_losses = evaluate(block, x[start:stop]).loss
+        old_losses = context.losses[start:stop]
         margin = 128 * np.finfo(float).eps * (1 + float(np.sum(np.abs(old_losses))))
         points = clipping_breakpoints(block)
         points = points[(points >= lo) & (points <= hi)]
@@ -420,6 +457,15 @@ def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
     accepted_surrogate_gap = np.inf
     qualified = False
     current = objective(model, x, caps)
+    initial_objective = current
+    audit_context = None
+    audit_metrics = dict.fromkeys(("audit_context_count", "audit_anchor_count", "audit_scan_count"), 0)
+    audit_metrics.update(dict.fromkeys(("audit_context_seconds", "audit_scan_seconds",
+                                       "audit_finite_search_seconds"), 0.0))
+    restart_lengths, restart_decreases = [], []
+    restart_witness_switches = 0
+    surrogate_decrease = 0.0
+    progress_tail = []
     last_inner_qualified = last_gap_qualified = last_kkt_qualified = False
     inner_kkt, inner_scale, inner_seconds = np.inf, 0.0, 0.0
     inner_algorithm, inner_work, profile_work = "not_attempted", {}, {}
@@ -497,7 +543,9 @@ def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
             # distinct from the reused direct-QP certificate and remain mandatory.
             if (cache["loss"] <= surrogate + margin and cache["objective"] <= current + margin and
                     surrogate + trial_tv <= current + margin):
+                surrogate_decrease += current - cache["objective"]
                 x, q, current = trial, inner.dual, cache["objective"]
+                audit_context = None
                 audit_lower, audit_upper = trial_lower, trial_upper
                 witness_switches += int(selected != witness_index)
                 witness_index = selected
@@ -516,9 +564,11 @@ def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
             if last_inner_qualified:
                 status = "majorization_unresolved"
             break
-        residual, feasible = stationarity(model, x, q, audit_lower, audit_upper, caps)
+        audit_context = prepare_audit(model, x, audit_metrics)
+        residual, feasible = stationarity(model, x, q, audit_lower, audit_upper, caps, context=audit_context)
         kink_started = perf_counter()
-        kink_ok, restart = _kink_check(model, x, caps, audit_lower, audit_upper, policy)
+        kink_ok, restart = _kink_check(model, x, caps, audit_lower, audit_upper, policy,
+                                       context=audit_context, metrics=audit_metrics)
         if fixed_witness is None and restart is None and kink_ok:
             # Any clonal-feasible interval excludes at least one extreme occupied
             # witness. Two endpoint anchors cover these interval directions.
@@ -528,16 +578,27 @@ def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
                     continue
                 check_lower, check_upper = model.lower.copy(), model.upper.copy()
                 check_lower[anchor] = check_upper[anchor] = 1.
-                kink_ok, restart = _kink_check(model, x, caps, check_lower, check_upper, policy, force_intervals=True)
+                kink_ok, restart = _kink_check(model, x, caps, check_lower, check_upper, policy,
+                                               force_intervals=True, context=audit_context, metrics=audit_metrics)
                 if restart is not None or not kink_ok:
                     break
         kink_seconds += perf_counter() - kink_started
+        progress_tail.append({"outer_iteration": outer + 1, "objective": current,
+                              "curvature_scale": curvature_scale, "witness": witness_index,
+                              "stationarity_residual": residual, "interval_restart": restart is not None})
+        progress_tail = progress_tail[-8:]
         if restart is not None:
+            restart_lengths.append(float(np.max(np.abs(restart - x))))
             x = restart
+            previous_witness = witness_index
             witness_index = int(np.flatnonzero(x == 1)[0]) if fixed_witness is None else fixed_witness
+            restart_witness_switches += int(witness_index != previous_witness)
             audit_lower, audit_upper = model.lower.copy(), model.upper.copy()
             audit_lower[witness_index] = audit_upper[witness_index] = 1.
+            previous_objective = current
             current = objective(model, x, caps)
+            restart_decreases.append(previous_objective - current)
+            audit_context = None
             curvature_scale = 1.0
             continue
         if feasible and residual <= policy.stationarity_tol and kink_ok:
@@ -549,7 +610,9 @@ def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
         if not np.any(step):
             status = "stationarity_unresolved"
             break
-    residual, feasible = stationarity(model, x, q, audit_lower, audit_upper, caps)
+    if audit_context is None:
+        audit_context = prepare_audit(model, x, audit_metrics)
+    residual, feasible = stationarity(model, x, q, audit_lower, audit_upper, caps, context=audit_context)
     return RawFit(x, q, current, witness_index, qualified,
                   {"status": status, "inner_gap_qualified": bool(last_gap_qualified),
                    "inner_kkt_qualified": bool(last_kkt_qualified), "inner_kkt_residual": inner_kkt,
@@ -562,6 +625,15 @@ def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
                    "global_optimality_proven": False, "profile_calls": profile_calls,
                    "surrogate_witnesses_profiled": profile_calls * int(np.sum(model.upper == 1)),
                    "witness_switches": witness_switches, "inner_certificates_reused": reused,
+                   "restart_witness_switches": restart_witness_switches,
+                   "interval_restart_count": len(restart_lengths),
+                   "interval_restart_length_sum": math.fsum(restart_lengths),
+                   "interval_restart_length_min": min(restart_lengths, default=0.0),
+                   "interval_restart_length_max": max(restart_lengths, default=0.0),
+                   "interval_restart_objective_decrease": math.fsum(restart_decreases),
+                   "surrogate_objective_decrease": surrogate_decrease,
+                   "initial_objective": initial_objective, "objective_decrease": initial_objective - current,
+                   "progress_tail": progress_tail, **audit_metrics,
                    "largest_curvature_scale": largest_curvature_scale,
                    "outer_iterations": outer + 1, "accepted_steps": accepted,
                    "inner_iterations": total_inner, "backtracks": backtracks,

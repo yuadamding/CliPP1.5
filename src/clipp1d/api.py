@@ -27,6 +27,18 @@ from .types import FitResult
 UPSTREAM_COMMIT = "77525a6875e698f6834cb73e6d2a1c27af2af8bf"
 
 
+def _floating_format(dtype):
+    """Describe the runtime format without equating storage and precision bits."""
+    info = np.finfo(dtype)
+    return {"dtype": np.dtype(dtype).name,
+            "storage_bits": int(np.dtype(dtype).itemsize * 8),
+            "nmant": int(info.nmant), "significand_bits": int(info.nmant + 1),
+            "exponent_bits": int(info.iexp), "minexp": int(info.minexp),
+            "maxexp": int(info.maxexp), "machep": int(info.machep),
+            "eps": str(info.eps), "epsneg": str(info.epsneg),
+            "smallest_normal": str(info.smallest_normal), "max_finite": str(info.max)}
+
+
 def source_provenance():
     package = Path(__file__).resolve().parent
     hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(package.glob("*.py"))}
@@ -42,7 +54,14 @@ def source_provenance():
     return {"package_version": __version__, "upstream_commit": UPSTREAM_COMMIT,
             "source_commit": commit, "source_sha256": digest.hexdigest(), "source_files": hashes,
             "python": platform.python_version(), "interpreter": sys.executable,
-            "numpy": np.__version__, "scipy": scipy.__version__, "backend": "cpu", "dtype": "float64"}
+            "numpy": np.__version__, "scipy": scipy.__version__, "backend": "cpu", "dtype": "float64",
+            "platform": platform.platform(), "machine": platform.machine(),
+            "floating_point_formats": {"float64": _floating_format(np.float64),
+                                       "longdouble": _floating_format(np.longdouble)},
+            "precision_scope": ("Runtime format metadata for this process; input/output use float64 and "
+                                "selected internal message/dual arithmetic uses NumPy longdouble. "
+                                "Storage bits do not establish significand precision. "
+                                "This receipt does not qualify other platforms.")}
 
 
 def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False):

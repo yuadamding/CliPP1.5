@@ -5,7 +5,7 @@ from time import perf_counter
 
 from .model import evaluate
 from .policy import Policy
-from .solver import _kink_check, objective, solve_profiled, stationarity
+from .solver import _kink_check, objective, prepare_audit, solve_profiled, stationarity
 from .types import ClonalConstraintInfeasibleError, NumericalQualificationError, RawFit, WarmState, PrimalWarmState
 
 
@@ -33,8 +33,10 @@ def fit_fixed_lambda(model, chain, pilot, lambda_value, warm_start=None, policy=
         gap = max(0, value - float(np.min(bounds)))
         lower, upper = ordered.lower.copy(), ordered.upper.copy()
         lower[witness] = upper[witness] = 1.0
-        residual, feasible = stationarity(ordered, x, np.zeros(len(model) - 1), lower, upper, chain.weights * 0)
-        kink_ok, restart = _kink_check(ordered, x, chain.weights * 0, lower, upper, policy)
+        context = prepare_audit(ordered, x)
+        residual, feasible = stationarity(ordered, x, np.zeros(len(model) - 1), lower, upper,
+                                          chain.weights * 0, context=context)
+        kink_ok, restart = _kink_check(ordered, x, chain.weights * 0, lower, upper, policy, context=context)
         stationary = feasible and residual <= policy.stationarity_tol and kink_ok and restart is None
         # Separable branch optima use global scalar gaps, not a fictitious smooth KKT.
         return RawFit(x, np.zeros(len(model) - 1), value, witness, True,
@@ -70,9 +72,19 @@ def fit_fixed_lambda(model, chain, pilot, lambda_value, warm_start=None, policy=
     starts_seconds = inner_seconds = 0.0
     total_inner = profiles = profiled = qualified = 0
     failures, statuses = {}, {}
+    start_progress = []
     for start in starts:
         begin = perf_counter()
         result = solve_profiled(ordered, chain, lambda_value, start, policy)
+        progress_keys = ("status", "outer_iterations", "interval_restart_count", "interval_restart_length_sum",
+                         "interval_restart_length_min", "interval_restart_length_max",
+                         "interval_restart_objective_decrease", "surrogate_objective_decrease",
+                         "objective_decrease", "witness_switches", "restart_witness_switches",
+                         "largest_curvature_scale", "backtracks", "progress_tail", "audit_context_count",
+                         "audit_anchor_count", "audit_scan_count", "audit_context_seconds",
+                         "audit_scan_seconds", "audit_finite_search_seconds")
+        start_progress.append({"start_index": len(start_progress), "objective": result.objective,
+                               **{key: result.diagnostics[key] for key in progress_keys if key in result.diagnostics}})
         starts_seconds += perf_counter() - begin
         total_inner += result.diagnostics["inner_iterations"]
         inner_seconds += result.diagnostics["inner_solve_seconds"]
@@ -94,6 +106,7 @@ def fit_fixed_lambda(model, chain, pilot, lambda_value, warm_start=None, policy=
                 "search_complete": qualified == len(starts),
                 "search_profile_calls": profiles, "search_surrogate_witnesses_profiled": profiled,
                 "search_inner_iterations": total_inner, "start_failure_counts": failures,
+                "start_progress": start_progress,
                 "start_failure_status_counts": statuses, "search_inner_seconds": inner_seconds,
                 "starts_seconds": starts_seconds, "witness_search_seconds": perf_counter() - started}
     if best is None:

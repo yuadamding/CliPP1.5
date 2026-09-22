@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import platform
 import resource
 import subprocess
 import sys
@@ -15,14 +16,59 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from benchmark_chain import configure_execution  # noqa: E402
 
 
-def load_numerics():
+def load_numerics(package_source=None):
     global np, api, clonal, selection, solver, Policy, simulate, reference_enumeration
     import numpy as np
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+    source_root = (Path(package_source) if package_source is not None else
+                   Path(__file__).resolve().parents[1] / "src").resolve()
+    if not (source_root / "clipp1d" / "api.py").is_file():
+        raise ValueError("--package-source must contain clipp1d/api.py")
+    sys.path.insert(0, str(source_root))
     from clipp1d import api, clonal, selection, solver
+    if Path(api.__file__).resolve().parent.parent != source_root:
+        raise RuntimeError("Loaded package does not match --package-source; use a fresh process")
     from clipp1d.policy import Policy
     from simulate import simulate
     import reference_enumeration
+
+
+def runtime_precision():
+    # Baseline packages may predate precision receipts. Measure the process
+    # directly, without changing or importing an overlay into their source.
+    formats = {}
+    for name, dtype in (("float64", np.float64), ("longdouble", np.longdouble)):
+        info = np.finfo(dtype)
+        formats[name] = dict(storage_bits=np.dtype(dtype).itemsize * 8, nmant=int(info.nmant),
+                             significand_bits=int(info.nmant + 1), exponent_bits=int(info.iexp),
+                             minexp=int(info.minexp), maxexp=int(info.maxexp), eps=str(info.eps))
+    return dict(platform=platform.platform(), machine=platform.machine(),
+                python=platform.python_version(), numpy=np.__version__, scipy=api.scipy.__version__,
+                floating_point_formats=formats,
+                scope="Actual runtime formats; these observations do not qualify other platforms")
+
+
+ADDITIVE_START_METRICS = (
+    "outer_iterations", "accepted_steps", "backtracks", "restart_witness_switches",
+    "audit_context_count", "audit_anchor_count", "audit_scan_count",
+    "audit_context_seconds", "audit_scan_seconds", "audit_finite_search_seconds",
+    "interval_restart_count", "interval_restart_length_sum",
+    "interval_restart_objective_decrease", "surrogate_objective_decrease", "objective_decrease",
+)
+
+
+def accumulate_start_metrics(totals, diagnostics):
+    """Add disjoint start work, retaining extrema only over actual restarts."""
+    for key in ADDITIVE_START_METRICS:
+        if key in diagnostics:
+            totals[key] = totals.get(key, 0) + diagnostics[key]
+    if diagnostics.get("interval_restart_count", 0):
+        for suffix, choose in (("min", min), ("max", max)):
+            key = f"interval_restart_length_{suffix}"
+            if key in diagnostics:
+                totals[key] = choose(totals[key], diagnostics[key]) if key in totals else diagnostics[key]
+    if "largest_curvature_scale" in diagnostics:
+        totals["largest_curvature_scale"] = max(totals.get("largest_curvature_scale", 0),
+                                               diagnostics["largest_curvature_scale"])
 
 
 def _clean(value):
@@ -64,7 +110,7 @@ class FailureCapture:
 
     names = ("h", "target", "lower", "upper", "caps")
 
-    def __init__(self, directory, provenance, context, limit=8):
+    def __init__(self, directory, provenance, context, limit=8, *, finalizer_instrumented=True):
         if not 0 <= limit <= 8:
             raise ValueError("Capture limit must be between zero and eight")
         self.directory = Path(directory)
@@ -76,10 +122,13 @@ class FailureCapture:
         self.on_progress = None
         self.last_progress = perf_counter()
         self.profile_boxes = None
-        self.quadratic_calls = self.profile_calls = 0
-        self.completed = {"quadratic": 0, "profile": 0}
-        self.qualified = {"quadratic": 0, "profile": 0}
-        self.completed_seconds = {"quadratic": 0., "profile": 0.}
+        self.quadratic_calls = self.profile_calls = self.finalization_calls = 0
+        self.finalizer_instrumented = finalizer_instrumented
+        self.profile_nested_quadratic_calls = 0
+        self.profile_nested_quadratic_seconds = 0.
+        self.completed = {"quadratic": 0, "profile": 0, "finalization": 0}
+        self.qualified = {"quadratic": 0, "profile": 0, "finalization": 0}
+        self.completed_seconds = {"quadratic": 0., "profile": 0., "finalization": 0.}
         write_json(self.directory / "setup.json", dict(
             schema="clipp1d.failed_surrogate_capture.v1", provenance=provenance,
             maximum_fixtures=limit, array_names=self.names,
@@ -90,27 +139,43 @@ class FailureCapture:
         return dict(failed_calls=self.failed_calls, captured=self.count,
                     duplicates_not_recaptured=self.duplicates, over_limit=self.over_limit,
                     limit=self.limit, failure_reason_counts=dict(self.reasons),
-                    quadratic_calls=self.quadratic_calls, profile_calls=self.profile_calls)
+                    quadratic_calls=self.quadratic_calls, profile_calls=self.profile_calls,
+                    finalization_calls=self.finalization_calls)
 
     def work_snapshot(self):
         return dict(
             quadratic_calls_started=self.quadratic_calls,
             profile_calls_started=self.profile_calls,
+            finalization_calls_started=self.finalization_calls,
             quadratic_calls_completed=self.completed["quadratic"],
             profile_calls_completed=self.completed["profile"],
+            finalization_calls_completed=self.completed["finalization"],
             quadratic_calls_qualified=self.qualified["quadratic"],
             profile_calls_qualified=self.qualified["profile"],
+            finalization_calls_qualified=self.qualified["finalization"],
+            finalizer_instrumented=self.finalizer_instrumented,
+            profile_nested_quadratic_calls_completed=self.profile_nested_quadratic_calls,
+            profile_nested_quadratic_completed_seconds=self.profile_nested_quadratic_seconds,
             quadratic_completed_seconds=self.completed_seconds["quadratic"],
             profile_completed_seconds=self.completed_seconds["profile"],
+            finalization_completed_seconds=self.completed_seconds["finalization"],
+            surrogate_completed_seconds=(self.completed_seconds["quadratic"] +
+                                         self.completed_seconds["profile"] -
+                                         self.profile_nested_quadratic_seconds),
             scope=("Returned surrogate calls, including calls within unfinished nonlinear starts. "
-                   "Profile time includes its selected quadratic solve; these nested times must not be added. "
+                   "Current profiled reconstruction bypasses solve_quadratic; legacy profiles call it. "
+                   "surrogate_completed_seconds sums quadratic and profile time, subtracting quadratic time "
+                   "nested inside profiles. Finalization is nested inside either path; its time must not be added. "
                    "Started minus completed can include an in-progress or raised call."))
 
-    def completed_call(self, kind, started, qualified):
+    def completed_call(self, kind, started, qualified, *, nested_in_profile=False):
         finished = perf_counter()
         self.completed[kind] += 1
         self.qualified[kind] += int(qualified)
         self.completed_seconds[kind] += finished - started
+        if kind == "quadratic" and nested_in_profile:
+            self.profile_nested_quadratic_calls += 1
+            self.profile_nested_quadratic_seconds += finished - started
         if self.on_progress is not None and finished - self.last_progress >= 1.:
             self.last_progress = finished
             self.on_progress(kind)
@@ -140,7 +205,8 @@ class FailureCapture:
             source_sha256=self.provenance["source_sha256"],
             failure_reason=reason, box_scope=box_scope,
             context={**self.context, "quadratic_call": self.quadratic_calls,
-                     "profile_call": self.profile_calls, **context},
+                     "profile_call": self.profile_calls, "finalization_call": self.finalization_calls,
+                     **context},
             diagnostics=diagnostics or {},
         )
         with (self.directory / "manifest.jsonl").open("a", encoding="utf-8") as handle:
@@ -153,20 +219,39 @@ class FailureCapture:
         def measured(h, target, lower, upper, caps, *args, **kwargs):
             self.quadratic_calls += 1
             started = perf_counter()
+            finalizations_before = self.finalization_calls
+            nested_in_profile = self.profile_boxes is not None
             result = call(h, target, lower, upper, caps, *args, **kwargs)
-            self.completed_call("quadratic", started, result.qualified)
+            self.completed_call("quadratic", started, result.qualified, nested_in_profile=nested_in_profile)
+            # Common finalization captures certificate failures. Only a direct
+            # reconstruction failure can return before reaching that wrapper.
+            if not result.qualified and self.finalization_calls == finalizations_before:
+                self.capture_quadratic_result((h, target, lower, upper, caps), result)
+            return result
+        return measured
+
+    def capture_quadratic_result(self, values, result):
+        reason = result.work.get("failure_reason", "unspecified_quadratic_failure")
+        context = {}
+        if self.profile_boxes is not None:
+            original_lower, original_upper = self.profile_boxes
+            lower, upper = values[2:4]
+            changed = np.flatnonzero((lower != original_lower) | (upper != original_upper))
+            context["selected_witness"] = int(changed[0]) if len(changed) == 1 else None
+            context["modified_box_coordinates"] = int(len(changed))
+        self.capture(values, reason,
+                     "selected_witness_frozen_boxes" if self.profile_boxes is not None else "fixed_witness_branch_boxes",
+                     dict(gap=result.gap, gap_scale=result.gap_scale,
+                          kkt_residual=result.kkt_residual, work=result.work), **context)
+
+    def wrap_finalizer(self, call):
+        def measured(h, target, lower, upper, caps, *args, **kwargs):
+            self.finalization_calls += 1
+            started = perf_counter()
+            result = call(h, target, lower, upper, caps, *args, **kwargs)
+            self.completed_call("finalization", started, result.qualified)
             if not result.qualified:
-                reason = result.work.get("failure_reason", "unspecified_quadratic_failure")
-                context = {}
-                if self.profile_boxes is not None:
-                    original_lower, original_upper = self.profile_boxes
-                    changed = np.flatnonzero((lower != original_lower) | (upper != original_upper))
-                    context["selected_witness"] = int(changed[0]) if len(changed) == 1 else None
-                    context["modified_box_coordinates"] = int(len(changed))
-                self.capture((h, target, lower, upper, caps), reason,
-                             "selected_witness_frozen_boxes" if self.profile_boxes is not None else "fixed_witness_branch_boxes",
-                             dict(gap=result.gap, gap_scale=result.gap_scale,
-                                  kkt_residual=result.kkt_residual, work=result.work), **context)
+                self.capture_quadratic_result((h, target, lower, upper, caps), result)
             return result
         return measured
 
@@ -209,7 +294,8 @@ def worker(outdir, size, seed, scenario, execution, reference=False, capture_lim
     policy_name = "independent_witness_enumeration_reference" if reference else "common_surrogate_multistart_v1"
     context = dict(search_policy=policy_name, mutations=size, scenario=scenario, seed=seed,
                    input_sha256=hashlib.sha256(source.read_bytes()).hexdigest())
-    capture = FailureCapture(outdir / "failed_surrogates", provenance, context, capture_limit)
+    capture = FailureCapture(outdir / "failed_surrogates", provenance, context, capture_limit,
+                             finalizer_instrumented=hasattr(solver, "finalize_quadratic"))
 
     def emit(stage, **fields):
         event = dict(stage=stage, elapsed_seconds=perf_counter() - started,
@@ -224,6 +310,10 @@ def worker(outdir, size, seed, scenario, execution, reference=False, capture_lim
     capture.on_progress = lambda kind: emit("surrogate_progress", completed_call=kind,
                                             active_start_context=dict(context))
     emit("start", provenance=provenance, policy=asdict(Policy()), execution=execution,
+         runtime_precision=runtime_precision(), package_source=str(Path(api.__file__).resolve().parent.parent),
+         completed_start_timing_scope=("Audit context, scan and finite-search timings are separate subphases. "
+                                      "kink_seconds includes scan/finite search and must not be added to them. "
+                                      "Objective decreases sum separate nonlinear trajectories, not one fit's decrease."),
          search_policy=policy_name, reference_enumeration=reference,
          started_utc=datetime.now(timezone.utc).isoformat(), mutations=size, scenario=scenario,
          seed=seed, input_sha256=context["input_sha256"],
@@ -235,6 +325,7 @@ def worker(outdir, size, seed, scenario, execution, reference=False, capture_lim
     original_raw, original_refit = selection.fit_fixed_lambda, selection.refit_partition
     original_start = solver.solve_branch if reference else clonal.solve_profiled
     original_quadratic, original_profile = solver.solve_quadratic, solver.profile_quadratic_witnesses
+    original_finalizer = getattr(solver, "finalize_quadratic", None)
     raw_backend = reference_enumeration.fit_fixed_lambda if reference else original_raw
 
     # Instrument stage boundaries without changing policy, starts, or numerical calls.
@@ -276,6 +367,7 @@ def worker(outdir, size, seed, scenario, execution, reference=False, capture_lim
         totals["kink_seconds"] += diagnostics.get("kink_check_seconds", 0.)
         for key in ("profile_calls", "surrogate_witnesses_profiled", "inner_certificates_reused", "witness_switches"):
             totals[key] += diagnostics.get(key, 0)
+        accumulate_start_metrics(totals, diagnostics)
         if not result.qualified:
             reason = diagnostics.get("failure_reason") or diagnostics.get("last_inner_work", {}).get("failure_reason") or diagnostics["status"]
             failures[reason] = failures.get(reason, 0) + 1
@@ -322,6 +414,8 @@ def worker(outdir, size, seed, scenario, execution, reference=False, capture_lim
         clonal.solve_profiled = start_call
     solver.solve_quadratic = capture.wrap_quadratic(original_quadratic)
     solver.profile_quadratic_witnesses = capture.wrap_profile(original_profile)
+    if original_finalizer is not None:
+        solver.finalize_quadratic = capture.wrap_finalizer(original_finalizer)
     try:
         result = api.fit(source, outdir / "fit")
     except Exception as exc:
@@ -335,6 +429,8 @@ def worker(outdir, size, seed, scenario, execution, reference=False, capture_lim
         else:
             clonal.solve_profiled = original_start
         solver.solve_quadratic, solver.profile_quadratic_witnesses = original_quadratic, original_profile
+        if original_finalizer is not None:
+            solver.finalize_quadratic = original_finalizer
     emit("fit_complete", search_status=result.search_status, selected_clusters=len(result.cluster_centers),
          selection_score=result.selection_score, search=result.search_diagnostics)
 
@@ -354,7 +450,7 @@ def summarize(directory, size, scenario, elapsed, timed_out, returncode):
     raw_done = [e for e in events if e["stage"] in ("raw_complete", "raw_unresolved")]
     raw_starts = sum(e["stage"] == "raw_start" for e in events)
     incomplete = sum(not e.get("diagnostics", {}).get("search_complete", e.get("diagnostics", {}).get("witness_search_complete", False)) for e in raw_done)
-    record = dict(schema="clipp1d.scaling.case.v3", mutations=size, scenario=scenario,
+    record = dict(schema="clipp1d.scaling.case.v4", mutations=size, scenario=scenario,
                   status="timeout" if timed_out else ("success" if finished else "failure"),
                   search_status=finished.get("search_status", "not_completed"),
                   search_policy=initial.get("search_policy"),
@@ -390,6 +486,8 @@ def main():
     parser.add_argument("--seed", type=int, default=17)
     parser.add_argument("--reference-enumeration", action="store_true", help="Use the offline independent-witness policy with the current numerical solver")
     parser.add_argument("--max-failure-captures", type=int, default=8)
+    parser.add_argument("--package-source", type=Path,
+                        help="Directory containing clipp1d/; load unchanged source in each fresh worker")
     parser.add_argument("--cpu-count", type=int, default=1)
     parser.add_argument("--cpus", nargs="+", type=int)
     parser.add_argument("--threads", type=int, default=1)
@@ -403,14 +501,18 @@ def main():
         execution = configure_execution(args.cpu_count, args.cpus, args.threads)
     except ValueError as exc:
         parser.error(str(exc))
-    load_numerics()
+    try:
+        load_numerics(args.package_source)
+    except ValueError as exc:
+        parser.error(str(exc))
     if args.worker is not None:
         worker(args.outdir, args.worker, args.seed, args.scenarios[0], execution,
                args.reference_enumeration, args.max_failure_captures)
         return
     args.outdir.mkdir(parents=True, exist_ok=False)
     write_json(args.outdir / "setup.json", dict(
-        schema="clipp1d.scaling.setup.v3", execution=execution,
+        schema="clipp1d.scaling.setup.v4", execution=execution,
+        runtime_precision=runtime_precision(), package_source=str(Path(api.__file__).resolve().parent.parent),
         parameters={k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
         provenance=api.source_provenance(), benchmark_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()))
     records = []
@@ -428,6 +530,8 @@ def main():
                 command.extend(["--cpus", *map(str, args.cpus)])
             if args.reference_enumeration:
                 command.append("--reference-enumeration")
+            if args.package_source is not None:
+                command.extend(["--package-source", str(args.package_source.resolve())])
             with (directory / "worker.log").open("x") as log:
                 try:
                     proc = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT,
@@ -439,7 +543,7 @@ def main():
             records.append(record)
             print(f"{scenario} M={size}: {record['status']}, search={record['search_status']}, "
                   f"raw penalties finished={record['raw_penalties_finished']}/{record['raw_penalties_started']}", flush=True)
-    write_json(args.outdir / "scaling.json", dict(schema="clipp1d.scaling.v3", results=records,
+    write_json(args.outdir / "scaling.json", dict(schema="clipp1d.scaling.v4", results=records,
                timeout_seconds=args.timeout_seconds,
                qualification="synthetic CPU; timeouts retain partial evidence, never qualified full fits"))
 

@@ -103,7 +103,12 @@ The outer audit checks the componentwise box-normal residual normalized by
 `1+abs(gradient)+abs(D.T q)`, the dual box, and nonzero-edge complementarity.
 The threshold is 2e-5. Interior upward kinks use an admissible one-sided subgradient;
 box endpoints use only the inward derivative (left at the upper bound, right at
-the lower bound). At clipping kinks, an O(M) signed prefix/boundary scan covers
+the lower bound). One immutable audit context binds the exact accepted vector and
+model, sharing losses, posterior, gradient, one-sided derivatives, clipping masks
+and fused boundaries across stationarity and every anchor. Stale contexts are
+rejected. Local proposals reuse slices of its old losses.
+
+At clipping kinks, a signed prefix/boundary scan covers
 every feasible contiguous subinterval of every exact fused block. Frozen and
 bound-blocked coordinates split the scan. This includes proper sub-blocks that
 can move beside a frozen witness. A descending direction produces a decreasing
@@ -116,6 +121,13 @@ exact-one coordinates, extra interval audits freeze each extreme occupied witnes
 in turn, including smooth directions. Any feasible contiguous move excludes at
 least one extreme, so these two anchor choices cover all admissible intervals.
 A selected branch's certificate alone does not establish union stationarity.
+For at least 64 float64 nodes, feasible exact-fused runs are batched by length;
+each independent prefix sum follows the original sequential addition order.
+Strict prefix minima keep the earliest start; equal final merits keep negative
+sign and then the earliest stop. No numerical tie tolerance is introduced.
+Prefix arithmetic and storage are O(M); bucket grouping has a conservative
+O(M log M) work bound. Small or unsupported arithmetic uses the same original
+scalar scan. Both paths retain identical coverage and acceptance thresholds.
 These are numerical local qualifications, not global optimality. The lambda-zero case has separate scalar-gap
 qualification because it is separable.
 
@@ -138,6 +150,10 @@ boxed-unary constant separately, and binds the input arrays to a SHA-256 digest.
 Its message work is O(M log M), versus M separate quadratic solves. Independent
 per-witness solves test these values. The selected branch receives the full gap
 and KKT audit, with an additional check against its predicted message value.
+The profile retains both passes' lower/upper reconstruction thresholds and
+backtracks outward from the selected witness at one. No selected-branch messages
+are rebuilt. Ordinary direct solves and profiles share `finalize_quadratic()`
+for polishing, dual recovery and all numerical gates.
 Production invokes this profile inside every outer/backtracking attempt, always
 with the original boxes. No profile survives a curvature or target change. After a successful common
 step, the next iteration starts at half the accepted curvature inflation (floored
@@ -149,7 +165,7 @@ The offline fixed-witness reference keeps its original per-iteration reset.
 The original nonlinear enumeration lives only in `benchmarks/reference_enumeration.py`.
 It remains a finite-start reference, not a global-optimality oracle.
 
-Version 0.2.0 uses numerical policy `clipp1d_chain_v3` and receipt schema
+Versions 0.2.0 and 0.2.1 use numerical policy `clipp1d_chain_v3` and receipt schema
 `clipp1d.run.v3`. The likelihood, weights, constraints, partition tolerance, score
 and numerical gates remain unchanged; the nonlinear search policy changes to
 `common_surrogate_multistart_v1`. `search_complete` records qualification of every
@@ -157,6 +173,17 @@ planned start, not independent optimization of every nonlinear witness branch.
 `search_profile_calls` and `search_surrogate_witnesses_profiled` count common QPs
 and their eligible witness values. `nonlinear_witness_enumeration_performed` is
 false for the positive-penalty production search.
+Version 0.2.1 retains the search policy, 150-iteration limit, 1e-3 initial interval
+step cap and all numerical gates. Additive per-start diagnostics record audit
+substages, restart lengths/decreases, witness changes, curvature inflation and
+the last eight accepted-step summaries. Precision provenance distinguishes
+longdouble storage bits from significand bits; passing on one platform does not
+qualify other longdouble implementations.
+`surrogate_objective_decrease` sums changes in the observed objective F caused by
+accepted surrogate steps, not changes in quadratic Q. `progress_tail.objective`
+is recorded after that accepted step and before any flagged interval restart;
+restart decreases are reported separately. Witness changes from surrogate
+selection and interval restarts also have separate counters.
 A successful receipt has top-level `search_status` equal to
 `complete` or `incomplete`. Each path record has separate raw/refit statuses and
 retains raw diagnostics before attempting the refit. The selected raw objective,

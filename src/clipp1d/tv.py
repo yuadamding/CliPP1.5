@@ -178,6 +178,32 @@ def direct_primal(h, target, lower, upper, caps):
     return x, stats
 
 
+def reconstruct_at_witness(forward_low, forward_high, reverse_low, reverse_high, witness, value=1.):
+    """Recover one fixed-witness primal from two already-built message passes.
+
+    Forward thresholds recover the prefix moving left from the fixed coordinate;
+    reversed-chain thresholds recover the suffix moving right. No unary targets,
+    curvatures, boxes, or heap messages are rebuilt. The caller must use thresholds
+    from the same quadratic and fix a value feasible in the original witness box.
+    """
+    arrays = tuple(np.asarray(v) for v in (forward_low, forward_high, reverse_low, reverse_high))
+    n = arrays[0].size + 1
+    if (any(v.shape != (n - 1,) or not np.all(np.isfinite(v)) for v in arrays) or
+            np.any(arrays[0] > arrays[1]) or np.any(arrays[2] > arrays[3]) or
+            isinstance(witness, (bool, np.bool_)) or not isinstance(witness, (int, np.integer)) or
+            not 0 <= witness < n or not np.isfinite(value)):
+        raise ValueError("Invalid fixed-witness reconstruction thresholds")
+    forward_low, forward_high, reverse_low, reverse_high = arrays
+    x = np.empty(n)
+    x[witness] = value
+    for i in range(witness - 1, -1, -1):
+        x[i] = min(forward_high[i], max(forward_low[i], x[i + 1]))
+    for i in range(witness + 1, n):
+        j = n - 1 - i
+        x[i] = min(reverse_high[j], max(reverse_low[j], x[i - 1]))
+    return x
+
+
 def split_primal(h, target, lower, upper, caps):
     """Split at frozen nodes when incident absolute penalties are affine on boxes."""
     fixed = np.flatnonzero(lower == upper)

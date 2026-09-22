@@ -66,12 +66,13 @@ def clipping_breakpoints(model, mutation_index=None):
     return np.unique(points[valid])
 
 
-def one_sided_derivatives(model, phi):
+def one_sided_derivatives(model, phi, *, posterior=None):
     """Left and right loss derivatives, including the exact clipping kinks."""
     phi = np.asarray(phi)
     mass = model.slope * phi[:, None]
     p = np.clip(mass, model.eps, 1 - model.eps)
-    posterior = evaluate(model, phi).posterior
+    if posterior is None:
+        posterior = evaluate(model, phi).posterior
     score = model.alt[:, None] / p - model.ref[:, None] / (1 - p)
     # Compare in phi-space too: division followed by multiplication can round off the kink.
     s = np.where(model.valid, model.slope, np.nan)

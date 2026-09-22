@@ -95,7 +95,9 @@ numerical qualifications, not formal interval-arithmetic proofs.
 
 Production uses one common surrogate per outer step: prefix/suffix messages
 profile every eligible witness under the original boxes, then reconstruct and
-certify the selected minimizer. Backtracking rebuilds both messages. The previous
+certify the selected minimizer using their retained reconstruction thresholds.
+Each accepted vector shares one likelihood context across all witness audits.
+Backtracking rebuilds both messages. The previous
 witness is released; observed-likelihood majorization and descent remain mandatory.
 At most four distinct, clonal-feasible primal starts are tried per penalty.
 Continuation carries only the primal vector; differences in unused duals never
@@ -113,7 +115,7 @@ every path penalty and refit to qualify. Neither means independent nonlinear
 witness enumeration or a global optimum. `search_profile_calls` counts common
 QP profiles; `search_surrogate_witnesses_profiled` counts witness values across
 those profiles. The zero-penalty case reports its qualified separable scalar-gap
-search separately. Version 0.2.0 uses numerical policy `clipp1d_chain_v3` and receipt
+search separately. Version 0.2.1 uses numerical policy `clipp1d_chain_v3` and receipt
 schema `clipp1d.run.v3` to make these changed search semantics explicit.
 The selected raw objective and witness mutation ID are retained in both the API
 result and receipt; `raw_witness_index` is a zero-based **chain** position.
@@ -173,7 +175,7 @@ python benchmarks/compare_clipp2.py --help
 
 The comparison tool consumes already validated CliPP2 outputs; it does not submit
 remote work. See [formulation](docs/formulation.md),
-[implementation](docs/implementation.md), [current validation](VALIDATION_SHARED.md),
+[implementation](docs/implementation.md), [current validation](VALIDATION_REUSE.md),
 [historical 0.1.1 validation](VALIDATION_REVISION.md),
 and [upstream provenance](UPSTREAM.md). Scaling receipts retain partial stages
 and explicit timeouts; a timeout does not produce a qualified full-fit result.
