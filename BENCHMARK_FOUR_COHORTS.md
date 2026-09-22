@@ -1,6 +1,7 @@
 # Full single-region evaluation of CliPP1.5 0.3.0
 
-The production changes are integrated and the full evaluation is running.
+The production changes are integrated and the full evaluation was launched
+on September 21, 2026. Consult the current receipts below for live status.
 No full-cohort accuracy claim is made until every planned tumor has a terminal
 receipt and the final audit passes.
 
@@ -72,6 +73,9 @@ The full run is `full-run/`, with:
 - `status.json`, `summary-current.json`: mutable operational progress, not completion.
 - `runs/<dataset>/<tumor>/`: startup, published fit, paired metrics and terminal receipt.
 - `COMPLETE.json`, `summary-final.json`: written only after all planned cases terminate.
+- `final-audit.json`, `audited-case-metrics.tsv`, `REPORT.md`: the separate finalizer
+  verifies source/input/truth/output hashes and recomputes public metrics before
+  publishing the final report. Its owner and source hashes are under `finalization/`.
 
 Preparation uses `benchmarks/prepare_four_cohorts.py`; the initial regional
 manifest-field parser error and four SimClone truth-join issues are retained
