@@ -19,6 +19,7 @@ from .chain import build_chain
 from .io import read_tumor
 from .model import compile_model, posterior_multiplicity
 from .policy import Policy
+from .partitions import propose_partitions
 from .report import write_json, write_result
 from .scalar import compute_pilot
 from .selection import select_fit
@@ -93,7 +94,39 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False):
         pilot_seconds = perf_counter() - pilot_start
         chain = build_chain(pilot, model.mutation_ids, policy)
         lam, raw, refit, search = select_fit(model, chain, pilot, policy)
-        # The selected raw state is retained; the public estimator is a separate refit.
+        raw_lambda, raw_refit = lam, refit
+        refit, proposals = propose_partitions(model.subset(chain.order), pilot.phi[chain.order],
+                                             raw.x, raw_refit, policy)
+        direct = refit.cuts != raw_refit.cuts
+        lam = None if direct else raw_lambda
+        def partition_hash(cuts):
+            return hashlib.sha256(np.asarray(cuts, dtype=np.int64).tobytes()).hexdigest()
+        reference = {"lambda": raw_lambda, "partition_sha256": partition_hash(raw_refit.cuts),
+                     "partition_cuts": raw_refit.cuts, "refit_score": raw_refit.score,
+                     "refit_centers": raw_refit.centers, "refit_gap": raw_refit.gap,
+                     "designated_clonal_block": raw_refit.designated_clonal_block,
+                     "raw_phi_sha256": hashlib.sha256(raw.x.tobytes()).hexdigest(),
+                     "chain_sha256": chain.fingerprint,
+                     "model_sha256": provenance["model_sha256"]}
+        lineage = proposals["selected_seed_origin"]
+        selection = {"candidate_family": "direct_chain_partition" if direct else "fusion_path",
+                     "origin": proposals["selected_origin"],
+                     "raw_parent": reference if "selected_raw" in lineage else None,
+                     "refit_qualified": True, "refit_gap": refit.gap,
+                     "partition_sha256": partition_hash(refit.cuts),
+                     "chain_sha256": chain.fingerprint,
+                     "model_sha256": provenance["model_sha256"],
+                     "selected_raw_certificate": None if direct else dict(raw.diagnostics),
+                     "selected_partition_certified": not direct,
+                     "certification_scope": ("qualified likelihood refit only" if direct else
+                                             "raw branch stationarity; final centers separately refitted"),
+                     "raw_reference": reference,
+                     "global_optimality_proven": False}
+        search["direct_proposals"] = proposals
+        search["search_status"] = ("complete" if search["path_search_complete"] and
+                                   proposals["search_complete"] else "incomplete")
+        search["selected_at_upper_boundary"] = not direct and search["selected_at_upper_boundary"]
+        # Raw arrays and diagnostics always describe the independent fusion reference.
         phi_chain = np.empty(len(model))
         labels_chain = np.empty(len(model), dtype=int)
         public_order = [refit.designated_clonal_block] + sorted(
@@ -118,13 +151,14 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False):
             refit.designated_clonal_block, calls, refit.score, refit.score_components,
             provenance, search, raw_objective=raw.objective, raw_witness_index=raw.witness,
             raw_witness_mutation_id=model.mutation_ids[chain.order[raw.witness]],
-            search_status=search["search_status"])
+            search_status=search["search_status"], candidate_provenance=selection,
+            raw_reference_lambda=raw_lambda)
         if destination is not None:
             write_result(result, destination)
         return result
     except Exception as exc:
         if destination is not None and not (destination / "run.json").exists():
-            write_json(destination / "run.json", {"schema": "clipp1d.run.v3", "status": "failure",
+            write_json(destination / "run.json", {"schema": "clipp1d.run.v4", "status": "failure",
                        "search_status": "not_completed",
                        "error_type": type(exc).__name__, "message": str(exc), "provenance": provenance,
                        "diagnostics": getattr(exc, "diagnostics", {}),

@@ -30,7 +30,7 @@ def partition_score(loss, sizes):
                       components["partition_penalty"])), components
 
 
-def refit_partition(model, cuts, policy=Policy(), *, pilot=None):
+def refit_partition(model, cuts, policy=Policy(), *, pilot=None, interval_solver=None):
     """The model is in chain order. Profile the identity of the clonal block."""
     cuts = tuple(cuts)
     if (not cuts or cuts[0] != 0 or cuts[-1] != len(model) or
@@ -51,8 +51,8 @@ def refit_partition(model, cuts, policy=Policy(), *, pilot=None):
                 scalar = cached
                 reused += 1
         if scalar is None:
-            block = model.subset(np.arange(start, stop))
-            scalar = minimize_block(block, policy)
+            scalar = (interval_solver(start, stop) if interval_solver is not None else
+                      minimize_block(model.subset(np.arange(start, stop)), policy))
             fits += 1
             evaluations += scalar.evaluations + scalar.bound_evaluations
         if not scalar.qualified:

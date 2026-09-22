@@ -41,6 +41,18 @@ def write_result(result, outdir):
             not len(result.cluster_centers) or result.cluster_centers[0] != 1 or
             not np.all(np.isfinite(result.refitted_phi))):
         raise ValueError("Refusing to publish an unqualified fit")
+    selection = result.candidate_provenance
+    direct = selection.get("candidate_family") == "direct_chain_partition"
+    if (not selection or
+            selection.get("chain_sha256") != result.frozen_chain.fingerprint or
+            selection.get("model_sha256") != result.provenance.get("model_sha256") or
+            not selection.get("refit_qualified") or
+            (direct and (result.selected_lambda is not None or
+                         selection.get("selected_raw_certificate") is not None or
+                         selection.get("selected_partition_certified"))) or
+            selection.get("partition_sha256") != hashlib.sha256(
+                np.asarray(result.partition, dtype=np.int64).tobytes()).hexdigest()):
+        raise ValueError("Refusing to publish inconsistent candidate provenance")
     outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     names = ("mutation_clusters.tsv", "cluster_centers.tsv", "mutation_multiplicity.tsv", "run.json")
@@ -53,7 +65,7 @@ def write_result(result, outdir):
     with (outdir / names[0]).open("x", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
         writer.writerow(["tumor_id", "sample_id", "mutation_id", "status", "chain_rank", "pilot_ccf",
-                         "raw_ccf", "refitted_ccf", "cluster_label"])
+                         "raw_reference_ccf", "refitted_ccf", "cluster_label"])
         for mid, reason in zip(ids["mutation_ids"], result.exclusion_reasons):
             row = [ids["tumor_id"], ids["sample_id"], mid]
             if reason:
@@ -75,10 +87,13 @@ def write_result(result, outdir):
         for i, mid in enumerate(retained_ids):
             writer.writerow([ids["tumor_id"], ids["sample_id"], mid, result.refitted_phi[i], result.multiplicity_calls[i]])
     tables = {n: hashlib.sha256((outdir / n).read_bytes()).hexdigest() for n in names[:3]}
-    write_json(outdir / "run.json", {"schema": "clipp1d.run.v3", "status": "success",
+    write_json(outdir / "run.json", {"schema": "clipp1d.run.v4", "status": "success",
                "search_status": result.search_status,
                "input_identifiers": ids, "provenance": result.provenance,
                "selected_lambda": result.selected_lambda, "selection_score": result.selection_score,
+               "candidate_provenance": selection,
+               "raw_reference_lambda": result.raw_reference_lambda,
+               "raw_fields_scope": "independent qualified fusion reference, not a direct-partition certificate",
                "raw_objective": result.raw_objective, "raw_witness_index": result.raw_witness_index,
                "raw_witness_mutation_id": result.raw_witness_mutation_id,
                "score_components": result.score_components, "raw_diagnostics": result.raw_diagnostics,

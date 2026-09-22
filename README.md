@@ -26,7 +26,7 @@ from clipp1d import fit
 
 result = fit("tumor.tsv", outdir="results/tumor")
 print(result.cluster_centers)
-print(result.raw_phi)       # selected penalized candidate, retained-mutation order
+print(result.raw_phi)       # independent qualified fusion reference, retained-mutation order
 print(result.refitted_phi)  # public estimator, same retained-mutation order
 print(result.search_status) # complete or incomplete; separate from fit validity
 ```
@@ -61,8 +61,13 @@ The original probability-safe upper bounds determine clonal eligibility.
 
 Counts → qualified marginal pilots → frozen adaptive chain → clonal-witness
 shared-surrogate fusion fits → contiguous blocks → constrained likelihood refits → partition score.
+Adjacent weighted Ward proposals from the pilot and qualified raw reference add
+partitions beyond the fusion path. Only neighboring chain intervals merge. The
+best candidate receives up to four boundary-refinement sweeps, with every move
+qualified by the existing constrained likelihood refit and score. The original
+fusion candidates remain eligible; uncertain score differences retain the original.
 There is no hard ordering constraint, reordering during fitting, nonadjacent
-merge, Ward/CEM proposal, or permanent highest-pilot clonal witness.
+merge, CEM reassignment, or permanent highest-pilot clonal witness.
 
 The public estimator is the constrained likelihood refit of the selected
 chain-generated partition. Labels are public labels: `0` is the designated
@@ -71,7 +76,7 @@ blocks remain distinct even if their centers coincide.
 
 | File | Contents |
 | --- | --- |
-| `mutation_clusters.tsv` | All input IDs, retained/exclusion status, zero-based chain rank, pilot/raw/refitted CCFs, label |
+| `mutation_clusters.tsv` | All input IDs, retained/exclusion status, zero-based chain rank, pilot/raw-reference/refitted CCFs, label |
 | `cluster_centers.tsv` | Public label, size, refitted CCF, designated-clonal flag |
 | `mutation_multiplicity.tsv` | Retained IDs and posterior MAP multiplicity conditional on refitted CCF |
 | `run.json` | Policy, source/input/table hashes, environment, score terms, scalar gaps, numerical and start/path coverage |
@@ -118,7 +123,21 @@ a completed path that misses a better contiguous partition. `search_profile_call
 QP profiles; `search_surrogate_witnesses_profiled` counts witness values across
 those profiles. The zero-penalty case reports its qualified separable scalar-gap
 search separately. Version 0.2.2 retains numerical policy `clipp1d_chain_v3` and receipt
-schema `clipp1d.run.v3` to make these changed search semantics explicit.
+schema `clipp1d.run.v4`. A direct-partition winner has `selected_lambda=null`,
+`selected_raw_certificate=null`, and `selected_partition_certified=false`; its
+qualified refit and provenance are separate from `raw_reference`. The historical
+API fields `raw_phi`, `raw_diagnostics`, `raw_objective`, and witness fields now
+always identify this independent reference. The TSV column is explicitly named
+`raw_reference_ccf`. Path winners retain a raw branch certificate, which does not
+certify global optimality or turn the final refit into a penalized stationary point.
+
+Ward uses an O(N)-storage heap and emits at most 12 cluster counts per seed.
+Direct search has a 256-partition budget and a 512-entry scalar interval cache.
+A move requires a score decrease exceeding twice both refit gaps plus 1e-8.
+Completion refers to the bounded proposal procedure, not all possible partitions;
+infeasible candidates are rejected, while numerical failures or budget exhaustion
+mark the proposal search incomplete. The likelihood, fixed chain, exact occupied
+CCF-one constraint, refit tolerances and score are unchanged.
 The selected raw objective and witness mutation ID are retained in both the API
 result and receipt; `raw_witness_index` is a zero-based **chain** position.
 `global_optimality_proven` remains false. The zero-penalty separable solution also

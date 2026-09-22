@@ -230,8 +230,8 @@ class FitResult:
     exclusion_reasons: tuple[str | None, ...]
     pilot: PilotResult
     frozen_chain: FrozenChain
-    selected_lambda: float
-    raw_phi: np.ndarray
+    selected_lambda: float | None
+    raw_phi: np.ndarray  # Independent qualified fusion reference, not a direct winner.
     raw_diagnostics: dict[str, Any]
     partition: tuple[int, ...]
     refitted_phi: np.ndarray
@@ -247,3 +247,5 @@ class FitResult:
     raw_witness_index: int = -1
     raw_witness_mutation_id: str = ""
     search_status: str = "incomplete"
+    candidate_provenance: dict[str, Any] = field(default_factory=dict)
+    raw_reference_lambda: float | None = None
