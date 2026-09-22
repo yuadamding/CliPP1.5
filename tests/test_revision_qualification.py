@@ -141,7 +141,7 @@ def test_direct_primal_continuation_and_witness_release(monkeypatch):
 
 def test_raw_diagnostics_survive_refit_failure(monkeypatch, make_input, tmp_path):
     import json
-    import clipp1d.api as api
+    import legacy_chain_api as api
     import clipp1d.selection as selection
     model = count_model([10, 40], [90, 60])
     pilot = compute_pilot(model)
@@ -160,7 +160,7 @@ def test_raw_diagnostics_survive_refit_failure(monkeypatch, make_input, tmp_path
     failed = search["path"][1]
     assert failed["raw_status"] == "qualified" and failed["refit_status"] == "unresolved"
     assert failed["raw_diagnostics"]["raw_branch_stationarity_qualified"]
-    assert np.isfinite(failed["raw_objective"]) and failed["raw_witness_mutation_id"] in model.mutation_ids
+    assert np.isfinite(failed["raw_objective"]) and failed["raw_witness_mutation_id"] is None
     assert search["raw_unresolved_penalties"] == 0 and search["refit_unresolved_penalties"] == 1
     monkeypatch.setattr(api, "Policy", lambda **kwargs: policy)
     path = make_input([dict(alt_count=10, ref_count=90), dict(alt_count=40, ref_count=60)])

@@ -6,7 +6,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 import pytest
 
-from clipp1d import fit
+from legacy_chain_api import fit
 from clipp1d.partitions import IntervalRefitter, improves, propose_partitions
 from clipp1d.policy import Policy
 from clipp1d.selection import refit_partition
@@ -80,7 +80,7 @@ def test_qualified_original_is_retained_and_acceptance_accounts_for_gap():
 
 
 def test_direct_winner_has_no_selected_raw_certificate(make_input, tmp_path, monkeypatch):
-    import clipp1d.api as api
+    import legacy_chain_api as api
     original = api.propose_partitions
     def forced(model, pilot, raw, baseline, policy):
         # Exercise publication of a valid direct partition independently of whether
@@ -89,15 +89,18 @@ def test_direct_winner_has_no_selected_raw_certificate(make_input, tmp_path, mon
         cuts = (0, len(model)) if len(baseline.cuts) > 2 else tuple(range(len(model) + 1))
         direct = refit_partition(model, cuts, policy)
         diagnostics['selected_origin'] = 'adjacent_ward_pilot'
+        diagnostics['selected_seed_origin'] = 'adjacent_ward_pilot'
         return direct, diagnostics
     monkeypatch.setattr(api, 'propose_partitions', forced)
     out = tmp_path / 'direct'
     result = fit(make_input([{'alt_count': 4}, {'alt_count': 40}]), out)
     run = json.loads((out / 'run.json').read_text())
-    assert run['schema'] == 'clipp1d.run.v4'
+    assert run['schema'] == 'clipp1d.run.v6'
     assert result.selected_lambda is run['selected_lambda'] is None
     assert run['candidate_provenance']['selected_raw_certificate'] is None
     assert not run['candidate_provenance']['selected_partition_certified']
     assert run['candidate_provenance']['raw_reference']['lambda'] is not None
-    assert run['raw_diagnostics']['clonal_feasible']
+    assert run['raw_diagnostics']['box_feasible']
+    assert run['raw_diagnostics']['clonal_constraint'] is False
+    assert run['candidate_provenance']['raw_parent'] is None
     assert 'raw_reference_ccf' in (out / 'mutation_clusters.tsv').read_text().splitlines()[0]

@@ -1,9 +1,10 @@
-"""Offline independent nonlinear witness enumeration for policy comparisons.
+"""Historical constrained nonlinear witness enumeration for policy comparisons.
 
 This retains the df44e6a fixed-witness/multiple-start search, with direct-backend
 primal start deduplication. It deliberately calls the current production
 ``solver.solve_branch`` at runtime so numerical repairs apply to both policies.
-It is not a second production workflow and is not installed in the package.
+It is not current unconstrained production inference and is not installed in the
+package. Never inject this constrained search into an unconstrained full fit.
 """
 
 import numpy as np

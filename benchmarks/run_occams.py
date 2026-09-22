@@ -97,9 +97,10 @@ def verify_files(root, plan):
 def case_metrics(root, plan, case, directory):
     """Validate public output, and compare final CCFs on identical retained IDs."""
     import numpy as np
-    from compare_clipp2 import ari, read_rows
+    from compare_clipp2 import ari, read_rows, validate_clonal_designation
     run = load(directory/'fit/run.json')
-    assert run['schema'] == 'clipp1d.run.v4' and run['status'] == 'success'
+    assert run['schema'] in ('clipp1d.run.v4', 'clipp1d.run.v5', 'clipp1d.run.v6') and run['status'] == 'success'
+    unconstrained = run['schema'] in ('clipp1d.run.v5', 'clipp1d.run.v6')
     assert run['provenance']['source_sha256'] == plan['source']['source_sha256']
     assert run['provenance']['input_sha256'] == case['input_sha256']
     assert set(run['table_sha256']) == {
@@ -118,8 +119,14 @@ def case_metrics(root, plan, case, directory):
         assert selected['selected_raw_certificate'] is None
         assert selected['selected_partition_certified'] is False
     raw = run['raw_diagnostics']
-    assert raw['clonal_feasible'] and (raw.get('raw_branch_stationarity_qualified') or
-                                     raw.get('separable_scalar_gap_qualified'))
+    assert raw['box_feasible' if unconstrained else 'clonal_feasible']
+    assert raw.get('raw_branch_stationarity_qualified') or raw.get('separable_scalar_gap_qualified')
+    if unconstrained:
+        assert raw['clonal_constraint'] is False and run['provenance']['clonal_constraint'] is False
+        assert run['raw_witness_index'] is run['raw_witness_mutation_id'] is None
+        with (directory/'fit/cluster_centers.tsv').open() as stream:
+            centers = list(csv.DictReader(stream, delimiter='\t'))
+        validate_clonal_designation(run, centers)
     rows = read_rows(directory/'fit/mutation_clusters.tsv')
     mult = read_rows(directory/'fit/mutation_multiplicity.tsv')
     ids = sorted(rows)
@@ -128,10 +135,12 @@ def case_metrics(root, plan, case, directory):
     labels = [rows[i]['cluster_label'] for i in ids]
     phi = np.array([float(rows[i]['refitted_ccf']) for i in ids])
     assert np.all(np.isfinite(phi)) and np.all((phi >= 0) & (phi <= 1))
-    assert '0' in labels and all(p == 1 for p, label in zip(phi, labels) if label == '0')
+    assert '0' in labels
+    if not unconstrained:
+        assert all(p == 1 for p, label in zip(phi, labels) if label == '0')
     summary = dict(retained_mutations=len(ids), selected_k=len(set(labels)),
                    smf_all_exact_one=float(np.mean(phi != 1)),
-                   smf_designated=1-labels.count('0')/len(ids),
+                   smf_designated=None if run['schema']=='clipp1d.run.v5' else 1-labels.count('0')/len(ids),
                    search_status=run['search_status'],
                    selected_origin=selected['origin'],
                    score_gain=selected['raw_reference']['refit_score']-run['selection_score'],
@@ -172,6 +181,8 @@ def worker(args):
     phase = 'setup_failure'
     try:
         verify_files(root, plan)
+        from benchmark_chain import require_historical_cpu_package
+        require_historical_cpu_package(root/'frozen/src/clipp1d')
         assert sha(case['input_path']) == case['input_sha256']
         sys.path.insert(0, str(root/'frozen/src'))
         from clipp1d import fit
@@ -296,6 +307,9 @@ def controller(args):
     assert sha(root/'plan.json') == args.plan_sha256
     plan = load(root/'plan.json')
     verify_files(root, plan)
+    if 'source' in plan or (root/'frozen/src/clipp1d/api.py').exists():
+        from benchmark_chain import require_historical_cpu_package
+        require_historical_cpu_package(root/'frozen/src/clipp1d')
     (root/'owner.lock').mkdir()  # Persistent claim: never silently restart an uncertain owner.
     write(root/'owner.json', dict(pid=os.getpid(), started_utc=now(),
           proc_start_ticks=Path('/proc/self/stat').read_text().rsplit(')', 1)[1].split()[19],

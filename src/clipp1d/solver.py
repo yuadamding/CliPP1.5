@@ -455,11 +455,16 @@ def solve_branch(model, chain, lambda_value, witness_index, start, policy=Policy
 
 
 def solve_profiled(model, chain, lambda_value, start, policy=Policy()):
-    """Common-surrogate MM over the union of all eligible witness constraints."""
+    """Historical constrained reference; not used by production inference."""
     return _solve_outer(model, chain, lambda_value, start, policy, None)
 
 
-def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
+def solve_unconstrained(model, chain, lambda_value, start, policy=Policy()):
+    """Fit observed likelihood plus chain TV under the original CCF boxes."""
+    return _solve_outer(model, chain, lambda_value, start, policy, None, enforce_clonal=False)
+
+
+def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness, *, enforce_clonal=True):
     if not np.isfinite(lambda_value) or lambda_value < 0:
         raise ValueError("lambda must be finite and nonnegative")
     lower, upper = model.lower.copy(), model.upper.copy()
@@ -469,10 +474,13 @@ def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
     if isinstance(start, (WarmState, PrimalWarmState)):
         start.validate(chain)
         start = start.x
-    x = np.clip(np.asarray(start, dtype=float), lower, upper)
-    if x.shape != lower.shape or not np.all(np.isfinite(x)) or not np.any(x == 1):
-        raise ValueError("Outer start must be finite, correctly shaped and clonal feasible")
-    witness_index = int(np.flatnonzero(x == 1)[0]) if fixed_witness is None else fixed_witness
+    supplied = np.asarray(start, dtype=float)
+    if supplied.shape != lower.shape or not np.all(np.isfinite(supplied)):
+        raise ValueError("Outer start must be a finite correctly shaped vector")
+    x = np.clip(supplied, lower, upper)
+    if enforce_clonal and not np.any(x == 1):
+        raise ValueError("Historical constrained start must be clonal feasible")
+    witness_index = (int(np.flatnonzero(x == 1)[0]) if fixed_witness is None else fixed_witness) if enforce_clonal else None
     q = np.zeros(len(model) - 1)
     total_inner = accepted = backtracks = profile_calls = witness_switches = reused = 0
     status, residual, inner_gap = "outer_iteration_limit", np.inf, np.inf
@@ -495,7 +503,8 @@ def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
     curvature_scale = 1.0
     largest_curvature_scale = 1.0
     audit_lower, audit_upper = lower.copy(), upper.copy()
-    audit_lower[witness_index] = audit_upper[witness_index] = 1.
+    if witness_index is not None:
+        audit_lower[witness_index] = audit_upper[witness_index] = 1.
     for outer in range(policy.outer_max_iterations):
         terms = evaluate(model, x, derivatives=True)
         # A common profile is relatively expensive. Reuse only the last accepted
@@ -507,7 +516,7 @@ def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
         for attempt in range(policy.max_backtracks):
             target = x - terms.gradient / h
             inner_started = perf_counter()
-            if fixed_witness is None:
+            if enforce_clonal and fixed_witness is None:
                 profile_calls += 1
                 try:
                     # Original boxes release the previous witness. Every new
@@ -539,7 +548,8 @@ def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
                 status = "inner_qualification_unresolved"
                 break
             trial_lower, trial_upper = model.lower.copy(), model.upper.copy()
-            trial_lower[selected] = trial_upper[selected] = 1.
+            if selected is not None:
+                trial_lower[selected] = trial_upper[selected] = 1.
             cache = {}
             trial = _snap_crossed_breakpoints(model, x, inner.x, trial_lower, trial_upper, caps, cache)
             unchanged = np.array_equal(trial, inner.x)
@@ -591,7 +601,7 @@ def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
         kink_started = perf_counter()
         kink_ok, restart = _kink_check(model, x, caps, audit_lower, audit_upper, policy,
                                        context=audit_context, metrics=audit_metrics)
-        if fixed_witness is None and restart is None and kink_ok:
+        if enforce_clonal and fixed_witness is None and restart is None and kink_ok:
             # Any clonal-feasible interval excludes at least one extreme occupied
             # witness. Two endpoint anchors cover these interval directions.
             occupied = np.flatnonzero(x == 1)
@@ -613,10 +623,11 @@ def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
             restart_lengths.append(float(np.max(np.abs(restart - x))))
             x = restart
             previous_witness = witness_index
-            witness_index = int(np.flatnonzero(x == 1)[0]) if fixed_witness is None else fixed_witness
+            witness_index = (int(np.flatnonzero(x == 1)[0]) if fixed_witness is None else fixed_witness) if enforce_clonal else None
             restart_witness_switches += int(witness_index != previous_witness)
             audit_lower, audit_upper = model.lower.copy(), model.upper.copy()
-            audit_lower[witness_index] = audit_upper[witness_index] = 1.
+            if witness_index is not None:
+                audit_lower[witness_index] = audit_upper[witness_index] = 1.
             previous_objective = current
             current = objective(model, x, caps)
             restart_decreases.append(previous_objective - current)
@@ -643,7 +654,9 @@ def _solve_outer(model, chain, lambda_value, start, policy, fixed_witness):
                    "failure_reason": inner_work.get("failure_reason", status) if not qualified else None,
                    "inner_gap": float(inner_gap), "raw_branch_stationarity_qualified": qualified,
                    "accepted_surrogate_gap": accepted_surrogate_gap,
-                   "stationarity_residual": residual, "clonal_feasible": feasible and x[witness_index] == 1,
+                   "stationarity_residual": residual, "box_feasible": feasible,
+                   "clonal_constraint": enforce_clonal,
+                   "clonal_feasible": feasible and x[witness_index] == 1 if enforce_clonal else None,
                    "global_optimality_proven": False, "profile_calls": profile_calls,
                    "surrogate_witnesses_profiled": profile_calls * int(np.sum(model.upper == 1)),
                    "witness_switches": witness_switches, "inner_certificates_reused": reused,

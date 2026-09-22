@@ -191,6 +191,7 @@ def main():
     parser.add_argument('--out',type=Path,required=True)
     parser.add_argument('--recover',type=Path)
     args=parser.parse_args()
+    args.out = args.out.resolve()
     args.out.mkdir(parents=True,exist_ok=True)
     cases=inventory()
     imported=[]

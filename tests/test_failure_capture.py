@@ -4,7 +4,6 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 from types import SimpleNamespace
@@ -259,8 +258,8 @@ def test_partial_summary_prefers_current_search_complete(tmp_path, benchmark):
 def test_small_full_path_instruments_correct_policy(tmp_path, benchmark, reference):
     outdir = tmp_path / "path"
     package_source = tmp_path / "pinned-source"
-    shutil.copytree(Path(benchmark.api.__file__).parent, package_source / "clipp1d",
-                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    from historical_package import stage_historical_package
+    stage_historical_package(package_source)
     command = [sys.executable, str(Path(benchmark.__file__)), "--outdir", str(outdir),
                "--sizes", "3", "--scenarios", "easy", "--timeout-seconds", "15",
                "--max-failure-captures", "2", "--threads", "1", "--cpu-count", "1",
@@ -269,6 +268,12 @@ def test_small_full_path_instruments_correct_policy(tmp_path, benchmark, referen
         command.append("--reference-enumeration")
     subprocess.run(command, check=True, capture_output=True, text=True, timeout=30)
     record = json.loads((outdir / "easy-n3/benchmark.json").read_text())
+    if reference:
+        assert record["status"] == "failure"
+        events = [json.loads(line) for line in (outdir / "easy-n3/progress.jsonl").read_text().splitlines()]
+        assert "pinned historical constrained package" in events[-1]["message"]
+        assert not (outdir / "easy-n3/fit").exists()
+        return
     assert record["status"] == "success", (outdir / "easy-n3/worker.log").read_text()
     assert record["setup"]["reference_enumeration"] is reference
     assert record["setup"]["execution"]["controls_set_before_numpy_import"]
@@ -280,8 +285,21 @@ def test_small_full_path_instruments_correct_policy(tmp_path, benchmark, referen
     assert record["partial_totals"]["outer_iterations"] > 0
     assert record["partial_totals"]["audit_context_count"] > 0
     assert record["surrogate_work"]["finalization_calls_completed"] > 0
-    assert (record["surrogate_work"]["quadratic_calls_completed"] > 0) is reference
-    assert (record["surrogate_work"]["profile_calls_completed"] == 0) is reference
-    assert (record["partial_totals"]["profile_calls"] == 0) is reference
+    assert record["surrogate_work"]["quadratic_calls_completed"] > 0
+    assert record["surrogate_work"]["profile_calls_completed"] == 0
+    assert record["partial_totals"]["profile_calls"] == 0
+    assert record["search_policy"] == "unconstrained_chain_multistart_v1"
     assert record["raw_penalties_finished"] == 26
     assert record["raw_penalties_interrupted"] == 0
+
+
+def test_scaling_rejects_current_cuda_source_before_creating_output(tmp_path):
+    repo = Path(__file__).resolve().parents[1]
+    output = tmp_path / "not-created"
+    completed = subprocess.run([sys.executable, str(repo / "benchmarks/benchmark_scaling.py"),
+                                "--outdir", str(output), "--sizes", "3", "--scenarios", "easy",
+                                "--package-source", str(repo / "src")],
+                               capture_output=True, text=True, timeout=20)
+    assert completed.returncode != 0
+    assert "CUDA-only complete-graph" in completed.stderr
+    assert not output.exists()

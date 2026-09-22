@@ -30,7 +30,13 @@ def test_adjoint():
         assert_allclose(np.dot(difference(x), q), np.dot(x, adjoint(q)), atol=1e-14)
 
 
-def test_partition_ranges_and_clonal_exactness():
+def test_partition_ranges_without_exact_one_barrier():
     assert extract_blocks([.1, .10009, .10018], .0001) == (0, 2, 3)
     assert extract_blocks([.2, .8, .2], .001) == (0, 1, 2, 3)
-    assert extract_blocks([1, 1 - 1e-9, 1], .001) == (0, 1, 2, 3)
+    assert extract_blocks([1, 1 - 1e-9, 1], .001) == (0, 3)
+
+
+@pytest.mark.parametrize('tolerance', [np.nan, np.inf, -np.inf, -1.])
+def test_nonfinite_or_negative_tolerance_is_rejected(tolerance):
+    with pytest.raises(ValueError, match='nonnegative tolerance'):
+        extract_blocks([.1, .9], tolerance)

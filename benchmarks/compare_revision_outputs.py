@@ -160,6 +160,18 @@ def numeric_change(left, right):
                 rmse=float(np.sqrt(np.mean(difference**2))) if difference.size else 0.)
 
 
+def raw_ccf_column(rows):
+    """Keep the independent reference introduced in v4 distinct from old raw fits."""
+    columns = {"raw_reference_ccf" if "raw_reference_ccf" in row else "raw_ccf" for row in rows.values()}
+    if len(columns) != 1 or any(next(iter(columns)) not in row for row in rows.values()):
+        raise ValueError("Missing or inconsistent raw CCF columns")
+    return columns.pop()
+
+
+def optional_difference(left, right):
+    return right - left if left is not None and right is not None else None
+
+
 def compare_case(baseline, revised):
     for name in ("input_sha256", "truth_sha256", "policy_sha256"):
         require_equal(baseline[name], revised[name], f"Paired {name} mismatch")
@@ -175,13 +187,20 @@ def compare_case(baseline, revised):
     ids, first, second = baseline["retained_ids"], baseline["rows"], revised["rows"]
     left_run, right_run = baseline["run"], revised["run"]
     vector_changes = {name: numeric_change([first[mid][name] for mid in ids], [second[mid][name] for mid in ids])
-                      for name in ("pilot_ccf", "raw_ccf", "refitted_ccf")}
+                      for name in ("pilot_ccf", "refitted_ccf")}
+    left_raw, right_raw = raw_ccf_column(first), raw_ccf_column(second)
+    raw_name = "raw_ccf" if left_raw == right_raw == "raw_ccf" else "raw_reference_ccf"
+    vector_changes[raw_name] = numeric_change([first[mid][left_raw] for mid in ids],
+                                            [second[mid][right_raw] for mid in ids])
     left_labels, right_labels = [first[mid]["cluster_label"] for mid in ids], [second[mid]["cluster_label"] for mid in ids]
     changes = dict(**vector_changes, identical_labels=left_labels == right_labels,
                    label_ari=ari(left_labels, right_labels),
                    selected_lambda=dict(baseline=left_run["selected_lambda"], revised=right_run["selected_lambda"]),
                    selected_score_difference=right_run["selection_score"] - left_run["selection_score"],
-                   selected_raw_objective_difference=right_run["raw_objective"] - left_run["raw_objective"],
+                   raw_ccf_columns=dict(baseline=left_raw, revised=right_raw),
+                   selected_raw_objective_difference=optional_difference(left_run["raw_objective"], right_run["raw_objective"]),
+                   raw_reference_objective_difference=optional_difference(
+                       left_run.get("raw_reference_objective"), right_run.get("raw_reference_objective")),
                    identical_table_hashes=left_run["table_sha256"] == right_run["table_sha256"])
     paths = []
     left_path = {row["lambda"]: row for row in left_run["search"]["path"]}
@@ -197,17 +216,21 @@ def compare_case(baseline, revised):
             item[field] = dict(baseline=av, revised=bv, difference=bv - av if av is not None and bv is not None else None)
         paths.append(item)
     warnings = []
+    if left_raw != right_raw:
+        warnings.append("Raw columns have different semantics: legacy selected fit versus independent raw reference")
     if any(row["differing_fields"] or row["raw_objective"]["difference"] not in (None, 0.) for row in paths):
         warnings.append("Recorded nonlinear trajectories differ; identical selected outputs would not establish path equivalence")
-    if not changes["raw_ccf"]["exactly_equal"] or not changes["refitted_ccf"]["exactly_equal"] or not changes["identical_labels"]:
-        warnings.append("Selected raw or refitted outputs differ; inspect magnitudes and truth metrics")
+    if not changes[raw_name]["exactly_equal"] or not changes["refitted_ccf"]["exactly_equal"] or not changes["identical_labels"]:
+        warnings.append("Raw-reference or refitted outputs differ; inspect magnitudes and truth metrics")
     return dict(**record, comparable=True, retained_mutations=len(ids), retained_ids_sha256=canonical_hash(ids),
                 model_sha256=baseline["model_sha256"], chain_sha256=baseline["chain_sha256"],
                 baseline_run_sha256=baseline["run_sha256"], revised_run_sha256=revised["run_sha256"],
                 baseline_search_status=left_run["search_status"], revised_search_status=right_run["search_status"],
                 selected_comparison=changes, paths=paths, warnings=warnings,
-                baseline_truth_metrics=metrics(first, baseline["truth"], baseline["calls"], "refitted_ccf"),
-                revised_truth_metrics=metrics(second, revised["truth"], revised["calls"], "refitted_ccf"))
+                baseline_truth_metrics=metrics(first, baseline["truth"], baseline["calls"], "refitted_ccf",
+                    designated_label=None if left_run.get("schema") == "clipp1d.run.v5" else "0"),
+                revised_truth_metrics=metrics(second, revised["truth"], revised["calls"], "refitted_ccf",
+                    designated_label=None if right_run.get("schema") == "clipp1d.run.v5" else "0"))
 
 
 def compare_panels(baseline, revised):

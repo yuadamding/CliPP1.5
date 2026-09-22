@@ -8,6 +8,8 @@ import gzip
 import hashlib
 import io
 import math
+import zlib
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 from .policy import Policy
@@ -22,16 +24,22 @@ SCHEMA_COLUMNS = (
 def _number(value, name, integer=False, missing=False):
     if missing and value == ".":
         return None
+    if integer:
+        # Validate the supplied decimal before float64 conversion can round it.
+        try:
+            exact = Decimal(value)
+        except InvalidOperation as exc:
+            raise InputError(f"{name} must be numeric") from exc
+        if (not exact.is_finite() or exact < 0 or exact > 2**53 or
+                exact != exact.to_integral_value()):
+            raise InputError(f"{name} must be an exactly representable nonnegative integer")
+        return int(exact)
     try:
         v = float(value)
     except ValueError as exc:
         raise InputError(f"{name} must be numeric") from exc
     if not math.isfinite(v) or v < 0:
         raise InputError(f"{name} must be finite and nonnegative")
-    if integer:
-        if abs(v - round(v)) > 1e-8 or v > 2**53:
-            raise InputError(f"{name} must be an exactly representable nonnegative integer")
-        return int(round(v))
     return v
 
 
@@ -46,8 +54,12 @@ def read_tumor(path, policy=Policy()):
     payload = path.read_bytes()
     digest = hashlib.sha256(payload).hexdigest()
     metadata, rows, header = {}, [], None
-    content = gzip.decompress(payload) if path.suffix.lower() == ".gz" else payload
-    with io.StringIO(content.decode("utf-8"), newline="") as handle:
+    try:
+        content = gzip.decompress(payload) if path.suffix.lower() == ".gz" else payload
+        decoded = content.decode("utf-8")
+    except (OSError, EOFError, zlib.error, UnicodeDecodeError) as exc:
+        raise InputError("Input must be valid UTF-8 TSV, optionally gzip compressed") from exc
+    with io.StringIO(decoded, newline="") as handle:
         for line in handle:
             line = line.rstrip("\r\n")
             if not line:
@@ -62,7 +74,10 @@ def read_tumor(path, policy=Policy()):
                 continue
             if line.startswith("#"):
                 continue
-            fields = next(csv.reader([line], delimiter="\t", strict=True))
+            try:
+                fields = next(csv.reader([line], delimiter="\t", strict=True))
+            except csv.Error as exc:
+                raise InputError("Invalid TSV quoting") from exc
             if header is None:
                 header = fields
                 if (len(set(header)) != len(header) or
@@ -70,9 +85,11 @@ def read_tumor(path, policy=Policy()):
                         not set(SCHEMA_COLUMNS).issubset(header)):
                     raise InputError("Header must contain the twelve unique model columns")
                 continue
-            if len(fields) != len(header) or any(v == "" for v in fields):
+            if len(fields) != len(header):
                 raise InputError("Invalid row width or blank value (use '.' for missing)")
             row = dict(zip(header, fields))
+            if any(row[key] == "" for key in SCHEMA_COLUMNS):
+                raise InputError("Invalid row width or blank value (use '.' for missing)")
             for key in ("mutation_id", "sample_id", "segment_id", "cn_state_id"):
                 row[key] = _identifier(row[key])
             if row["count_observed"] not in ("0", "1"):
@@ -149,5 +166,6 @@ def read_tumor(path, policy=Policy()):
     # Match upstream canonicalization after exclusion; absent retained data is handled by compiler.
     retained_ids = {m.mutation_id for m in mutations if m.exclusion is None}
     purity = min((r["purity"] for r in rows if r["mutation_id"] in retained_ids), default=min(purities))
-    return TumorInput(metadata.get("tumor_id", path.name.removesuffix(".gz").removesuffix(".tsv")),
+    tumor_id = _identifier(metadata.get("tumor_id", path.name.removesuffix(".gz").removesuffix(".tsv")))
+    return TumorInput(tumor_id,
                       next(iter(samples)), purity, tuple(mutations), digest)

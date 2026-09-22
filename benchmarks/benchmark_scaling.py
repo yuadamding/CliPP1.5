@@ -13,7 +13,7 @@ import sys
 from time import perf_counter
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from benchmark_chain import configure_execution  # noqa: E402
+from benchmark_chain import configure_execution, require_historical_cpu_package  # noqa: E402
 
 
 def load_numerics(package_source=None):
@@ -240,7 +240,8 @@ class FailureCapture:
             context["selected_witness"] = int(changed[0]) if len(changed) == 1 else None
             context["modified_box_coordinates"] = int(len(changed))
         self.capture(values, reason,
-                     "selected_witness_frozen_boxes" if self.profile_boxes is not None else "fixed_witness_branch_boxes",
+                     "selected_witness_frozen_boxes" if self.profile_boxes is not None else
+                     "original_unconstrained_boxes" if self.context.get("clonal_constraint") is False else "fixed_witness_branch_boxes",
                      dict(gap=result.gap, gap_scale=result.gap_scale,
                           kkt_residual=result.kkt_residual, work=result.work), **context)
 
@@ -281,6 +282,7 @@ class FailureCapture:
 
 
 def worker(outdir, size, seed, scenario, execution, reference=False, capture_limit=8):
+    require_historical_cpu_package(Path(api.__file__).resolve().parent)
     source, truth = simulate(outdir / "input", size, seed, ambiguous=scenario == "mixture")
     started = perf_counter()
     totals = dict(starts_completed=0, starts_failed=0, starts_seconds=0., inner_seconds=0.,
@@ -291,8 +293,13 @@ def worker(outdir, size, seed, scenario, execution, reference=False, capture_lim
     failures, failure_statuses = {}, {}
     last_snapshot = started
     provenance = api.source_provenance()
-    policy_name = "independent_witness_enumeration_reference" if reference else "common_surrogate_multistart_v1"
-    context = dict(search_policy=policy_name, mutations=size, scenario=scenario, seed=seed,
+    raw_module = sys.modules[selection.fit_fixed_lambda.__module__]
+    free_search = hasattr(raw_module, "solve_unconstrained")
+    start_name = "solve_unconstrained" if free_search else "solve_profiled"
+    policy_name = ("independent_witness_enumeration_reference" if reference else
+                   "unconstrained_chain_multistart_v1" if free_search else "common_surrogate_multistart_v1")
+    context = dict(search_policy=policy_name, clonal_constraint=not free_search or reference,
+                   mutations=size, scenario=scenario, seed=seed,
                    input_sha256=hashlib.sha256(source.read_bytes()).hexdigest())
     capture = FailureCapture(outdir / "failed_surrogates", provenance, context, capture_limit,
                              finalizer_instrumented=hasattr(solver, "finalize_quadratic"))
@@ -321,9 +328,13 @@ def worker(outdir, size, seed, scenario, execution, reference=False, capture_lim
          benchmark_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
          simulator_sha256=hashlib.sha256(Path(simulate.__code__.co_filename).read_bytes()).hexdigest(),
          reference_sha256=hashlib.sha256(Path(reference_enumeration.__file__).read_bytes()).hexdigest() if reference else None)
+    if reference and free_search:
+        emit("fit_failed", error_type="ValueError",
+             message="Witness enumeration requires a pinned historical constrained package; it cannot replace unconstrained production inference.")
+        return
     original_pilot, original_chain = api.compute_pilot, api.build_chain
     original_raw, original_refit = selection.fit_fixed_lambda, selection.refit_partition
-    original_start = solver.solve_branch if reference else clonal.solve_profiled
+    original_start = solver.solve_branch if reference else getattr(raw_module, start_name)
     original_quadratic, original_profile = solver.solve_quadratic, solver.profile_quadratic_witnesses
     original_finalizer = getattr(solver, "finalize_quadratic", None)
     raw_backend = reference_enumeration.fit_fixed_lambda if reference else original_raw
@@ -411,7 +422,7 @@ def worker(outdir, size, seed, scenario, execution, reference=False, capture_lim
     if reference:
         solver.solve_branch = start_call
     else:
-        clonal.solve_profiled = start_call
+        setattr(raw_module, start_name, start_call)
     solver.solve_quadratic = capture.wrap_quadratic(original_quadratic)
     solver.profile_quadratic_witnesses = capture.wrap_profile(original_profile)
     if original_finalizer is not None:
@@ -427,7 +438,7 @@ def worker(outdir, size, seed, scenario, execution, reference=False, capture_lim
         if reference:
             solver.solve_branch = original_start
         else:
-            clonal.solve_profiled = original_start
+            setattr(raw_module, start_name, original_start)
         solver.solve_quadratic, solver.profile_quadratic_witnesses = original_quadratic, original_profile
         if original_finalizer is not None:
             solver.finalize_quadratic = original_finalizer
@@ -484,7 +495,7 @@ def main():
     parser.add_argument("--scenarios", nargs="+", choices=("easy", "mixture"), default=["easy", "mixture"])
     parser.add_argument("--timeout-seconds", type=float, default=120.)
     parser.add_argument("--seed", type=int, default=17)
-    parser.add_argument("--reference-enumeration", action="store_true", help="Use the offline independent-witness policy with the current numerical solver")
+    parser.add_argument("--reference-enumeration", action="store_true", help="Historical constrained witness comparison; requires a pinned constrained --package-source")
     parser.add_argument("--max-failure-captures", type=int, default=8)
     parser.add_argument("--package-source", type=Path,
                         help="Directory containing clipp1d/; load unchanged source in each fresh worker")
@@ -502,6 +513,7 @@ def main():
     except ValueError as exc:
         parser.error(str(exc))
     try:
+        require_historical_cpu_package((args.package_source or Path(__file__).resolve().parents[1] / "src") / "clipp1d")
         load_numerics(args.package_source)
     except ValueError as exc:
         parser.error(str(exc))

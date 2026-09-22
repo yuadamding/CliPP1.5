@@ -8,18 +8,18 @@ from time import perf_counter
 import numpy as np
 
 from .chain import extract_blocks
-from .clonal import fit_fixed_lambda
-from .model import evaluate
+from .fitting import fit_fixed_lambda
 from .policy import Policy
 from .scalar import minimize_block, scalar_key
-from .types import ClonalConstraintInfeasibleError, NumericalQualificationError, PartitionRefit, PrimalWarmState
+from .types import NumericalQualificationError, PartitionRefit, PrimalWarmState
 
 logger = logging.getLogger(__name__)
 
 
 def partition_score(loss, sizes):
     sizes = np.asarray(sizes)
-    if sizes.ndim != 1 or not sizes.size or np.any(sizes <= 0) or np.any(sizes != np.rint(sizes)):
+    if (sizes.ndim != 1 or not sizes.size or not np.all(np.isfinite(sizes)) or
+            np.any(sizes <= 0) or np.any(sizes != np.rint(sizes))):
         raise ValueError("Expected occupied integer block sizes")
     n, k = int(np.sum(sizes)), sizes.size
     log_mass = math.fsum([math.lgamma(k), -math.lgamma(n + k),
@@ -31,16 +31,15 @@ def partition_score(loss, sizes):
 
 
 def refit_partition(model, cuts, policy=Policy(), *, pilot=None, interval_solver=None):
-    """The model is in chain order. Profile the identity of the clonal block."""
+    """Independently refit occupied blocks under their original CCF boxes."""
     cuts = tuple(cuts)
     if (not cuts or cuts[0] != 0 or cuts[-1] != len(model) or
-            any(not isinstance(v, (int, np.integer)) for v in cuts) or
+            any(isinstance(v, (bool, np.bool_)) or not isinstance(v, (int, np.integer)) for v in cuts) or
             any(a >= b for a, b in zip(cuts[:-1], cuts[1:]))):
         raise ValueError("Cuts must partition the whole chain into nonempty intervals")
-    centers, losses, gaps, at_one = [], [], [], []
+    centers, losses, gaps = [], [], []
     fits = reused = evaluations = 0
     pilot_index = {mid: i for i, mid in enumerate(pilot.mutation_ids)} if pilot is not None else {}
-    one_losses = evaluate(model, np.minimum(model.upper, 1)).loss
     for start, stop in zip(cuts[:-1], cuts[1:]):
         scalar = None
         index = pilot_index.get(model.mutation_ids[start]) if stop - start == 1 else None
@@ -61,21 +60,11 @@ def refit_partition(model, cuts, policy=Policy(), *, pilot=None, interval_solver
         centers.append(scalar.argmin)
         losses.append(scalar.attained_loss)
         gaps.append(scalar.optimality_gap)
-        at_one.append(float(np.sum(one_losses[start:stop]))
-                      if np.all(model.upper[start:stop] == 1) else np.inf)
-    costs = np.asarray(at_one) - losses
-    designated = int(np.argmin(costs))
-    if not np.isfinite(costs[designated]):
-        raise ClonalConstraintInfeasibleError("Partition has no block eligible for CCF one")
     centers = np.array(centers)
-    centers[designated] = 1.0
-    loss = math.fsum(at_one[i] if i == designated else losses[i] for i in range(len(losses)))
-    # All scalar lower bounds also bound the profiled unknown-clonal-block refit.
-    scalar_lower = np.asarray(losses) - gaps
-    lower_profile = math.fsum(scalar_lower) + float(np.min(np.asarray(at_one) - scalar_lower))
-    gap = max(0, loss - lower_profile)
+    loss = math.fsum(losses)
+    gap = math.fsum(gaps)
     score, components = partition_score(loss, np.diff(cuts))
-    return PartitionRefit(cuts, centers, designated, loss, gap, score, components, fits, reused, evaluations)
+    return PartitionRefit(cuts, centers, None, loss, gap, score, components, fits, reused, evaluations)
 
 
 def penalty_reference(model, chain, pilot):
@@ -99,8 +88,6 @@ def penalty_reference(model, chain, pilot):
 
 def select_fit(model, chain, pilot, policy=Policy()):
     ordered = model.subset(chain.order)
-    if not np.any(ordered.upper == 1):
-        raise ClonalConstraintInfeasibleError("No retained mutation is clonal-eligible")
     reference = penalty_reference(model, chain, pilot)
     path = [0.0] if len(model) == 1 else [0.0] + [reference * 2.0**k for k in
                                                range(policy.path_min_exponent, policy.path_max_exponent + 1)]
@@ -119,7 +106,7 @@ def select_fit(model, chain, pilot, policy=Policy()):
             record.update(raw.diagnostics)
             record.update(raw_status="qualified", raw_solver_status=raw.diagnostics["status"],
                           raw_objective=raw.objective, raw_witness_index=raw.witness,
-                          raw_witness_mutation_id=ordered.mutation_ids[raw.witness])
+                          raw_witness_mutation_id=None)
             record["raw_diagnostics"] = dict(raw.diagnostics)
             warm = PrimalWarmState(raw.x, chain.fingerprint)
             cuts = extract_blocks(raw.x, policy.fusion_tol)
@@ -140,7 +127,7 @@ def select_fit(model, chain, pilot, policy=Policy()):
                 candidate = (refit.score, len(cuts) - 1, lam, cuts)
                 if best is None or candidate < best[0]:
                     best = (candidate, lam, raw, refit)
-            except (NumericalQualificationError, ClonalConstraintInfeasibleError) as exc:
+            except NumericalQualificationError as exc:
                 record.update(status="unresolved", refit_status="unresolved",
                               refit_message=str(exc), refit_diagnostics=exc.diagnostics)
             record["refit_seconds"] = perf_counter() - refit_started

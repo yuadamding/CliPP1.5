@@ -1,9 +1,12 @@
+> Historical chain reference (through 0.4.1). The current production model and
+> output contract are documented in [CUDA_FRAMEWORK.md](CUDA_FRAMEWORK.md).
+> References to production below describe the historical revision.
+
 # Statistical formulation
 
 CliPP1D estimates mutation CCFs and clusters mutations from one tumor sample using
 an observed-count likelihood and adaptive fusion along a fixed chain ordered by
-unpenalized marginal CCF estimates. At least one occupied cluster is constrained
-to CCF exactly one.
+unpenalized marginal CCF estimates. No cluster is required to have CCF one.
 
 For mutation i, alternate/reference counts are a_i/r_i, purity is rho, and supplied
 CN states are (A_ik, B_ik, s_ik), with A ≥ B. Let
@@ -37,26 +40,18 @@ At each lambda, minimize the attained nonconvex objective
 
 ```text
 F_lambda(x) = sum_j f_order[j](x_j) + lambda sum_j w_j |x_{j+1}-x_j|
-eps <= x_j <= u_order[j], with at least one x_j exactly 1.
+eps <= x_j <= u_order[j].
 ```
 
-The occupied-clonal constraint is a union of branches, each fixing one
-originally eligible witness to one. At lambda zero, profile the cost
-f_j(1)-min f_j directly. At positive lambda, production tries at most four
-clonal-feasible initial primal vectors: preceding penalty, pilot, clipped pooled
-and alternative-well estimates. When a vector has no exact-one coordinate, impose
-the eligible witness with smallest observed cost increase; deduplicate the
-resulting primals. This initial witness is never permanent.
-
-For each outer iterate, form one quadratic surrogate and minimize it over the
-entire union using shared prefix/suffix values at one. Pass the original boxes,
-reconstruct the selected witness once, and check its gap/KKT and predicted value.
-Backtracking recomputes the shared messages. Acceptance requires observed
-likelihood majorization, surrogate descent and true-objective descent. A finite
-start bank and numerically qualified stationary candidates do not prove a
-nonconvex global minimum. The former independent nonlinear witness enumeration,
-including its safe scalar-lower-bound screening, is an offline validation
-reference; the new search need not attain the same stationary points.
+At lambda zero, use the qualified marginal pilots without projection to one.
+At positive lambda, production tries at most four distinct boxed initial primal
+vectors: preceding penalty, pilot, clipped pooled and alternative-well estimates.
+For each outer iterate, form one quadratic surrogate and solve the bounded
+weighted-TV problem on the full chain. Backtracking recomputes the messages.
+Acceptance requires observed-likelihood majorization, surrogate descent and
+true-objective descent. No witness is fixed, profiled or designated. A finite
+start bank and qualified stationary candidates do not prove a nonconvex global
+minimum. Historical constrained witness solvers remain offline references only.
 
 The raw path is `{0} union {lambda_ref * 2**k: k=-12,...,12}`. The reference uses
 the weighted pooled pilot quadratic and cumulative adjusted gradients, including
@@ -65,21 +60,26 @@ extensions are evaluated if the selected candidate remains at the upper boundary
 M=1 is solved directly at zero. Cluster counts need not be monotone along the path.
 
 Blocks must be contiguous. Extraction uses both adjacent differences and total
-block range at tolerance 2e-5, separating exact-one from merely near-one values.
+block range at tolerance 2e-5, treating exact-one and near-one values uniformly.
 Numerical fusion polish is performed inside the raw solver and audited; reporting
 never snaps a near-one value to one.
 
-For each block C, globally qualify the scalar minimum L_C and, when its original
-domain contains one, compute L_C(1). The refit profiles the designated clonal block:
+For each block C, qualify the scalar minimum L_C on the intersection of its
+original mutation boxes. Blocks are refitted independently:
 
 ```text
-L_refit = sum_C L_C + min_eligible_C (L_C(1) - L_C)
+L_refit = sum_C L_C
 log P_part = lgamma(K) - lgamma(M+K) + sum_C lgamma(size_C+1) + lgamma(K+1)
 score = 2 L_refit + K log M - 1.4 log P_part
 ```
 
 This score preserves the pinned CliPP2 arithmetic. It is not a new Bayesian
-derivation for ordered partitions. The reported estimator is the constrained
+derivation for ordered partitions. The reported estimator is the independent
 refit of the selected chain partition, not the raw penalized iterate. Posterior
 multiplicity is conditional on that refit; exact ties choose the smaller integer.
 Labels only permute blocks and never merge them.
+
+Version 0.4.0 changes the feasible set, not the score arithmetic. Public labels
+assign the block closest to CCF one to clonal label zero, then order the other
+blocks by descending CCF and chain position. This post-fit designation (0.4.1)
+does not constrain or change any center; sMF counts mutations outside label zero.

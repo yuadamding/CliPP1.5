@@ -84,3 +84,44 @@ def test_gzip_matches_plain(make_input):
     compressed = path.with_suffix(".tsv.gz")
     compressed.write_bytes(gzip.compress(path.read_bytes()))
     assert read_tumor(path).mutations == read_tumor(compressed).mutations
+
+
+@pytest.mark.parametrize("value", ["1.000000001", "9007199254740993", "NaN", "Infinity"])
+@pytest.mark.parametrize("field", ["alt_count", "allele_a_cn"])
+def test_integer_text_is_validated_before_rounding(make_input, value, field):
+    with pytest.raises(InputError, match="integer"):
+        read_tumor(make_input([{field: value}]))
+
+
+@pytest.mark.parametrize("value,expected", [("10.0", 10), ("1e1", 10),
+                                            ("9007199254740992", 2**53)])
+def test_exact_integer_notation(make_input, value, expected):
+    assert read_tumor(make_input([{"alt_count": value}])).mutations[0].alt == expected
+
+
+@pytest.mark.parametrize("value", [".", " bad", "bad ", "bad\tname"])
+def test_invalid_tumor_metadata(make_input, value):
+    with pytest.raises(InputError, match="identifier"):
+        read_tumor(make_input([{}], metadata=f"##tumor_id={value}\n"))
+
+
+def test_blank_extra_column_is_inert(make_input):
+    path = make_input([{}])
+    lines = path.read_text().splitlines()
+    path.write_text(lines[0] + "\tannotation\n" + lines[1] + "\t\n")
+    assert len(read_tumor(path).mutations) == 1
+
+
+@pytest.mark.parametrize("kind", ["truncated_gzip", "utf8", "tsv_quotes"])
+def test_malformed_encoding_is_input_error(make_input, kind):
+    path = make_input([{}])
+    if kind == "truncated_gzip":
+        payload = gzip.compress(path.read_bytes())[:-5]
+        path = path.with_suffix(".tsv.gz")
+    elif kind == "utf8":
+        payload = b"\xff"
+    else:
+        payload = path.read_bytes() + b'"unterminated\n'
+    path.write_bytes(payload)
+    with pytest.raises(InputError):
+        read_tumor(path)

@@ -1,4 +1,4 @@
-"""Offline bounded penalized-block proposal, followed by original full audits.
+"""Historical constrained 72ba3ed penalized-block prototype and full audits.
 
 This changes the numerical trajectory and is explicitly not a production fix.
 Each proposal changes one block from the sweep-start exact partition, includes its two external
@@ -25,9 +25,10 @@ def main():
     parser.add_argument('--fixture-directory', type=Path, required=True)
     parser.add_argument('--outdir', type=Path, required=True)
     parser.add_argument('--sweeps', type=int, default=3)
+    parser.add_argument('--cpu', type=int, default=1)
     args = parser.parse_args()
     from benchmark_chain import configure_execution
-    controls = configure_execution(cpus=[1], threads=1)
+    controls = configure_execution(cpus=[args.cpu], threads=1)
     import numpy as np
     from scipy.optimize import minimize_scalar
     from diagnose_observed_dual import observed_dual
@@ -40,7 +41,9 @@ def main():
     from clipp1d.types import FrozenChain
     policy = Policy()
     source = api.source_provenance()
-    assert source['source_sha256'] == '30a019eba2c99dbfae23b26200164893ab6ac54d82d2ef60a1dec2ce4f8e4055'
+    if (Path(solver.__file__).resolve().parent != args.frozen_package.resolve() or
+            source['source_sha256'] != '30a019eba2c99dbfae23b26200164893ab6ac54d82d2ef60a1dec2ce4f8e4055'):
+        raise RuntimeError('Expected historical constrained frozen 72ba3ed package')
     setup = json.loads((args.fixture_directory / 'setup.json').read_text())
     assert sha(setup['input_path']) == setup['input_sha256']
     model = compile_model(read_tumor(setup['input_path']))

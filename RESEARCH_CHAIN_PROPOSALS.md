@@ -1,6 +1,14 @@
-Production update: the validated best-seed design is now integrated in 0.3.0.
-See README.md for the v4 candidate-provenance contract. The results below
-remain the original, unmodified offline research evidence.
+Historical scope: this report preserves the original chain-proposal study.
+Its best-seed design was subsequently integrated in version 0.3.0 with the
+historical v4 candidate-provenance contract. References to "current" or
+"production" below refer to the study's pinned source, not today's package.
+
+The current 0.5.0.dev0 [CUDA framework](docs/CUDA_FRAMEWORK.md) uses a complete
+graph and qualified graph-path candidates; adjacent Ward and boundary-refinement
+proposals are absent from production. Fitting is unconstrained by clonal status,
+and the refitted cluster closest to one receives label zero. The original
+results and source identities below remain unchanged and do not qualify the
+current method.
 
 # CliPP2 mechanisms that fit the CliPP1.5 framework
 

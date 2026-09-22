@@ -42,13 +42,13 @@ def build_chain(pilot, mutation_ids, policy=Policy()):
 def extract_blocks(x, tolerance):
     """Contiguous ranges; no transitive tolerance chaining or nonadjacent merge."""
     x = np.asarray(x)
-    if x.ndim != 1 or x.size == 0 or not np.all(np.isfinite(x)) or tolerance < 0:
+    if (x.ndim != 1 or x.size == 0 or not np.all(np.isfinite(x)) or
+            not np.isfinite(tolerance) or tolerance < 0):
         raise ValueError("Expected a nonempty finite vector and nonnegative tolerance")
     cuts, low, high = [0], x[0], x[0]
     for i in range(1, len(x)):
         new_low, new_high = min(low, x[i]), max(high, x[i])
-        if (new_high - new_low > tolerance or abs(x[i] - x[i - 1]) > tolerance or
-                (x[i] == 1) != (x[i - 1] == 1)):
+        if new_high - new_low > tolerance or abs(x[i] - x[i - 1]) > tolerance:
             cuts.append(i)
             low = high = x[i]
         else:

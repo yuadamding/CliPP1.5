@@ -1,5 +1,16 @@
 # OCCAMS matched-input CPU run
 
+Historical scope: this document records the September 21, 2026 source-bound CPU
+plan and its historical output contracts. It is not live run status or authority
+to launch or restart the plan. Statements about production and active jobs below
+refer to that recorded attempt; its receipts and evidence remain unchanged.
+
+The current 0.5.0.dev0 [production framework](docs/CUDA_FRAMEWORK.md) requires
+CUDA. The historical OCCAMS runner rejects the current CUDA-only package before
+CPU admission or fitting. Historical evaluation must retain each attempt's
+frozen source and output contract; substituting the current package does not
+reproduce the original CPU run.
+
 The user requested CliPP1.5 on the same inputs as CliPP2's OCCAMS Kubernetes
 run, **after the current local simulation jobs finish**. This run covers all
 570 single-region tumors with up to 25 local CPU workers, one fresh process,
@@ -74,8 +85,10 @@ This is a local CPU run on a shared host, not a GPU execution comparison.
 
 Each successful case retains the four public CliPP1.5 files plus external
 startup, process, metrics and terminal receipts. Validation checks source and
-input identity, all table hashes, retained mutation IDs, the occupied clonal
-cluster and candidate/refit/raw-reference provenance. A direct partition
+input identity, all table hashes, retained mutation IDs and
+candidate/refit/raw-reference provenance. Legacy v4 outputs require their occupied
+clonal designation; v5 outputs require no designation and zero clonal flags;
+v6 designates only the fitted cluster closest to CCF one as public label zero. A direct partition
 cannot inherit a raw KKT certificate.
 
 The final audit rechecks successful output/metric identities before publishing
@@ -85,7 +98,10 @@ Progress is available in `status.json` and `summary-current.json`.
 OCCAMS has no supplied clustering truth. Report cluster counts, runtime,
 memory, incomplete-search status and subclonal fraction. Where a validated
 CliPP2 reference exists, report partition ARI **as agreement**, mean absolute
-final-refit CCF difference, and both designated-cluster and all-exact-one sMF.
+final-refit CCF difference and all-exact-one sMF. Designated-cluster sMF applies
+to historical constrained results and current nearest-to-one v6 results; it is
+unavailable for the intermediate undesignated v5 schema. Current primary sMF is
+the fraction outside the designated closest-to-one cluster.
 These are not truth accuracy measures, and eight smaller completed reference
 cases cannot establish full-cohort agreement. Different CPU/GPU environments
 also prevent interpreting raw wall-time ratios as algorithm-only speedups.

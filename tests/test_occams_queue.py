@@ -189,11 +189,10 @@ def test_frozen_source_drift_blocks_owner_creation(runner, predecessor, tmp_path
 
 
 def test_fresh_worker_validates_outputs_and_measures_agreement(runner, tmp_path, make_input):
-    from clipp1d.api import source_provenance
+    from historical_package import stage_historical_package
     repo = Path(__file__).resolve().parents[1]
     root = tmp_path/'smoke'
-    shutil.copytree(repo/'src/clipp1d', root/'frozen/src/clipp1d',
-                    ignore=shutil.ignore_patterns('__pycache__'))
+    historical_source = stage_historical_package(root/'frozen/src')
     (root/'frozen/benchmarks').mkdir()
     for name in ('run_occams.py', 'benchmark_chain.py', 'compare_clipp2.py'):
         shutil.copyfile(repo/'benchmarks'/name, root/'frozen/benchmarks'/name)
@@ -207,7 +206,7 @@ def test_fresh_worker_validates_outputs_and_measures_agreement(runner, tmp_path,
                 retained_ids_sha256=hashlib.sha256(json.dumps(['0001']).encode()).hexdigest(),
                 baseline=dict(directory=str(baseline), clusters_filename=clusters.name,
                               files={clusters.name: runner.sha(clusters)}))
-    plan = dict(python=sys.executable, source=source_provenance(), source_commit='synthetic',
+    plan = dict(python=sys.executable, source=historical_source, source_commit='synthetic',
                 clipp2={'source_commit': 'synthetic'}, cases=[case],
                 frozen_files={str(p.relative_to(root/'frozen')): runner.sha(p)
                               for p in (root/'frozen').rglob('*.py')})
@@ -223,11 +222,24 @@ def test_fresh_worker_validates_outputs_and_measures_agreement(runner, tmp_path,
     assert terminal['status'] == 'success'
     metric = runner.load(directory/'metrics.json')
     assert metric['clipp2_agreement']['partition_ari'] == 1
-    assert metric['clipp2_agreement']['ccf_mean_absolute_difference'] == 0
+    assert metric['clipp2_agreement']['ccf_mean_absolute_difference'] > 0
+    assert metric['smf_designated'] == 0
+    assert metric['smf_all_exact_one'] == 1
     assert runner.sha(directory/'fit/run.json') == terminal['run_sha256']
     startup = runner.load(directory/'startup.json')
     assert len(startup['controls']['selected_cpus']) == 1
     assert set(startup['controls']['thread_environment'].values()) == {'1'}
+    centers = directory/'fit/cluster_centers.tsv'
+    centers.write_text(centers.read_text().removesuffix('1\n')+'0\n')
+    receipt = runner.load(directory/'fit/run.json')
+    receipt['table_sha256']['cluster_centers.tsv'] = runner.sha(centers)
+    runner.write(directory/'fit/run.json', receipt, replace=True)
+    sys.path.insert(0, str(root/'frozen/benchmarks'))
+    try:
+        with pytest.raises(AssertionError):
+            runner.case_metrics(root, plan, case, directory)
+    finally:
+        sys.path.pop(0)
     # Reconciliation fails on a changed public output instead of accepting success.
     (directory/'fit/cluster_centers.tsv').write_text('corrupted\n')
     sys.path.insert(0, str(root/'frozen/benchmarks'))
@@ -236,3 +248,20 @@ def test_fresh_worker_validates_outputs_and_measures_agreement(runner, tmp_path,
             runner.case_metrics(root, plan, case, directory)
     finally:
         sys.path.pop(0)
+
+
+def test_cuda_source_rejected_before_occams_owner_or_jobs(runner, predecessor, tmp_path, monkeypatch):
+    repo = Path(__file__).resolve().parents[1]
+    monkeypatch.syspath_prepend(str(repo/'benchmarks'))
+    args, plan = make_plan(runner, tmp_path/'run', predecessor, n=1)
+    package = args.root/'frozen/src/clipp1d'
+    package.mkdir(parents=True)
+    shutil.copyfile(repo/'src/clipp1d/api.py', package/'api.py')
+    plan['source'] = {'package_version': 'current-cuda'}
+    runner.write(args.root/'plan.json', plan, replace=True)
+    args.plan_sha256 = runner.sha(args.root/'plan.json')
+    monkeypatch.setattr(runner, 'execute', lambda *args: pytest.fail('CUDA source reached CPU admission'))
+    with pytest.raises(ValueError, match='CUDA-only complete-graph'):
+        runner.controller(args)
+    assert not (args.root/'owner.lock').exists()
+    assert not (args.root/'activation.json').exists()

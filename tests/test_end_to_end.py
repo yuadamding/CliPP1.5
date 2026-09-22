@@ -1,29 +1,31 @@
+"""Historical chain-reference regression; public CUDA contracts live in tests/cuda."""
 import json
 
 import numpy as np
 from numpy.testing import assert_allclose
 import pytest
 
-from clipp1d import fit
-from clipp1d.types import ClonalConstraintInfeasibleError, InputError, NoEligibleMutationsError
+from legacy_chain_api import fit
+from clipp1d.types import InputError, NoEligibleMutationsError
 
 
 def test_single_mutation_and_cli(make_input, tmp_path):
-    from clipp1d.cli import main
     path = make_input([{"mutation_id": "0001", "alt_count": 10}])
     out = tmp_path / "one"
     result = fit(path, out)
-    assert result.raw_phi[0] == result.refitted_phi[0] == result.cluster_centers[0] == 1
+    assert_allclose([result.raw_phi[0], result.refitted_phi[0], result.cluster_centers[0]], .25)
     assert result.cluster_labels.tolist() == [0]
-    assert main(["fit", "--input-file", str(path), "--outdir", str(tmp_path / "cli")]) == 0
     assert {p.name for p in out.iterdir()} == {"mutation_clusters.tsv", "cluster_centers.tsv",
                                              "mutation_multiplicity.tsv", "run.json"}
     run = json.loads((out / "run.json").read_text())
     assert run["status"] == "success" and run["provenance"]["backend"] == "cpu"
     assert run["search_status"] == result.search_status == "complete"
     assert run["raw_objective"] == result.raw_objective
-    assert run["raw_witness_mutation_id"] == result.raw_witness_mutation_id == "0001"
-    assert run["raw_witness_index"] == result.raw_witness_index == 0
+    assert run["raw_witness_mutation_id"] is result.raw_witness_mutation_id is None
+    assert run["raw_witness_index"] is result.raw_witness_index is None
+    assert run["designated_clonal_block"] == 0
+    assert run["schema"] == "clipp1d.run.v6"
+    assert run["provenance"]["clonal_constraint"] is False
     assert not run["raw_diagnostics"]["global_optimality_proven"]
     before = (out / "run.json").read_bytes()
     with pytest.raises(FileExistsError):
@@ -44,11 +46,8 @@ def test_two_mutations_permutation_and_exclusions(make_input, tmp_path):
     assert first.exclusion_reasons[-1] == "MISSING_COUNTS"
     assert first.search_diagnostics["path_candidates"] >= 26
     assert first.raw_diagnostics["raw_branch_stationarity_qualified"]
-    retained_ids = [mid for mid, keep in zip(first.input_identifiers["mutation_ids"], first.retained_mask) if keep]
-    witness_position = first.frozen_chain.order[first.raw_witness_index]
-    assert first.raw_witness_mutation_id == retained_ids[witness_position]
-    assert first.raw_phi[witness_position] == 1
-    assert first.refitted_phi[np.flatnonzero(first.cluster_labels == 0)[0]] == 1
+    assert first.raw_witness_mutation_id is first.raw_witness_index is None
+    assert first.refitted_phi[np.flatnonzero(first.cluster_labels == 0)[0]] == max(first.cluster_centers)
 
 
 def test_all_clonal(make_input):
@@ -73,12 +72,11 @@ def test_ambiguous_multiplicity(make_input):
     assert np.any(result.pilot.alternative_phi != result.pilot.phi)
     assert np.all(np.isfinite(result.refitted_phi))
     assert result.multiplicity_calls[0] in (1, 2)
-    assert result.cluster_centers[0] == 1
+    assert np.all(np.diff(result.cluster_centers) <= 0)
 
 
 @pytest.mark.parametrize("rows,error", [
     ([{"count_observed": 0}], NoEligibleMutationsError),
-    ([{"allele_a_cn": 4, "allele_b_cn": 0, "normal_cn": 0}], ClonalConstraintInfeasibleError),
     ([{}, {"sample_id": "two"}], InputError),
 ])
 def test_failures_only_publish_diagnostics(make_input, tmp_path, rows, error):

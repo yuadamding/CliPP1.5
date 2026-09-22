@@ -64,7 +64,7 @@ def evaluate(result, case, directory):
     labels = np.empty(len(model),dtype=int)
     cuts, centers = reference['partition_cuts'], reference['refit_centers']
     designated = reference['designated_clonal_block']
-    order = [designated]+sorted((i for i in range(len(centers)) if i != designated),
+    order = ([] if designated is None else [designated])+sorted((i for i in range(len(centers)) if i != designated),
                                key=lambda i:(-centers[i],cuts[i]))
     public = {block:label for label,block in enumerate(order)}
     for block,(a,b) in enumerate(zip(cuts[:-1],cuts[1:])):
@@ -78,11 +78,16 @@ def evaluate(result, case, directory):
                      for i,mid in enumerate(model.mutation_ids) if mid in truth}
     comparison = {}
     for name,table,dosage in [('integrated',matched,mult),('fusion_path',baseline,baseline_mult)]:
-        item = metrics(table,truth,dosage,'refitted_ccf')
+        item = metrics(table,truth,dosage,'refitted_ccf',
+                       designated_label=None if designated is None else '0')
         item['mae'] = float(np.mean([abs(float(table[mid]['refitted_ccf'])-float(truth[mid]['true_ccf'])) for mid in table]))
         item['true_k'] = len({truth[mid]['true_cluster'] for mid in table})
         item['true_smf'] = float(np.mean([float(truth[mid]['true_ccf']) < 1-1e-12 for mid in table]))
-        item['smf_error'] = abs(1-item['all_exact_one_fraction']-item['true_smf'])
+        closest = result.provenance.get('clonal_label_rule') == 'nearest_to_one_l2_v1'
+        item['estimated_smf'] = (1-item['designated_clonal_fraction'] if closest
+                                 else 1-item['all_exact_one_fraction'])
+        item['smf_definition'] = 'nearest_to_one_l2_v1' if closest else 'all_exact_one'
+        item['smf_error'] = abs(item['estimated_smf']-item['true_smf'])
         item['truth_coverage'] = len(table)/len(observed)
         comparison[name] = item
     write(directory/'metrics.json',comparison)
@@ -103,6 +108,8 @@ def worker(args):
     source = source_provenance()
     started = time.monotonic()
     try:
+        from benchmark_chain import require_historical_cpu_package
+        require_historical_cpu_package(root/'frozen/src/clipp1d')
         assert source['source_sha256'] == plan['source']['source_sha256'], 'Source identity mismatch'
         assert sha(case['input_path']) == case['input_sha256'], 'Input identity mismatch'
         assert sha(case['truth_path']) == case['truth_sha256'], 'Truth identity mismatch'
@@ -199,6 +206,9 @@ def summarize(root, plan, terminals, *, final=False):
 def controller(args):
     root=args.root.resolve()
     plan=load(root/'plan.json')
+    if 'source' in plan or (root/'frozen/src/clipp1d/api.py').exists():
+        from benchmark_chain import require_historical_cpu_package
+        require_historical_cpu_package(root/'frozen/src/clipp1d')
     if not args.owner.replace('_','').isalnum():
         raise ValueError('Owner must be alphanumeric with optional underscores')
     (root/(args.owner+'.lock')).mkdir()
@@ -375,8 +385,10 @@ def controller(args):
 
 def freeze(args):
     root=args.root.resolve()
-    root.mkdir()
     repo=Path(__file__).resolve().parents[1]
+    from benchmark_chain import require_historical_cpu_package
+    require_historical_cpu_package(repo/'src/clipp1d')
+    root.mkdir()
     prepared=load(args.prepared)
     assert len(prepared)==5456 and all(c['status']=='prepared' for c in prepared)
     snapshot=root/'frozen'

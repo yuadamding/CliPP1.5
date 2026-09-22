@@ -31,7 +31,30 @@ def read_rows(path):
     return result
 
 
+def validate_clonal_designation(run, centers):
+    """Keep unconstrained v5 and post-fit-designated v6 output semantics distinct."""
+    if run['schema'] == 'clipp1d.run.v5':
+        assert run['designated_clonal_block'] is None
+        assert centers and all(row['designated_clonal'] == '0' for row in centers)
+        return
+    assert run['schema'] == 'clipp1d.run.v6'
+    assert run['provenance']['clonal_label_rule'] == 'nearest_to_one_l2_v1'
+    assert isinstance(run['designated_clonal_block'], int)
+    assert centers and all(row['designated_clonal'] == str(int(row['cluster_label'] == '0')) for row in centers)
+    zero, = [row for row in centers if row['cluster_label'] == '0']
+    distance = abs(float(zero['refitted_ccf']) - 1)
+    assert distance == min(abs(float(row['refitted_ccf']) - 1) for row in centers)
+    assignment = run['clonality']
+    clonal, total = int(zero['cluster_size']), sum(int(row['cluster_size']) for row in centers)
+    assert assignment['clonal_cluster_label'] == 0 and assignment['clonal_ccf'] == float(zero['refitted_ccf'])
+    assert assignment['distance_to_one'] == distance and assignment['total_mutations'] == total
+    assert assignment['clonal_mutations'] == clonal and assignment['subclonal_mutations'] == total - clonal
+    assert assignment['subclonal_mutation_fraction'] == (total - clonal) / total
+
+
 def ari(truth, labels):
+    if len(truth) != len(labels):
+        raise ValueError("ARI partitions must contain the same number of mutations")
     # Count pairs without constructing an M x M matrix.
     def choose2(n):
         return n * (n - 1) / 2
@@ -68,8 +91,10 @@ def f1_metrics(true, called, eligible):
             "per_class": per_class}
 
 
-def metrics(rows, truth, multiplicity, ccf_column):
+def metrics(rows, truth, multiplicity, ccf_column, *, designated_label="0"):
     ids = sorted(rows)
+    if not ids or not set(ids).issubset(truth):
+        raise ValueError("Scored mutations must be nonempty and contained in truth")
     estimated = np.array([float(rows[i][ccf_column]) for i in ids])
     actual = np.array([float(truth[i]["true_ccf"]) for i in ids])
     if not np.all(np.isfinite(estimated)) or not np.all(np.isfinite(actual)):
@@ -82,10 +107,15 @@ def metrics(rows, truth, multiplicity, ccf_column):
         ccc = float(np.array_equal(actual, estimated))
     else:
         ccc = 2 * np.mean((actual - actual.mean()) * (estimated - estimated.mean())) / denominator
-    eligible = [i for i in ids if float(truth[i]["major_cn"]) != 1 or float(truth[i]["minor_cn"]) != 1]
-    for mid in eligible:
+    eligible = []
+    for mid in ids:
         if truth[mid].get("mixed_cn") == "1" and not truth[mid].get("multiplicity_truth_target"):
             raise ValueError("Mixed CN requires a declared multiplicity truth target")
+        cn = [float(truth[mid][key]) for key in ("major_cn", "minor_cn")]
+        if not all(np.isfinite(v) and v >= 0 and v == int(v) for v in cn):
+            raise ValueError("CNA eligibility requires finite nonnegative integer CN values")
+        if cn != [1., 1.]:
+            eligible.append(mid)
     calls = {i: None if i not in multiplicity or multiplicity[i]["multiplicity_call"] in (".", "", "NA", "nan")
              else int(multiplicity[i]["multiplicity_call"]) for i in ids}
     return {"mutations": len(ids), "rmse": float(math.sqrt(np.mean((estimated - actual)**2))),
@@ -93,7 +123,8 @@ def metrics(rows, truth, multiplicity, ccf_column):
             "ccc_convention": "identical constants=1; other constant-vector cases=0",
             "ari": ari(true_labels, labels), "true_k_one": len(set(true_labels)) == 1,
             "ari_convention": "degenerate identical partitions=1", "selected_k": len(set(labels)),
-            "designated_clonal_fraction": labels.count("0") / len(ids),
+            "designated_clonal_fraction": (labels.count(designated_label) / len(ids)
+                                           if designated_label is not None else None),
             "all_exact_one_fraction": float(np.mean(estimated == 1)),
             "cna_only_multiplicity": f1_metrics({i: int(truth[i]["true_multiplicity"]) for i in ids}, calls, eligible)}
 
@@ -126,7 +157,8 @@ def main():
     report = {"schema": "clipp1d.comparison.v1", "clipp2_commit": args.clipp2_commit,
               "clipp1d_source_sha256": run["provenance"]["source_sha256"],
               "selection_score": run["selection_score"],
-              "clipp1d": metrics(one, truth, read_rows(mult_file), "refitted_ccf"),
+              "clipp1d": metrics(one, truth, read_rows(mult_file), "refitted_ccf",
+                                 designated_label=None if run.get("schema") == "clipp1d.run.v5" else "0"),
               "clipp2": metrics(two, truth, read_rows(args.clipp2_multiplicity), phi_columns[0]),
               "file_sha256": {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in
                                (args.truth, one_file, mult_file, args.clipp2_clusters, args.clipp2_multiplicity)},

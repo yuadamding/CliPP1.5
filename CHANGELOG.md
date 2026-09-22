@@ -1,5 +1,52 @@
 # Changelog
 
+## 0.5.0.dev0 — complete graph on PyTorch CUDA
+
+Replace the public chain fitting path with float64 PyTorch CUDA complete-graph
+fusion, compiled tensor kernels, bounded ADMM surrogates and independent raw
+audits. Preserve unconstrained fitting and post-fit nearest-to-one cluster label
+0. Retain the marginalized likelihood, original bounds and partition-score
+arithmetic. Raw penalized CCFs are primary; membership refits and their
+multiplicity calls are explicitly secondary. Bind selected candidate provenance
+and qualify publication under `clipp1d.cuda.run.v2`.
+
+There is no CPU inference fallback. Historical chain modules/tests remain
+reference-only, and historical CPU launchers reject this source. CPU numerical
+references and actual CUDA qualification are reported separately in
+[VALIDATION_CUDA.md](VALIDATION_CUDA.md); older GPU or chain receipts do not
+qualify this revision.
+
+
+## 0.4.1 — 2026-09-22
+
+Designate the fitted cluster closest to CCF one as clonal public label zero.
+Use its membership for primary sMF, retain exact-one membership as a separate
+diagnostic, and record distance/ties/counts in receipt schema v6. The numerical
+policy remains v5: CCFs, partitions, scores and solver constraints are unchanged.
+Existing fits can be reevaluated without rerunning inference.
+
+## 0.4.0 — 2026-09-22
+
+Remove the occupied-clonal constraint from production raw fusion fits, separable
+lambda-zero fits, partition extraction and independent final refits. Preserve the
+original likelihood, boxes, frozen chain, score and numerical tolerances. Advance
+policy and receipt schema to v5; sort all public labels by refitted CCF, leave
+witness/designation fields null and the legacy clonal flag zero. Retain historical
+constrained helpers only for offline regression comparisons.
+
+Strengthen publication identity/certificate checks and JSON completion markers.
+Repair exact integer input parsing, malformed-input handling and tolerance/budget
+validation. Make benchmark validation and metrics explicit about old/new schemas,
+nullable designation, raw-reference columns and direct-partition provenance.
+See [validation](VALIDATION_UNCONSTRAINED.md).
+
+## 0.3.0 — 2026-09-21
+
+Add adjacent weighted Ward partitions and qualified boundary refinement beyond
+the fusion path, with bounded storage/search budgets, separate candidate provenance
+and an independent certified raw reference. Add four-cohort and OCCAMS runners.
+This historical version retained the occupied-clonal constraint.
+
 ## 0.2.2 — 2026-09-21
 
 Batch finite audit likelihood proposals with bounded storage, exact-order first

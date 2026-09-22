@@ -1,4 +1,7 @@
-"""Common-surrogate witness profiling with a bounded primal multistart search."""
+"""Historical constrained reference, retained for numerical regression tests.
+
+Production inference uses the unconstrained search in ``fitting.py``.
+"""
 
 import numpy as np
 from time import perf_counter

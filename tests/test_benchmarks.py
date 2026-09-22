@@ -45,3 +45,41 @@ def test_ccc_constants_and_balanced_cna():
     assert result["cna_only_multiplicity"]["eligible"] == 3
     rows["a"]["phi"] = "0.2"
     assert compare.metrics(rows, truth, calls, "phi")["ccc"] == 0
+
+
+def test_unconstrained_label_zero_is_not_designated_clonal():
+    compare = module("compare_clipp2")
+    rows = {"a": dict(phi=".4", cluster_label="0")}
+    truth = {"a": dict(true_ccf=".4", true_cluster="1", true_multiplicity="1",
+                       major_cn="1", minor_cn="1")}
+    result = compare.metrics(rows, truth, {}, "phi", designated_label=None)
+    assert result["designated_clonal_fraction"] is None
+    assert result["all_exact_one_fraction"] == 0
+    assert result["ari"] == result["ccc"] == 1
+
+
+def test_metrics_reject_empty_or_incompatible_populations():
+    compare = module("compare_clipp2")
+    with pytest.raises(ValueError, match="nonempty"):
+        compare.metrics({}, {}, {}, "phi")
+    with pytest.raises(ValueError, match="same number"):
+        compare.ari([1, 2], [1])
+
+
+@pytest.mark.parametrize("cn", ["nan", "inf", "-1", "1.5"])
+def test_invalid_cn_is_not_silently_scored_as_cna(cn):
+    compare = module("compare_clipp2")
+    rows = {"a": dict(phi=".4", cluster_label="0")}
+    truth = {"a": dict(true_ccf=".4", true_cluster="1", true_multiplicity="1",
+                       major_cn=cn, minor_cn="1")}
+    with pytest.raises(ValueError, match="CNA eligibility"):
+        compare.metrics(rows, truth, {}, "phi")
+
+
+def test_mixed_cn_requires_truth_target_even_if_primary_state_is_diploid():
+    compare = module("compare_clipp2")
+    rows = {"a": dict(phi=".4", cluster_label="0")}
+    truth = {"a": dict(true_ccf=".4", true_cluster="1", true_multiplicity="1",
+                       major_cn="1", minor_cn="1", mixed_cn="1")}
+    with pytest.raises(ValueError, match="declared multiplicity truth target"):
+        compare.metrics(rows, truth, {}, "phi")

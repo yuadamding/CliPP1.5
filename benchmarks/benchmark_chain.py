@@ -5,6 +5,7 @@ solver. CPU affinity and thread limits do not imply exclusive host resources.
 """
 
 import argparse
+import ast
 from dataclasses import asdict
 import gc
 import hashlib
@@ -61,6 +62,29 @@ def configure_execution(cpu_count=1, cpus=None, threads=1):
         "load_average_at_start": list(os.getloadavg()) if hasattr(os, "getloadavg") else None,
         "resource_scope": "Process affinity and numerical thread limits; shared host, no exclusivity claim",
     }
+
+
+
+def require_historical_cpu_package(package):
+    """Reject CUDA-only source before a historical CPU fit runner creates work.
+
+    This checks the selected package, never switches implementations. Frozen
+    historical packages remain runnable under their original CPU contract.
+    """
+    package = Path(package).resolve()
+    path = package / "api.py"
+    if not path.is_file():
+        raise ValueError(f"Historical CPU runner requires a frozen package with api.py: {package}")
+    tree = ast.parse(path.read_text(), filename=str(path))
+    exported = {alias.asname or alias.name for node in tree.body
+                if isinstance(node, (ast.Import, ast.ImportFrom)) for alias in node.names}
+    exported.update(node.name for node in tree.body if isinstance(node, (ast.FunctionDef, ast.ClassDef)))
+    cuda_entry = any(isinstance(node, ast.ImportFrom) and node.module == "cuda_api"
+                     for node in ast.walk(tree))
+    if cuda_entry or not {"fit", "compute_pilot", "build_chain"} <= exported:
+        raise ValueError("Historical CPU runner cannot launch the current CUDA-only complete-graph "
+                         "package. Use a pinned historical chain package for this runner; "
+                         "current inference requires the CUDA entry point. No CPU fallback is available.")
 
 
 def load_numerics():

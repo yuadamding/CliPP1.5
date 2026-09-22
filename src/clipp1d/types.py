@@ -171,7 +171,7 @@ class RawFit:
     x: np.ndarray
     dual: np.ndarray
     objective: float
-    witness: int
+    witness: int | None
     qualified: bool
     diagnostics: dict[str, Any]
 
@@ -213,7 +213,7 @@ class WarmState:
 class PartitionRefit:
     cuts: tuple[int, ...]
     centers: np.ndarray
-    designated_clonal_block: int
+    designated_clonal_block: int | None
     loss: float
     gap: float
     score: float
@@ -237,15 +237,15 @@ class FitResult:
     refitted_phi: np.ndarray
     cluster_centers: np.ndarray
     cluster_labels: np.ndarray
-    designated_clonal_block: int
+    designated_clonal_block: int | None
     multiplicity_calls: np.ndarray
     selection_score: float
     score_components: dict[str, float]
     provenance: dict[str, Any] = field(default_factory=dict)
     search_diagnostics: dict[str, Any] = field(default_factory=dict)
     raw_objective: float = float("nan")
-    raw_witness_index: int = -1
-    raw_witness_mutation_id: str = ""
+    raw_witness_index: int | None = None
+    raw_witness_mutation_id: str | None = None
     search_status: str = "incomplete"
     candidate_provenance: dict[str, Any] = field(default_factory=dict)
     raw_reference_lambda: float | None = None

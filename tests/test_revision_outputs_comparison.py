@@ -88,3 +88,28 @@ def test_source_manifest_and_aggregate_hashes_are_verified(comparison, tmp_path)
 def test_nonfinite_output_vectors_are_rejected(comparison):
     with pytest.raises(ValueError, match="finite"):
         comparison.numeric_change([.1], [float("nan")])
+
+
+def test_direct_current_outputs_compare_independent_reference_without_selected_raw_claim(comparison, case):
+    for row in case["rows"].values():
+        row["raw_reference_ccf"] = row.pop("raw_ccf")
+    case["run"].update(schema="clipp1d.run.v5", selected_lambda=None, raw_objective=None,
+                       raw_reference_objective=6.)
+    changed = copy.deepcopy(case)
+    changed["rows"]["a"]["raw_reference_ccf"] = ".3"
+    changed["run"]["raw_reference_objective"] = 6.1
+    result = comparison.compare_case(case, changed)
+    observed = result["selected_comparison"]
+    assert observed["raw_reference_ccf"]["max_abs_difference"] == pytest.approx(.05)
+    assert "raw_ccf" not in observed
+    assert observed["selected_raw_objective_difference"] is None
+    assert observed["raw_reference_objective_difference"] == pytest.approx(.1)
+    assert result["baseline_truth_metrics"]["designated_clonal_fraction"] is None
+
+
+def test_cross_schema_raw_meanings_are_explicit(comparison, case):
+    changed = copy.deepcopy(case)
+    for row in changed["rows"].values():
+        row["raw_reference_ccf"] = row.pop("raw_ccf")
+    result = comparison.compare_case(case, changed)
+    assert any("different semantics" in warning for warning in result["warnings"])

@@ -1,4 +1,4 @@
-"""Compare attained stationary fits with offline nonlinear witness enumeration.
+"""Compare two historical constrained searches, not current production inference.
 
 This is a small-instance search-policy comparison, not a global-optimization
 proof or a full model-selection benchmark. Each policy has its own continuation
@@ -135,6 +135,8 @@ def main():
     args.outdir.mkdir(parents=True)
     policy = Policy()
     metadata = dict(schema="clipp1d.search_policy_comparison.v1",
+                    inference_scope="historical constrained policies; not current production inference",
+                    clonal_constraint=True,
                     started_utc=datetime.now(timezone.utc).isoformat(),
                     provenance=source_provenance(), policy=asdict(policy), execution=EXECUTION,
                     benchmark_sha256=file_hash(__file__),

@@ -1,7 +1,7 @@
 """Bounded chain-contiguous partition proposals and qualified likelihood refits.
 
 Direct candidates never acquire the raw fusion state's certificate or lambda.
-All acceptance uses the original constrained scalar refit and partition score.
+All acceptance uses independent scalar refits and the original partition score.
 The fixed proposal budgets bound overhead, not global partition optimality.
 """
 from collections import OrderedDict
@@ -14,7 +14,7 @@ from .model import evaluate, loss
 from .policy import Policy
 from .scalar import minimize_block
 from .selection import refit_partition
-from .types import ClonalConstraintInfeasibleError, NumericalQualificationError
+from .types import NumericalQualificationError
 from .ward import adjacent_ward_cuts
 
 PROPOSAL_POLICY = dict(max_blocks=12, refinement_seeds=1, boundary_sweeps=4,
@@ -42,7 +42,6 @@ class IntervalRefitter:
         self.partitions = {}
         self.origins = {}
         self.seed_origins = {}
-        self.at_one = loss(model, np.minimum(model.upper, 1))
         self.counters = dict(partition_attempts=0, interval_fits=0, interval_cache_hits=0,
                              scalar_evaluations=0, scalar_rows=0, peak_cache_entries=0,
                              boundary_scans=0, boundary_likelihood_rows=0)
@@ -81,7 +80,7 @@ class IntervalRefitter:
         self.counters['partition_attempts'] += 1
         try:
             result = refit_partition(self.model, cuts, self.policy, interval_solver=self.interval)
-        except (NumericalQualificationError, ClonalConstraintInfeasibleError) as error:
+        except NumericalQualificationError as error:
             self.failures.append(dict(cuts=cuts,error=type(error).__name__,message=str(error)))
             result = None
         self.partitions[cuts] = result

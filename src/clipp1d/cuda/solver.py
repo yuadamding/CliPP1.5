@@ -1,0 +1,248 @@
+"""Observed-likelihood majorization over original boxes on a complete graph.
+
+No mutation or cluster is required to attain one. Clonal designation occurs
+only after independent membership refitting and never changes these solutions.
+"""
+from dataclasses import dataclass
+import torch
+from .kernels import differences
+from .qp import solve_qp
+from .audit import audit_raw
+from .policy import CudaPolicy, QualificationError
+
+
+@dataclass
+class RawFit:
+    x: torch.Tensor
+    dual: torch.Tensor
+    objective: torch.Tensor
+    witness: int | None
+    qualified: bool
+    diagnostics: dict
+
+
+@dataclass(frozen=True)
+class PrimalWarmState:
+    """One immutable primal continuation tied to the exact frozen graph object."""
+    x: torch.Tensor
+    graph_identity: object
+
+    def __post_init__(self):
+        object.__setattr__(self, "x", self.x.detach().clone())
+        object.__setattr__(self, "_version", (id(self.x), self.x._version))
+        object.__setattr__(self, "_snapshot", self.x.clone())
+
+    def validate(self, graph):
+        graph.validate()
+        if (self.graph_identity is not graph.identity or
+                self.x.shape != graph.pilot.shape or self.x.dtype != graph.pilot.dtype or
+                self.x.device != graph.pilot.device or
+                (id(self.x), self.x._version) != self._version or
+                not bool(torch.isfinite(self.x).all()) or not torch.equal(self.x, self._snapshot)):
+            raise ValueError("Continuation must contain an unchanged finite primal bound to this graph")
+
+
+def objective(model, x, caps):
+    return model.terms(x)[0].sum() + .5 * (caps * differences(x).abs()).sum()
+
+
+def direction_restart(model, x, direction, caps, current, policy):
+    distance = torch.where(direction > 0, model.upper - x,
+                           torch.where(direction < 0, x - model.lower, float("inf")))
+    maximum = (distance / direction.abs().clamp_min(torch.finfo(x.dtype).tiny)).min()
+    step = maximum.clamp_max(1e-3)
+    for _ in range(policy.max_backtracks):
+        trial = (x + step * direction).clamp(model.lower, model.upper)
+        value = objective(model, trial, caps)
+        margin = 32 * torch.finfo(x.dtype).eps * (1 + current.abs())
+        if bool(torch.isfinite(value) & (value < current - margin)):
+            return trial
+        step = step * .5
+    return None
+
+
+def solve_start(model, graph, lam, start, policy=CudaPolicy()):
+    x = start.clamp(model.lower, model.upper).clone()
+    caps = graph.weights * lam
+    q = torch.zeros_like(caps)
+    current = objective(model, x, caps)
+    inflation = 1.
+    backtracks = surrogate_calls = inner = restarts = 0
+    tail = []
+    last_inner = None
+
+    def result(audit, qualified, status, iterations, **extra):
+        qualified = qualified and bool(torch.isfinite(current))
+        diagnostics = dict(status=status, raw_stationarity_qualified=bool(audit and audit.qualified),
+                           directional_stationarity_qualified=bool(audit and audit.qualified),
+                           raw_branch_stationarity_qualified=bool(audit and audit.qualified),
+                           directional_qualified=bool(audit and audit.qualified),
+                           box_feasible=bool(((x >= model.lower) & (x <= model.upper)).all()),
+                           clonal_constraint=False, global_optimality_proven=False,
+                           outer_iterations=iterations, inner_iterations=inner,
+                           surrogate_qp_calls=surrogate_calls, backtracks=backtracks,
+                           direction_restarts=restarts, objective_tail=tail,
+                           stationarity_residual=None if audit is None else audit.residual,
+                           audit_status=None if audit is None else audit.status,
+                           inner_gap_qualified=bool(last_inner and last_inner.qualified),
+                           inner_kkt_qualified=bool(last_inner and last_inner.qualified),
+                           inner_gap=None if last_inner is None else float(last_inner.gap),
+                           inner_gap_scale=None if last_inner is None else float(last_inner.scale),
+                           inner_kkt_residual=None if last_inner is None else float(last_inner.kkt),
+                           inner_certificate_scope="last_solved_surrogate_not_raw_likelihood")
+        diagnostics.update(extra)
+        return RawFit(x, q, current, None, qualified, diagnostics)
+
+    if not bool(torch.isfinite(current) & torch.isfinite(caps).all()):
+        return result(None, False, "nonfinite_initial_objective", 0)
+    for iteration in range(policy.outer_max_iterations):
+        graph.validate()
+        losses, grad, curv, _, left, right = model.terms(x)
+        grad = torch.where(x == model.lower, right, grad)
+        grad = torch.where(x == model.upper, left, grad)
+        if not bool(torch.isfinite(losses).all() & torch.isfinite(grad).all() & torch.isfinite(curv).all()):
+            return result(None, False, "nonfinite_likelihood_surrogate", iteration)
+        base_h = curv.clamp_min(1.)
+        accepted = False
+        for _ in range(policy.max_backtracks):
+            h = base_h * inflation
+            target = x - grad / h
+            if not bool(torch.isfinite(h).all() & torch.isfinite(target).all()):
+                return result(None, False, "nonfinite_majorization_surrogate", iteration)
+            last_inner = solve_qp(h, target, model.lower, model.upper, caps,
+                                  model.kernels, policy, start=x)
+            surrogate_calls += 1
+            inner += last_inner.iterations
+            if not last_inner.qualified:
+                return result(None, False, "surrogate_unresolved", iteration)
+            trial = last_inner.x
+            d = trial - x
+            trial_loss = model.terms(trial)[0].sum()
+            major = losses.sum() + (grad * d + .5 * h * d.square()).sum()
+            penalty_trial = .5 * (caps * differences(trial).abs()).sum()
+            trial_value = trial_loss + penalty_trial
+            surrogate_delta = ((grad * d + .5 * h * d.square()).sum() + penalty_trial -
+                               .5 * (caps * differences(x).abs()).sum())
+            margin = 64 * torch.finfo(x.dtype).eps * (1 + current.abs() + major.abs())
+            finite_gate = (torch.isfinite(trial_value) & torch.isfinite(trial_loss) &
+                           torch.isfinite(major) & torch.isfinite(surrogate_delta) & torch.isfinite(margin))
+            gate = (finite_gate & (trial_loss <= major + margin) &
+                    (surrogate_delta <= margin) & (trial_value <= current + margin))
+            if bool(gate):
+                accepted = True
+                old_value = current
+                x, q, current = trial, last_inner.dual, trial_value
+                inflation = max(1., inflation / 2.)
+                decrease = old_value - current
+                tail.append(float(current))
+                tail = tail[-8:]
+                break
+            inflation *= 2.
+            backtracks += 1
+        if accepted and not bool(decrease.abs() <= 1e-10 * (1 + current.abs())):
+            continue
+        audit = audit_raw(model, x, q, caps, None, policy)
+        if audit.qualified:
+            return result(audit, True, "qualified", iteration + 1)
+        if audit.direction is not None:
+            restart = direction_restart(model, x, audit.direction, caps, current, policy)
+            if restart is not None:
+                x = restart
+                current = objective(model, x, caps)
+                q = torch.zeros_like(caps)
+                inflation = 1.
+                restarts += 1
+                continue
+        if not accepted:
+            break
+    audit = audit_raw(model, x, q, caps, None, policy)
+    return result(audit, audit.qualified, "qualified" if audit.qualified else "outer_unresolved", iteration + 1)
+
+
+def _validate_pilots(model, graph, pilots, policy):
+    fields = (pilots.phi, pilots.loss, pilots.lower_bound, pilots.gap, pilots.alternative)
+    if any(t.shape != (model.n,) or t.dtype != torch.float64 or t.device != model.device for t in fields):
+        raise ValueError("Pilots must match the model float64 node vectors")
+    if (pilots.qualified.shape != (model.n,) or pilots.qualified.dtype != torch.bool or
+            pilots.qualified.device != model.device):
+        raise ValueError("Pilot qualification mask must match the model")
+    actual = model.terms(pilots.phi)[0]
+    margin = 256 * torch.finfo(actual.dtype).eps * (1 + actual.abs() + pilots.loss.abs())
+    valid = (torch.stack([torch.isfinite(v).all() for v in fields]).all() &
+             pilots.qualified.all() & (pilots.phi >= model.lower).all() &
+             (pilots.phi <= model.upper).all() & (pilots.alternative >= model.lower).all() &
+             (pilots.alternative <= model.upper).all() & (pilots.gap >= 0).all() &
+             (pilots.gap <= policy.scalar_atol + policy.scalar_rtol * pilots.loss.abs()).all() &
+             ((actual - pilots.loss).abs() <= margin).all() &
+             ((pilots.loss - pilots.lower_bound - pilots.gap).abs() <= margin).all() &
+             (pilots.phi == graph.pilot).all())
+    if not bool(valid):
+        raise QualificationError("Separable scalar pilots do not qualify for this model and graph")
+
+
+def fit_lambda(model, graph, pilots, lam, previous=None, policy=CudaPolicy()):
+    model.validate()
+    graph.validate()
+    lam = torch.as_tensor(lam, dtype=torch.float64, device=model.device)
+    if lam.ndim != 0 or not bool(torch.isfinite(lam) & (lam >= 0)):
+        raise ValueError("Penalty must be a finite nonnegative scalar")
+    if graph.n != model.n or graph.weights.device != model.device:
+        raise ValueError("Graph must match the likelihood node count and device")
+    if graph.mutation_ids and graph.mutation_ids != model.mutation_ids:
+        raise ValueError("Graph mutation identities do not match the likelihood")
+    if previous is not None:
+        if not isinstance(previous, PrimalWarmState):
+            raise ValueError("Continuation requires a graph-bound PrimalWarmState")
+        previous.validate(graph)
+    _validate_pilots(model, graph, pilots, policy)
+    if bool(lam == 0):
+        x = pilots.phi.clone()
+        caps = torch.zeros_like(graph.weights)
+        value, gap = model.terms(x)[0].sum(), pilots.gap.sum()
+        if not bool(torch.isfinite(value) & torch.isfinite(gap)):
+            raise QualificationError("Separable objective or aggregate scalar gap is nonfinite")
+        audit = audit_raw(model, x, caps, caps, None, policy)
+        return RawFit(x, caps, value, None, True,
+                      dict(status="qualified_separable", separable_scalar_gap_qualified=True,
+                           separable_global_gap=float(gap), clonal_constraint=False,
+                           raw_stationarity_qualified=audit.qualified,
+                           directional_stationarity_qualified=audit.qualified,
+                           raw_branch_stationarity_qualified=audit.qualified,
+                           directional_qualified=audit.qualified, box_feasible=True,
+                           stationarity_residual=audit.residual, audit_status=audit.status,
+                           inner_gap_qualified=True, inner_gap=0., inner_gap_scale=0.,
+                           inner_kkt_qualified=True, inner_kkt_residual=0.,
+                           inner_iterations=0, outer_iterations=0, surrogate_qp_calls=0,
+                           starts_attempted=0, search_complete=True, global_optimality_proven=False))
+    curvature = model.terms(pilots.phi)[2].clamp_min(1.)
+    if not bool(torch.isfinite(curvature).all() & torch.isfinite(graph.weights * lam).all()):
+        raise QualificationError("Complete-graph penalty caps or pilot curvature are nonfinite")
+    normalized_curvature = curvature / curvature.max()
+    pooled_value = (normalized_curvature * pilots.phi).sum() / normalized_curvature.sum()
+    pooled = pooled_value.expand_as(pilots.phi).clamp(model.lower, model.upper)
+    starts = []
+    for x in (None if previous is None else previous.x, pilots.phi, pooled, pilots.alternative):
+        if x is None:
+            continue
+        x = x.clamp(model.lower, model.upper).clone()
+        if not any(torch.equal(x, old) for old in starts):
+            starts.append(x)
+    best, diagnostics = None, []
+    for initial in starts:
+        result = solve_start(model, graph, lam, initial, policy)
+        finite_objective = bool(torch.isfinite(result.objective))
+        if not finite_objective:
+            result.qualified = False
+            result.diagnostics.update(status="nonfinite_raw_objective")
+        diagnostics.append(dict(result.diagnostics, objective=float(result.objective) if finite_objective else None,
+                                qualified=result.qualified))
+        if result.qualified and (best is None or bool(result.objective < best.objective)):
+            best = result
+    coverage = dict(starts=diagnostics, search_complete=all(d["qualified"] for d in diagnostics),
+                    starts_attempted=len(starts), starts_qualified=sum(d["qualified"] for d in diagnostics),
+                    starts_unresolved=sum(not d["qualified"] for d in diagnostics),
+                    search_policy="unconstrained_complete_graph_multistart_v1", clonal_constraint=False)
+    if best is None:
+        raise QualificationError("No qualified unconstrained complete-graph start", **coverage)
+    best.diagnostics.update(coverage)
+    return best

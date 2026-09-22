@@ -4,7 +4,7 @@
 Positive weights describe a local quadratic proposal geometry (for example,
 CliPP1.5's expected-curvature surrogate). They need not be the true observed
 Hessian, which can be negative for a multiplicity mixture. Every emitted
-partition still requires the original constrained likelihood refit and score.
+partition still requires independent likelihood refits and the original score.
 
 Global weight scaling does not change exact-arithmetic merge decisions. We
 normalize in longdouble, accumulate masses in that format, and update means

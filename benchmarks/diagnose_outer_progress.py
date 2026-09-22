@@ -17,7 +17,7 @@ import subprocess
 import sys
 from time import perf_counter
 
-from benchmark_chain import configure_execution
+from benchmark_chain import configure_execution, require_historical_cpu_package
 
 
 def file_hash(path):
@@ -73,12 +73,15 @@ def array_hash(value):
 
 
 def worker(args):
+    require_historical_cpu_package(args.frozen_package)
     execution = configure_execution(cpu_count=1, threads=1)
     global np
     import numpy as np
     frozen = args.frozen_package.resolve()
     sys.path.insert(0, str(frozen.parent))
-    from clipp1d import api, clonal, model as likelihood, selection, solver
+    from clipp1d import api, model as likelihood, selection, solver
+    raw_module = sys.modules[selection.fit_fixed_lambda.__module__]
+    start_name = "solve_unconstrained" if hasattr(raw_module, "solve_unconstrained") else "solve_profiled"
     from clipp1d.policy import Policy
     if Path(solver.__file__).resolve().parent != frozen:
         raise RuntimeError("Diagnosis must import the requested frozen package")
@@ -95,7 +98,7 @@ def worker(args):
                     step_policy="Original interval backtracking starts at min(1e-3, feasible room)")
     write_json(args.outdir / "setup.json", metadata)
     originals = {name: getattr(solver, name) for name in
-                 ("solve_profiled", "profile_quadratic_witnesses", "stationarity", "_kink_check",
+                 (start_name, "profile_quadratic_witnesses", "stationarity", "_kink_check",
                   "evaluate", "one_sided_derivatives", "interval_descent", "local_interval_delta",
                   "clipping_breakpoints")}
     original_raw = selection.fit_fixed_lambda
@@ -160,7 +163,8 @@ def worker(args):
         current = state["current"]
         if current is not None and "outer" in caller:
             point = dict(outer=int(caller["outer"]) + 1, objective=float(caller["current"]),
-                         witness=int(caller["witness_index"]), curvature_scale=float(caller["curvature_scale"]),
+                         witness=None if caller["witness_index"] is None else int(caller["witness_index"]),
+                         curvature_scale=float(caller["curvature_scale"]),
                          accepted_steps=int(caller["accepted"]), backtracks=int(caller["backtracks"]),
                          stationarity=float(result[0]), feasible=bool(result[1]),
                          max_abs_surrogate_step=float(np.max(np.abs(caller.get("step", 0.)))))
@@ -193,7 +197,7 @@ def worker(args):
                 first, last = int(changed[0]), int(changed[-1]) + 1
                 displacement = trial[changed] - x[changed]
                 event = dict(outer=int(caller.get("outer", -1)) + 1,
-                             anchor=int(np.flatnonzero(lower == upper)[0]),
+                             anchor=int(np.flatnonzero(lower == upper)[0]) if np.any(lower == upper) else None,
                              forced=bool(kwargs.get("force_intervals", False)),
                              first=first, stop=last, changed_nodes=len(changed),
                              min_abs_step=float(np.min(np.abs(displacement))),
@@ -231,13 +235,14 @@ def worker(args):
                        audit_calls=0, audit_forced_calls=0, local_proposal_count=0)
         state["current"] = current
         begun = perf_counter()
-        result = originals["solve_profiled"](model, chain, penalty, initial, *values, **kwargs)
+        result = originals[start_name](model, chain, penalty, initial, *values, **kwargs)
         current["wall_seconds"] = perf_counter() - begun
         state["current"] = None
         current["timings"] = current.pop("timers").values
         current.update(qualified=result.qualified, diagnostics=result.diagnostics,
                        final_objective=result.objective, final_sha256=array_hash(result.x),
-                       final_witness=int(result.witness), restart_count=len(current["restarts"]))
+                       final_witness=None if result.witness is None else int(result.witness),
+                       restart_count=len(current["restarts"]))
         if not result.qualified:
             fixture = args.outdir / f"unresolved-p{state['penalty_index']:02}-s{state['start_index']:02}.npz"
             with fixture.open("xb") as handle:
@@ -266,7 +271,7 @@ def worker(args):
     solver.clipping_breakpoints = breakpoints
     solver.stationarity, solver._kink_check = stationarity, kink
     solver.profile_quadratic_witnesses = profile
-    clonal.solve_profiled = start
+    setattr(raw_module, start_name, start)
     selection.fit_fixed_lambda = raw
     started = perf_counter()
     result = api.fit(args.input_file, args.outdir / "fit")
@@ -283,12 +288,13 @@ def worker(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--frozen-package", type=Path, required=True)
-    parser.add_argument("--source-commit", default="ff5b5c3a4509e1bae9ecdbf17ec899c6e4b1f4b4")
+    parser.add_argument("--source-commit", help="Optional expected revision annotation; actual source hashes are recorded")
     parser.add_argument("--input-file", type=Path, required=True)
     parser.add_argument("--outdir", type=Path, required=True)
     parser.add_argument("--timeout-seconds", type=float, default=360.)
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
+    require_historical_cpu_package(args.frozen_package)
     if args.worker:
         worker(args)
         return
@@ -296,8 +302,10 @@ def main():
         parser.error("timeout must be positive")
     args.outdir.mkdir(parents=True, exist_ok=False)
     command = [sys.executable, str(Path(__file__).resolve()), "--worker", "--frozen-package", str(args.frozen_package.resolve()),
-               "--source-commit", args.source_commit, "--input-file", str(args.input_file.resolve()),
+               "--input-file", str(args.input_file.resolve()),
                "--outdir", str(args.outdir.resolve())]
+    if args.source_commit is not None:
+        command.extend(["--source-commit", args.source_commit])
     began = perf_counter()
     with (args.outdir / "worker.log").open("x") as handle:
         try:

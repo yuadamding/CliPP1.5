@@ -31,13 +31,13 @@ def write(path, value):
 
 def audit(root):
     import numpy as np
-    from compare_clipp2 import metrics,read_rows
+    from compare_clipp2 import metrics,read_rows,validate_clonal_designation
     plan=load(root/'plan.json')
     plan_digest=sha(root/'plan.json')
     complete=load(root/'COMPLETE.json')
     summary=load(root/'summary-final.json')
     assert sha(root/'summary-final.json')==complete['summary_sha256']
-    assert complete['cases']==len(plan['cases'])==5456
+    assert complete['cases']==len(plan['cases'])
     for name,digest in plan['source']['source_files'].items():
         assert sha(root/'frozen/src/clipp1d'/name)==digest
     for name,digest in plan['runner_files'].items():
@@ -68,7 +68,8 @@ def audit(root):
             assert set(startup['controls']['thread_environment'].values())=={'1'}
             assert run['provenance']['source_sha256']==plan['source']['source_sha256']
             assert run['provenance']['input_sha256']==case['input_sha256']
-            assert run['schema']=='clipp1d.run.v4' and run['status']=='success'
+            assert run['schema'] in ('clipp1d.run.v4','clipp1d.run.v5','clipp1d.run.v6') and run['status']=='success'
+            unconstrained = run['schema'] in ('clipp1d.run.v5','clipp1d.run.v6')
             assert sha(directory/'fit/run.json')==terminal['run_sha256']
             assert sha(directory/'metrics.json')==terminal['metrics_sha256']
             for name,digest in run['table_sha256'].items():
@@ -82,6 +83,7 @@ def audit(root):
             assert set(observed)-set(truth)==set(case.get('truth_unmatched_retained',[]))
             selected=run['candidate_provenance']
             reference=selected['raw_reference']
+            assert selected['refit_qualified']
             assert selected['partition_sha256']==hashlib.sha256(np.asarray(run['partition_cuts'],dtype=np.int64).tobytes()).hexdigest()
             assert selected['chain_sha256']==run['chain_sha256']
             assert selected['model_sha256']==run['provenance']['model_sha256']
@@ -91,11 +93,20 @@ def audit(root):
                 assert selected['selected_raw_certificate'] is None
                 assert selected['selected_partition_certified'] is False
             raw=run['raw_diagnostics']
-            assert raw['clonal_feasible'] and (raw.get('raw_branch_stationarity_qualified') or raw.get('separable_scalar_gap_qualified'))
-            assert any(float(r['refitted_ccf'])==1 and r['cluster_label']=='0' for r in observed.values())
-            recomputed=metrics({k:v for k,v in observed.items() if k in truth},truth,mult,'refitted_ccf')
+            assert raw['box_feasible' if unconstrained else 'clonal_feasible']
+            assert raw.get('raw_branch_stationarity_qualified') or raw.get('separable_scalar_gap_qualified')
+            if unconstrained:
+                assert raw['clonal_constraint'] is False and run['provenance']['clonal_constraint'] is False
+                assert run['raw_witness_index'] is run['raw_witness_mutation_id'] is None
+                with (directory/'fit/cluster_centers.tsv').open() as stream:
+                    centers = list(csv.DictReader(stream, delimiter='\t'))
+                validate_clonal_designation(run, centers)
+            else:
+                assert any(float(r['refitted_ccf'])==1 and r['cluster_label']=='0' for r in observed.values())
+            recomputed=metrics({k:v for k,v in observed.items() if k in truth},truth,mult,'refitted_ccf',
+                               designated_label=None if run['schema']=='clipp1d.run.v5' else '0')
             saved=load(directory/'metrics.json')
-            for key in ['ari','rmse','ccc','selected_k','all_exact_one_fraction','cna_only_multiplicity']:
+            for key in ['ari','rmse','ccc','selected_k','all_exact_one_fraction','designated_clonal_fraction','cna_only_multiplicity']:
                 assert recomputed[key]==saved['integrated'][key],(case['case_id'],key)
             record.update(fit_seconds=terminal['fit_seconds'],proposal_seconds=terminal['proposal_seconds'],
                           max_rss_bytes=terminal['max_rss_bytes'],search_status=terminal['search_status'],
@@ -108,7 +119,7 @@ def audit(root):
         if (i+1)%500==0:
             print('audited',i+1,flush=True)
     assert dict(counts)==complete['status']
-    assert sum(c['terminal'] for c in summary['cohorts'].values())==5456
+    assert sum(c['terminal'] for c in summary['cohorts'].values())==len(plan['cases'])
     for dataset,item in summary['cohorts'].items():
         subset=[r for r in records if r['dataset']==dataset]
         success=[r for r in subset if r['status']=='success']
@@ -136,7 +147,7 @@ def report(root,plan,summary,records):
     def fmt(value, digits=4):
         return 'NA' if value is None else f'{value:.{digits}f}'
     finished=datetime.now(ZoneInfo('America/Chicago')).strftime('%B %d, %Y, %I:%M %p %Z')
-    lines=['# CliPP1.5 0.3.0: full single-region benchmark','',
+    lines=['# CliPP1.5: full single-region benchmark','',
            f'Audited {finished}. All {len(records):,} planned tumors have terminal receipts.',
            'The final audit verified source, input/truth/output identities, candidate provenance, public metrics and cohort counts.','',
            '| Cohort | Success / planned | ARI K>1: fusion → integrated | Mean CCF MAE: fusion → integrated | Median fit seconds |',
@@ -155,12 +166,12 @@ def report(root,plan,summary,records):
         lines.append(f"| {name} | {fmt(a['cna_multiplicity']['macro_f1'])} → {fmt(f['macro_f1'])} | {f['called']} / {f['eligible']} | {a['false_splits']} → {b['false_splits']} | {b['single_cluster_cases']} |")
     lines+=['','## Interpretation and limits','',
         'The comparison retains the original fusion-path winner inside each integrated fit. It isolates the added proposals on an identical fixed chain and raw search; it is not a separate historical-version runtime experiment.',
-        '', 'The likelihood, score, clonal constraint and qualification tolerances are unchanged. Lower score does not guarantee higher truth ARI. Direct winners carry their own provenance and no inherited raw certificate.',
+        '', 'Both arms use the likelihood, score, clonal-constraint policy and qualification tolerances of the bound source. Lower score does not guarantee higher truth ARI. Direct winners carry their own provenance and no inherited raw certificate.',
         '', 'SimClone uses separate corrected normal-CN2 inputs; original files are preserved. Six ambiguous truth-coordinate mutations in three tumors remain fitted but are not accuracy-scored. PhylogicNDT uses the requested TSVs as supplied, including the documented loss of some original CN-state information. These observation-model differences limit algorithm-only interpretations.',
         '', 'CNA means CN other than 1/1. Macro-F1 is pooled over exact dosage classes, with micro/weighted/per-class results in summary-final.json. ARI for true K=1 is separated from nontrivial ARI. CCC is 1 for identical constants and 0 for other constant-vector cases. Accuracy describes successful fits with recorded truth coverage; failures and timeouts remain in the planned denominator.',
-        '', 'The pool initially used 24 CPU workers, then 25 at user request; 364 completed fits were validated and imported at the transition. Each fit used one CPU/thread on a shared host. Runtime is observed pool wall time, with a six-hour per-case bound, not exclusive-resource timing.',
+        '', 'Each fit used one CPU/thread on a shared host. Runtime is observed pool wall time, not exclusive-resource timing. The plan and owner receipts bind admission capacity and per-case limits.',
         '', '## Evidence','',
-        f"Source fingerprint: `{plan['source']['source_sha256']}`. The package is identical to release commit `c4f3d3e54ac94f1b6707463784ed9c85a86f698d`.",
+        f"Source fingerprint: `{plan['source']['source_sha256']}`. The run plan binds the complete frozen package and source history.",
         '', '[Audit](final-audit.json) · [Full summary](summary-final.json) · [Per-tumor metrics](audited-case-metrics.tsv) · [Run plan](plan.json)']
     with (root/'REPORT.md').open('x') as stream:
         stream.write('\n'.join(lines)+'\n')

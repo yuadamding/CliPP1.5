@@ -1,6 +1,10 @@
+> Historical chain reference (through 0.4.1). The current production model and
+> output contract are documented in [CUDA_FRAMEWORK.md](CUDA_FRAMEWORK.md).
+> References to production below describe the historical revision.
+
 # Implementation and qualification
 
-`io → model → scalar → chain → tv/solver → clonal → selection → api/report` is the
+`io → model → scalar → chain → tv/solver → fitting → selection → api/report` is the
 dependency direction. Low-level likelihood imports do not load model selection.
 Arrays contain no singleton sample dimension. Compiled model, pilot and chain
 arrays are backed by immutable bytes; solver workspaces are separate.
@@ -22,7 +26,7 @@ majorization/descent hold. Its quadratic subproblem is
 
 ```text
 min 0.5 sum h_i (x_i-U_i)^2 + sum caps_i |x_{i+1}-x_i|,
-original_lower <= x <= original_upper, with some eligible x_k = 1.
+original_lower <= x <= original_upper.
 ```
 
 The production inner solve uses convex functional dynamic programming:
@@ -49,11 +53,8 @@ The algorithmic background is convex TV message passing in
 [Kolmogorov, Pock and Rolinek, sections 3–4](https://arxiv.org/abs/1502.07770).
 The bounded extension here has its own implementation and tests.
 
-A fixed witness at one separates the left and right free segments. Its incident
-penalties are affine on CCF boxes, so each adjacent target receives `caps/h`.
-The solve and certificate retain the original unaries and full objective; constants
-are not dropped when comparing witnesses. Arbitrary frozen coordinates whose
-incident penalties cross neighboring boxes use the full bounded recurrence.
+Production imposes only the original coordinate boxes. Historical constrained
+helpers retain fixed-witness decomposition solely for offline regression tests.
 
 Dual reconstruction propagates reachable intervals for `q_i` through the node
 box normals, intersects them with edge complementarity intervals, then backtracks.
@@ -105,7 +106,7 @@ The threshold is 2e-5. Interior upward kinks use an admissible one-sided subgrad
 box endpoints use only the inward derivative (left at the upper bound, right at
 the lower bound). One immutable audit context binds the exact accepted vector and
 model, sharing losses, posterior, gradient, one-sided derivatives, clipping masks
-and fused boundaries across stationarity and every anchor. Stale contexts are
+and fused boundaries across stationarity and interval audits. Stale contexts are
 rejected. Local proposals reuse slices of its old losses. Loss-only calls share
 the same candidate log-kernel and logsumexp arithmetic as full evaluation,
 without constructing an unused posterior.
@@ -121,7 +122,7 @@ before increasing its batch size.
 
 The immutable scientific audit snapshot owns a separate bounded memo of at
 most 4,096 likelihood deltas, keyed by exact interval and float64 value bytes.
-Feasibility and TV penalties are recomputed for each anchor. This memo neither
+Feasibility and TV penalties are recomputed for each proposed direction. This memo neither
 changes the stored arrays nor survives a changed model or primal vector.
 Speculatively evaluated proposals, considered candidates and cache hits are
 different workload counts. Prefetch can add overhead to immediate acceptance;
@@ -130,16 +131,13 @@ component and full-fit measurements must report that tradeoff separately.
 At clipping kinks, a signed prefix/boundary scan covers
 every feasible contiguous subinterval of every exact fused block. Frozen and
 bound-blocked coordinates split the scan. This includes proper sub-blocks that
-can move beside a frozen witness. A descending direction produces a decreasing
+can move while other coordinates remain at their original bounds. A descending direction produces a decreasing
 restart or an unresolved status. Local trial losses use only the affected
 likelihood rows and internal/boundary edges; a full vector is copied only for an
 accepted proposal. Additional finite plateau escapes inspect nearby transitions;
 these nonlocal proposals do not establish global optimality. An unresolved direction
-returns a typed status instead of a smooth convergence claim. With multiple
-exact-one coordinates, extra interval audits freeze each extreme occupied witness
-in turn, including smooth directions. Any feasible contiguous move excludes at
-least one extreme, so these two anchor choices cover all admissible intervals.
-A selected branch's certificate alone does not establish union stationarity.
+returns a typed status instead of a smooth convergence claim. No clonal anchor
+is frozen during these production audits.
 For at least 64 float64 nodes, feasible exact-fused runs are batched by length;
 each independent prefix sum follows the original sequential addition order.
 Strict prefix minima keep the earliest start; equal final merits keep negative
@@ -153,60 +151,51 @@ qualification because it is separable.
 Memory remains bounded by a constant number of full raw states: current branch,
 best branch, preceding lambda and selected candidate. Refitting caches only the
 last partition. The fixed path stores scalar diagnostics and hashes, not a raw
-state per candidate or witness. The clonal refit profile is computed in O(K).
+state per candidate or witness. Each block is refitted independently; no exact-one override is applied.
 Input parsing additionally requires storage proportional to the supplied CN rows.
 Production continuation retains only the primal vector in a chain-bound
 `PrimalWarmState`. Legacy `WarmState` input remains valid, but its dual neither
 affects direct solves nor creates a distinct start. The offline fixed-witness
 reference deduplicates primals after imposing each witness; production deduplicates
-after clonal-feasibility projection. Singleton refits reuse qualified pilot results
+after projection onto the original coordinate boxes. Singleton refits reuse qualified pilot results
 only after matching the mutation ID and exact likelihood/domain digest.
 
-`profile_quadratic_witnesses()` computes prefix and suffix values at one for a
-**single common quadratic**, then selects a witness and reconstructs only that
-branch. It returns every eligible witness's relative objective and the common
-boxed-unary constant separately, and binds the input arrays to a SHA-256 digest.
-Its message work is O(M log M), versus M separate quadratic solves. Independent
-per-witness solves test these values. The selected branch receives the full gap
-and KKT audit, with an additional check against its predicted message value.
-The profile retains both passes' lower/upper reconstruction thresholds and
-backtracks outward from the selected witness at one. No selected-branch messages
-are rebuilt. Ordinary direct solves and profiles share `finalize_quadratic()`
-for polishing, dual recovery and all numerical gates.
-Production invokes this profile inside every outer/backtracking attempt, always
-with the original boxes. No profile survives a curvature or target change. After a successful common
-step, the next iteration starts at half the accepted curvature inflation (floored
-at one), then backtracks normally. A kink restart resets inflation. Only this
-scalar scale is reused, never a prior surrogate or its messages; this avoids
-repeating the same unsuccessful low-curvature attempts at every outer iteration.
-The offline fixed-witness reference keeps its original per-iteration reset.
+`fitting.fit_fixed_lambda()` calls `solver.solve_unconstrained()` for each
+positive-penalty start. Each backtracking attempt calls the direct bounded-TV
+solver with the original boxes, and every returned solution receives the gap/KKT
+audit. After a successful step, the next iteration starts at half the accepted
+curvature inflation (floored at one), then backtracks normally. A kink restart
+resets inflation. Only this scalar scale is reused, never stale surrogate messages.
 `largest_curvature_scale` records the largest accepted inflation.
-The original nonlinear enumeration lives only in `benchmarks/reference_enumeration.py`.
-It remains a finite-start reference, not a global-optimality oracle.
 
-Versions 0.2.0 and 0.2.1 use numerical policy `clipp1d_chain_v3` and receipt schema
-`clipp1d.run.v3`. The likelihood, weights, constraints, partition tolerance, score
-and numerical gates remain unchanged; the nonlinear search policy changes to
-`common_surrogate_multistart_v1`. `search_complete` records qualification of every
-planned start, not independent optimization of every nonlinear witness branch.
-`search_profile_calls` and `search_surrogate_witnesses_profiled` count common QPs
-and their eligible witness values. `nonlinear_witness_enumeration_performed` is
-false for the positive-penalty production search.
-Version 0.2.1 retains the search policy, 150-iteration limit, 1e-3 initial interval
-step cap and all numerical gates. Additive per-start diagnostics record audit
-substages, restart lengths/decreases, witness changes, curvature inflation and
-the last eight accepted-step summaries. Precision provenance distinguishes
-longdouble storage bits from significand bits; passing on one platform does not
-qualify other longdouble implementations.
-`surrogate_objective_decrease` sums changes in the observed objective F caused by
-accepted surrogate steps, not changes in quadratic Q. `progress_tail.objective`
-is recorded after that accepted step and before any flagged interval restart;
-restart decreases are reported separately. Witness changes from surrogate
-selection and interval restarts also have separate counters.
-A successful receipt has top-level `search_status` equal to
-`complete` or `incomplete`. Each path record has separate raw/refit statuses and
-retains raw diagnostics before attempting the refit. The selected raw objective,
-chain-position witness index and witness mutation ID are explicit API/receipt fields.
+The lambda-zero case uses the unmodified pilots and qualifies their scalar gaps
+against the supplied policy. Its stationarity result is reported independently.
+`RawFit.witness` is always `None` in production. Finite, correctly shaped initial
+vectors are validated before clipping, so infinities cannot become valid bounds.
+
+Version 0.4.1 retains policy `clipp1d_chain_v5`, search policy
+`unconstrained_chain_multistart_v1` and uses receipt schema `clipp1d.run.v6`.
+`search_complete` records qualification of every planned start; path and direct
+proposal completion are separate. Compatibility profile/witness counters are zero.
+The legacy constrained implementations in `clonal.py`, `solve_profiled()`,
+`solve_branch()` and `profile_quadratic_witnesses()` remain covered by offline
+regression tests; production does not import `clonal.py`. Historical validation
+reports apply to their named revisions and do not qualify this changed model.
+
+Successful publication first validates the independent raw reference, candidate
+family, chain/model/partition identities, selected certificate, and agreement
+among public labels, centers and per-mutation refits. Direct proposals retain
+explicit seed and raw-parent lineage. A direct winner cannot inherit the raw
+reference's certificate. JSON serialization is preflighted before writing fit
+tables, and complete JSON markers are published atomically without overwriting
+existing files. Only a successful marker with matching hashes establishes a fit.
+
+Public label zero designates the block minimizing L2 distance to CCF one, with
+chain-position tie breaks; remaining labels descend by fitted CCF. The designation
+flag is one only for public label zero. `labeling.py` performs this post-fit operation
+without changing centers or numerical certificates; raw witness fields remain null.
+Evaluation distinguishes constrained v4, undesignated v5 and post-fit-designated v6
+outputs. Current primary sMF counts retained mutations outside label zero.
 
 ## Validation boundaries
 
