@@ -1,0 +1,72 @@
+{
+  "phase": "waiting_for_exact_terminal",
+  "current_attempt": "below512-f",
+  "completed": [
+    {
+      "attempt": "below64-b",
+      "fixture": "below_one",
+      "nodes": 64,
+      "status": "passed",
+      "job_id": "77342695",
+      "receipt_sha256": "8a3bc4735cd82ffd3708fa094a86bc1e4a03f3883cf70ca489d7eb61b4cf8e15",
+      "timing_summary": {
+        "candidate_median_seconds": 15.702466500923038,
+        "complete_warm_pairs": 3,
+        "control_median_seconds": 15.91534615890123,
+        "median_paired_speedup": 1.0135570840393564,
+        "scope": "Only complete, published warm pairs; incomplete or failed work has no throughput ratio"
+      },
+      "error": null
+    },
+    {
+      "attempt": "mixed64-c",
+      "fixture": "mixed_support",
+      "nodes": 64,
+      "status": "passed",
+      "job_id": "77343226",
+      "receipt_sha256": "6ad0346ff7dc3cccae0b6eeba2f55686cb049a5035e216d204fe178197854e96",
+      "timing_summary": {
+        "candidate_median_seconds": 80.71578430105001,
+        "complete_warm_pairs": 3,
+        "control_median_seconds": 83.7983547160402,
+        "median_paired_speedup": 1.03864905860757,
+        "scope": "Only complete, published warm pairs; incomplete or failed work has no throughput ratio"
+      },
+      "error": null
+    },
+    {
+      "attempt": "below256-d",
+      "fixture": "below_one",
+      "nodes": 256,
+      "status": "passed",
+      "job_id": "77345658",
+      "receipt_sha256": "cbfc8cc0393f6e23db178c873a53f666a9638306a15eb4fd605bdee5f56145c0",
+      "timing_summary": {
+        "candidate_median_seconds": null,
+        "complete_warm_pairs": 0,
+        "control_median_seconds": null,
+        "median_paired_speedup": null,
+        "scope": "Only complete, published warm pairs; incomplete or failed work has no throughput ratio"
+      },
+      "error": null
+    },
+    {
+      "attempt": "mixed256-e",
+      "fixture": "mixed_support",
+      "nodes": 256,
+      "status": "passed",
+      "job_id": "77345694",
+      "receipt_sha256": "fb45b3f55739e2ad7c7362431383357497c2e3426c1aa6fe70f0a200c517e60d",
+      "timing_summary": {
+        "candidate_median_seconds": 54.73671137704514,
+        "complete_warm_pairs": 3,
+        "control_median_seconds": 56.05223395791836,
+        "median_paired_speedup": 1.0261092600002073,
+        "scope": "Only complete, published warm pairs; incomplete or failed work has no throughput ratio"
+      },
+      "error": null
+    }
+  ],
+  "utc": "2026-09-23T19:21:50.629769+00:00",
+  "pid": 925674
+}

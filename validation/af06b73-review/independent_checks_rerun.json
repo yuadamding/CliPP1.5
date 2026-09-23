@@ -1,0 +1,120 @@
+{
+  "commit": "af06b7305b1928aeeabeac5ab5c5b454d2369c3f",
+  "scope": "Control-flow checks of verified function bodies using explicitly controlled dependencies; receipt arithmetic only",
+  "environment": {
+    "python": "3.13.2 | packaged by conda-forge | (main, Feb 17 2025, 14:10:22) [GCC 13.3.0]",
+    "torch": "2.9.1+cu128",
+    "cuda_available": false
+  },
+  "not_run": [
+    "whole repository suite",
+    "CUDA inference or kernel compilation",
+    "LSF queries",
+    "binary archive verifier",
+    "captured rational proof"
+  ],
+  "source_hashes": {
+    "qualify_surrogate_cuda.py": {
+      "git_blob_sha1": "e5b74bc39f110bdd4a2f53015f901a9d0ee3d3d4",
+      "sha256": "ed525699ccbfcf0791c959e476386b2e73e236546ca9bce9a159fa715b6eaf95"
+    },
+    "surrogate_trace.py": {
+      "git_blob_sha1": "015f22f44d8b21aa80d42a1c493dc13325fe4345",
+      "sha256": "94aa82ab524f57896d477d8dcf1d5ca3b4a5a2bce0ee0cbd43ce6cda369d0db4"
+    },
+    "time_surrogate_cuda.py": {
+      "git_blob_sha1": "9deaf11310adbd92f48477a9df54c5e2dc1e8979",
+      "sha256": "1e3d8e86c78a37719942f4b5668b9775b2531a1ff5cd3adab5893dc7c22d0ca5"
+    }
+  },
+  "checks": {
+    "solver_exception": {
+      "passed": true,
+      "counts": {
+        "starts_attempted": 2,
+        "starts_returned": 1,
+        "starts_qualified": 1,
+        "starts_raised": 1
+      },
+      "trace_files": [
+        "start-000-surrogate-trace.json",
+        "start-001-surrogate-trace.json"
+      ]
+    },
+    "dispatch_exception": {
+      "passed": true,
+      "counts": {
+        "starts_attempted": 2,
+        "starts_returned": 2,
+        "starts_qualified": 1,
+        "starts_raised": 1
+      },
+      "trace_files": [
+        "start-000-surrogate-trace.json",
+        "start-001-surrogate-trace.json"
+      ]
+    },
+    "returned_unqualified": {
+      "passed": true,
+      "counts": {
+        "starts_attempted": 2,
+        "starts_returned": 2,
+        "starts_qualified": 1,
+        "starts_raised": 0
+      },
+      "trace_files": [
+        "start-000-surrogate-trace.json",
+        "start-001-surrogate-trace.json"
+      ]
+    },
+    "timing_boundary": {
+      "passed": true,
+      "sequence": [
+        "start-sync-stub",
+        "solve",
+        "stop-sync-stub"
+      ],
+      "actual_cuda": false
+    },
+    "cold_and_incomplete_exclusion": {
+      "passed": true,
+      "result": {
+        "complete_warm_pairs": 1,
+        "median_paired_speedup": 2.0,
+        "candidate_median_seconds": 3.0,
+        "control_median_seconds": 6.0,
+        "scope": "Only complete, published warm pairs; incomplete or failed work has no throughput ratio"
+      }
+    },
+    "timing_comparison_gates": {
+      "passed": true,
+      "scenarios": 2
+    },
+    "published_timing_arithmetic": {
+      "passed": true,
+      "source": "below64-b.json comparisons, values copied from pinned GitHub receipt",
+      "summary": {
+        "complete_warm_pairs": 3,
+        "median_paired_speedup": 1.0135570840393564,
+        "candidate_median_seconds": 15.702466500923038,
+        "control_median_seconds": 15.91534615890123,
+        "scope": "Only complete, published warm pairs; incomplete or failed work has no throughput ratio"
+      },
+      "raw_pairs_candidate_control_seconds": [
+        [
+          15.702466500923038,
+          15.91534615890123
+        ],
+        [
+          15.637660942971706,
+          15.937826458131894
+        ],
+        [
+          15.715834759175777,
+          15.837806958938017
+        ]
+      ],
+      "median_latency_reduction_fraction": 0.013375747900973622
+    }
+  }
+}

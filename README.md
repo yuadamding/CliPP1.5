@@ -85,6 +85,11 @@ They are not called by the public fitting API. Historical CPU cohort launchers
 reject this CUDA source; existing frozen runs and their result evaluators keep
 their original contracts. Do not replace the source beneath running workers.
 
+An explicit [CPU benchmark adapter](benchmarks/CPU_COMPLETE_GRAPH.md) runs the
+current complete-graph tensor implementation with eager PyTorch CPU kernels.
+It preserves the numerical policy and labels every result as CPU execution.
+The public fitting API remains CUDA-only.
+
 See [the CUDA framework](docs/CUDA_FRAMEWORK.md) for the model, certification and
 output semantics. The [bound-recovery study](VALIDATION_BOUND_RECOVERY.md) records
 exact failed-surrogate diagnoses and the current qualification status; its
@@ -96,6 +101,12 @@ backtracking as the production default. Diagnostic qualification timings do not
 establish throughput; the separate timing driver disables tracing.
 Its [first completed timing stage](validation/cuda-surrogate-timing-v1/README.md)
 retains cold and warm pairs separately and excludes incomplete work from ratios.
+The [four-stage timing snapshot](validation/cuda-surrogate-timing-v2/README.md)
+adds mixed64, below256 and mixed256. The
+[af06b73 review response](validation/af06b73-review/README.md) emphasizes
+positive-penalty comparisons and records the decision to retain scalar as the
+production default while the [paired empirical panel](benchmarks/SURROGATE_EMPIRICAL.md)
+is evaluated.
 The historical [QP optimization report](VALIDATION_QP.md) records `430db26`'s
 matched timing, numerical parity and failed heterogeneous stress cases;
 its [evidence archive](validation/cuda-qp-v3/README.md) retains every attempt.

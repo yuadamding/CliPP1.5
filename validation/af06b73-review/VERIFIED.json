@@ -1,0 +1,8 @@
+{
+  "archive": "/data/CliPP2/review_af06b73.zip",
+  "archive_sha256": "3449cce2e3c3ab069001a6f4dd3b829c5e869b31f140641194aa292ab38bbbc6",
+  "all_member_hashes_verified": true,
+  "git_sources_match": true,
+  "checks_passed": true,
+  "scope": "Controlled control-flow and arithmetic tests only; no CUDA rerun"
+}
