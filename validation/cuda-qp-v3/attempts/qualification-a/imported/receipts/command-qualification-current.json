@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13",
+    "-B",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923a/source/benchmarks/qualify_cuda.py",
+    "--device",
+    "cuda:0",
+    "--out",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923a/results/qualification-current.json",
+    "--path-grid",
+    "default",
+    "--resource-n",
+    "256",
+    "--resource-iterations",
+    "20000",
+    "--timeout-seconds",
+    "2700"
+  ],
+  "source_role": "current",
+  "timeout_seconds": 2820
+}

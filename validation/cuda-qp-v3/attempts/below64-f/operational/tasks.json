@@ -1,0 +1,20 @@
+[
+  {
+    "name": "below64-current",
+    "source_role": "current",
+    "script": "qualify_mixed_cuda.py",
+    "args": [
+      "--fixture",
+      "below_one",
+      "--nodes",
+      "64",
+      "--mode",
+      "full",
+      "--expected-source-sha256",
+      "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+      "--timeout-seconds",
+      "3300"
+    ],
+    "timeout_seconds": 3420
+  }
+]

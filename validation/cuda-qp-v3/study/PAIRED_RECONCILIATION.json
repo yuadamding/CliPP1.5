@@ -1,0 +1,1004 @@
+{
+  "complete_paths": {
+    "comparisons": [
+      {
+        "baseline_work": {
+          "qp_admm_iterations": 6048,
+          "qp_calls": 285,
+          "qp_dual_warm_resets": 0,
+          "qp_dual_warm_starts": 211,
+          "qp_polish_iterations": 381
+        },
+        "current_work": {
+          "qp_admm_iterations": 6048,
+          "qp_calls": 285,
+          "qp_dual_warm_resets": 0,
+          "qp_dual_warm_starts": 211,
+          "qp_polish_iterations": 353
+        },
+        "exact_graph_path_and_selected_fit_parity": true,
+        "nodes": 16,
+        "planned_penalties": 26
+      },
+      {
+        "baseline_work": {
+          "qp_admm_iterations": 20128,
+          "qp_calls": 287,
+          "qp_dual_warm_resets": 0,
+          "qp_dual_warm_starts": 213,
+          "qp_polish_iterations": 4835
+        },
+        "current_work": {
+          "qp_admm_iterations": 20128,
+          "qp_calls": 287,
+          "qp_dual_warm_resets": 0,
+          "qp_dual_warm_starts": 213,
+          "qp_polish_iterations": 4354
+        },
+        "exact_graph_path_and_selected_fit_parity": true,
+        "nodes": 64,
+        "planned_penalties": 26
+      },
+      {
+        "baseline_work": {
+          "qp_admm_iterations": 25904,
+          "qp_calls": 273,
+          "qp_dual_warm_resets": 0,
+          "qp_dual_warm_starts": 199,
+          "qp_polish_iterations": 4260
+        },
+        "current_work": {
+          "qp_admm_iterations": 25904,
+          "qp_calls": 273,
+          "qp_dual_warm_resets": 0,
+          "qp_dual_warm_starts": 199,
+          "qp_polish_iterations": 3860
+        },
+        "exact_graph_path_and_selected_fit_parity": true,
+        "nodes": 256,
+        "planned_penalties": 26
+      }
+    ],
+    "scope": "Historical complete-path scientific parity and all-start work accounting; separate GPU allocations are not matched full-fit latency evidence",
+    "status": "passed"
+  },
+  "created_utc": "2026-09-23T01:41:23.853440+00:00",
+  "evidence_sha256": {
+    "benchmarks/attribute_qp_cuda.py": "39c1a8813417d7ea87c5bf81f84ed57140bad4879d13173e7b39eaf8113307e3",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b/IMPORT_MANIFEST.json": "249cacc3b03a6a15530cc43abb298c5f9e2c884c436aec2bad6b52870e203277",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b/MEASUREMENT_INVALIDATION.json": "ae5d5614c8e1f8cf6c17e903a4a8437aedb12783895549c88e1e678003024d2a",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b/PREPARED.json": "77bb1229a161a650dfb318a9ce113cdbaac0ba18c860d8400472bd6adf261e49",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b/imported/receipts/accepted.json": "02f21d189b2e9774506f4263386570989bfcc604d6936665247d9c7cbfab8dc3",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b/imported/receipts/startup.json": "413ca4455e20ba00cae602ca641b05cd5a739fdff01b99bfbfb8f99cd7a194ef",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b/imported/receipts/terminal.json": "14cbcca2829dd66fab419ac235935a542831deaef4975eee345bc906826ad2e7",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b/imported/results/attribution-baseline.json": "132f5c77f8278c641cf9f4007ad86c3b79b35078f688236fe3421f2a9ddf7985",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b/imported/results/attribution-current.json": "a978b474b54347089abde619d00aa3bed95cf368a0590414555c572e74bdd59b",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b/sealed/clipp2_clipp1d_qp_20260923b/PREPARED.json": "510eb6cc58d5b244e78da19b11cf2961c75f0484ac261f80a8e733b0bdf021a7",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b2/IMPORT_MANIFEST.json": "bb07234e85c5ac064d0bce172fdf085f69cf50079a70d3dd0ad6299c80271e8b",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b2/PREPARED.json": "299579edecc480eb11be03f90e4fca2c302a97cbb908a95a74826ce434b18ef6",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b2/imported/receipts/accepted.json": "48308d5293a4bf53edcab0301c9fd3fce3da19d3ad9d73304d0974228721bcfc",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b2/imported/receipts/startup.json": "fdc97384fcf1986fc83dbdcf11fca7d74fd27a9693262f3f1b92e05a106a42b3",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b2/imported/receipts/terminal.json": "3131ff733f9402a4bd83ae03e6de2602cc849ddcf92e79d761aff084a01c9e5a",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b2/imported/results/attribution-baseline.json": "24b8ca6b45e314181652bd685d5ae41cdd9255ae93a5f3f74b63cb7c5bea6205",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b2/sealed/clipp2_clipp1d_qp_20260923b2/PREPARED.json": "b631fcabf701d0c188f5c312e2791fbc9ff222907b12a81b41ff584c88e13e8a",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/IMPORT_MANIFEST.json": "82bbd3b6a3f2de7d2715526e1cb137904b574b4981acb01cb583b761b187836a",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/PREPARED.json": "21a6fe3133813313f472c24713193a7a1e842b7d61a0875ad726d4799a20698b",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/receipts/accepted.json": "b8deccdc958abcfea799bf36b5f786bd25a1f0bb3cd3021448c6d50714778609",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/receipts/startup.json": "dbed8ead139bc004c73a1c7d59d547018ba74cbe5d8959e6de518913da2ce611",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/receipts/terminal.json": "cc7474fa3af36f1a16fd825a4045c5ecaabb67316b33baceb2dffb5435795448",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-baseline.artifacts/mixed64.inputs.json": "7a9ebf3ca409cfb18869dcd82579e7245c1530baea0e48ac6884982d9cfc3c59",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-baseline.artifacts/mixed64.measurements.json": "44032888ec7d67278e265008a772d509f19a2a742fefb20dcb52ddf69b537da6",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-baseline.artifacts/resource256.inputs.json": "1bb2d5e92bb3fee910f9a5b0f218399f1ffa68906d8bcc1c135b7306649a6528",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-baseline.artifacts/resource256.measurements.json": "d48a0d362cc79981ceb96af5e3847d1965ba87add7a2e19923b96f4374d56c9c",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-baseline.artifacts/resource64.inputs.json": "63010436ca690c787e51b80493a1c15399efd8a9e57375399dca1273e8642899",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-baseline.artifacts/resource64.measurements.json": "9648932b3b7930b026deaa36df09a270e043def1de78f67c35f7e01c94426191",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-baseline.json": "5ef1af61e0281a9df6664ed82cd382c56365d9bdb32daec14f38b885bf85479c",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-current.artifacts/mixed64.inputs.json": "7a9ebf3ca409cfb18869dcd82579e7245c1530baea0e48ac6884982d9cfc3c59",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-current.artifacts/mixed64.measurements.json": "41e9b43e8f7f7c23c938e90cc6351ced8b1cdb00f3c6d27cb28ee90206970552",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-current.artifacts/resource256.inputs.json": "1bb2d5e92bb3fee910f9a5b0f218399f1ffa68906d8bcc1c135b7306649a6528",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-current.artifacts/resource256.measurements.json": "1ca189e5e82e8e5d17cc774f93ef4848c94a8e501fe599dc50032cd00ccf603f",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-current.artifacts/resource64.inputs.json": "63010436ca690c787e51b80493a1c15399efd8a9e57375399dca1273e8642899",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-current.artifacts/resource64.measurements.json": "d64caaab46f0ffae59e8a43f05eca86877a2a72a27b16118c0b826c9adfb23d5",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/imported/results/attribution-current.json": "d7522b0ded4410a40e2d65ca8238f5ce5de248a205a6369d9fc2bdad84552679",
+    "results/cuda-qp-daaf50a-20260922-v1/attribution-b3/sealed/clipp2_clipp1d_qp_20260923b3/PREPARED.json": "c734fd914a75e82ef126dc20443be77c994f0ffe9998584694b88e5cc1b57002",
+    "results/cuda-qp-daaf50a-20260922-v1/qualification-a/IMPORT_MANIFEST.json": "fcac22fac08b12c19ad63a7289fc8e1faa38671f5dd2702f18b5aeb5f8050667",
+    "results/cuda-qp-daaf50a-20260922-v1/qualification-a/PREPARED.json": "ac568ac020b65595590a314c6977184bd6290d38cd2718e293e5a659494fb5dd",
+    "results/cuda-qp-daaf50a-20260922-v1/qualification-a/imported/receipts/accepted.json": "6edaf5c62dc62faacec6abc85966166bc040a082c8a69c61875e3f01ed7f4369",
+    "results/cuda-qp-daaf50a-20260922-v1/qualification-a/imported/receipts/startup.json": "bca306f25bb73efe469658115ad09adc2f4bee578eeee7c7a7ec7adc29118aa4",
+    "results/cuda-qp-daaf50a-20260922-v1/qualification-a/imported/receipts/terminal.json": "80637a133f096c71b604e74ce445fa06f49055a3bfa3efeee2f72cc654c42d97",
+    "results/cuda-qp-daaf50a-20260922-v1/qualification-a/imported/results/qualification-current.artifacts/scaling-16-path.json": "aa36c643cf2d2e5cd8a40fa79a976a603b012ae48bedcea30343cbde167a42ea",
+    "results/cuda-qp-daaf50a-20260922-v1/qualification-a/imported/results/qualification-current.artifacts/scaling-16-qualified.json": "89125d01b3d30b3deb10124f21faf97545f09ce0b0839a33ef6baf29587dcbb9",
+    "results/cuda-qp-daaf50a-20260922-v1/qualification-a/imported/results/qualification-current.artifacts/scaling-256-path.json": "969a54b0db625e2ec3f93112e881731b6fdc38acf420bc5010eff38cb53116aa",
+    "results/cuda-qp-daaf50a-20260922-v1/qualification-a/imported/results/qualification-current.artifacts/scaling-256-qualified.json": "ac7abf94a95d5a6fa589873595de196ee200ef02067e31a9d008d536cc2546cc",
+    "results/cuda-qp-daaf50a-20260922-v1/qualification-a/imported/results/qualification-current.artifacts/scaling-64-path.json": "173dc9651ad69a954677ce19b690c436634e381f785487d10faac40e64e26268",
+    "results/cuda-qp-daaf50a-20260922-v1/qualification-a/imported/results/qualification-current.artifacts/scaling-64-qualified.json": "2caee7faf869f94f74f21666d8ba8d9d263c0079886411560e22b6521dff0e6b",
+    "results/cuda-qp-daaf50a-20260922-v1/qualification-a/imported/results/qualification-current.json": "1c3ca24cf621249548abcd437020a0a770dd31c0aa66f3277d032d4bdb65704b",
+    "results/cuda-qp-daaf50a-20260922-v1/qualification-a/sealed/clipp2_clipp1d_qp_20260923a/PREPARED.json": "a3e91afffcf5856d52f969348714ff08feed20fecebc0e3d16413f917327090d",
+    "validation/cuda-review-v3/artifacts/scaling-16-path.json": "1a5201f6d5fc8eac6536074c33158c1ed13197c9594c388bd379fc9ccda06015",
+    "validation/cuda-review-v3/artifacts/scaling-256-path.json": "f7aa4d3baa995447022249658a0229545f58cf87d9d9c56b6e6156e99c623ac3",
+    "validation/cuda-review-v3/artifacts/scaling-64-path.json": "a09977b9b9b60a7fc84c197b69c9442de266fce2ff6c3e8eaac06031021381fd"
+  },
+  "imports": {
+    "attribution-b3": {
+      "imported_files": 33,
+      "job_id": "77334593",
+      "terminal_sha256": "cc7474fa3af36f1a16fd825a4045c5ecaabb67316b33baceb2dffb5435795448"
+    },
+    "qualification-a": {
+      "imported_files": 57,
+      "job_id": "77334451",
+      "terminal_sha256": "80637a133f096c71b604e74ce445fa06f49055a3bfa3efeee2f72cc654c42d97"
+    }
+  },
+  "paired_attribution": {
+    "baseline_source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+    "certificate_scope": "Imported original-QP eager CUDA certificates independently emitted after every call; this local reconciler verifies identities, original boxes, gates, counts and gap-derived pairwise bounds without executing fits",
+    "comparisons": [
+      {
+        "all_sample_checks": 16,
+        "all_sample_common_baseline_checks": [
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "warmup-0",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "latency-0",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "latency-1",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "latency-2",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "latency-3",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "latency-4",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "dispatch_profile",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "attribution",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "warmup-0",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "latency-0",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "latency-1",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "latency-2",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "latency-3",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "latency-4",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "dispatch_profile",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 1.6203436531085258e-13,
+            "objective_error": 0.0,
+            "sample": "attribution",
+            "solution_l2_bound": 5.632150118801375e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          }
+        ],
+        "baseline_attribution": {
+          "correlated_cuda_work_events": 9420,
+          "cuda_work_with_unanimous_duplicate_owners": 0,
+          "device_accounting": "raw Kineto CUDA work only; user annotations excluded; linked CPU correlation assigns disjoint stage ownership",
+          "device_kernel_and_copy_seconds": 0.021433764999999584,
+          "discarded_cuda_user_annotations": 866,
+          "duplicate_cpu_correlation_ids": 3,
+          "host_scalar_read_proxies": {
+            "aten::_local_scalar_dense": 179,
+            "aten::is_nonzero": 51,
+            "aten::item": 179
+          },
+          "instrumented_wall_seconds": 0.31068003200925887,
+          "kernel_dispatches": 8212,
+          "stage_operation_counts": {
+            "_polish_dual": 16,
+            "admm_update": 256,
+            "gap_kkt": 31,
+            "polish_quadratic": 16,
+            "quadratic_value": 32,
+            "residual_balance": 3
+          },
+          "stages": {
+            "admm_update": {
+              "calls": 259,
+              "device_kernel_seconds": 0.012659582000000202,
+              "host_range_seconds": 0.10746233000000001
+            },
+            "certificate": {
+              "calls": 63,
+              "device_kernel_seconds": 0.002767676000000005,
+              "host_range_seconds": 0.013052194999999997
+            },
+            "dual_flow_repair": {
+              "calls": 16,
+              "device_kernel_seconds": 0.0015421429999999976,
+              "host_range_seconds": 0.010458082999999998
+            },
+            "equality_proposal": {
+              "calls": 16,
+              "device_kernel_seconds": 0.0034031529999999886,
+              "host_range_seconds": 0.027605286
+            }
+          },
+          "unattributed_device_seconds": 0.0010612109999993923,
+          "unattributed_host_wall_seconds": 0.15210213800925887,
+          "uncorrelated_cuda_work_events": 1
+        },
+        "baseline_dispatch_device_seconds": 0.021437882999999557,
+        "baseline_kernel_dispatches": 8212,
+        "baseline_latency_seconds": [
+          0.11697424296289682,
+          0.1159928219858557,
+          0.11612041294574738,
+          0.11599923809990287,
+          0.11537558888085186
+        ],
+        "baseline_median_seconds": 0.11599923809990287,
+        "baseline_over_current_latency": 1.324722666325754,
+        "baseline_work_all_eight_calls": {
+          "admm_iterations": 2048,
+          "independent_original_certificates": 8,
+          "polish_iterations": 128,
+          "qp_calls": 8,
+          "scope": "all warmup, uninstrumented latency and separate profiler QP calls in this fixture"
+        },
+        "combined_gap_distance_bound": 1.8246049676476168e-15,
+        "combined_objective_gap_bound": 1.6203436531085258e-13,
+        "current_attribution": {
+          "correlated_cuda_work_events": 7201,
+          "cuda_work_with_unanimous_duplicate_owners": 1,
+          "device_accounting": "raw Kineto CUDA work only; user annotations excluded; linked CPU correlation assigns disjoint stage ownership",
+          "device_kernel_and_copy_seconds": 0.017927836000000093,
+          "discarded_cuda_user_annotations": 370,
+          "duplicate_cpu_correlation_ids": 1,
+          "host_scalar_read_proxies": {
+            "aten::_local_scalar_dense": 195,
+            "aten::is_nonzero": 67,
+            "aten::item": 195
+          },
+          "instrumented_wall_seconds": 0.23532254295423627,
+          "kernel_dispatches": 5960,
+          "stage_operation_counts": {
+            "admm_update": 256,
+            "flow_polish_step": 16,
+            "gap_kkt": 31,
+            "polish_quadratic": 16,
+            "prepare_flow_polish": 16,
+            "quadratic_value": 32,
+            "residual_balance": 3
+          },
+          "stages": {
+            "admm_update": {
+              "calls": 259,
+              "device_kernel_seconds": 0.009826740000000075,
+              "host_range_seconds": 0.06767734400000003
+            },
+            "certificate": {
+              "calls": 63,
+              "device_kernel_seconds": 0.0027728860000000044,
+              "host_range_seconds": 0.012751898000000005
+            },
+            "dual_flow_repair": {
+              "calls": 16,
+              "device_kernel_seconds": 9.6162e-05,
+              "host_range_seconds": 0.004084614
+            },
+            "equality_proposal": {
+              "calls": 32,
+              "device_kernel_seconds": 0.0041133159999999945,
+              "host_range_seconds": 0.031557023999999996
+            }
+          },
+          "unattributed_device_seconds": 0.001118732000000018,
+          "unattributed_host_wall_seconds": 0.11925166295423624,
+          "uncorrelated_cuda_work_events": 0
+        },
+        "current_dispatch_device_seconds": 0.017931608000000078,
+        "current_kernel_dispatches": 5960,
+        "current_latency_seconds": [
+          0.08799248398281634,
+          0.08756492286920547,
+          0.08769776299595833,
+          0.08752895891666412,
+          0.08726359996944666
+        ],
+        "current_median_seconds": 0.08756492286920547,
+        "current_work_all_eight_calls": {
+          "admm_iterations": 2048,
+          "independent_original_certificates": 8,
+          "polish_iterations": 128,
+          "qp_calls": 8,
+          "scope": "all warmup, uninstrumented latency and separate profiler QP calls in this fixture"
+        },
+        "name": "mixed64",
+        "objective_absolute_difference": 0.0,
+        "solution_l2_difference": 0.0
+      },
+      {
+        "all_sample_checks": 16,
+        "all_sample_common_baseline_checks": [
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "warmup-0",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "latency-0",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "latency-1",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "latency-2",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "latency-3",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "latency-4",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "dispatch_profile",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "attribution",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "warmup-0",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "latency-0",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "latency-1",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "latency-2",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "latency-3",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "latency-4",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "dispatch_profile",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.728406622162084e-14,
+            "objective_error": 0.0,
+            "sample": "attribution",
+            "solution_l2_bound": 1.1052250003658379e-12,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          }
+        ],
+        "baseline_attribution": {
+          "correlated_cuda_work_events": 21588,
+          "cuda_work_with_unanimous_duplicate_owners": 2,
+          "device_accounting": "raw Kineto CUDA work only; user annotations excluded; linked CPU correlation assigns disjoint stage ownership",
+          "device_kernel_and_copy_seconds": 0.1328173640000016,
+          "discarded_cuda_user_annotations": 1959,
+          "duplicate_cpu_correlation_ids": 4,
+          "host_scalar_read_proxies": {
+            "aten::_local_scalar_dense": 422,
+            "aten::is_nonzero": 118,
+            "aten::item": 422
+          },
+          "instrumented_wall_seconds": 0.7904388830065727,
+          "kernel_dispatches": 18825,
+          "stage_operation_counts": {
+            "_polish_dual": 37,
+            "admm_update": 576,
+            "gap_kkt": 73,
+            "polish_quadratic": 38,
+            "quadratic_value": 75,
+            "residual_balance": 8
+          },
+          "stages": {
+            "admm_update": {
+              "calls": 584,
+              "device_kernel_seconds": 0.05570128400000166,
+              "host_range_seconds": 0.26956079600000005
+            },
+            "certificate": {
+              "calls": 148,
+              "device_kernel_seconds": 0.060516950000000104,
+              "host_range_seconds": 0.033563978
+            },
+            "dual_flow_repair": {
+              "calls": 37,
+              "device_kernel_seconds": 0.0038787790000000084,
+              "host_range_seconds": 0.026255568000000003
+            },
+            "equality_proposal": {
+              "calls": 38,
+              "device_kernel_seconds": 0.010322238999999902,
+              "host_range_seconds": 0.06832563400000001
+            }
+          },
+          "unattributed_device_seconds": 0.0023981119999999245,
+          "unattributed_host_wall_seconds": 0.39273290700657265,
+          "uncorrelated_cuda_work_events": 1
+        },
+        "baseline_dispatch_device_seconds": 0.13293204900000102,
+        "baseline_kernel_dispatches": 18825,
+        "baseline_latency_seconds": [
+          0.3104510069824755,
+          0.3083626839797944,
+          0.3094674479216337,
+          0.3097300420049578,
+          0.3086439010221511
+        ],
+        "baseline_median_seconds": 0.3094674479216337,
+        "baseline_over_current_latency": 1.4332991516166502,
+        "baseline_work_all_eight_calls": {
+          "admm_iterations": 4608,
+          "independent_original_certificates": 8,
+          "polish_iterations": 296,
+          "qp_calls": 8,
+          "scope": "all warmup, uninstrumented latency and separate profiler QP calls in this fixture"
+        },
+        "combined_gap_distance_bound": 2.7035697373913694e-15,
+        "combined_objective_gap_bound": 5.728406622162084e-14,
+        "current_attribution": {
+          "correlated_cuda_work_events": 15255,
+          "cuda_work_with_unanimous_duplicate_owners": 2,
+          "device_accounting": "raw Kineto CUDA work only; user annotations excluded; linked CPU correlation assigns disjoint stage ownership",
+          "device_kernel_and_copy_seconds": 0.10247992200000165,
+          "discarded_cuda_user_annotations": 766,
+          "duplicate_cpu_correlation_ids": 2,
+          "host_scalar_read_proxies": {
+            "aten::_local_scalar_dense": 423,
+            "aten::is_nonzero": 127,
+            "aten::item": 423
+          },
+          "instrumented_wall_seconds": 0.4841970079578459,
+          "kernel_dispatches": 12494,
+          "stage_operation_counts": {
+            "admm_update": 576,
+            "flow_polish_step": 12,
+            "gap_kkt": 48,
+            "polish_quadratic": 37,
+            "prepare_flow_polish": 12,
+            "quadratic_value": 73,
+            "residual_balance": 8
+          },
+          "stages": {
+            "admm_update": {
+              "calls": 584,
+              "device_kernel_seconds": 0.048780510999999846,
+              "host_range_seconds": 0.14600431099999978
+            },
+            "certificate": {
+              "calls": 121,
+              "device_kernel_seconds": 0.040882961000000134,
+              "host_range_seconds": 0.025676701999999996
+            },
+            "dual_flow_repair": {
+              "calls": 12,
+              "device_kernel_seconds": 0.000106784,
+              "host_range_seconds": 0.0029626310000000003
+            },
+            "equality_proposal": {
+              "calls": 49,
+              "device_kernel_seconds": 0.010623569000000025,
+              "host_range_seconds": 0.062411360999999985
+            }
+          },
+          "unattributed_device_seconds": 0.0020860970000016466,
+          "unattributed_host_wall_seconds": 0.24714200295784616,
+          "uncorrelated_cuda_work_events": 0
+        },
+        "current_dispatch_device_seconds": 0.10246868500000071,
+        "current_kernel_dispatches": 12494,
+        "current_latency_seconds": [
+          0.21591267082840204,
+          0.2161290121730417,
+          0.2175066559575498,
+          0.21503122197464108,
+          0.21494719805195928
+        ],
+        "current_median_seconds": 0.21591267082840204,
+        "current_work_all_eight_calls": {
+          "admm_iterations": 4608,
+          "independent_original_certificates": 8,
+          "polish_iterations": 96,
+          "qp_calls": 8,
+          "scope": "all warmup, uninstrumented latency and separate profiler QP calls in this fixture"
+        },
+        "name": "resource256",
+        "objective_absolute_difference": 0.0,
+        "solution_l2_difference": 0.0
+      },
+      {
+        "all_sample_checks": 16,
+        "all_sample_common_baseline_checks": [
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "warmup-0",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "latency-0",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "latency-1",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "latency-2",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "latency-3",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "latency-4",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "dispatch_profile",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "attribution",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "baseline"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "warmup-0",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "latency-0",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "latency-1",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "latency-2",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "latency-3",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "latency-4",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "dispatch_profile",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          },
+          {
+            "objective_bound": 5.686680317161991e-14,
+            "objective_error": 0.0,
+            "sample": "attribution",
+            "solution_l2_bound": 5.781192763146921e-13,
+            "solution_l2_error": 0.0,
+            "source_role": "current"
+          }
+        ],
+        "baseline_attribution": {
+          "correlated_cuda_work_events": 2384,
+          "cuda_work_with_unanimous_duplicate_owners": 1,
+          "device_accounting": "raw Kineto CUDA work only; user annotations excluded; linked CPU correlation assigns disjoint stage ownership",
+          "device_kernel_and_copy_seconds": 0.005331613000000003,
+          "discarded_cuda_user_annotations": 215,
+          "duplicate_cpu_correlation_ids": 1,
+          "host_scalar_read_proxies": {
+            "aten::_local_scalar_dense": 47,
+            "aten::is_nonzero": 15,
+            "aten::item": 47
+          },
+          "instrumented_wall_seconds": 0.07616769010201097,
+          "kernel_dispatches": 2075,
+          "stage_operation_counts": {
+            "_polish_dual": 4,
+            "admm_update": 64,
+            "gap_kkt": 7,
+            "polish_quadratic": 4,
+            "quadratic_value": 8
+          },
+          "stages": {
+            "admm_update": {
+              "calls": 64,
+              "device_kernel_seconds": 0.0031028270000000055,
+              "host_range_seconds": 0.026152625999999995
+            },
+            "certificate": {
+              "calls": 15,
+              "device_kernel_seconds": 0.0006457030000000004,
+              "host_range_seconds": 0.0031309890000000007
+            },
+            "dual_flow_repair": {
+              "calls": 4,
+              "device_kernel_seconds": 0.00038473600000000005,
+              "host_range_seconds": 0.002491185
+            },
+            "equality_proposal": {
+              "calls": 4,
+              "device_kernel_seconds": 0.0008539249999999997,
+              "host_range_seconds": 0.006513349
+            }
+          },
+          "unattributed_device_seconds": 0.0003444219999999979,
+          "unattributed_host_wall_seconds": 0.03787954110201097,
+          "uncorrelated_cuda_work_events": 0
+        },
+        "baseline_dispatch_device_seconds": 0.005333821000000002,
+        "baseline_kernel_dispatches": 2075,
+        "baseline_latency_seconds": [
+          0.02577260392718017,
+          0.025521164061501622,
+          0.02553762006573379,
+          0.025355756049975753,
+          0.02530252607539296
+        ],
+        "baseline_median_seconds": 0.025521164061501622,
+        "baseline_over_current_latency": 1.4458474665430203,
+        "baseline_work_all_eight_calls": {
+          "admm_iterations": 512,
+          "independent_original_certificates": 8,
+          "polish_iterations": 32,
+          "qp_calls": 8,
+          "scope": "all warmup, uninstrumented latency and separate profiler QP calls in this fixture"
+        },
+        "combined_gap_distance_bound": 1.3235655924111316e-15,
+        "combined_objective_gap_bound": 5.686680317161991e-14,
+        "current_attribution": {
+          "correlated_cuda_work_events": 1696,
+          "cuda_work_with_unanimous_duplicate_owners": 1,
+          "device_accounting": "raw Kineto CUDA work only; user annotations excluded; linked CPU correlation assigns disjoint stage ownership",
+          "device_kernel_and_copy_seconds": 0.004073781999999994,
+          "discarded_cuda_user_annotations": 82,
+          "duplicate_cpu_correlation_ids": 1,
+          "host_scalar_read_proxies": {
+            "aten::_local_scalar_dense": 48,
+            "aten::is_nonzero": 16,
+            "aten::item": 48
+          },
+          "instrumented_wall_seconds": 0.05163995805196464,
+          "kernel_dispatches": 1385,
+          "stage_operation_counts": {
+            "admm_update": 64,
+            "flow_polish_step": 1,
+            "gap_kkt": 4,
+            "polish_quadratic": 4,
+            "prepare_flow_polish": 1,
+            "quadratic_value": 8
+          },
+          "stages": {
+            "admm_update": {
+              "calls": 64,
+              "device_kernel_seconds": 0.0023999830000000044,
+              "host_range_seconds": 0.016326483000000003
+            },
+            "certificate": {
+              "calls": 12,
+              "device_kernel_seconds": 0.00046320100000000027,
+              "host_range_seconds": 0.002592313
+            },
+            "dual_flow_repair": {
+              "calls": 1,
+              "device_kernel_seconds": 5.792000000000001e-06,
+              "host_range_seconds": 0.000241226
+            },
+            "equality_proposal": {
+              "calls": 5,
+              "device_kernel_seconds": 0.0008944689999999994,
+              "host_range_seconds": 0.006687455
+            }
+          },
+          "unattributed_device_seconds": 0.00031033699999998953,
+          "unattributed_host_wall_seconds": 0.025792481051964637,
+          "uncorrelated_cuda_work_events": 0
+        },
+        "current_dispatch_device_seconds": 0.004078043999999992,
+        "current_kernel_dispatches": 1385,
+        "current_latency_seconds": [
+          0.0187673419713974,
+          0.017586503876373172,
+          0.017718194983899593,
+          0.01753828884102404,
+          0.017651353031396866
+        ],
+        "current_median_seconds": 0.017651353031396866,
+        "current_work_all_eight_calls": {
+          "admm_iterations": 512,
+          "independent_original_certificates": 8,
+          "polish_iterations": 8,
+          "qp_calls": 8,
+          "scope": "all warmup, uninstrumented latency and separate profiler QP calls in this fixture"
+        },
+        "name": "resource64",
+        "objective_absolute_difference": 0.0,
+        "solution_l2_difference": 0.0
+      }
+    ],
+    "controls": {
+      "fixtures": [
+        "resource64",
+        "resource256",
+        "mixed64"
+      ],
+      "initialization": "literal cold primal start, zero dual for every call",
+      "latency_scope": "uninstrumented warmed solve with synchronization at boundaries; excludes independent certificate",
+      "memory_scope": "uninstrumented solve only; input/snapshot and compiled caches present at reset",
+      "profiling_scope": "separate profiler-only dispatch and disjoint annotated attribution; instrumented totals include overhead",
+      "repeats": 5,
+      "warmups": 1
+    },
+    "current_source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+    "environment": {
+      "capability": [
+        8,
+        9
+      ],
+      "compiler": "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/x86_64-conda-linux-gnu-gcc",
+      "cuda_runtime": "12.8",
+      "device_uuid": "08ead12a-37e3-4bfe-1e32-ab7c1fe6251c",
+      "gpu": "NVIDIA L40",
+      "python": "3.13.7",
+      "torch": "2.9.1+cu128"
+    },
+    "fixture_scope": "resource64/resource256 use matched NumPy literal sin/caps arrays; they are not bitwise the CUDA-generated resource_probe in qualification-a. mixed64 is a fixed surrogate, not a full fit.",
+    "schema": "clipp1d.cuda.qp_attribution.v2.comparison",
+    "scope": "matched synthetic cold-start QPs with warmed compiler shapes; separate profiler calls include overhead",
+    "stage_boundary_scope": "Baseline dual_flow_repair includes repeated fixed geometry construction; current prepares reusable geometry in equality_proposal. Individual stage timing shifts include reclassification. Use disjoint work totals and uninstrumented latency medians for speed claims.",
+    "status": "passed"
+  },
+  "reconciler_sha256": "ae867caf149860f2aecd0949b250a5821811c05f6d831a9da3526eefe3c7ead4",
+  "retained_attempts": {
+    "attribution-b": {
+      "disposition": "Profiler claims invalidated; original bytes and separate latency/certificates retained",
+      "imported_files": 33,
+      "invalidation_sha256": "ae5d5614c8e1f8cf6c17e903a4a8437aedb12783895549c88e1e678003024d2a",
+      "job_id": "77334512",
+      "original_worker_status": "passed",
+      "terminal_sha256": "14cbcca2829dd66fab419ac235935a542831deaef4975eee345bc906826ad2e7"
+    },
+    "attribution-b2": {
+      "disposition": "Fail-closed profiler mapping rejection; no completed paired attribution or speed claim",
+      "error": "Ambiguous CPU profiler correlation ownership",
+      "error_type": "AssertionError",
+      "imported_files": 17,
+      "job_id": "77334577",
+      "original_worker_status": "failed",
+      "terminal_sha256": "3131ff733f9402a4bd83ae03e6de2602cc849ddcf92e79d761aff084a01c9e5a"
+    }
+  },
+  "schema": "clipp1d.qp_study.reconciliation.v1",
+  "source_sha256": {
+    "baseline": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+    "current": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+  },
+  "status": "passed"
+}

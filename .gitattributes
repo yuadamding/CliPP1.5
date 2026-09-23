@@ -3,3 +3,12 @@ validation/cuda-review-v3/failed-attempts/f/sealed/tracked-dirty.patch -whitespa
 validation/cuda-review-v3/failed-attempts/g/sealed/tracked-dirty.patch -whitespace -text
 validation/cuda-review-v3/failed-attempts/h/sealed/tracked-dirty.patch -whitespace -text
 validation/cuda-review-v3/operational/tracked-dirty.patch -whitespace -text
+validation/cuda-qp-v3/attempts/attribution-b/sealed/tracked-dirty.patch -whitespace -text
+validation/cuda-qp-v3/attempts/attribution-b2/sealed/tracked-dirty.patch -whitespace -text
+validation/cuda-qp-v3/attempts/attribution-b3/sealed/tracked-dirty.patch -whitespace -text
+validation/cuda-qp-v3/attempts/baseline256-g/sealed/tracked-dirty.patch -whitespace -text
+validation/cuda-qp-v3/attempts/below64-d/sealed/tracked-dirty.patch -whitespace -text
+validation/cuda-qp-v3/attempts/below64-f/sealed/tracked-dirty.patch -whitespace -text
+validation/cuda-qp-v3/attempts/mixed256-e/sealed/tracked-dirty.patch -whitespace -text
+validation/cuda-qp-v3/attempts/mixed64-c/sealed/tracked-dirty.patch -whitespace -text
+validation/cuda-qp-v3/attempts/qualification-a/sealed/tracked-dirty.patch -whitespace -text

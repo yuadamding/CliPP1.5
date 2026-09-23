@@ -1,0 +1,19 @@
+{
+  "elapsed_seconds": 94.59489130973816,
+  "error": "{'name': 'below64-baseline', 'source_role': 'baseline', 'returncode': 1, 'receipt_sha256': '8e7b4fa54f7929d29fa907b7997e6f2eb76664b7f59a2c6ec0c38ac50d64b90b', 'status': 'failed'}",
+  "error_type": "AssertionError",
+  "job_id": "77334573",
+  "passed": false,
+  "plan_sha256": "6ff8b3b70470a4fc1baf227fe9f6e38d4dbb7ffd4de07ee9bba3d44ccfaade5f",
+  "scope": "source-bound synthetic CUDA qualification, not cohort accuracy",
+  "tasks": [
+    {
+      "name": "below64-baseline",
+      "receipt_sha256": "8e7b4fa54f7929d29fa907b7997e6f2eb76664b7f59a2c6ec0c38ac50d64b90b",
+      "returncode": 1,
+      "source_role": "baseline",
+      "status": "failed"
+    }
+  ],
+  "traceback": "Traceback (most recent call last):\n  File \"/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923d/worker.py\", line 112, in main\n    assert completed.returncode == 0 and entry.get(\"status\") == \"passed\", entry\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'name': 'below64-baseline', 'source_role': 'baseline', 'returncode': 1, 'receipt_sha256': '8e7b4fa54f7929d29fa907b7997e6f2eb76664b7f59a2c6ec0c38ac50d64b90b', 'status': 'failed'}\n"
+}

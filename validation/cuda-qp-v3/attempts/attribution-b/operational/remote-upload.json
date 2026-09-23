@@ -1,0 +1,7 @@
+{
+  "returncode": 0,
+  "script_sha256": "5789e840641303a8a707176477ff3959bad0bc375ddb44221c69782f875c9a2c",
+  "stderr": "",
+  "stdout": "RECEIPT={\"path\": \"/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_transfer_20260923-b/payload.tar.gz\", \"sha256\": \"abe534db22aa05e9e204578d3f8e786d05d4738d4a5e5d6d814893db6f3fe786\", \"bytes\": 219807}\n",
+  "utc": "2026-09-23T01:10:16.132835+00:00"
+}

@@ -20,7 +20,9 @@ refits remain visible through `search_status=incomplete`.
 Policy v3 preserves exactly equal raw CCFs in the same group, including inside
 overwide tolerance runs. It also reuses qualified membership refits and singleton
 pilots, limits full integrity checks to owned numerical stage boundaries, and
-reuses QP dual initializations within a lambda. The dense graph, likelihood,
+reuses QP dual initializations within a lambda. QP polishing prepares fixed group
+geometry once per proposal; combined ADMM and flow-repair steps use strict
+compilation with independent admission checks. The dense graph, likelihood,
 original bounds and qualification tolerances remain unchanged.
 
 ## Installation and use
@@ -71,14 +73,22 @@ requires an actual allocated CUDA device and records compiled/eager results,
 source identity, numerical certificates, runtime and memory. A small qualification
 run does not establish cohort accuracy or scalability at all input sizes.
 
+The [QP benchmark contract](docs/QP_BENCHMARKS.md) separates uninstrumented
+latency from profiling overhead and describes the larger heterogeneous
+mixed-support qualification. `qp_admm_iterations` totals work across all
+attempted starts and candidates, including unresolved attempts.
+
 The historical chain numerical modules remain available for reference tests.
 They are not called by the public fitting API. Historical CPU cohort launchers
 reject this CUDA source; existing frozen runs and their result evaluators keep
 their original contracts. Do not replace the source beneath running workers.
 
 See [the CUDA framework](docs/CUDA_FRAMEWORK.md) for the model, certification and
-output semantics. [Validation evidence](VALIDATION_CUDA.md) distinguishes local
-reference tests from allocated GPU qualification; its
+output semantics. The [QP optimization report](VALIDATION_QP.md) records current
+matched timing, numerical parity and the failed heterogeneous stress cases;
+its [evidence archive](validation/cuda-qp-v3/README.md) retains every attempt.
+The earlier [validation report](VALIDATION_CUDA.md) distinguishes local
+reference tests from allocated GPU qualification for the `daaf50a` baseline; its
 [source-bound receipts](validation/cuda-review-v3/README.md) include the final
 acceptance and preserved failed attempts. The retrievable
 [prior CUDA evidence for `371003f`](validation/371003f/README.md) qualifies its

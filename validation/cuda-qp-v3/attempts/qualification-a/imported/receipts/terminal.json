@@ -1,0 +1,16 @@
+{
+  "elapsed_seconds": 672.2986693382263,
+  "job_id": "77334451",
+  "passed": true,
+  "plan_sha256": "a3e91afffcf5856d52f969348714ff08feed20fecebc0e3d16413f917327090d",
+  "scope": "source-bound synthetic CUDA qualification, not cohort accuracy",
+  "tasks": [
+    {
+      "name": "qualification-current",
+      "receipt_sha256": "1c3ca24cf621249548abcd437020a0a770dd31c0aa66f3277d032d4bdb65704b",
+      "returncode": 0,
+      "source_role": "current",
+      "status": "passed"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "affected_receipts": {
+    "results/attribution-baseline.json": "132f5c77f8278c641cf9f4007ad86c3b79b35078f688236fe3421f2a9ddf7985",
+    "results/attribution-current.json": "a978b474b54347089abde619d00aa3bed95cf368a0590414555c572e74bdd59b"
+  },
+  "affected_receipts_base": "attribution-b/imported",
+  "benchmark_sha256": "783f0cfaad8c78c85e8f048bec1d228e5ba6f70f6c0901bc2a8aef7aeacb0a4e",
+  "cause": "The v1 aggregator treated CUDA user-annotation range mirrors as real work and used recursive FunctionEvent.device_time_total, which also includes GPU annotation spans attached as CPU kernels. Annotation duration can include launch gaps.",
+  "correction": "v2 excludes raw Kineto CUDA annotation events and attributes only actual kernel/copy durations through linked CPU correlation and disjoint CPU stage ownership. Host stages count CPU annotations only.",
+  "created_utc": "2026-09-23T01:33:01.049483+00:00",
+  "invalidated_claims": [
+    "Profiler-derived kernel dispatch counts",
+    "Profiler-derived CUDA device durations and named device stage costs",
+    "Named stage call counts, which counted CPU and mirrored CUDA annotations"
+  ],
+  "job_id": "77334512",
+  "observed_double_count_examples": [
+    {
+      "actual_admm_annotation_calls": 64,
+      "fixture": "resource64",
+      "reported_admm_stage_calls": 128,
+      "source_role": "baseline"
+    },
+    {
+      "actual_admm_annotation_calls": 584,
+      "fixture": "resource256",
+      "reported_admm_stage_calls": 1168,
+      "source_role": "baseline"
+    },
+    {
+      "actual_admm_annotation_calls": 259,
+      "fixture": "mixed64",
+      "reported_admm_stage_calls": 518,
+      "source_role": "baseline"
+    },
+    {
+      "actual_admm_annotation_calls": 64,
+      "fixture": "resource64",
+      "reported_admm_stage_calls": 64,
+      "source_role": "current"
+    },
+    {
+      "actual_admm_annotation_calls": 584,
+      "fixture": "resource256",
+      "reported_admm_stage_calls": 592,
+      "source_role": "current"
+    },
+    {
+      "actual_admm_annotation_calls": 259,
+      "fixture": "mixed64",
+      "reported_admm_stage_calls": 262,
+      "source_role": "current"
+    }
+  ],
+  "replacement_benchmark_sha256": "7eb8ec2a8d0f928628867e968e2c0ade474a13ca4ae0f6faa10a701739c62dad",
+  "replacement_root": "attribution-b2",
+  "retained_claims": [
+    "Original receipts and imported file hashes remain preserved and verifiable",
+    "Uninstrumented latency samples are measured separately without profiler hooks and are unaffected by this classification bug",
+    "Independent original-QP CUDA certificates are computed after each solve outside timing and are unaffected by this classification bug"
+  ],
+  "retained_claims_limit": "Retaining unaffected raw observations does not qualify old device-work attribution or substitute for the corrected paired rerun and all-sample parity reconciliation.",
+  "schema": "clipp1d.qp_attribution.measurement_invalidation.v1",
+  "source_sha256": {
+    "baseline": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+    "current": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+  },
+  "status": "measurement_claims_invalidated"
+}

@@ -1,0 +1,160 @@
+{
+  "files": {
+    "case-logs/attribution-baseline.err": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "case-logs/attribution-current.err": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "receipts/accepted.json": {
+      "bytes": 177,
+      "sha256": "b8deccdc958abcfea799bf36b5f786bd25a1f0bb3cd3021448c6d50714778609"
+    },
+    "receipts/admission-observations.json": {
+      "bytes": 3102,
+      "sha256": "3be0b0904e939d75c2a95817cab2ef2019bcabee0960cf338f0988be53af4dfe"
+    },
+    "receipts/admitted.json": {
+      "bytes": 1674,
+      "sha256": "d40880272d850b98b7965fd3ad00ecb563b66002d3590c2f5532b9742f442bd1"
+    },
+    "receipts/command-attribution-baseline.json": {
+      "bytes": 512,
+      "sha256": "8f8980a0c87a99991f5b891c556894c5cafe9e57481d0a654bdbf98eaf13dd71"
+    },
+    "receipts/command-attribution-current.json": {
+      "bytes": 509,
+      "sha256": "e8dcc72b0b656bf2fc82e8b98ae9d074a2616445ad83309f9dd1904c19116939"
+    },
+    "receipts/execution.json": {
+      "bytes": 107,
+      "sha256": "fd100e6874fc345e7189c6b0b67bd0135d1cf0a0daca7b9839f3a640fb029f74"
+    },
+    "receipts/release-intent.json": {
+      "bytes": 50,
+      "sha256": "a0a15f2a1a2c94b00d99aeb1a21d5a7354c226e2a1380ae7d7d9b4f02d1fbd5c"
+    },
+    "receipts/release-response.json": {
+      "bytes": 81,
+      "sha256": "765bfa1247f71c03c4d590a1b29d3ead390670141078f64e4350615a76f69b3e"
+    },
+    "receipts/resource-contract.json": {
+      "bytes": 3228,
+      "sha256": "de7a1cf977f692684bde478e56324daab8caf899a9a0d957c337ce2b8bf280e6"
+    },
+    "receipts/startup.json": {
+      "bytes": 10043,
+      "sha256": "dbed8ead139bc004c73a1c7d59d547018ba74cbe5d8959e6de518913da2ce611"
+    },
+    "receipts/submit-intent.json": {
+      "bytes": 829,
+      "sha256": "74150fcc45afd29ae8e78caa3859438c8957ccd6391c229663f992f5ba328d01"
+    },
+    "receipts/submit-response.json": {
+      "bytes": 94,
+      "sha256": "6af7155ac9a675bd59ad16fcd3cd5111c634b6e90a805c15057d07ea76b6e302"
+    },
+    "receipts/terminal.json": {
+      "bytes": 710,
+      "sha256": "cc7474fa3af36f1a16fd825a4045c5ecaabb67316b33baceb2dffb5435795448"
+    },
+    "results/attribution-baseline.artifacts/mixed64.inputs.json": {
+      "bytes": 137253,
+      "sha256": "7a9ebf3ca409cfb18869dcd82579e7245c1530baea0e48ac6884982d9cfc3c59"
+    },
+    "results/attribution-baseline.artifacts/mixed64.measurements.json": {
+      "bytes": 29817,
+      "sha256": "44032888ec7d67278e265008a772d509f19a2a742fefb20dcb52ddf69b537da6"
+    },
+    "results/attribution-baseline.artifacts/resource256.inputs.json": {
+      "bytes": 2056071,
+      "sha256": "1bb2d5e92bb3fee910f9a5b0f218399f1ffa68906d8bcc1c135b7306649a6528"
+    },
+    "results/attribution-baseline.artifacts/resource256.measurements.json": {
+      "bytes": 75537,
+      "sha256": "d48a0d362cc79981ceb96af5e3847d1965ba87add7a2e19923b96f4374d56c9c"
+    },
+    "results/attribution-baseline.artifacts/resource64.inputs.json": {
+      "bytes": 134768,
+      "sha256": "63010436ca690c787e51b80493a1c15399efd8a9e57375399dca1273e8642899"
+    },
+    "results/attribution-baseline.artifacts/resource64.measurements.json": {
+      "bytes": 29671,
+      "sha256": "9648932b3b7930b026deaa36df09a270e043def1de78f67c35f7e01c94426191"
+    },
+    "results/attribution-baseline.artifacts/source-and-plan.json": {
+      "bytes": 6439,
+      "sha256": "96d49a90f31abf2728b9ec71e6e025ccd56a161d8a0d678707e4ef9de10908cb"
+    },
+    "results/attribution-baseline.events.jsonl": {
+      "bytes": 54843,
+      "sha256": "d47340c6a4b871b7020bbe6811a5be8ced9307fbf77b3b7baf9ebe48f64c9550"
+    },
+    "results/attribution-baseline.json": {
+      "bytes": 159683,
+      "sha256": "5ef1af61e0281a9df6664ed82cd382c56365d9bdb32daec14f38b885bf85479c"
+    },
+    "results/attribution-current.artifacts/mixed64.inputs.json": {
+      "bytes": 137253,
+      "sha256": "7a9ebf3ca409cfb18869dcd82579e7245c1530baea0e48ac6884982d9cfc3c59"
+    },
+    "results/attribution-current.artifacts/mixed64.measurements.json": {
+      "bytes": 30817,
+      "sha256": "41e9b43e8f7f7c23c938e90cc6351ced8b1cdb00f3c6d27cb28ee90206970552"
+    },
+    "results/attribution-current.artifacts/resource256.inputs.json": {
+      "bytes": 2056071,
+      "sha256": "1bb2d5e92bb3fee910f9a5b0f218399f1ffa68906d8bcc1c135b7306649a6528"
+    },
+    "results/attribution-current.artifacts/resource256.measurements.json": {
+      "bytes": 76562,
+      "sha256": "1ca189e5e82e8e5d17cc774f93ef4848c94a8e501fe599dc50032cd00ccf603f"
+    },
+    "results/attribution-current.artifacts/resource64.inputs.json": {
+      "bytes": 134768,
+      "sha256": "63010436ca690c787e51b80493a1c15399efd8a9e57375399dca1273e8642899"
+    },
+    "results/attribution-current.artifacts/resource64.measurements.json": {
+      "bytes": 30670,
+      "sha256": "d64caaab46f0ffae59e8a43f05eca86877a2a72a27b16118c0b826c9adfb23d5"
+    },
+    "results/attribution-current.artifacts/source-and-plan.json": {
+      "bytes": 6436,
+      "sha256": "c2afd76bf1531fa47abf7244b05873ac15a744f4bbad6008e0a04322945cb8eb"
+    },
+    "results/attribution-current.events.jsonl": {
+      "bytes": 55421,
+      "sha256": "74f376aafa2da93c53b39043a1c82ba6bd32cc89a7bd03901535c878a6f780b2"
+    },
+    "results/attribution-current.json": {
+      "bytes": 163148,
+      "sha256": "d7522b0ded4410a40e2d65ca8238f5ce5de248a205a6369d9fc2bdad84552679"
+    }
+  },
+  "scheduler": "\nJob <77334593>, Job Name <clipp1d_qp_20260923b3>, User <yding4>, Project <default>, Status <DONE>, Queue <egpu>, Command </rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13 -B /rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923b3/worker.py /rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923b3>, Share group charged </yding4>, Esub <minrunlimit jobinfo gpulimit>\nTue Sep 22 20:39:17: Submitted from host <ldragon4> with hold, CWD </rsrch8/home/bcb/yding4>, Specified CWD </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923b3>, Output File (overwrite) </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923b3/lsf-logs/qualification.77334593.out>, Error File (overwrite) </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923b3/lsf-logs/qualification.77334593.err>, 2 Task(s), Requested Resources <rusage[mem=8] span[hosts=1]>, Requested GPU <num=1:mode=exclusive_process:gmodel=NVIDIAL40>;\nTue Sep 22 20:39:31: Started 2 Task(s) on Host(s) <2*gdragon005>, Allocated 2 Slot(s) on Host(s) <2*gdragon005>, Execution Home </home/yding4>, Execution CWD </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923b3>;\nTue Sep 22 20:40:38: Done successfully. The CPU time used is 68.0 seconds. HOST: gdragon005; CPU_TIME: 68 seconds; \n RUNLIMIT                \n 60.0 min\n\n MEMLIMIT\n      8 G \n\n MEMORY USAGE:\n MAX MEM: 1 Gbytes; MEM Efficiency: 12.50%\n\n CPU USAGE:\n CPU PEAK: 7.00 ;  CPU PEAK DURATION: 1 second(s)\n CPU AVERAGE EFFICIENCY: 198.11% ;  CPU PEAK EFFICIENCY: 350.00%\n\n SCHEDULING PARAMETERS:\n           r15s   r1m  r15m   ut      pg    io   ls    it    tmp    swp    mem\n loadSched   -    1.2    -     -    10.0     -    -     -     -      -      -  \n loadStop    -     -     -     -       -     -    -     -     -      -      -  \n\n EXTERNAL MESSAGES:\n MSG_ID FROM       POST_TIME      MESSAGE                             ATTACHMENT \n 0      yding4     Sep 22 20:39   gdragon005:gpus=1;                      N     \n\n RESOURCE REQUIREMENT DETAILS:\n Combined: select[((hi==0) && (ngpus>0)) && (type == local)] order[r15s:pg] rusage[mem=8.00:ngpus_physical=1.00:gmodel=NVIDIAL40] span[hosts=1]\n Effective: select[(((hi==0)) && (ngpus>0)) && (type == local)] order[r15s:pg] rusage[mem=8.00,ngpus_physical=1.00:gmodel=NVIDIAL40] span[hosts=1] \n\n GPU REQUIREMENT DETAILS:\n Combined: num=1:mode=exclusive_process:mps=no:j_exclusive=yes:gmodel=NVIDIAL40:gvendor=nvidia\n Effective: num=1:mode=exclusive_process:mps=no:j_exclusive=yes:gmodel=NVIDIAL40:gvendor=nvidia\n\n",
+  "terminal": {
+    "elapsed_seconds": 64.26281499862671,
+    "job_id": "77334593",
+    "passed": true,
+    "plan_sha256": "c734fd914a75e82ef126dc20443be77c994f0ffe9998584694b88e5cc1b57002",
+    "scope": "source-bound synthetic CUDA qualification, not cohort accuracy",
+    "tasks": [
+      {
+        "name": "attribution-baseline",
+        "receipt_sha256": "5ef1af61e0281a9df6664ed82cd382c56365d9bdb32daec14f38b885bf85479c",
+        "returncode": 0,
+        "source_role": "baseline",
+        "status": "passed"
+      },
+      {
+        "name": "attribution-current",
+        "receipt_sha256": "d7522b0ded4410a40e2d65ca8238f5ce5de248a205a6369d9fc2bdad84552679",
+        "returncode": 0,
+        "source_role": "current",
+        "status": "passed"
+      }
+    ]
+  }
+}

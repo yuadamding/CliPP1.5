@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13",
+    "-B",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923b3/source/benchmarks/attribute_qp_cuda.py",
+    "--device",
+    "cuda:0",
+    "--out",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923b3/results/attribution-current.json",
+    "--label",
+    "current",
+    "--repeats",
+    "5",
+    "--warmups",
+    "1",
+    "--timeout-seconds",
+    "900"
+  ],
+  "source_role": "current",
+  "timeout_seconds": 1020
+}

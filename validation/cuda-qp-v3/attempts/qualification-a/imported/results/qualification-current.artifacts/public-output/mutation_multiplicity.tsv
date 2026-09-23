@@ -1,0 +1,5 @@
+tumor_id	sample_id	mutation_id	raw_ccf	raw_multiplicity_call	refitted_ccf	refitted_multiplicity_call
+public-input	sample1	m0000	0.39181597598801404	1	0.3918159791622976	1
+public-input	sample1	m0001	0.39181597598801404	1	0.3918159791622976	1
+public-input	sample1	m0002	0.39181597598801404	2	0.3918159791622976	2
+public-input	sample1	m0003	0.39181597598801404	2	0.3918159791622976	2

@@ -1,0 +1,462 @@
+{
+  "attempt": "mixed64-c",
+  "baseline_counter_note": "Baseline production lacks aggregate qp_admm_iterations; absent aggregate remains null, not zero.",
+  "created_utc": "2026-09-23T01:36:10.257416+00:00",
+  "difficulty": {
+    "competitive_loss_window": 2.0,
+    "depth_max": 1970,
+    "depth_min": 111,
+    "distinct_depths": 64,
+    "distinct_likelihood_rows": 64,
+    "first_slope_distinct": 64,
+    "grid_competitive_wells": [
+      4,
+      1,
+      4,
+      2,
+      4,
+      3,
+      3,
+      4,
+      3,
+      2,
+      3,
+      4,
+      2,
+      3,
+      3,
+      3,
+      4,
+      2,
+      3,
+      3,
+      4,
+      2,
+      3,
+      0,
+      4,
+      4,
+      4,
+      3,
+      4,
+      4,
+      2,
+      2,
+      2,
+      4,
+      4,
+      4,
+      4,
+      4,
+      2,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      4,
+      4,
+      2,
+      4,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      4,
+      0,
+      2,
+      4,
+      2,
+      4,
+      0,
+      4,
+      2
+    ],
+    "grid_interior_wells": [
+      4,
+      1,
+      4,
+      2,
+      4,
+      3,
+      3,
+      4,
+      3,
+      2,
+      3,
+      4,
+      2,
+      3,
+      3,
+      3,
+      4,
+      2,
+      3,
+      3,
+      4,
+      2,
+      3,
+      0,
+      4,
+      4,
+      4,
+      3,
+      4,
+      4,
+      2,
+      2,
+      2,
+      4,
+      4,
+      4,
+      4,
+      4,
+      2,
+      2,
+      2,
+      2,
+      3,
+      4,
+      3,
+      4,
+      4,
+      2,
+      4,
+      4,
+      2,
+      4,
+      3,
+      2,
+      3,
+      4,
+      0,
+      2,
+      4,
+      2,
+      4,
+      0,
+      4,
+      2
+    ],
+    "grid_points": 2049,
+    "lower_clipping_rows": 64,
+    "near_all_alt_rows": 1,
+    "nodes": 64,
+    "normal_cn_values": [
+      1.0,
+      2.0,
+      3.0
+    ],
+    "original_upper_below_one": 37,
+    "purity": 0.71,
+    "recipe": "heterogeneous_integer_mixture_v1",
+    "rows_with_multiple_competitive_wells": 60,
+    "rows_with_multiple_interior_wells": 60,
+    "scope": "Fixed synthetic likelihood stress inputs; grid wells are descriptive, not qualified minima or tumor truth",
+    "slope_max": 2.0210218205231882,
+    "slope_min": 0.1957620731699793,
+    "support_counts": {
+      "2": 19,
+      "3": 14,
+      "4": 31
+    },
+    "upper_bound_max": 1.0,
+    "upper_bound_min": 0.49479871510794826,
+    "upper_clipping_rows": 37,
+    "zero_alt_rows": 2
+  },
+  "fixed_problems": [
+    {
+      "baseline_fusion_penalty": 0.0,
+      "baseline_raw_objective": 41185.518616403744,
+      "baseline_score": 82756.1220229541,
+      "baseline_seconds": 2.1693277009762824,
+      "current_fusion_penalty": 0.0,
+      "current_raw_objective": 41185.518616403744,
+      "current_score": 82756.1220229541,
+      "current_seconds": 2.1618082688655704,
+      "exact_equal": {
+        "labels": true,
+        "raw_multiplicity": true,
+        "refitted_multiplicity": true
+      },
+      "final_device_qualification": true,
+      "lambda_value": 0.0,
+      "literal_lambda_equal": true,
+      "max_absolute_differences": {
+        "centers": 0.0,
+        "raw_ccf": 0.0,
+        "raw_objective": 0.0,
+        "refitted_ccf": 0.0,
+        "score": 0.0
+      },
+      "refit_clusters": 62
+    },
+    {
+      "baseline_fusion_penalty": 27.592031987383727,
+      "baseline_raw_objective": 41213.84834941174,
+      "baseline_score": 82723.46948129994,
+      "baseline_seconds": 8.482341869967058,
+      "current_fusion_penalty": 27.592031987383727,
+      "current_raw_objective": 41213.84834941174,
+      "current_score": 82723.46948129994,
+      "current_seconds": 7.754435047041625,
+      "exact_equal": {
+        "labels": true,
+        "raw_multiplicity": true,
+        "refitted_multiplicity": true
+      },
+      "final_device_qualification": true,
+      "lambda_value": 0.6251941309391056,
+      "literal_lambda_equal": true,
+      "max_absolute_differences": {
+        "centers": 0.0,
+        "raw_ccf": 0.0,
+        "raw_objective": 0.0,
+        "refitted_ccf": 0.0,
+        "score": 0.0
+      },
+      "refit_clusters": 36
+    },
+    {
+      "baseline_fusion_penalty": 310.9242083656258,
+      "baseline_raw_objective": 41547.74093741784,
+      "baseline_score": 82635.79924761453,
+      "baseline_seconds": 4.984680406050757,
+      "current_fusion_penalty": 310.9242083656258,
+      "current_raw_objective": 41547.74093741784,
+      "current_score": 82635.79924761453,
+      "current_seconds": 3.710272560128942,
+      "exact_equal": {
+        "labels": true,
+        "raw_multiplicity": true,
+        "refitted_multiplicity": true
+      },
+      "final_device_qualification": true,
+      "lambda_value": 10.003106095025691,
+      "literal_lambda_equal": true,
+      "max_absolute_differences": {
+        "centers": 0.0,
+        "raw_ccf": 0.0,
+        "raw_objective": 0.0,
+        "refitted_ccf": 0.0,
+        "score": 0.0
+      },
+      "refit_clusters": 16
+    },
+    {
+      "baseline_fusion_penalty": 269.7920320583356,
+      "baseline_raw_objective": 42330.6792303359,
+      "baseline_score": 83947.9526533151,
+      "baseline_seconds": 3.116164428880438,
+      "current_fusion_penalty": 269.7920320583356,
+      "current_raw_objective": 42330.6792303359,
+      "current_score": 83947.9526533151,
+      "current_seconds": 2.5003795619122684,
+      "exact_equal": {
+        "labels": true,
+        "raw_multiplicity": true,
+        "refitted_multiplicity": true
+      },
+      "final_device_qualification": true,
+      "lambda_value": 160.04969752041106,
+      "literal_lambda_equal": true,
+      "max_absolute_differences": {
+        "centers": 0.0,
+        "raw_ccf": 0.0,
+        "raw_objective": 0.0,
+        "refitted_ccf": 0.0,
+        "score": 0.0
+      },
+      "refit_clusters": 4
+    }
+  ],
+  "fixture_recipe": "heterogeneous_integer_mixture_v1",
+  "full_fit": {
+    "baseline_raw_objective": 41547.74093741783,
+    "baseline_score": 82635.79924761453,
+    "current_raw_objective": 41547.74093741783,
+    "current_score": 82635.79924761453,
+    "exact_equal": {
+      "labels": true,
+      "raw_multiplicity": true,
+      "refitted_multiplicity": true
+    },
+    "literal_lambda_equal": true,
+    "max_absolute_differences": {
+      "centers": 0.0,
+      "raw_ccf": 0.0,
+      "raw_objective": 0.0,
+      "refitted_ccf": 0.0,
+      "score": 0.0
+    },
+    "refit_clusters": 16,
+    "selected_lambda": 10.003106095025691
+  },
+  "helpers": {
+    "common_qualifier": "801dcad409a638054355d9790423e990c26f244d9726dfc6cc0a127dccb9394d",
+    "driver": "5c1f887366d5ba4a39ac682194c3fe4bc562bc6d4abd9eee6fcf0d9ca1d794ca",
+    "fixtures": "de55d0d4e6deda6731e3cc48f787229f977e7fe14d5535a2bc1dddec303379e3"
+  },
+  "independent_adaptive_graphs": {
+    "current_lambda_scale": 2560.795160326577,
+    "graph_weights_identical": true,
+    "pilot_phi_max_absolute_difference": 0.0,
+    "reference_lambda_scale": 2560.795160326577,
+    "scope": "Independent pilot/adaptive graph differences; not the identical fixed-problem comparison",
+    "selected_caps_max_absolute_difference": 0.0,
+    "selected_objective_perturbation_envelope": 0.0,
+    "weights_max_absolute_difference": 0.0
+  },
+  "input_sha256": "f3607ea0f5cbab41896d46b358d1aec828ce56783b7768e45ee7cc37b0c28b8f",
+  "job_id": "77334538",
+  "measurement_scope": "Observed single same-job baseline/current full workflows include journaling and compilation; no repeated full-fit speedup claim. Initial compiler admission is separately shown; later lazy compilation remains within the executing phase.",
+  "parity_gates": {
+    "ccf_and_centers": {
+      "atol": 2e-05,
+      "rtol": 1e-08
+    },
+    "labels_and_multiplicities": "exact",
+    "literal_fixed_lambda": "exact",
+    "score_and_objective": {
+      "atol": 1e-07,
+      "rtol": 1e-10
+    }
+  },
+  "predecessor_admission": {
+    "next_nodes": 256,
+    "qualified_path_penalties": 26,
+    "receipt": "mixed64-c/imported/results/mixed64-current.json",
+    "receipt_sha256": "1d50f783a7edc4875bc372155524c5518f75474717355b124623eeb26a766371"
+  },
+  "schema": "clipp1d.cuda.mixed64.reconciliation.v1",
+  "scope": "Synthetic heterogeneous64-node likelihood qualification; independently recomputed comparison of exact retained full-fit and fixed-problem outputs, no simulated-truth accuracy claim.",
+  "source_artifacts": {
+    "mixed64-c/imported/results/mixed64-baseline.artifacts/fixed-results.json": {
+      "bytes": 61692,
+      "sha256": "c247b2879e4df0fc970efe0258c8f29117a6d00f4396b20e40b2ea3c2cbd492d"
+    },
+    "mixed64-c/imported/results/mixed64-baseline.artifacts/full-path.json": {
+      "bytes": 509506,
+      "sha256": "4fce78a7b61ae9d1e64fddb22b291057bd5256150aa1862c179ddc4061c69927"
+    },
+    "mixed64-c/imported/results/mixed64-baseline.artifacts/full-result.json": {
+      "bytes": 18756,
+      "sha256": "94e6254130ac85ee6090e36a3ac10f72eb7de150860253d8af3dbe79cf637670"
+    },
+    "mixed64-c/imported/results/mixed64-baseline.artifacts/input-identity.json": {
+      "bytes": 6452,
+      "sha256": "764193c2c7b71f507f166e2c973a532d8722df37bc5e57912dacc3d7150cd426"
+    },
+    "mixed64-c/imported/results/mixed64-baseline.artifacts/shared-problem.json": {
+      "bytes": 127459,
+      "sha256": "cf808eedaafcc3e64ffbdad738aa5a911e98f0235c080e45bd026411f4a7eebb"
+    },
+    "mixed64-c/imported/results/mixed64-baseline.json": {
+      "bytes": 15111,
+      "sha256": "71c16d6cad88767c4faa6d302a37cff767f446f4e3de1a7637d185783902977b"
+    },
+    "mixed64-c/imported/results/mixed64-current.artifacts/comparison.json": {
+      "bytes": 3416,
+      "sha256": "0d134dc812cc43778c8a603487ebcbff77d70e85fa67757387aeab673a01f88c"
+    },
+    "mixed64-c/imported/results/mixed64-current.artifacts/fixed-results.json": {
+      "bytes": 62176,
+      "sha256": "37fc4e181e7c53ab357018984fcb4bf603cb0b02ec6658ed8f0d71545376c716"
+    },
+    "mixed64-c/imported/results/mixed64-current.artifacts/full-path.json": {
+      "bytes": 514339,
+      "sha256": "da02be3413a27ea898ee59aa34d0f45f990d03c173e54669b65aba3c26c63524"
+    },
+    "mixed64-c/imported/results/mixed64-current.artifacts/full-result.json": {
+      "bytes": 18929,
+      "sha256": "4c15c5e4023cf7e81904a6e7f319b6acdb54b74cc800fee7c80a25ca0da2f37a"
+    },
+    "mixed64-c/imported/results/mixed64-current.artifacts/input-identity.json": {
+      "bytes": 6452,
+      "sha256": "764193c2c7b71f507f166e2c973a532d8722df37bc5e57912dacc3d7150cd426"
+    },
+    "mixed64-c/imported/results/mixed64-current.artifacts/shared-problem.json": {
+      "bytes": 127459,
+      "sha256": "cf808eedaafcc3e64ffbdad738aa5a911e98f0235c080e45bd026411f4a7eebb"
+    },
+    "mixed64-c/imported/results/mixed64-current.json": {
+      "bytes": 17118,
+      "sha256": "1d50f783a7edc4875bc372155524c5518f75474717355b124623eeb26a766371"
+    }
+  },
+  "source_comparison": {
+    "baseline": {
+      "final_export_and_publication_qualified": true,
+      "fit_seconds": 111.1101386230439,
+      "fixture_family": "mixed_support",
+      "full_workflow_seconds": 114.25691503402777,
+      "initial_compiler_admission_seconds": 2.787557180970907,
+      "input_sha256": "f3607ea0f5cbab41896d46b358d1aec828ce56783b7768e45ee7cc37b0c28b8f",
+      "mode": "reference",
+      "nodes": 64,
+      "numerical_phase_seconds": {
+        "audit_seconds": 44.68501713243313,
+        "graph_build_seconds": 1.4436141811311245,
+        "path_seconds": 90.77740367455408,
+        "pilot_seconds": 4.008879586821422,
+        "qp_seconds": 44.60288051748648,
+        "refit_seconds": 14.875931746326387
+      },
+      "path_penalties": 26,
+      "path_truncated": false,
+      "peak_allocated_bytes": 101064192,
+      "peak_reserved_bytes": 125829120,
+      "search_status": "complete",
+      "selected_at_upper_boundary": false,
+      "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+      "work": {
+        "audit_calls": 279,
+        "qp_admm_iterations": null,
+        "qp_calls": 1154,
+        "qp_polish_iterations": 6089,
+        "refits_computed": 12,
+        "refits_reused": 14,
+        "singleton_pilots_reused": 142
+      }
+    },
+    "current": {
+      "final_export_and_publication_qualified": true,
+      "fit_seconds": 101.14340870105661,
+      "fixture_family": "mixed_support",
+      "full_workflow_seconds": 104.32896440313198,
+      "initial_compiler_admission_seconds": 2.799847102025524,
+      "input_sha256": "f3607ea0f5cbab41896d46b358d1aec828ce56783b7768e45ee7cc37b0c28b8f",
+      "mode": "paired",
+      "nodes": 64,
+      "numerical_phase_seconds": {
+        "audit_seconds": 44.49322436284274,
+        "graph_build_seconds": 1.447356262942776,
+        "path_seconds": 80.38735102047212,
+        "pilot_seconds": 4.216409883927554,
+        "qp_seconds": 34.40363610070199,
+        "refit_seconds": 15.087561330525205
+      },
+      "path_penalties": 26,
+      "path_truncated": false,
+      "peak_allocated_bytes": 101145088,
+      "peak_reserved_bytes": 125829120,
+      "search_status": "complete",
+      "selected_at_upper_boundary": false,
+      "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+      "work": {
+        "audit_calls": 279,
+        "qp_admm_iterations": 94816,
+        "qp_calls": 1154,
+        "qp_polish_iterations": 4230,
+        "refits_computed": 12,
+        "refits_reused": 14,
+        "singleton_pilots_reused": 142
+      }
+    }
+  },
+  "status": "passed"
+}

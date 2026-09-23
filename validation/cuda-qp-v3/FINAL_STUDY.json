@@ -1,0 +1,2265 @@
+{
+  "all_included_attempts_passed": false,
+  "all_included_claims_valid": false,
+  "all_requested_current_mixed_paths_qualified": false,
+  "attempts": [
+    {
+      "attempt": "qualification-a",
+      "claims_status": "as_recorded",
+      "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+      "job_id": "77334451",
+      "measurement_invalidation": null,
+      "plan_sha256": "a3e91afffcf5856d52f969348714ff08feed20fecebc0e3d16413f917327090d",
+      "remote_root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923a",
+      "run_id": "clipp2_clipp1d_qp_20260923a",
+      "source_reconstruction": {
+        "baseline": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "ca28d50155001f0722b04728b633e13ac4b12e9f663bdfd94eb0c5ac77a4d562",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "f600359924bc8670f1bb9dc577758b9590ca13e45973de82fb6fac219a887623",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "137c5c12557a69e94096fdbde7ce319c5a5a296baf32dcdee1fbac9e68e2220c",
+              "cuda/solver.py": "3a3e133696669ffb5e7d21d4346841ccb140883f46db360865cc571c1c9ddbc3",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26"
+          },
+          "overlays": {}
+        },
+        "current": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "helpers": {
+            "benchmarks/qualify_cuda.py": "reproduction/helpers/801dcad409a638054355d9790423e990c26f244d9726dfc6cc0a127dccb9394d/qualify_cuda.py"
+          },
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "138bcf327b30f5bca5fd7890f741f76cb1981e0237f67f5d902acdec84e4f91e",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "925e1e5ee67f7630f0d229a560f2af8958fffd1b01ac7609f868a85aa01a74b0",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "eb24065f286841fd83701816996036fcd7f9fc7624d0975cc1af67baf38ff099",
+              "cuda/solver.py": "80a0b34cd856698efd7034a523e6d850c21ba21e3805f38928897db1f2d6091b",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+          },
+          "overlays": {
+            "src/clipp1d/cuda/kernels.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/kernels.py",
+            "src/clipp1d/cuda/qp.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/qp.py",
+            "src/clipp1d/cuda/selection.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/selection.py",
+            "src/clipp1d/cuda/solver.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/solver.py"
+          }
+        }
+      },
+      "status": "passed",
+      "tasks": [
+        {
+          "command_receipt": "receipts/command-qualification-current.json",
+          "elapsed_seconds": 666.4676763939206,
+          "error": null,
+          "error_type": null,
+          "name": "qualification-current",
+          "planned_arguments": [
+            "--path-grid",
+            "default",
+            "--resource-n",
+            "256",
+            "--resource-iterations",
+            "20000",
+            "--timeout-seconds",
+            "2700"
+          ],
+          "receipt": "results/qualification-current.json",
+          "receipt_sha256": "1c3ca24cf621249548abcd437020a0a770dd31c0aa66f3277d032d4bdb65704b",
+          "schema": "clipp1d.cuda.qualification.v3",
+          "script": "qualify_cuda.py",
+          "source_role": "current",
+          "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+          "status": "passed"
+        }
+      ],
+      "terminal_error": null,
+      "terminal_error_type": null
+    },
+    {
+      "attempt": "attribution-b",
+      "claims_status": "partially_invalidated",
+      "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+      "job_id": "77334512",
+      "measurement_invalidation": {
+        "affected_receipts": {
+          "results/attribution-baseline.json": "132f5c77f8278c641cf9f4007ad86c3b79b35078f688236fe3421f2a9ddf7985",
+          "results/attribution-current.json": "a978b474b54347089abde619d00aa3bed95cf368a0590414555c572e74bdd59b"
+        },
+        "affected_receipts_base": "attribution-b/imported",
+        "benchmark_sha256": "783f0cfaad8c78c85e8f048bec1d228e5ba6f70f6c0901bc2a8aef7aeacb0a4e",
+        "cause": "The v1 aggregator treated CUDA user-annotation range mirrors as real work and used recursive FunctionEvent.device_time_total, which also includes GPU annotation spans attached as CPU kernels. Annotation duration can include launch gaps.",
+        "correction": "v2 excludes raw Kineto CUDA annotation events and attributes only actual kernel/copy durations through linked CPU correlation and disjoint CPU stage ownership. Host stages count CPU annotations only.",
+        "created_utc": "2026-09-23T01:33:01.049483+00:00",
+        "invalidated_claims": [
+          "Profiler-derived kernel dispatch counts",
+          "Profiler-derived CUDA device durations and named device stage costs",
+          "Named stage call counts, which counted CPU and mirrored CUDA annotations"
+        ],
+        "job_id": "77334512",
+        "observed_double_count_examples": [
+          {
+            "actual_admm_annotation_calls": 64,
+            "fixture": "resource64",
+            "reported_admm_stage_calls": 128,
+            "source_role": "baseline"
+          },
+          {
+            "actual_admm_annotation_calls": 584,
+            "fixture": "resource256",
+            "reported_admm_stage_calls": 1168,
+            "source_role": "baseline"
+          },
+          {
+            "actual_admm_annotation_calls": 259,
+            "fixture": "mixed64",
+            "reported_admm_stage_calls": 518,
+            "source_role": "baseline"
+          },
+          {
+            "actual_admm_annotation_calls": 64,
+            "fixture": "resource64",
+            "reported_admm_stage_calls": 64,
+            "source_role": "current"
+          },
+          {
+            "actual_admm_annotation_calls": 584,
+            "fixture": "resource256",
+            "reported_admm_stage_calls": 592,
+            "source_role": "current"
+          },
+          {
+            "actual_admm_annotation_calls": 259,
+            "fixture": "mixed64",
+            "reported_admm_stage_calls": 262,
+            "source_role": "current"
+          }
+        ],
+        "replacement_benchmark_sha256": "7eb8ec2a8d0f928628867e968e2c0ade474a13ca4ae0f6faa10a701739c62dad",
+        "replacement_root": "attribution-b2",
+        "retained_claims": [
+          "Original receipts and imported file hashes remain preserved and verifiable",
+          "Uninstrumented latency samples are measured separately without profiler hooks and are unaffected by this classification bug",
+          "Independent original-QP CUDA certificates are computed after each solve outside timing and are unaffected by this classification bug"
+        ],
+        "retained_claims_limit": "Retaining unaffected raw observations does not qualify old device-work attribution or substitute for the corrected paired rerun and all-sample parity reconciliation.",
+        "schema": "clipp1d.qp_attribution.measurement_invalidation.v1",
+        "source_sha256": {
+          "baseline": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+          "current": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+        },
+        "status": "measurement_claims_invalidated"
+      },
+      "plan_sha256": "510eb6cc58d5b244e78da19b11cf2961c75f0484ac261f80a8e733b0bdf021a7",
+      "remote_root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923b",
+      "run_id": "clipp2_clipp1d_qp_20260923b",
+      "source_reconstruction": {
+        "baseline": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "ca28d50155001f0722b04728b633e13ac4b12e9f663bdfd94eb0c5ac77a4d562",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "f600359924bc8670f1bb9dc577758b9590ca13e45973de82fb6fac219a887623",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "137c5c12557a69e94096fdbde7ce319c5a5a296baf32dcdee1fbac9e68e2220c",
+              "cuda/solver.py": "3a3e133696669ffb5e7d21d4346841ccb140883f46db360865cc571c1c9ddbc3",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26"
+          },
+          "overlays": {}
+        },
+        "current": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "helpers": {
+            "benchmarks/attribute_qp_cuda.py": "reproduction/helpers/783f0cfaad8c78c85e8f048bec1d228e5ba6f70f6c0901bc2a8aef7aeacb0a4e/attribute_qp_cuda.py",
+            "benchmarks/qualify_cuda.py": "reproduction/helpers/801dcad409a638054355d9790423e990c26f244d9726dfc6cc0a127dccb9394d/qualify_cuda.py"
+          },
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "138bcf327b30f5bca5fd7890f741f76cb1981e0237f67f5d902acdec84e4f91e",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "925e1e5ee67f7630f0d229a560f2af8958fffd1b01ac7609f868a85aa01a74b0",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "eb24065f286841fd83701816996036fcd7f9fc7624d0975cc1af67baf38ff099",
+              "cuda/solver.py": "80a0b34cd856698efd7034a523e6d850c21ba21e3805f38928897db1f2d6091b",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+          },
+          "overlays": {
+            "src/clipp1d/cuda/kernels.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/kernels.py",
+            "src/clipp1d/cuda/qp.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/qp.py",
+            "src/clipp1d/cuda/selection.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/selection.py",
+            "src/clipp1d/cuda/solver.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/solver.py"
+          }
+        }
+      },
+      "status": "passed",
+      "tasks": [
+        {
+          "command_receipt": "receipts/command-attribution-baseline.json",
+          "elapsed_seconds": 30.249133883975446,
+          "error": null,
+          "error_type": null,
+          "name": "attribution-baseline",
+          "planned_arguments": [
+            "--label",
+            "baseline",
+            "--repeats",
+            "5",
+            "--warmups",
+            "1",
+            "--timeout-seconds",
+            "900"
+          ],
+          "receipt": "results/attribution-baseline.json",
+          "receipt_sha256": "132f5c77f8278c641cf9f4007ad86c3b79b35078f688236fe3421f2a9ddf7985",
+          "schema": "clipp1d.cuda.qp_attribution.v1",
+          "script": "attribute_qp_cuda.py",
+          "source_role": "baseline",
+          "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+          "status": "passed"
+        },
+        {
+          "command_receipt": "receipts/command-attribution-current.json",
+          "elapsed_seconds": 26.0883740989957,
+          "error": null,
+          "error_type": null,
+          "name": "attribution-current",
+          "planned_arguments": [
+            "--label",
+            "current",
+            "--repeats",
+            "5",
+            "--warmups",
+            "1",
+            "--timeout-seconds",
+            "900"
+          ],
+          "receipt": "results/attribution-current.json",
+          "receipt_sha256": "a978b474b54347089abde619d00aa3bed95cf368a0590414555c572e74bdd59b",
+          "schema": "clipp1d.cuda.qp_attribution.v1",
+          "script": "attribute_qp_cuda.py",
+          "source_role": "current",
+          "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+          "status": "passed"
+        }
+      ],
+      "terminal_error": null,
+      "terminal_error_type": null
+    },
+    {
+      "attempt": "attribution-b2",
+      "claims_status": "as_recorded",
+      "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+      "job_id": "77334577",
+      "measurement_invalidation": null,
+      "plan_sha256": "b631fcabf701d0c188f5c312e2791fbc9ff222907b12a81b41ff584c88e13e8a",
+      "remote_root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923b2",
+      "run_id": "clipp2_clipp1d_qp_20260923b2",
+      "source_reconstruction": {
+        "baseline": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "ca28d50155001f0722b04728b633e13ac4b12e9f663bdfd94eb0c5ac77a4d562",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "f600359924bc8670f1bb9dc577758b9590ca13e45973de82fb6fac219a887623",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "137c5c12557a69e94096fdbde7ce319c5a5a296baf32dcdee1fbac9e68e2220c",
+              "cuda/solver.py": "3a3e133696669ffb5e7d21d4346841ccb140883f46db360865cc571c1c9ddbc3",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26"
+          },
+          "overlays": {}
+        },
+        "current": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "helpers": {
+            "benchmarks/attribute_qp_cuda.py": "reproduction/helpers/7eb8ec2a8d0f928628867e968e2c0ade474a13ca4ae0f6faa10a701739c62dad/attribute_qp_cuda.py",
+            "benchmarks/qualify_cuda.py": "reproduction/helpers/801dcad409a638054355d9790423e990c26f244d9726dfc6cc0a127dccb9394d/qualify_cuda.py"
+          },
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "138bcf327b30f5bca5fd7890f741f76cb1981e0237f67f5d902acdec84e4f91e",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "925e1e5ee67f7630f0d229a560f2af8958fffd1b01ac7609f868a85aa01a74b0",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "eb24065f286841fd83701816996036fcd7f9fc7624d0975cc1af67baf38ff099",
+              "cuda/solver.py": "80a0b34cd856698efd7034a523e6d850c21ba21e3805f38928897db1f2d6091b",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+          },
+          "overlays": {
+            "src/clipp1d/cuda/kernels.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/kernels.py",
+            "src/clipp1d/cuda/qp.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/qp.py",
+            "src/clipp1d/cuda/selection.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/selection.py",
+            "src/clipp1d/cuda/solver.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/solver.py"
+          }
+        }
+      },
+      "status": "failed",
+      "tasks": [
+        {
+          "command_receipt": "receipts/command-attribution-baseline.json",
+          "elapsed_seconds": 8.880776588106528,
+          "error": "Ambiguous CPU profiler correlation ownership",
+          "error_type": "AssertionError",
+          "name": "attribution-baseline",
+          "planned_arguments": [
+            "--label",
+            "baseline",
+            "--repeats",
+            "5",
+            "--warmups",
+            "1",
+            "--timeout-seconds",
+            "900"
+          ],
+          "receipt": "results/attribution-baseline.json",
+          "receipt_sha256": "24b8ca6b45e314181652bd685d5ae41cdd9255ae93a5f3f74b63cb7c5bea6205",
+          "schema": "clipp1d.cuda.qp_attribution.v2",
+          "script": "attribute_qp_cuda.py",
+          "source_role": "baseline",
+          "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+          "status": "failed"
+        },
+        {
+          "name": "attribution-current",
+          "planned_arguments": [
+            "--label",
+            "current",
+            "--repeats",
+            "5",
+            "--warmups",
+            "1",
+            "--timeout-seconds",
+            "900"
+          ],
+          "script": "attribute_qp_cuda.py",
+          "source_role": "current",
+          "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+          "status": "not_attempted"
+        }
+      ],
+      "terminal_error": "{'name': 'attribution-baseline', 'source_role': 'baseline', 'returncode': 1, 'receipt_sha256': '24b8ca6b45e314181652bd685d5ae41cdd9255ae93a5f3f74b63cb7c5bea6205', 'status': 'failed'}",
+      "terminal_error_type": "AssertionError"
+    },
+    {
+      "attempt": "attribution-b3",
+      "claims_status": "as_recorded",
+      "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+      "job_id": "77334593",
+      "measurement_invalidation": null,
+      "plan_sha256": "c734fd914a75e82ef126dc20443be77c994f0ffe9998584694b88e5cc1b57002",
+      "remote_root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923b3",
+      "run_id": "clipp2_clipp1d_qp_20260923b3",
+      "source_reconstruction": {
+        "baseline": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "ca28d50155001f0722b04728b633e13ac4b12e9f663bdfd94eb0c5ac77a4d562",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "f600359924bc8670f1bb9dc577758b9590ca13e45973de82fb6fac219a887623",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "137c5c12557a69e94096fdbde7ce319c5a5a296baf32dcdee1fbac9e68e2220c",
+              "cuda/solver.py": "3a3e133696669ffb5e7d21d4346841ccb140883f46db360865cc571c1c9ddbc3",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26"
+          },
+          "overlays": {}
+        },
+        "current": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "helpers": {
+            "benchmarks/attribute_qp_cuda.py": "reproduction/helpers/39c1a8813417d7ea87c5bf81f84ed57140bad4879d13173e7b39eaf8113307e3/attribute_qp_cuda.py",
+            "benchmarks/qualify_cuda.py": "reproduction/helpers/801dcad409a638054355d9790423e990c26f244d9726dfc6cc0a127dccb9394d/qualify_cuda.py"
+          },
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "138bcf327b30f5bca5fd7890f741f76cb1981e0237f67f5d902acdec84e4f91e",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "925e1e5ee67f7630f0d229a560f2af8958fffd1b01ac7609f868a85aa01a74b0",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "eb24065f286841fd83701816996036fcd7f9fc7624d0975cc1af67baf38ff099",
+              "cuda/solver.py": "80a0b34cd856698efd7034a523e6d850c21ba21e3805f38928897db1f2d6091b",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+          },
+          "overlays": {
+            "src/clipp1d/cuda/kernels.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/kernels.py",
+            "src/clipp1d/cuda/qp.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/qp.py",
+            "src/clipp1d/cuda/selection.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/selection.py",
+            "src/clipp1d/cuda/solver.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/solver.py"
+          }
+        }
+      },
+      "status": "passed",
+      "tasks": [
+        {
+          "command_receipt": "receipts/command-attribution-baseline.json",
+          "elapsed_seconds": 29.413596462924033,
+          "error": null,
+          "error_type": null,
+          "name": "attribution-baseline",
+          "planned_arguments": [
+            "--label",
+            "baseline",
+            "--repeats",
+            "5",
+            "--warmups",
+            "1",
+            "--timeout-seconds",
+            "900"
+          ],
+          "receipt": "results/attribution-baseline.json",
+          "receipt_sha256": "5ef1af61e0281a9df6664ed82cd382c56365d9bdb32daec14f38b885bf85479c",
+          "schema": "clipp1d.cuda.qp_attribution.v2",
+          "script": "attribute_qp_cuda.py",
+          "source_role": "baseline",
+          "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+          "status": "passed"
+        },
+        {
+          "command_receipt": "receipts/command-attribution-current.json",
+          "elapsed_seconds": 25.787417710060254,
+          "error": null,
+          "error_type": null,
+          "name": "attribution-current",
+          "planned_arguments": [
+            "--label",
+            "current",
+            "--repeats",
+            "5",
+            "--warmups",
+            "1",
+            "--timeout-seconds",
+            "900"
+          ],
+          "receipt": "results/attribution-current.json",
+          "receipt_sha256": "d7522b0ded4410a40e2d65ca8238f5ce5de248a205a6369d9fc2bdad84552679",
+          "schema": "clipp1d.cuda.qp_attribution.v2",
+          "script": "attribute_qp_cuda.py",
+          "source_role": "current",
+          "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+          "status": "passed"
+        }
+      ],
+      "terminal_error": null,
+      "terminal_error_type": null
+    },
+    {
+      "attempt": "mixed64-c",
+      "claims_status": "as_recorded",
+      "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+      "job_id": "77334538",
+      "measurement_invalidation": null,
+      "plan_sha256": "d1b7ce2df241c641a7c00a211a4c56dc8c11af1373b6a4f38909000ab34dbdbe",
+      "remote_root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923c",
+      "run_id": "clipp2_clipp1d_qp_20260923c",
+      "source_reconstruction": {
+        "baseline": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "ca28d50155001f0722b04728b633e13ac4b12e9f663bdfd94eb0c5ac77a4d562",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "f600359924bc8670f1bb9dc577758b9590ca13e45973de82fb6fac219a887623",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "137c5c12557a69e94096fdbde7ce319c5a5a296baf32dcdee1fbac9e68e2220c",
+              "cuda/solver.py": "3a3e133696669ffb5e7d21d4346841ccb140883f46db360865cc571c1c9ddbc3",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26"
+          },
+          "overlays": {}
+        },
+        "current": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "helpers": {
+            "benchmarks/mixed_fixtures.py": "reproduction/helpers/de55d0d4e6deda6731e3cc48f787229f977e7fe14d5535a2bc1dddec303379e3/mixed_fixtures.py",
+            "benchmarks/qualify_cuda.py": "reproduction/helpers/801dcad409a638054355d9790423e990c26f244d9726dfc6cc0a127dccb9394d/qualify_cuda.py",
+            "benchmarks/qualify_mixed_cuda.py": "reproduction/helpers/5c1f887366d5ba4a39ac682194c3fe4bc562bc6d4abd9eee6fcf0d9ca1d794ca/qualify_mixed_cuda.py"
+          },
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "138bcf327b30f5bca5fd7890f741f76cb1981e0237f67f5d902acdec84e4f91e",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "925e1e5ee67f7630f0d229a560f2af8958fffd1b01ac7609f868a85aa01a74b0",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "eb24065f286841fd83701816996036fcd7f9fc7624d0975cc1af67baf38ff099",
+              "cuda/solver.py": "80a0b34cd856698efd7034a523e6d850c21ba21e3805f38928897db1f2d6091b",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+          },
+          "overlays": {
+            "src/clipp1d/cuda/kernels.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/kernels.py",
+            "src/clipp1d/cuda/qp.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/qp.py",
+            "src/clipp1d/cuda/selection.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/selection.py",
+            "src/clipp1d/cuda/solver.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/solver.py"
+          }
+        }
+      },
+      "status": "passed",
+      "tasks": [
+        {
+          "candidate_coverage": {
+            "artifact": "results/mixed64-baseline.artifacts/full-path.json",
+            "artifact_sha256": "4fce78a7b61ae9d1e64fddb22b291057bd5256150aa1862c179ddc4061c69927",
+            "complete_penalties": 26,
+            "final_export_and_publication_qualified": true,
+            "planned_penalties": 26,
+            "qualified_raw_winners": 26,
+            "qualified_refits": 26,
+            "qualified_starts": 99,
+            "recorded_starts": 99,
+            "scope": "Qualified selected raw/secondary candidates are separate from every-start path coverage and final independent export/publication. Failed coverage cannot inherit success from its candidate winner.",
+            "search_status": "complete",
+            "selected_lambda": 10.003106095025691,
+            "selected_raw_qualified": true,
+            "unresolved_starts": 0
+          },
+          "command_receipt": "receipts/command-mixed64-baseline.json",
+          "elapsed_seconds": 133.16771633108146,
+          "error": null,
+          "error_type": null,
+          "fixture_family": "mixed_support",
+          "full_path": {
+            "final_export_and_publication_qualified": true,
+            "fit_seconds": 111.1101386230439,
+            "initial_compiler_admission_seconds": 2.787557180970907,
+            "measurements": {
+              "device_measurement_scope": "upload through final qualification and completed device export",
+              "integrity_counters": {
+                "full_checks": 112,
+                "metadata_checks": 73553
+              },
+              "numerical_completed_utc": "2026-09-23T01:26:50.446937+00:00",
+              "output_prepared_utc": "2026-09-23T01:26:50.460070+00:00",
+              "peak_allocated_bytes": 101064192,
+              "peak_reserved_bytes": 125829120,
+              "phase_seconds": {
+                "device_export_seconds": 0.011543047847226262,
+                "device_upload_and_compile_seconds": 2.8601564748678356,
+                "final_device_qualification_seconds": 0.007940385024994612,
+                "graph_build_seconds": 1.4436141811311245,
+                "input_preparation_seconds": 0.044275132939219475,
+                "output_preparation_seconds": 0.011579220881685615,
+                "path_seconds": 90.77740367455408,
+                "pilot_seconds": 4.008879586821422,
+                "refit_seconds": 14.875931746326387,
+                "stage_integrity_seconds": 0.004257998196408153
+              },
+              "receipt_elapsed_scope": "through output preparation; excludes receipt serialization, durable publication and return bookkeeping",
+              "return_only_operation_metrics": {
+                "elapsed_seconds": 114.2458685329184,
+                "publication_completed_utc": "2026-09-23T01:26:50.481300+00:00",
+                "publication_seconds": 0.032936615869402885,
+                "scope": "completed TSV/receipt readback, fsync, atomic directory publication and parent fsync; excludes return bookkeeping"
+              },
+              "scalar_work_counters": {
+                "analytical_groups": 0,
+                "full_terms_calls": 1439,
+                "general_groups": 148,
+                "golden_padded_group_slots": 650,
+                "golden_wells": 509,
+                "loss_gradient_calls": 5165,
+                "loss_only_calls": 7781,
+                "scalar_proposals_evaluated": 1151064,
+                "scalar_rows_evaluated": 641786
+              }
+            },
+            "numerical_stages": {
+              "audit_calls": 279,
+              "audit_seconds": 44.68501713243313,
+              "candidate_family": "qualified_complete_graph_path",
+              "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+              "extension_limit_reached": false,
+              "extensions": 0,
+              "graph_build_seconds": 1.4436141811311245,
+              "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+              "lambda_reference": 2560.795160326577,
+              "numerical_wall_seconds": 111.11008718702942,
+              "path_seconds": 90.77740367455408,
+              "path_truncated": false,
+              "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+              "pilot_seconds": 4.008879586821422,
+              "planned_path_complete": true,
+              "qp_calls": 1154,
+              "qp_dual_warm_resets": 160,
+              "qp_dual_warm_starts": 876,
+              "qp_polish_iterations": 6089,
+              "qp_seconds": 44.60288051748648,
+              "raw_unresolved_penalties": 0,
+              "refit_seconds": 14.875931746326387,
+              "refit_unresolved_penalties": 0,
+              "refits_computed": 12,
+              "refits_reused": 14,
+              "selected_at_upper_boundary": false,
+              "singleton_pilots_reused": 142,
+              "stage_integrity_seconds": 0.004257998196408153
+            },
+            "search_status": "complete",
+            "total_seconds": 114.25691503402777
+          },
+          "input_sha256": "f3607ea0f5cbab41896d46b358d1aec828ce56783b7768e45ee7cc37b0c28b8f",
+          "mode": "reference",
+          "name": "mixed64-baseline",
+          "nodes": 64,
+          "planned_arguments": [
+            "--fixture",
+            "mixed_support",
+            "--nodes",
+            "64",
+            "--mode",
+            "reference",
+            "--expected-source-sha256",
+            "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+            "--timeout-seconds",
+            "3300"
+          ],
+          "predecessor": null,
+          "receipt": "results/mixed64-baseline.json",
+          "receipt_sha256": "71c16d6cad88767c4faa6d302a37cff767f446f4e3de1a7637d185783902977b",
+          "schema": "clipp1d.cuda.mixed_qualification.v1",
+          "script": "qualify_mixed_cuda.py",
+          "source_role": "baseline",
+          "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+          "status": "passed"
+        },
+        {
+          "baseline": {
+            "commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+            "path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923c/results/mixed64-baseline.json",
+            "sha256": "71c16d6cad88767c4faa6d302a37cff767f446f4e3de1a7637d185783902977b",
+            "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26"
+          },
+          "baseline_published_receipt": "attempts/mixed64-c/imported/results/mixed64-baseline.json",
+          "candidate_coverage": {
+            "artifact": "results/mixed64-current.artifacts/full-path.json",
+            "artifact_sha256": "da02be3413a27ea898ee59aa34d0f45f990d03c173e54669b65aba3c26c63524",
+            "complete_penalties": 26,
+            "final_export_and_publication_qualified": true,
+            "planned_penalties": 26,
+            "qualified_raw_winners": 26,
+            "qualified_refits": 26,
+            "qualified_starts": 99,
+            "recorded_starts": 99,
+            "scope": "Qualified selected raw/secondary candidates are separate from every-start path coverage and final independent export/publication. Failed coverage cannot inherit success from its candidate winner.",
+            "search_status": "complete",
+            "selected_lambda": 10.003106095025691,
+            "selected_raw_qualified": true,
+            "unresolved_starts": 0
+          },
+          "command_receipt": "receipts/command-mixed64-current.json",
+          "comparison": {
+            "all_fixed_problems_within_existing_gates": true,
+            "fixed_problems": 4,
+            "independent_adaptive_graphs": {
+              "current_lambda_scale": 2560.795160326577,
+              "graph_weights_identical": true,
+              "pilot_phi_max_absolute_difference": 0.0,
+              "reference_lambda_scale": 2560.795160326577,
+              "scope": "Independent pilot/adaptive graph differences; not the identical fixed-problem comparison",
+              "selected_caps_max_absolute_difference": 0.0,
+              "selected_objective_perturbation_envelope": 0.0,
+              "weights_max_absolute_difference": 0.0
+            },
+            "independent_full_fit": {
+              "current_lambda": 10.003106095025691,
+              "differing_fields": [],
+              "equal": {
+                "labels": true,
+                "raw_multiplicity": true,
+                "refitted_multiplicity": true
+              },
+              "fixed_problem": false,
+              "literal_lambda_equal": true,
+              "max_absolute_errors": {
+                "centers": 0.0,
+                "raw_ccf": 0.0,
+                "raw_objective": 0.0,
+                "refitted_ccf": 0.0,
+                "score": 0.0
+              },
+              "reference_lambda": 10.003106095025691,
+              "scope": "independent adaptive full fits",
+              "within_existing_parity_gates": true
+            }
+          },
+          "elapsed_seconds": 120.62971167010255,
+          "error": null,
+          "error_type": null,
+          "fixture_family": "mixed_support",
+          "full_path": {
+            "final_export_and_publication_qualified": true,
+            "fit_seconds": 101.14340870105661,
+            "initial_compiler_admission_seconds": 2.799847102025524,
+            "measurements": {
+              "device_measurement_scope": "upload through final qualification and completed device export",
+              "integrity_counters": {
+                "full_checks": 112,
+                "metadata_checks": 73553
+              },
+              "numerical_completed_utc": "2026-09-23T01:28:56.074423+00:00",
+              "output_prepared_utc": "2026-09-23T01:28:56.087410+00:00",
+              "peak_allocated_bytes": 101145088,
+              "peak_reserved_bytes": 125829120,
+              "phase_seconds": {
+                "device_export_seconds": 0.005646334961056709,
+                "device_upload_and_compile_seconds": 2.8606063730549067,
+                "final_device_qualification_seconds": 0.007547151064500213,
+                "graph_build_seconds": 1.447356262942776,
+                "input_preparation_seconds": 0.042814965127035975,
+                "output_preparation_seconds": 0.011385871097445488,
+                "path_seconds": 80.38735102047212,
+                "pilot_seconds": 4.216409883927554,
+                "refit_seconds": 15.087561330525205,
+                "stage_integrity_seconds": 0.004656408214941621
+              },
+              "receipt_elapsed_scope": "through output preparation; excludes receipt serialization, durable publication and return bookkeeping",
+              "return_only_operation_metrics": {
+                "elapsed_seconds": 104.31785501213744,
+                "publication_completed_utc": "2026-09-23T01:28:56.110012+00:00",
+                "publication_seconds": 0.03412258718162775,
+                "scope": "completed TSV/receipt readback, fsync, atomic directory publication and parent fsync; excludes return bookkeeping"
+              },
+              "scalar_work_counters": {
+                "analytical_groups": 0,
+                "full_terms_calls": 1439,
+                "general_groups": 148,
+                "golden_padded_group_slots": 650,
+                "golden_wells": 509,
+                "loss_gradient_calls": 5165,
+                "loss_only_calls": 7781,
+                "scalar_proposals_evaluated": 1151064,
+                "scalar_rows_evaluated": 641786
+              }
+            },
+            "numerical_stages": {
+              "audit_calls": 279,
+              "audit_seconds": 44.49322436284274,
+              "candidate_family": "qualified_complete_graph_path",
+              "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+              "extension_limit_reached": false,
+              "extensions": 0,
+              "graph_build_seconds": 1.447356262942776,
+              "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+              "lambda_reference": 2560.795160326577,
+              "numerical_wall_seconds": 101.1433349060826,
+              "path_seconds": 80.38735102047212,
+              "path_truncated": false,
+              "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+              "pilot_seconds": 4.216409883927554,
+              "planned_path_complete": true,
+              "qp_admm_iterations": 94816,
+              "qp_calls": 1154,
+              "qp_dual_warm_resets": 160,
+              "qp_dual_warm_starts": 876,
+              "qp_polish_iterations": 4230,
+              "qp_seconds": 34.40363610070199,
+              "qp_work_scope": "all attempted QPs across all starts and planned penalties, including unresolved attempts",
+              "raw_unresolved_penalties": 0,
+              "refit_seconds": 15.087561330525205,
+              "refit_unresolved_penalties": 0,
+              "refits_computed": 12,
+              "refits_reused": 14,
+              "selected_at_upper_boundary": false,
+              "singleton_pilots_reused": 142,
+              "stage_integrity_seconds": 0.004656408214941621
+            },
+            "search_status": "complete",
+            "total_seconds": 104.32896440313198
+          },
+          "input_sha256": "f3607ea0f5cbab41896d46b358d1aec828ce56783b7768e45ee7cc37b0c28b8f",
+          "mode": "paired",
+          "name": "mixed64-current",
+          "nodes": 64,
+          "planned_arguments": [
+            "--fixture",
+            "mixed_support",
+            "--nodes",
+            "64",
+            "--mode",
+            "paired",
+            "--expected-source-sha256",
+            "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+            "--timeout-seconds",
+            "3300",
+            "--baseline",
+            "@ROOT@/results/mixed64-baseline.json",
+            "--baseline-sha256",
+            "@SHA256@/results/mixed64-baseline.json"
+          ],
+          "predecessor": null,
+          "receipt": "results/mixed64-current.json",
+          "receipt_sha256": "1d50f783a7edc4875bc372155524c5518f75474717355b124623eeb26a766371",
+          "schema": "clipp1d.cuda.mixed_qualification.v1",
+          "script": "qualify_mixed_cuda.py",
+          "source_role": "current",
+          "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+          "status": "passed"
+        }
+      ],
+      "terminal_error": null,
+      "terminal_error_type": null
+    },
+    {
+      "attempt": "below64-d",
+      "claims_status": "as_recorded",
+      "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+      "job_id": "77334573",
+      "measurement_invalidation": null,
+      "plan_sha256": "6ff8b3b70470a4fc1baf227fe9f6e38d4dbb7ffd4de07ee9bba3d44ccfaade5f",
+      "remote_root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923d",
+      "run_id": "clipp2_clipp1d_qp_20260923d",
+      "source_reconstruction": {
+        "baseline": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "ca28d50155001f0722b04728b633e13ac4b12e9f663bdfd94eb0c5ac77a4d562",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "f600359924bc8670f1bb9dc577758b9590ca13e45973de82fb6fac219a887623",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "137c5c12557a69e94096fdbde7ce319c5a5a296baf32dcdee1fbac9e68e2220c",
+              "cuda/solver.py": "3a3e133696669ffb5e7d21d4346841ccb140883f46db360865cc571c1c9ddbc3",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26"
+          },
+          "overlays": {}
+        },
+        "current": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "helpers": {
+            "benchmarks/mixed_fixtures.py": "reproduction/helpers/de55d0d4e6deda6731e3cc48f787229f977e7fe14d5535a2bc1dddec303379e3/mixed_fixtures.py",
+            "benchmarks/qualify_cuda.py": "reproduction/helpers/801dcad409a638054355d9790423e990c26f244d9726dfc6cc0a127dccb9394d/qualify_cuda.py",
+            "benchmarks/qualify_mixed_cuda.py": "reproduction/helpers/5c1f887366d5ba4a39ac682194c3fe4bc562bc6d4abd9eee6fcf0d9ca1d794ca/qualify_mixed_cuda.py"
+          },
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "138bcf327b30f5bca5fd7890f741f76cb1981e0237f67f5d902acdec84e4f91e",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "925e1e5ee67f7630f0d229a560f2af8958fffd1b01ac7609f868a85aa01a74b0",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "eb24065f286841fd83701816996036fcd7f9fc7624d0975cc1af67baf38ff099",
+              "cuda/solver.py": "80a0b34cd856698efd7034a523e6d850c21ba21e3805f38928897db1f2d6091b",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+          },
+          "overlays": {
+            "src/clipp1d/cuda/kernels.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/kernels.py",
+            "src/clipp1d/cuda/qp.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/qp.py",
+            "src/clipp1d/cuda/selection.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/selection.py",
+            "src/clipp1d/cuda/solver.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/solver.py"
+          }
+        }
+      },
+      "status": "failed",
+      "tasks": [
+        {
+          "candidate_coverage": {
+            "artifact": "results/below64-baseline.artifacts/full-path.json",
+            "artifact_sha256": "c4093bdf246762f7bb4b27970a5a4c593d776294dedfb2ccc1ad2d09c50af672",
+            "complete_penalties": 24,
+            "final_export_and_publication_qualified": false,
+            "planned_penalties": 26,
+            "qualified_raw_winners": 26,
+            "qualified_refits": 26,
+            "qualified_starts": 97,
+            "recorded_starts": 99,
+            "scope": "Qualified selected raw/secondary candidates are separate from every-start path coverage and final independent export/publication. Failed coverage cannot inherit success from its candidate winner.",
+            "search_status": "incomplete",
+            "selected_lambda": 0.0,
+            "selected_raw_qualified": true,
+            "unresolved_starts": 2
+          },
+          "command_receipt": "receipts/command-below64-baseline.json",
+          "elapsed_seconds": 87.9536853551399,
+          "error": "Complete mixed fixture path contains unresolved candidates or starts",
+          "error_type": "AssertionError",
+          "fixture_family": "below_one",
+          "full_path": {
+            "final_export_and_publication_qualified": false,
+            "fit_seconds": 84.59655206394382,
+            "search_status": "incomplete"
+          },
+          "input_sha256": "ae53764990bc252cb7f6a2a14a8eb21a57e3ec46fef28423c08354575ef8a5db",
+          "mode": "reference",
+          "name": "below64-baseline",
+          "nodes": 64,
+          "planned_arguments": [
+            "--fixture",
+            "below_one",
+            "--nodes",
+            "64",
+            "--mode",
+            "reference",
+            "--expected-source-sha256",
+            "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+            "--timeout-seconds",
+            "3300"
+          ],
+          "predecessor": null,
+          "receipt": "results/below64-baseline.json",
+          "receipt_sha256": "8e7b4fa54f7929d29fa907b7997e6f2eb76664b7f59a2c6ec0c38ac50d64b90b",
+          "schema": "clipp1d.cuda.mixed_qualification.v1",
+          "script": "qualify_mixed_cuda.py",
+          "source_role": "baseline",
+          "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+          "status": "failed"
+        },
+        {
+          "fixture_family": "below_one",
+          "mode": "paired",
+          "name": "below64-current",
+          "nodes": 64,
+          "planned_arguments": [
+            "--fixture",
+            "below_one",
+            "--nodes",
+            "64",
+            "--mode",
+            "paired",
+            "--expected-source-sha256",
+            "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+            "--timeout-seconds",
+            "3300",
+            "--baseline",
+            "@ROOT@/results/below64-baseline.json",
+            "--baseline-sha256",
+            "@SHA256@/results/below64-baseline.json"
+          ],
+          "script": "qualify_mixed_cuda.py",
+          "source_role": "current",
+          "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+          "status": "not_attempted"
+        }
+      ],
+      "terminal_error": "{'name': 'below64-baseline', 'source_role': 'baseline', 'returncode': 1, 'receipt_sha256': '8e7b4fa54f7929d29fa907b7997e6f2eb76664b7f59a2c6ec0c38ac50d64b90b', 'status': 'failed'}",
+      "terminal_error_type": "AssertionError"
+    },
+    {
+      "attempt": "mixed256-e",
+      "claims_status": "as_recorded",
+      "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+      "job_id": "77334585",
+      "measurement_invalidation": null,
+      "plan_sha256": "bd43939d63339e08770549d4d0922c8f62cabfa5ae66e677591ab38026bf91ef",
+      "remote_root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923e",
+      "run_id": "clipp2_clipp1d_qp_20260923e",
+      "source_reconstruction": {
+        "baseline": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "ca28d50155001f0722b04728b633e13ac4b12e9f663bdfd94eb0c5ac77a4d562",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "f600359924bc8670f1bb9dc577758b9590ca13e45973de82fb6fac219a887623",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "137c5c12557a69e94096fdbde7ce319c5a5a296baf32dcdee1fbac9e68e2220c",
+              "cuda/solver.py": "3a3e133696669ffb5e7d21d4346841ccb140883f46db360865cc571c1c9ddbc3",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26"
+          },
+          "overlays": {}
+        },
+        "current": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "helpers": {
+            "benchmarks/mixed_fixtures.py": "reproduction/helpers/de55d0d4e6deda6731e3cc48f787229f977e7fe14d5535a2bc1dddec303379e3/mixed_fixtures.py",
+            "benchmarks/qualify_cuda.py": "reproduction/helpers/801dcad409a638054355d9790423e990c26f244d9726dfc6cc0a127dccb9394d/qualify_cuda.py",
+            "benchmarks/qualify_mixed_cuda.py": "reproduction/helpers/5c1f887366d5ba4a39ac682194c3fe4bc562bc6d4abd9eee6fcf0d9ca1d794ca/qualify_mixed_cuda.py"
+          },
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "138bcf327b30f5bca5fd7890f741f76cb1981e0237f67f5d902acdec84e4f91e",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "925e1e5ee67f7630f0d229a560f2af8958fffd1b01ac7609f868a85aa01a74b0",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "eb24065f286841fd83701816996036fcd7f9fc7624d0975cc1af67baf38ff099",
+              "cuda/solver.py": "80a0b34cd856698efd7034a523e6d850c21ba21e3805f38928897db1f2d6091b",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+          },
+          "overlays": {
+            "src/clipp1d/cuda/kernels.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/kernels.py",
+            "src/clipp1d/cuda/qp.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/qp.py",
+            "src/clipp1d/cuda/selection.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/selection.py",
+            "src/clipp1d/cuda/solver.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/solver.py"
+          }
+        }
+      },
+      "status": "failed",
+      "tasks": [
+        {
+          "candidate_coverage": {
+            "artifact": "results/mixed256-current.artifacts/full-path.json",
+            "artifact_sha256": "5e829d7932a2e691b27989b2345bbafdf2dad80b845053bb6c236e9ffca4a3e8",
+            "complete_penalties": 16,
+            "final_export_and_publication_qualified": false,
+            "planned_penalties": 26,
+            "qualified_raw_winners": 26,
+            "qualified_refits": 26,
+            "qualified_starts": 88,
+            "recorded_starts": 99,
+            "scope": "Qualified selected raw/secondary candidates are separate from every-start path coverage and final independent export/publication. Failed coverage cannot inherit success from its candidate winner.",
+            "search_status": "incomplete",
+            "selected_lambda": 0.0,
+            "selected_raw_qualified": true,
+            "unresolved_starts": 11
+          },
+          "command_receipt": "receipts/command-mixed256-current.json",
+          "elapsed_seconds": 173.23668193584308,
+          "error": "Complete mixed fixture path contains unresolved candidates or starts",
+          "error_type": "AssertionError",
+          "fixture_family": "mixed_support",
+          "full_path": {
+            "final_export_and_publication_qualified": false,
+            "fit_seconds": 169.7822801710572,
+            "search_status": "incomplete"
+          },
+          "input_sha256": "6b5cb4f2cfce4cb6fbd81eff8a6ab8dca4e3c810dcfdf4e1ec75fa76fa6b2428",
+          "mode": "full",
+          "name": "mixed256-current",
+          "nodes": 256,
+          "planned_arguments": [
+            "--fixture",
+            "mixed_support",
+            "--nodes",
+            "256",
+            "--mode",
+            "full",
+            "--expected-source-sha256",
+            "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+            "--timeout-seconds",
+            "3300",
+            "--predecessor",
+            "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923c/results/mixed64-current.json",
+            "--predecessor-sha256",
+            "1d50f783a7edc4875bc372155524c5518f75474717355b124623eeb26a766371"
+          ],
+          "predecessor": {
+            "elapsed_seconds": 120.62971167010255,
+            "nodes": 64,
+            "path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923c/results/mixed64-current.json",
+            "sha256": "1d50f783a7edc4875bc372155524c5518f75474717355b124623eeb26a766371"
+          },
+          "predecessor_published_receipt": "attempts/mixed64-c/imported/results/mixed64-current.json",
+          "receipt": "results/mixed256-current.json",
+          "receipt_sha256": "84bed1f088782c9d9478e8e8d2cc9c6f066e18d51e316614723b04e8b3496b9c",
+          "schema": "clipp1d.cuda.mixed_qualification.v1",
+          "script": "qualify_mixed_cuda.py",
+          "source_role": "current",
+          "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+          "status": "failed"
+        }
+      ],
+      "terminal_error": "{'name': 'mixed256-current', 'source_role': 'current', 'returncode': 1, 'receipt_sha256': '84bed1f088782c9d9478e8e8d2cc9c6f066e18d51e316614723b04e8b3496b9c', 'status': 'failed'}",
+      "terminal_error_type": "AssertionError"
+    },
+    {
+      "attempt": "below64-f",
+      "claims_status": "as_recorded",
+      "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+      "job_id": "77334588",
+      "measurement_invalidation": null,
+      "plan_sha256": "e067e6895d5e8644f862723490e4b6a49dd407e5e8b0dd16cecee6da3ad3f7e6",
+      "remote_root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923f",
+      "run_id": "clipp2_clipp1d_qp_20260923f",
+      "source_reconstruction": {
+        "baseline": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "ca28d50155001f0722b04728b633e13ac4b12e9f663bdfd94eb0c5ac77a4d562",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "f600359924bc8670f1bb9dc577758b9590ca13e45973de82fb6fac219a887623",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "137c5c12557a69e94096fdbde7ce319c5a5a296baf32dcdee1fbac9e68e2220c",
+              "cuda/solver.py": "3a3e133696669ffb5e7d21d4346841ccb140883f46db360865cc571c1c9ddbc3",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26"
+          },
+          "overlays": {}
+        },
+        "current": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "helpers": {
+            "benchmarks/mixed_fixtures.py": "reproduction/helpers/de55d0d4e6deda6731e3cc48f787229f977e7fe14d5535a2bc1dddec303379e3/mixed_fixtures.py",
+            "benchmarks/qualify_cuda.py": "reproduction/helpers/801dcad409a638054355d9790423e990c26f244d9726dfc6cc0a127dccb9394d/qualify_cuda.py",
+            "benchmarks/qualify_mixed_cuda.py": "reproduction/helpers/5c1f887366d5ba4a39ac682194c3fe4bc562bc6d4abd9eee6fcf0d9ca1d794ca/qualify_mixed_cuda.py"
+          },
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "138bcf327b30f5bca5fd7890f741f76cb1981e0237f67f5d902acdec84e4f91e",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "925e1e5ee67f7630f0d229a560f2af8958fffd1b01ac7609f868a85aa01a74b0",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "eb24065f286841fd83701816996036fcd7f9fc7624d0975cc1af67baf38ff099",
+              "cuda/solver.py": "80a0b34cd856698efd7034a523e6d850c21ba21e3805f38928897db1f2d6091b",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+          },
+          "overlays": {
+            "src/clipp1d/cuda/kernels.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/kernels.py",
+            "src/clipp1d/cuda/qp.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/qp.py",
+            "src/clipp1d/cuda/selection.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/selection.py",
+            "src/clipp1d/cuda/solver.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/solver.py"
+          }
+        }
+      },
+      "status": "failed",
+      "tasks": [
+        {
+          "candidate_coverage": {
+            "artifact": "results/below64-current.artifacts/full-path.json",
+            "artifact_sha256": "111e9fdde0404d4932929861f5ff03f68bdb651db6e98d1372b50f3fa9038dad",
+            "complete_penalties": 24,
+            "final_export_and_publication_qualified": false,
+            "planned_penalties": 26,
+            "qualified_raw_winners": 26,
+            "qualified_refits": 26,
+            "qualified_starts": 97,
+            "recorded_starts": 99,
+            "scope": "Qualified selected raw/secondary candidates are separate from every-start path coverage and final independent export/publication. Failed coverage cannot inherit success from its candidate winner.",
+            "search_status": "incomplete",
+            "selected_lambda": 0.0,
+            "selected_raw_qualified": true,
+            "unresolved_starts": 2
+          },
+          "command_receipt": "receipts/command-below64-current.json",
+          "elapsed_seconds": 70.94556678598747,
+          "error": "Complete mixed fixture path contains unresolved candidates or starts",
+          "error_type": "AssertionError",
+          "fixture_family": "below_one",
+          "full_path": {
+            "final_export_and_publication_qualified": false,
+            "fit_seconds": 57.85014386707917,
+            "search_status": "incomplete"
+          },
+          "input_sha256": "ae53764990bc252cb7f6a2a14a8eb21a57e3ec46fef28423c08354575ef8a5db",
+          "mode": "full",
+          "name": "below64-current",
+          "nodes": 64,
+          "planned_arguments": [
+            "--fixture",
+            "below_one",
+            "--nodes",
+            "64",
+            "--mode",
+            "full",
+            "--expected-source-sha256",
+            "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+            "--timeout-seconds",
+            "3300"
+          ],
+          "predecessor": null,
+          "receipt": "results/below64-current.json",
+          "receipt_sha256": "d35b9386f667a0f0e79de45d68fcc182680daed00d94c36116719d57d91da202",
+          "schema": "clipp1d.cuda.mixed_qualification.v1",
+          "script": "qualify_mixed_cuda.py",
+          "source_role": "current",
+          "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+          "status": "failed"
+        }
+      ],
+      "terminal_error": "{'name': 'below64-current', 'source_role': 'current', 'returncode': 1, 'receipt_sha256': 'd35b9386f667a0f0e79de45d68fcc182680daed00d94c36116719d57d91da202', 'status': 'failed'}",
+      "terminal_error_type": "AssertionError"
+    },
+    {
+      "attempt": "baseline256-g",
+      "claims_status": "as_recorded",
+      "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+      "job_id": "77334594",
+      "measurement_invalidation": null,
+      "plan_sha256": "91d9f4701ba4cf09804cfd9a8bfc009337b2f2c12ac4b00b11b194a24a754400",
+      "remote_root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923g",
+      "run_id": "clipp2_clipp1d_qp_20260923g",
+      "source_reconstruction": {
+        "baseline": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "ca28d50155001f0722b04728b633e13ac4b12e9f663bdfd94eb0c5ac77a4d562",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "f600359924bc8670f1bb9dc577758b9590ca13e45973de82fb6fac219a887623",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "137c5c12557a69e94096fdbde7ce319c5a5a296baf32dcdee1fbac9e68e2220c",
+              "cuda/solver.py": "3a3e133696669ffb5e7d21d4346841ccb140883f46db360865cc571c1c9ddbc3",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26"
+          },
+          "overlays": {}
+        },
+        "current": {
+          "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+          "helpers": {
+            "benchmarks/mixed_fixtures.py": "reproduction/helpers/de55d0d4e6deda6731e3cc48f787229f977e7fe14d5535a2bc1dddec303379e3/mixed_fixtures.py",
+            "benchmarks/qualify_cuda.py": "reproduction/helpers/801dcad409a638054355d9790423e990c26f244d9726dfc6cc0a127dccb9394d/qualify_cuda.py",
+            "benchmarks/qualify_mixed_cuda.py": "reproduction/helpers/5c1f887366d5ba4a39ac682194c3fe4bc562bc6d4abd9eee6fcf0d9ca1d794ca/qualify_mixed_cuda.py"
+          },
+          "identity": {
+            "source_files": {
+              "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+              "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+              "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+              "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+              "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+              "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+              "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+              "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+              "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+              "cuda/kernels.py": "138bcf327b30f5bca5fd7890f741f76cb1981e0237f67f5d902acdec84e4f91e",
+              "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+              "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+              "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+              "cuda/qp.py": "925e1e5ee67f7630f0d229a560f2af8958fffd1b01ac7609f868a85aa01a74b0",
+              "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+              "cuda/selection.py": "eb24065f286841fd83701816996036fcd7f9fc7624d0975cc1af67baf38ff099",
+              "cuda/solver.py": "80a0b34cd856698efd7034a523e6d850c21ba21e3805f38928897db1f2d6091b",
+              "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+              "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+              "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+              "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+              "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+              "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+              "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+              "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+              "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+              "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+              "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+              "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+              "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+              "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+              "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+              "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+            },
+            "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+          },
+          "overlays": {
+            "src/clipp1d/cuda/kernels.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/kernels.py",
+            "src/clipp1d/cuda/qp.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/qp.py",
+            "src/clipp1d/cuda/selection.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/selection.py",
+            "src/clipp1d/cuda/solver.py": "reproduction/source-726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88/overlay/src/clipp1d/cuda/solver.py"
+          }
+        }
+      },
+      "status": "failed",
+      "tasks": [
+        {
+          "candidate_coverage": {
+            "artifact": "results/mixed256-baseline.artifacts/full-path.json",
+            "artifact_sha256": "33439a291aeb9cf3e0a75f096f7a34a7ea9c68015eb28cc5a4cb0eced5ebea10",
+            "complete_penalties": 16,
+            "final_export_and_publication_qualified": false,
+            "planned_penalties": 26,
+            "qualified_raw_winners": 26,
+            "qualified_refits": 26,
+            "qualified_starts": 88,
+            "recorded_starts": 99,
+            "scope": "Qualified selected raw/secondary candidates are separate from every-start path coverage and final independent export/publication. Failed coverage cannot inherit success from its candidate winner.",
+            "search_status": "incomplete",
+            "selected_lambda": 0.0,
+            "selected_raw_qualified": true,
+            "unresolved_starts": 11
+          },
+          "command_receipt": "receipts/command-mixed256-baseline.json",
+          "elapsed_seconds": 247.92983676097356,
+          "error": "Complete mixed fixture path contains unresolved candidates or starts",
+          "error_type": "AssertionError",
+          "fixture_family": "mixed_support",
+          "full_path": {
+            "final_export_and_publication_qualified": false,
+            "fit_seconds": 244.7547308159992,
+            "search_status": "incomplete"
+          },
+          "input_sha256": "6b5cb4f2cfce4cb6fbd81eff8a6ab8dca4e3c810dcfdf4e1ec75fa76fa6b2428",
+          "mode": "reference",
+          "name": "mixed256-baseline",
+          "nodes": 256,
+          "planned_arguments": [
+            "--fixture",
+            "mixed_support",
+            "--nodes",
+            "256",
+            "--mode",
+            "reference",
+            "--expected-source-sha256",
+            "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+            "--timeout-seconds",
+            "3300",
+            "--predecessor",
+            "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923c/results/mixed64-baseline.json",
+            "--predecessor-sha256",
+            "71c16d6cad88767c4faa6d302a37cff767f446f4e3de1a7637d185783902977b"
+          ],
+          "predecessor": {
+            "elapsed_seconds": 133.16771633108146,
+            "nodes": 64,
+            "path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923c/results/mixed64-baseline.json",
+            "sha256": "71c16d6cad88767c4faa6d302a37cff767f446f4e3de1a7637d185783902977b"
+          },
+          "predecessor_published_receipt": "attempts/mixed64-c/imported/results/mixed64-baseline.json",
+          "receipt": "results/mixed256-baseline.json",
+          "receipt_sha256": "a7537bac09a87e5e656d67111ac831e42cad87a995f006bb31615520f9b2a87f",
+          "schema": "clipp1d.cuda.mixed_qualification.v1",
+          "script": "qualify_mixed_cuda.py",
+          "source_role": "baseline",
+          "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+          "status": "failed"
+        }
+      ],
+      "terminal_error": "{'name': 'mixed256-baseline', 'source_role': 'baseline', 'returncode': 1, 'receipt_sha256': 'a7537bac09a87e5e656d67111ac831e42cad87a995f006bb31615520f9b2a87f', 'status': 'failed'}",
+      "terminal_error_type": "AssertionError"
+    }
+  ],
+  "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+  "baseline_source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+  "current_source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+  "excluded_originals": [
+    {
+      "bytes": 7113544,
+      "original": "qualification-a/terminal-evidence-import.json",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "b919e84217fde0c83c94cdbe892185502837dcbf9b2b2e089475a5daaadd3173"
+    },
+    {
+      "bytes": 109154,
+      "original": "qualification-a/observer.log",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "1c422bd5497cc49fbd40bb68dc01cdc925bc66bd40bd84cbb5281c2343d7e0f2"
+    },
+    {
+      "bytes": 211730,
+      "original": "qualification-a/clipp2_clipp1d_qp_20260923a.tar.gz",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "a0ec09e92dea736c53c89de38a61aa7b09e4551ad918a622250473e103088758"
+    },
+    {
+      "bytes": 5792917,
+      "original": "attribution-b/terminal-evidence-import.json",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "f4fb92f77be818d0e3d36f80b56957f2a7b5666c4c7de1c60c45dfd6399fb653"
+    },
+    {
+      "bytes": 115628,
+      "original": "attribution-b/observer.log",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "df26446c3e7c4d6dc1f4373cf79f5c6c6056362ceb97454de00b80440e374be3"
+    },
+    {
+      "bytes": 219807,
+      "original": "attribution-b/clipp2_clipp1d_qp_20260923b.tar.gz",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "abe534db22aa05e9e204578d3f8e786d05d4738d4a5e5d6d814893db6f3fe786"
+    },
+    {
+      "bytes": 208611,
+      "original": "attribution-b2/terminal-evidence-import.json",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "5661bb92839de34ed292a54737c4001265dc30bcd74aedd623c2ddd87fc31c59"
+    },
+    {
+      "bytes": 15349,
+      "original": "attribution-b2/observer.log",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "91bb910adaad5ad3ad577f11799eb8ec24bf6cc1464fa30e49f7aafe06a1c38d"
+    },
+    {
+      "bytes": 221210,
+      "original": "attribution-b2/clipp2_clipp1d_qp_20260923b2.tar.gz",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "110f3c324009a9c447e4e9edb3de821a0db7ef4a4e8c65cea112a18447e36034"
+    },
+    {
+      "bytes": 5802873,
+      "original": "attribution-b3/terminal-evidence-import.json",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "2dbd0586db0bdf766f7004d0b588305bb7f2a63c78be697f7be14930f4ebf70f"
+    },
+    {
+      "bytes": 115607,
+      "original": "attribution-b3/observer.log",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "78773de414dac79f9ea6583449d213938ce70aa64a5c51e545f08f94d995923e"
+    },
+    {
+      "bytes": 221519,
+      "original": "attribution-b3/clipp2_clipp1d_qp_20260923b3.tar.gz",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "ecde5629643f679ed17d1ccdefb29505801b5e4e75abc334a30c7fd3d556f09e"
+    },
+    {
+      "bytes": 3826726,
+      "original": "mixed64-c/terminal-evidence-import.json",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "0a9fc87f9ec5e986c5d1c58a81a3ff6242f495cfd09abac29090432629426049"
+    },
+    {
+      "bytes": 657325,
+      "original": "mixed64-c/observer.log",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "51dfba8a35270677e12bdb1b1167ff917b097e43e1394f5d810c51166c4daa26"
+    },
+    {
+      "bytes": 221704,
+      "original": "mixed64-c/clipp2_clipp1d_qp_20260923c.tar.gz",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "7878b32ebc8c4e698624dde006c490575083e8efc9f2572a4461dcba96454ab0"
+    },
+    {
+      "bytes": 994117,
+      "original": "below64-d/terminal-evidence-import.json",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "6ec1ee2038913769b3122eca8938a270066226a8f210bfc4cd6b2773c36b2abf"
+    },
+    {
+      "bytes": 312209,
+      "original": "below64-d/observer.log",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "6b040f7a243e643a583f56388a2c4650ca6221e019beb7025561cde3e4e977ce"
+    },
+    {
+      "bytes": 221767,
+      "original": "below64-d/clipp2_clipp1d_qp_20260923d.tar.gz",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "e7399dcb013f953245994d08b2d34e4a3d9cbded5c7dd0377abcfb3bab772166"
+    },
+    {
+      "bytes": 3049380,
+      "original": "mixed256-e/terminal-evidence-import.json",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "d351484ae25f0dc2e07b083aa121f552f6bd25daa5803b2cc94d51728fedb937"
+    },
+    {
+      "bytes": 408497,
+      "original": "mixed256-e/observer.log",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "c2853778395cc62081dca6f9ce27f5ffde5dc7a2060ac22298dcf2cfe421fd29"
+    },
+    {
+      "bytes": 221718,
+      "original": "mixed256-e/clipp2_clipp1d_qp_20260923e.tar.gz",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "14048115642e7da40dc9bbe38e3680e8b1b84159360be8eac504e63cc09b0d4d"
+    },
+    {
+      "bytes": 998027,
+      "original": "below64-f/terminal-evidence-import.json",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "0642309ec48b2f0ac645c22b8acd679605bc9fea3118398b6b10ebf8bd14d171"
+    },
+    {
+      "bytes": 315473,
+      "original": "below64-f/observer.log",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "f6450c9f9d463e0cbb0bf2f22be6e2e0b12282aa156c9d416505460ea1844584"
+    },
+    {
+      "bytes": 221666,
+      "original": "below64-f/clipp2_clipp1d_qp_20260923f.tar.gz",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "dbc32d4d58ab4d99f52fa5b03615ec31a6e3ae1f4bf089557c8b259c45d1f587"
+    },
+    {
+      "bytes": 3039522,
+      "original": "baseline256-g/terminal-evidence-import.json",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "6de1040dac39ba010d175e5b9d8eb335f7f9ec751bd9207f709ebc856cb91a3d"
+    },
+    {
+      "bytes": 405184,
+      "original": "baseline256-g/observer.log",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "34230dde6a808451342639f1a369d4ce51988b8e4e3d26c99d324e6229918b3f"
+    },
+    {
+      "bytes": 221681,
+      "original": "baseline256-g/clipp2_clipp1d_qp_20260923g.tar.gz",
+      "reason": "Redundant transport, observer output, or reconstructible archive; original retained locally",
+      "sha256": "a4b0cbf4b6228ac436b392d9a92abf3e213c78df0f0227fbc3f3740a35d74f0c"
+    }
+  ],
+  "generated_utc": "2026-09-23T01:49:08.735608+00:00",
+  "local_validation": {
+    "benchmark_files": {
+      "benchmarks/attribute_qp_cuda.py": "39c1a8813417d7ea87c5bf81f84ed57140bad4879d13173e7b39eaf8113307e3",
+      "benchmarks/benchmark_chain.py": "65425575f5815b34d6e4c0f8a4da28f7998060e378101dbcf2c27c3969e58cd2",
+      "benchmarks/benchmark_reuse.py": "6c761d34e544707ce84b9a2b153815eb7a02f84b1fbff743f42b89f7cd386eb1",
+      "benchmarks/benchmark_scaling.py": "e19eb3e7fda4f61d31b61b4ad5f7326bdfc99b287643081ab931cdbf474bd21c",
+      "benchmarks/compare_clipp2.py": "05ba24c015689a7c641c6aef882efe1eea64a457c9612c9e57902f9c428b2fa5",
+      "benchmarks/compare_finite_proposals.py": "9dec478e5f775a4194d415224dffc79b5f63e4da308863a4dc1cb6e34f02eac7",
+      "benchmarks/compare_reuse.py": "fe1c6c0e9e5089f262802c95b8df2a0b52ee6b3e92682e3137810f7b49eceb70",
+      "benchmarks/compare_revision_outputs.py": "eba73bc430896664d495b6fa3d75feba6797c8888a9bd0c6dd414f4f8fe33fea",
+      "benchmarks/compare_search.py": "ac62f74b271c0e7dfea1b90e3a5689e8616b0b0e53ebb2738ef7007335e4dfb8",
+      "benchmarks/convert_single_region_benchmarks.py": "840532c193289376372dd99377fe4cf51d8a158387bbb6a2768846112dc135bf",
+      "benchmarks/diagnose_full_stationarity_gate.py": "7451949686f6473f150be51028699fa0f5c1f43a0e4c410cdf286d19bc95ce9d",
+      "benchmarks/diagnose_observed_dual.py": "8497c40df290629389c16474f0d06299663bd010df7df61746e84ea1a3302d46",
+      "benchmarks/diagnose_outer_progress.py": "3e85404320999161b5ed454d1fb0212f6d36d5d934aca978baac94c9a56f2488",
+      "benchmarks/diagnose_rejections.py": "d4703b91744df1d7bea1c483dde7e95b69a922f84c9991ba8d63935ce8343965",
+      "benchmarks/diagnose_snap_mechanism.py": "081d5a1643089462d35744ae262e4f55c3387eafd9dec9b2ad6dc674ef49ef7c",
+      "benchmarks/finalize_four_cohorts.py": "0c5916b62e97a63daa85cf049ee2c81953449efb3bf79526a7ebcb75b27e4ab2",
+      "benchmarks/mixed_fixtures.py": "de55d0d4e6deda6731e3cc48f787229f977e7fe14d5535a2bc1dddec303379e3",
+      "benchmarks/prepare_four_cohorts.py": "5bd0696a84f70ac969c38ae0019679ca37558345502f0228561ec2b0b141143a",
+      "benchmarks/profile_scalar_cuda.py": "19f8108c9cd755f1ca4bbc55eebfead9edf480a24c31e54807c41855c6c0c7cb",
+      "benchmarks/prototype_penalized_polish.py": "42e79a532d84e0efedc79833d626109cd9607c59214e349100e289c40e38a974",
+      "benchmarks/qualify_cuda.py": "801dcad409a638054355d9790423e990c26f244d9726dfc6cc0a127dccb9394d",
+      "benchmarks/qualify_mixed_cuda.py": "5c1f887366d5ba4a39ac682194c3fe4bc562bc6d4abd9eee6fcf0d9ca1d794ca",
+      "benchmarks/qualify_partition_integration.py": "20bbf361883a3658a738809ef3146b9295086a494f7c51e76e270716ea20e6df",
+      "benchmarks/reference_enumeration.py": "cc96bd2ea589b8c9efa7a423aafe037dc2d9418f0688ece85a37774bf91d27f5",
+      "benchmarks/repair_simclone_normal_cn.py": "744a0c20d859632b39d882a3e2b703a03ade45b9bb450542ed8f75a40b60b080",
+      "benchmarks/replay_robustness.py": "c067327d3626c99a2e7b8154a8c4fc3e781a6bbacd58f36fb550482449369904",
+      "benchmarks/run_four_cohorts.py": "13f6977b0ef3802488a64316920467c53072e52d69a1e565782b30919119b6cc",
+      "benchmarks/run_occams.py": "6a8099e2c2d6c8663430a49ac1602796920041b57252e369291ab4c0fa9a0dc2",
+      "benchmarks/simulate.py": "c5b70b5ba6bcc4dc5831b20fb274762b5a27e1d5b0ce8c40c20ac97d3278644a"
+    },
+    "schema": "clipp1d.cuda.qp.local-validation.v1",
+    "scope": "CPU reference/tracing and local static tests; allocated CUDA qualification is separate",
+    "source": {
+      "dtype": "float64",
+      "floating_point_formats": {
+        "float64": {
+          "dtype": "float64",
+          "eps": "2.220446049250313e-16",
+          "epsneg": "1.1102230246251565e-16",
+          "exponent_bits": 11,
+          "machep": -52,
+          "max_finite": "1.7976931348623157e+308",
+          "maxexp": 1024,
+          "minexp": -1022,
+          "nmant": 52,
+          "significand_bits": 53,
+          "smallest_normal": "2.2250738585072014e-308",
+          "storage_bits": 64
+        },
+        "longdouble": {
+          "dtype": "float128",
+          "eps": "1.084202172485504434e-19",
+          "epsneg": "5.42101086242752217e-20",
+          "exponent_bits": 15,
+          "machep": -63,
+          "max_finite": "1.189731495357231765e+4932",
+          "maxexp": 16384,
+          "minexp": -16382,
+          "nmant": 63,
+          "significand_bits": 64,
+          "smallest_normal": "3.3621031431120935063e-4932",
+          "storage_bits": 128
+        }
+      },
+      "interpreter": "/home/yding1995/miniforge3/envs/ml1/bin/python",
+      "machine": "x86_64",
+      "numpy": "2.2.6",
+      "package_version": "0.5.1.dev0",
+      "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+      "precision_scope": "PyTorch CUDA inference uses float64. This receipt does not qualify other platforms.",
+      "python": "3.13.2",
+      "scipy": "1.18.0",
+      "source_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+      "source_files": {
+        "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+        "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+        "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+        "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+        "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+        "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+        "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+        "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+        "cuda/kernels.py": "138bcf327b30f5bca5fd7890f741f76cb1981e0237f67f5d902acdec84e4f91e",
+        "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+        "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+        "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+        "cuda/qp.py": "925e1e5ee67f7630f0d229a560f2af8958fffd1b01ac7609f868a85aa01a74b0",
+        "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+        "cuda/selection.py": "eb24065f286841fd83701816996036fcd7f9fc7624d0975cc1af67baf38ff099",
+        "cuda/solver.py": "80a0b34cd856698efd7034a523e6d850c21ba21e3805f38928897db1f2d6091b",
+        "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+        "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+        "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+        "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+        "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+        "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+        "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+        "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+        "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+        "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+        "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+        "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+        "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+        "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+        "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+        "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+      },
+      "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+      "torch": "2.9.1+cu128"
+    },
+    "static_checks": {
+      "compileall src tests benchmarks": "passed",
+      "git diff --check": "passed",
+      "ruff check src tests benchmarks": "passed"
+    },
+    "test_files": {
+      "tests/conftest.py": "d65f04b0e02040653bb5fa574326c843777c221ef72a3fa0bcaa5e3f40be920a",
+      "tests/cuda/test_api_contract.py": "6951883a9ff11000a743478b45bb8afbbe80cb05686d2c4ee892c895f3d96cac",
+      "tests/cuda/test_audit_scalar_regressions.py": "866f7e4a1ec70ece5976ae8f44aa4c2d30aa39fbfcec9f51e3a9a9e636e22c84",
+      "tests/cuda/test_audit_scale_invariance.py": "de6bf88915cabbe6615a99303b4eae9fa55f63fcc900ecfbf52ef9688cc173a9",
+      "tests/cuda/test_core.py": "7a42068ecb4450e218de297d2e97dce9ccb2293dab74bae5a9e408d8fb11668e",
+      "tests/cuda/test_dual_warm_reuse.py": "2dc672dc1ad5a8b23a77226822934406e1ca9422e6467a4732da3b02331afe33",
+      "tests/cuda/test_mixed_qualification.py": "174e2a15cba3e524c31ce436f9fc9d25cdc04ca4c43c9d0f1189cdfdb88c60b6",
+      "tests/cuda/test_partition_reuse.py": "713bf82c63502546f15fab15ed0851205f10df8c44b2bd19fceb488225e287fe",
+      "tests/cuda/test_public_qualification.py": "14f29489430cceaf07ba090cee7716a8f27f244ec0abbe2aa91825089620414e",
+      "tests/cuda/test_qp_attribution.py": "d5d0c556b23f035bca2320b20ea19c79bc7f84a66635e8ac7576a8419ccbdf48",
+      "tests/cuda/test_qp_prepared_steps.py": "84aef9c42ef5877b7f205d327da9ac4269f3274e2f51a030e2377ec01569cb53",
+      "tests/cuda/test_qp_regressions.py": "e1576648fa0bc085c0edea1b2d40fe64d46cb37a6e5eb654a9fee40816dda499",
+      "tests/cuda/test_qp_work_totals.py": "ba9b82d0b46ffb9b3ecc36521c161e3616fd643e92061b0393a09885b19c352a",
+      "tests/cuda/test_review_qualification.py": "e9030d0af05d00a039047a3e5f4a6f649fb53131ce8be573a5c67d8be90efca8",
+      "tests/cuda/test_scalar_efficiency.py": "21fd2583a902355a2370628dd3248a4a27bf3eabc1556c4e876b85c2f00c2f60",
+      "tests/cuda/test_timing_scope.py": "391c5d8a987e9ec578a89248cad5b528fa58899342816958f679a62353a8ff3a",
+      "tests/cuda/test_unconstrained_pipeline.py": "c3b2265016a1d71cdc92d847b71b5bdf9d36c075c0ac9a1fce16ae4e2c15c58e",
+      "tests/fixtures/generate_upstream_reference.py": "e5e991f81439d8ece42ca9f6cf268d9c22ff4386926cd60869b3689671533aac",
+      "tests/historical_package.py": "2d863e474e2af7f369336eed1d7379d4e831111d2d8fbea76c7b1d92a64b0985",
+      "tests/legacy_chain_api.py": "f8f71354b9e4a72ba64a59ee4691c18970d5db6ba7a6b083375ba9475b206b95",
+      "tests/test_audit_context.py": "35cd24f5f8c369d6d6d79df1e689dc8e3941957a748609c013d3e44365f85453",
+      "tests/test_benchmark_controls.py": "97e5bd5ab6128a94948ad511c3444787b6f37b9094518835302279b050a96fce",
+      "tests/test_benchmark_cuda_boundary.py": "ccf666d0a29e01cbaf45874f19e86f466759a71c0ac44d00bcef9c07c1860cc7",
+      "tests/test_benchmarks.py": "778ca4bbfe3e9426f47b0e2be38ffe3186113ac53f4aee6929892f49b705294e",
+      "tests/test_certificate_reuse.py": "e7755d2170493bde4d593ffeee6ad9d882f6d388cd17fb3a8485e9ae90d74c75",
+      "tests/test_chain.py": "02b41ccaa0c4cc4155f7412a8ce349c64952b9850543394727f6fbf0810e5478",
+      "tests/test_clonal.py": "2fc1b96b9bbc84925a1ef211333a7fc73d346d4d5ff6f9a4fcb28e55e6db2259",
+      "tests/test_cohort_evaluation.py": "74d756ce94ab36ace6ff881707b55d6ae763545ce3d5444ea569c57288169ce8",
+      "tests/test_cohort_truth_join.py": "025fe04af9f4a90550fd3d237064288eecbf4268b1546300fa266aedbcb8220e",
+      "tests/test_common_surrogate.py": "50799a0a989b9d2e22cc2f30a92bddd13d46d00b92d591513a7a919543ba5854",
+      "tests/test_direct_tv.py": "0c5fa6e55b2c1b6a38be733eacaa612c965ddb7afbba380a977ae511ca1232be",
+      "tests/test_end_to_end.py": "ddfefc86a52fda4d7f13ccd92635417ab7c6a392aef85dcb76e4fd3c97ba472e",
+      "tests/test_failure_capture.py": "56c0ad3fb26cbb8c225eb6362dfa050a6e6df6b9549a920301fdb8f6d6dea4c0",
+      "tests/test_finite_proposal_batches.py": "39923d5333bad333a6e158f9b20136c084d94275a727e50c010db2866c34a31e",
+      "tests/test_interval_scan.py": "5a7e2aab2e368fae60e4e294d5de92d00f7a635eeb93dcf1494c9635952f6193",
+      "tests/test_io.py": "a57aaed66e9c851a03322f5d6d688ed5b578e0763992d433024bf4fc6a26482d",
+      "tests/test_labeling.py": "42122b0802c73589f3160af8e39bdf99d0fc6f7b9fa66830dcab65d72dcfb44d",
+      "tests/test_model.py": "945c236c120fe05afaa3825298ad00b45d86da43b3c0620cf4a29f9850232145",
+      "tests/test_observed_dual_diagnostic.py": "a717636aa36eeaa984756907df0d2373bf4d5890e7c29dce854b94c7602af780",
+      "tests/test_occams_queue.py": "c0408caf9bc0cbbe6296aedf9fb0c7f0258f6e1113958f07666c759124a3dd0d",
+      "tests/test_outer_progress_diagnosis.py": "7f788eee75c39cec34e7baa92e06765c2607adcd5bb4c66fdeff7219586cbf8d",
+      "tests/test_partition_proposals.py": "ebd459096f6fd12e6cd006ac00ff9ea58bbcae7ea20a0e3df1d6697983ba09e2",
+      "tests/test_policy.py": "20609f652406ad305194e23c7e72dd47873e3a5e9e77dbeb50e64c299941b781",
+      "tests/test_precision_provenance.py": "5704002d6395eb832acfd4074922f768d930a288c570ad069301c08de7af46c8",
+      "tests/test_production_qp_replay.py": "a83dc34e22d23970d5c0f65693cd1cdbcb20950000cf0ea7642b33de1777752b",
+      "tests/test_profile_reconstruction_reuse.py": "3305921ac2615c7664f655015b144f98e880e5e725cb742aab0f26e2343c8f02",
+      "tests/test_publication.py": "3be61f046ae7310af29b5ac0e7fd5b30a856233b43e295f9cec948e961e621e9",
+      "tests/test_revision_outputs_comparison.py": "cebf16be3814bca99ff32fd43aec3ccd1ece8bfc18abcb2a5ab7047bec4c53cb",
+      "tests/test_revision_qualification.py": "6cd80a0a1a6d44bd8a92f92c5cb4561668c41118ee8835f3e81b48fb2a0489c7",
+      "tests/test_scalar.py": "a127dc5a57c019e9ec08d09fca16d367f21a309d016789c7ebcdc4de6a13d8b0",
+      "tests/test_selection.py": "465a9246b782fd64f7e1eaf608ba6d0b1b787caab5409e4b432ae9707c05139f",
+      "tests/test_simclone_repair.py": "bcd006cd3437f3427bf29d8e78b5a7a8ae5e630b04f2abb755fa363716e8abe9",
+      "tests/test_solver.py": "75041297b43830349ff3d80c38cacb8492c102e07ebd508081c6ab5f362330ad",
+      "tests/test_start_dedup.py": "528fea0c19892dda57a6815cb7426e164077d76f118cd54322f33a00185f0a51",
+      "tests/test_tv_robustness.py": "0df15e7bd94fc13a0798f52741d176f31952f2ff49b38ccdf4c4b7ab2aa340b3",
+      "tests/test_unconstrained.py": "2f6e83ac1f2789c8d535a2010989c5df80792f67f6b79a9faf5e329c98ffa2cc"
+    },
+    "tests": {
+      "command": "/home/yding1995/miniforge3/envs/ml1/bin/python -m pytest -q",
+      "failed": 0,
+      "log_sha256": "dd5de3a18aaa3845e802ddf010e578f3a56bb4075818a8942500d1fe72829bb4",
+      "passed": 877,
+      "seconds": 28.84,
+      "skipped": 0,
+      "warnings": 1
+    },
+    "utc": "2026-09-23T01:38:07.261648+00:00",
+    "warning": "Local NVML initialization warning; no local CUDA qualification claim"
+  },
+  "mixed_coverage": [
+    {
+      "attempts": [
+        {
+          "attempt": "mixed64-c",
+          "error": null,
+          "error_type": null,
+          "mode": "reference",
+          "source_role": "baseline",
+          "status": "passed",
+          "task": "mixed64-baseline"
+        },
+        {
+          "attempt": "mixed64-c",
+          "error": null,
+          "error_type": null,
+          "mode": "paired",
+          "source_role": "current",
+          "status": "passed",
+          "task": "mixed64-current"
+        }
+      ],
+      "current_complete_path": "qualified",
+      "fixture_family": "mixed_support",
+      "nodes": 64,
+      "predecessor_current_path_qualified": null,
+      "representative_baseline_parity": "qualified"
+    },
+    {
+      "attempts": [
+        {
+          "attempt": "mixed256-e",
+          "error": "Complete mixed fixture path contains unresolved candidates or starts",
+          "error_type": "AssertionError",
+          "mode": "full",
+          "source_role": "current",
+          "status": "failed",
+          "task": "mixed256-current"
+        },
+        {
+          "attempt": "baseline256-g",
+          "error": "Complete mixed fixture path contains unresolved candidates or starts",
+          "error_type": "AssertionError",
+          "mode": "reference",
+          "source_role": "baseline",
+          "status": "failed",
+          "task": "mixed256-baseline"
+        }
+      ],
+      "current_complete_path": "failed",
+      "fixture_family": "mixed_support",
+      "nodes": 256,
+      "predecessor_current_path_qualified": true,
+      "representative_baseline_parity": "not_requested_at_this_size"
+    },
+    {
+      "attempts": [],
+      "current_complete_path": "not_attempted",
+      "fixture_family": "mixed_support",
+      "nodes": 512,
+      "predecessor_current_path_qualified": false,
+      "representative_baseline_parity": "not_requested_at_this_size"
+    },
+    {
+      "attempts": [
+        {
+          "attempt": "below64-d",
+          "error": "Complete mixed fixture path contains unresolved candidates or starts",
+          "error_type": "AssertionError",
+          "mode": "reference",
+          "source_role": "baseline",
+          "status": "failed",
+          "task": "below64-baseline"
+        },
+        {
+          "attempt": "below64-d",
+          "error": null,
+          "error_type": null,
+          "mode": "paired",
+          "source_role": "current",
+          "status": "not_attempted",
+          "task": "below64-current"
+        },
+        {
+          "attempt": "below64-f",
+          "error": "Complete mixed fixture path contains unresolved candidates or starts",
+          "error_type": "AssertionError",
+          "mode": "full",
+          "source_role": "current",
+          "status": "failed",
+          "task": "below64-current"
+        }
+      ],
+      "current_complete_path": "failed",
+      "fixture_family": "below_one",
+      "nodes": 64,
+      "predecessor_current_path_qualified": null,
+      "representative_baseline_parity": "not_qualified"
+    },
+    {
+      "attempts": [],
+      "current_complete_path": "not_attempted",
+      "fixture_family": "below_one",
+      "nodes": 256,
+      "predecessor_current_path_qualified": false,
+      "representative_baseline_parity": "not_requested_at_this_size"
+    },
+    {
+      "attempts": [],
+      "current_complete_path": "not_attempted",
+      "fixture_family": "below_one",
+      "nodes": 512,
+      "predecessor_current_path_qualified": false,
+      "representative_baseline_parity": "not_requested_at_this_size"
+    }
+  ],
+  "receipt_semantics": "Compiler admission is explicit; later lazy compilation remains charged to its executing phase. Timings with instrumentation are not uninstrumented throughput.",
+  "representative_mixed_baseline_parity_qualified": false,
+  "schema": "clipp1d.cuda.qp.evidence.v1",
+  "scope": "Exact source-bound synthetic optimization evidence; individual failures remain failures. No cohort accuracy claim.",
+  "size_policy": "No aggregate cap. Individual files above10MB require a separate exact-hash/size review.",
+  "status": "evidence_archived",
+  "task_status_counts": {
+    "failed": 5,
+    "not_attempted": 2,
+    "passed": 7
+  }
+}

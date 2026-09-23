@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased — prepared QP work and heterogeneous CUDA qualification
+
+Prepare fixed flow-polishing geometry once per candidate, share one equality
+proposal and admission implementation, and reuse an already checked proposal
+only inside the exact same ADMM checkpoint. Compile the combined node/edge ADMM
+step and the prepared dual-flow repair step. Preserve the original objective,
+boxes, dense graph, score, rho rule, numerical gates and iteration limits.
+
+Report `qp_admm_iterations` across every attempted start and path candidate,
+including unresolved work, while retaining per-start `inner_iterations`.
+Add a separate benchmark for uninstrumented QP latency, kernel dispatch counts
+and disjoint substage attribution. Extend synthetic complete-path qualification
+to distinct heterogeneous mixed-support and below-one-bound inputs at 64, 256
+and 512 mutations, with source-bound predecessor and baseline comparison gates.
+See [the benchmark contract](docs/QP_BENCHMARKS.md); fixture availability alone
+does not mean all sizes have passed allocated-CUDA qualification.
+
+Matched allocated-L40 QPs reduce median latency by 24.5–30.8%, with identical
+states and objectives in all 48 sample comparisons. The 877-test local suite
+passes. Larger heterogeneous tests expose unresolved QP starts; their failures
+and the corrected profiler's earlier attempts are retained in the
+[QP validation report](VALIDATION_QP.md) and source-bound evidence archive.
+
 ## 0.5.1.dev0 — exact fusions, bounded reuse and complete measurement scopes
 
 Preserve exact-value groups inside overwide tolerance runs instead of splitting

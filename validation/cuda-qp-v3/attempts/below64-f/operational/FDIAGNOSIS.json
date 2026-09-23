@@ -1,0 +1,156 @@
+{
+  "all_starts_qualified_penalties": 24,
+  "baseline_source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+  "classification": "Current source reproduces baseline incomplete multistart path, with identical scientific selections and failed-start identities. Both remain unqualified for complete path publication.",
+  "created_utc": "2026-09-23T01:44:12.805120+00:00",
+  "current_source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+  "evidence_sha256": {
+    "below64-d/imported/results/below64-baseline.artifacts/full-path.json": "c4093bdf246762f7bb4b27970a5a4c593d776294dedfb2ccc1ad2d09c50af672",
+    "below64-d/imported/results/below64-baseline.artifacts/input.tsv": "ae53764990bc252cb7f6a2a14a8eb21a57e3ec46fef28423c08354575ef8a5db",
+    "below64-d/imported/results/below64-baseline.json": "8e7b4fa54f7929d29fa907b7997e6f2eb76664b7f59a2c6ec0c38ac50d64b90b",
+    "below64-f/imported/results/below64-current.artifacts/full-path.json": "111e9fdde0404d4932929861f5ff03f68bdb651db6e98d1372b50f3fa9038dad",
+    "below64-f/imported/results/below64-current.artifacts/input.tsv": "ae53764990bc252cb7f6a2a14a8eb21a57e3ec46fef28423c08354575ef8a5db",
+    "below64-f/imported/results/below64-current.json": "d35b9386f667a0f0e79de45d68fcc182680daed00d94c36116719d57d91da202"
+  },
+  "exact_equality_checks": {
+    "all_26_path_records": {
+      "clusters": true,
+      "inner_iterations": true,
+      "lambda_value": true,
+      "objective_tail": true,
+      "outer_iterations": true,
+      "raw_objective": true,
+      "raw_status": true,
+      "refit_status": true,
+      "score": true,
+      "search_complete": true,
+      "starts_attempted": true,
+      "starts_qualified": true,
+      "starts_unresolved": true,
+      "status": true
+    },
+    "all_starts": {
+      "audit_calls": true,
+      "backtracks": true,
+      "inner_iterations": true,
+      "objective": true,
+      "objective_tail": true,
+      "outer_iterations": true,
+      "qp_calls": true,
+      "qualified": true,
+      "status": true
+    },
+    "selected_fit_and_graph": {
+      "clonal_constraint": true,
+      "cluster_centers": true,
+      "cluster_labels": true,
+      "graph_edges": true,
+      "path_position": true,
+      "pilot_and_graph": true,
+      "raw_ccf": true,
+      "raw_objective": true,
+      "raw_qualified": true,
+      "refitted_ccf": true,
+      "score": true,
+      "search_status": true,
+      "selected_lambda": true
+    }
+  },
+  "failed_starts": [
+    {
+      "baseline": {
+        "allowed_gap": 3.7925548566871944e-09,
+        "audit_calls": 0,
+        "backtracks": 16,
+        "gap_over_gate": 43539908.833891645,
+        "inner_gap": 0.16512749270769345,
+        "inner_gap_scale": 369.2554856687195,
+        "inner_iterations": 46512,
+        "inner_kkt_residual": 5.493864041243276e-08,
+        "objective": 40348.1249053728,
+        "outer_iterations": 1,
+        "qp_calls": 18,
+        "qp_polish_iterations": 44875,
+        "status": "surrogate_unresolved"
+      },
+      "current": {
+        "allowed_gap": 3.792554856687209e-09,
+        "audit_calls": 0,
+        "backtracks": 16,
+        "gap_over_gate": 43539908.834292136,
+        "inner_gap": 0.16512749270921298,
+        "inner_gap_scale": 369.25548566872095,
+        "inner_iterations": 46512,
+        "inner_kkt_residual": 5.491957823637e-08,
+        "objective": 40348.1249053728,
+        "outer_iterations": 1,
+        "qp_calls": 18,
+        "qp_polish_iterations": 44770,
+        "status": "surrogate_unresolved"
+      },
+      "inferred_start": "pooled (from unchanged canonical start ordering)",
+      "lambda_value": 276.7339217595795,
+      "path_index": 1,
+      "start_index": 1
+    },
+    {
+      "baseline": {
+        "allowed_gap": 3.948534114041282e-09,
+        "audit_calls": 0,
+        "backtracks": 15,
+        "gap_over_gate": 20221304.065877363,
+        "inner_gap": 0.07984450893451846,
+        "inner_gap_scale": 384.8534114041283,
+        "inner_iterations": 25232,
+        "inner_kkt_residual": 5.7944745529601774e-08,
+        "objective": 40533.151366630744,
+        "outer_iterations": 1,
+        "qp_calls": 17,
+        "qp_polish_iterations": 24954,
+        "status": "surrogate_unresolved"
+      },
+      "current": {
+        "allowed_gap": 3.948534114041282e-09,
+        "audit_calls": 0,
+        "backtracks": 15,
+        "gap_over_gate": 20221304.065891776,
+        "inner_gap": 0.07984450893457537,
+        "inner_gap_scale": 384.8534114041283,
+        "inner_iterations": 25232,
+        "inner_kkt_residual": 5.795060902039276e-08,
+        "objective": 40533.151366630744,
+        "outer_iterations": 1,
+        "qp_calls": 17,
+        "qp_polish_iterations": 24840,
+        "status": "surrogate_unresolved"
+      },
+      "inferred_start": "pooled (from unchanged canonical start ordering)",
+      "lambda_value": 553.4678435191591,
+      "path_index": 2,
+      "start_index": 2
+    }
+  ],
+  "final_export_and_publication_qualified": false,
+  "input_sha256": "ae53764990bc252cb7f6a2a14a8eb21a57e3ec46fef28423c08354575ef8a5db",
+  "larger_below_one_family": "Blocked at64; no256/512 admission",
+  "limitations": [
+    "Gap/KKT values have tiny floating-point differences; this comparison claims exact selected outputs and work/status identities, not bitwise equality of all diagnostics.",
+    "No failed h/target/x/dual surrogate artifact was exported, so the precise final gap decomposition remains unavailable.",
+    "Cumulative ADMM counts span multiple QPs; the unchanged per-QP limit remains20000.",
+    "The numerical KKT residual passes individually at both failed starts, but complete QP qualification fails its original gap gate.",
+    "Observed fit timings include compilation/journaling and are not controlled throughput evidence."
+  ],
+  "penalties_with_qualified_raw_refit": 26,
+  "planned_penalties": 26,
+  "policy_identical": true,
+  "schema": "clipp1d.cuda.below64.paired-diagnosis.v1",
+  "starts_attempted": 99,
+  "total_admm_iterations": {
+    "baseline": 127440,
+    "current": 127440
+  },
+  "total_polish_iterations": {
+    "baseline": 73680,
+    "current": 71490
+  }
+}

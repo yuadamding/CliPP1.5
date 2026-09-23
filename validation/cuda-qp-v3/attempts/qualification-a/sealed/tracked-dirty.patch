@@ -1,0 +1,388 @@
+diff --git a/src/clipp1d/cuda/kernels.py b/src/clipp1d/cuda/kernels.py
+index b9978ce..9a48bdb 100644
+--- a/src/clipp1d/cuda/kernels.py
++++ b/src/clipp1d/cuda/kernels.py
+@@ -128,6 +128,39 @@ def edge_update(x, v, caps, rho):
+     return z, v
+ 
+ 
++def admm_step(h, weighted_target, lower, upper, caps, z, v, rho):
++    """One pure tensor node/edge update, with admission left to the caller.
++
++    weighted_target is h times the fixed-coordinate-safe target, prepared once
++    for this QP. The operation order matches the separate node/edge kernels.
++    """
++    b = weighted_target + rho * adjoint(z - v)
++    x = boxed_rank_one(h, b, lower, upper, rho)
++    next_z, next_v = edge_update(x, v, caps, rho)
++    return x, next_z, next_v
++
++
++def flow_polish_step(q, same, external, gradient, fixed, fixed_count,
++                     at_lower, lower_count, at_upper, upper_count, sizes, caps):
++    """One affine-flow/cap projection over already prepared exact geometry."""
++    q = torch.where(same, q, external)
++    residual = gradient + adjoint(q)
++    group_total = torch.where(same, residual[None, :], 0.0).sum(1)
++    normal = torch.where(
++        fixed_count > 0,
++        torch.where(fixed, group_total / fixed_count.clamp_min(1), 0.0),
++        torch.where(
++            group_total >= 0,
++            torch.where(at_lower, group_total / lower_count.clamp_min(1), 0.0),
++            torch.where(at_upper, group_total / upper_count.clamp_min(1), 0.0),
++        ),
++    )
++    correction = residual - normal
++    delta = -differences(correction) / sizes[:, None]
++    proposal = q + torch.where(same, delta, 0.0)
++    return torch.maximum(-caps, torch.minimum(caps, proposal))
++
++
+ def gap_kkt(x, q, h, target, lower, upper, caps):
+     """Stable nonnegative-term primal-dual gap, without frozen constants."""
+     a = adjoint(q)
+@@ -321,7 +354,8 @@ class Kernels:
+             probe = torch.compile(compiler_probe, backend="inductor", fullgraph=True)
+             if not bool(probe(torch.zeros((), device=device, dtype=torch.float64)) == 1.0):
+                 raise RuntimeError("CUDA compilation was disabled; compiled-path admission failed")
+-        for name in ("likelihood", "loss_only", "loss_gradient", "boxed_rank_one", "edge_update", "gap_kkt"):
++        for name in ("likelihood", "loss_only", "loss_gradient", "boxed_rank_one", "edge_update",
++                     "admm_step", "flow_polish_step", "gap_kkt"):
+             fn = globals()[name]
+             if self.compiled:
+                 fn = StructuralCompileBank(fn)
+@@ -330,6 +364,7 @@ class Kernels:
+     def compilation_diagnostics(self):
+         return {
+             name: getattr(self, name).diagnostics()
+-            for name in ("likelihood", "loss_only", "loss_gradient", "boxed_rank_one", "edge_update", "gap_kkt")
++            for name in ("likelihood", "loss_only", "loss_gradient", "boxed_rank_one", "edge_update",
++                         "admm_step", "flow_polish_step", "gap_kkt")
+             if isinstance(getattr(self, name), StructuralCompileBank)
+         }
+diff --git a/src/clipp1d/cuda/qp.py b/src/clipp1d/cuda/qp.py
+index 5926d99..ff270df 100644
+--- a/src/clipp1d/cuda/qp.py
++++ b/src/clipp1d/cuda/qp.py
+@@ -2,7 +2,7 @@
+ 
+ from dataclasses import dataclass
+ import torch
+-from .kernels import Kernels, differences, adjoint
++from .kernels import Kernels, differences, adjoint, flow_polish_step as _flow_step
+ from .policy import CudaPolicy
+ from .partition import polish_quadratic
+ 
+@@ -64,85 +64,128 @@ def quadratic_value(x, h, target, caps, reference=None):
+     ).sum()
+ 
+ 
+-def _polish_dual(x, q, h, target, lower, upper, caps):
+-    """Algebraic flow correction inside exact fused groups, independently audited.
++@dataclass(frozen=True)
++class FlowPolishContext:
++    """Owned geometry for one equality proposal, never a cross-QP cache.
+ 
+-    This is a candidate correction, not an alternative optimizer. A cap-active
+-    correction may fail the full certificate and is then simply discarded.
++    Every argument is a freshly derived tensor or an owned caps copy. Original
++    candidate/problem mutations cannot change this context. It is confined to
++    one proposal's repair loop; the original QP supplies every certificate.
++    Tensor arguments are private implementation data and are never mutated.
+     """
++    _arguments: tuple
++
++
++def prepare_flow_polish(x, h, target, lower, upper, caps):
++    """Prepare the fixed geometry once; subsequent steps change only q."""
+     same = x[:, None] == x[None, :]
+-    d = differences(x)
+-    q = torch.where(same, q, caps * d.sign())
++    external = caps * differences(x).sign()
+     free = lower < upper
+     safe_target = torch.where(free, target, x)
+-    residual = torch.where(free, h * (x - safe_target), 0.0) + adjoint(q)
+-    group_total = torch.where(same, residual[None, :], 0.0).sum(1)
++    gradient = torch.where(free, h * (x - safe_target), 0.0)
+     fixed = ~free
+     fixed_count = (same & fixed[None, :]).sum(1)
+     at_lower = free & (x == lower)
+     at_upper = free & (x == upper)
+     lower_count = (same & at_lower[None, :]).sum(1)
+     upper_count = (same & at_upper[None, :]).sum(1)
+-    normal = torch.where(
+-        fixed_count > 0,
+-        torch.where(fixed, group_total / fixed_count.clamp_min(1), 0.0),
+-        torch.where(
+-            group_total >= 0,
+-            torch.where(at_lower, group_total / lower_count.clamp_min(1), 0.0),
+-            torch.where(at_upper, group_total / upper_count.clamp_min(1), 0.0),
+-        ),
+-    )
+-    correction = residual - normal
+     sizes = same.sum(1)
+-    delta = -differences(correction) / sizes[:, None]
+-    proposal = q + torch.where(same, delta, 0.0)
+-    return torch.maximum(-caps, torch.minimum(caps, proposal))
++    return FlowPolishContext((same, external, gradient, fixed, fixed_count,
++                              at_lower, lower_count, at_upper, upper_count,
++                              sizes, caps.detach().clone()))
+ 
+ 
+-def _refine_polish(x, q, h, target, lower, upper, caps, kernels, policy):
+-    """Bounded candidate-only refinement for edge-complementarity-limited ADMM.
++def flow_polish_step(q, context, kernels=None):
++    """Dispatch one pure tensor repair; no admission or geometry rebuilding."""
++    function = _flow_step if kernels is None else getattr(kernels, "flow_polish_step", _flow_step)
++    return function(q, *context._arguments)
+ 
+-    Public membership tolerance is unchanged. The original and two finer numerical
+-    active-set proposals can preserve near-fusions hidden in an overwide run.
+-    A proposal must pass the original objective gate before extra flow work, but
+-    it need not already have a qualified dual. Affine correction plus cap projection is
+-    repeated at most 1024 times per proposal; a fresh full gap/KKT certificate is
+-    the sole admission rule. Infeasible active sets or normal allocations fail.
+-    """
++
++def _polish_dual(x, q, h, target, lower, upper, caps):
++    """Reference-compatible single repair, still requiring a full certificate."""
++    return flow_polish_step(q, prepare_flow_polish(x, h, target, lower, upper, caps))
++
++
++def _objective_context(x, h, target, lower, upper, caps):
+     safe_target = torch.where(lower < upper, target, lower)
+     reference = torch.maximum(lower, torch.minimum(upper, safe_target))
+-    old_value = quadratic_value(x, h, safe_target, caps, reference)
++    return safe_target, reference, quadratic_value(x, h, safe_target, caps, reference)
++
++
++@dataclass(frozen=True)
++class _EqualityProposal:
++    candidate: torch.Tensor
++    geometry: FlowPolishContext
++    dual: torch.Tensor
++    stats: torch.Tensor
++    qualified: bool
++
++
++def _qualify_equality_proposal(candidate, q, h, target, lower, upper, caps, kernels, policy):
++    """Always certify the original full QP, independently of proposal geometry."""
++    stats = kernels.gap_kkt(candidate, q, h, target, lower, upper, caps)
++    gate = (torch.isfinite(stats).all()
++            & (stats[0] <= policy.inner_atol + policy.inner_rtol * stats[1])
++            & (stats[2] <= policy.inner_kkt_tol))
++    return stats, bool(gate)
++
++
++def _prepare_equality_proposal(x, q, h, target, lower, upper, caps, kernels, policy,
++                               tolerance, objective_context):
++    """Prepare, objective-check and independently certify one exact candidate."""
++    candidate = polish_quadratic(x, q, h, target, lower, upper, caps, tolerance)
++    safe_target, reference, old_value = objective_context
++    new_value = quadratic_value(candidate, h, safe_target, caps, reference)
++    roundoff = 32 * torch.finfo(h.dtype).eps * (1 + old_value.abs() + new_value.abs())
++    if not bool(torch.isfinite(new_value) & (new_value <= old_value + roundoff)):
++        return None
++    geometry = prepare_flow_polish(candidate, h, target, lower, upper, caps)
++    candidate_q = flow_polish_step(q, geometry, kernels)
++    stats, qualified = _qualify_equality_proposal(candidate, candidate_q, h, target, lower,
++                                                 upper, caps, kernels, policy)
++    return _EqualityProposal(candidate, geometry, candidate_q, stats, qualified)
++
++
++_NO_PROPOSAL = object()
++
++
++def _refine_polish(x, q, h, target, lower, upper, caps, kernels, policy, *,
++                   _initial_proposal=_NO_PROPOSAL, _objective=None):
++    """Bounded, independently certified refinement; no reporting-policy change.
++
++    The ordinary checkpoint may supply its exact default-tolerance proposal,
++    avoiding repeated grouping, geometry, objective and certificate work at that
++    same checkpoint. No proposal/certificate is retained across ADMM updates or
++    surrogates. Each candidate permits at most 1024 flow steps; a supplied first
++    step was already counted by the caller and consumes one of those steps.
++    """
++    objective = _objective_context(x, h, target, lower, upper, caps) if _objective is None else _objective
+     steps = 0
+     for divisor in (1.0, 16.0, 256.0):
+-        candidate = polish_quadratic(x, q, h, target, lower, upper, caps,
+-                                     policy.fusion_tol / divisor)
+-        new_value = quadratic_value(candidate, h, safe_target, caps, reference)
+-        roundoff = 32 * torch.finfo(h.dtype).eps * (1 + old_value.abs() + new_value.abs())
+-        if not bool(torch.isfinite(new_value) & (new_value <= old_value + roundoff)):
++        reused = divisor == 1.0 and _initial_proposal is not _NO_PROPOSAL
++        proposal = _initial_proposal if reused else _prepare_equality_proposal(
++            x, q, h, target, lower, upper, caps, kernels, policy,
++            policy.fusion_tol / divisor, objective)
++        if proposal is None:
+             continue
+-        candidate_q = _polish_dual(candidate, q, h, target, lower, upper, caps)
+-        steps += 1
+-        stats = kernels.gap_kkt(candidate, candidate_q, h, target, lower, upper, caps)
++        if not reused:
++            steps += 1
++        candidate, candidate_q, stats = proposal.candidate, proposal.dual, proposal.stats
+         if not bool(torch.isfinite(stats).all()):
+             continue
+-        if bool((stats[0] <= policy.inner_atol + policy.inner_rtol * stats[1])
+-                & (stats[2] <= policy.inner_kkt_tol)):
++        if proposal.qualified:
+             return (candidate, candidate_q, stats), steps
+-        # A singleton partition has no internal flow degrees of freedom. More
+-        # projections cannot repair its residual. Likewise stop any later exact
+-        # fixed point whose unchanged certificate still fails.
+-        if not bool(((candidate[:, None] == candidate[None, :]).sum(1) > 1).any()):
++        # No internal flow degrees of freedom means projection cannot help.
++        if not bool((proposal.geometry._arguments[-2] > 1).any()):
+             continue
+         checkpoint_q = candidate_q
+         for repair in range(2, 1025):
+-            candidate_q = _polish_dual(candidate, candidate_q, h, target, lower, upper, caps)
++            candidate_q = flow_polish_step(candidate_q, proposal.geometry, kernels)
+             steps += 1
+             if repair % policy.check_every == 0 or repair == 1024:
+-                stats = kernels.gap_kkt(candidate, candidate_q, h, target, lower, upper, caps)
+-                gate = (torch.isfinite(stats).all()
+-                        & (stats[0] <= policy.inner_atol + policy.inner_rtol * stats[1])
+-                        & (stats[2] <= policy.inner_kkt_tol))
+-                if bool(gate):
++                stats, qualified = _qualify_equality_proposal(
++                    candidate, candidate_q, h, target, lower, upper, caps, kernels, policy)
++                if qualified:
+                     return (candidate, candidate_q, stats), steps
+                 if torch.equal(candidate_q, checkpoint_q):
+                     break
+@@ -236,35 +279,32 @@ def solve_qp(
+                 return QuadraticFit(candidate, candidate_q, *stats, True, 0, polish_iterations)
+             return QuadraticFit(x, q, *stats, True, 0, polish_iterations)
+     stats = h.new_tensor([float("inf"), 0.0, float("inf")])
++    # This fixed QP coefficient never depends on the ADMM state or rho.
++    safe_target = torch.where(lower < upper, target, lower)
++    weighted_target = h * safe_target
++    combined_step = getattr(kernels, "admm_step", None)
+     for iteration in range(1, policy.inner_max_iterations + 1):
+-        # Do not even multiply irrelevant frozen targets by h: those products
+-        # can overflow despite a perfectly finite free-coordinate problem.
+-        safe_target = torch.where(lower < upper, target, lower)
+-        b = h * safe_target + rho * adjoint(z - v)
+-        x = kernels.boxed_rank_one(h, b, lower, upper, rho)
+         previous_z = z
+-        z, v = kernels.edge_update(x, v, caps, rho)
++        if combined_step is not None:
++            x, z, v = combined_step(h, weighted_target, lower, upper, caps, z, v, rho)
++        else:
++            # Preserve the injectable legacy kernel protocol used by independent
++            # references. Production Kernels always has the strict combined step;
++            # compiler errors propagate and never activate this branch.
++            b = weighted_target + rho * adjoint(z - v)
++            x = kernels.boxed_rank_one(h, b, lower, upper, rho)
++            z, v = kernels.edge_update(x, v, caps, rho)
+         if iteration % policy.check_every == 0 or iteration == policy.inner_max_iterations:
+             q = torch.maximum(-caps, torch.minimum(caps, rho * v))
+-            # Projection only corrects edge-dual rounding; the independent gap audits it.
+-            candidate = polish_quadratic(x, q, h, target, lower, upper, caps, policy.fusion_tol)
+-            candidate_q = _polish_dual(candidate, q, h, target, lower, upper, caps)
+-            polish_iterations += 1
+-            stats = kernels.gap_kkt(candidate, candidate_q, h, target, lower, upper, caps)
+-            candidate_gate = (
+-                torch.isfinite(stats).all()
+-                & (stats[0] <= policy.inner_atol + policy.inner_rtol * stats[1])
+-                & (stats[2] <= policy.inner_kkt_tol)
+-            )
+-            # Polishing is only an active-set proposal. Certify both its original
+-            # QP and objective descent, omitting irrelevant frozen constants.
+-            reference = torch.maximum(lower, torch.minimum(upper, safe_target))
+-            old_value = quadratic_value(x, h, safe_target, caps, reference)
+-            new_value = quadratic_value(candidate, h, safe_target, caps, reference)
+-            roundoff = 32 * torch.finfo(h.dtype).eps * (1 + old_value.abs() + new_value.abs())
+-            candidate_gate &= torch.isfinite(new_value) & (new_value <= old_value + roundoff)
+-            if bool(candidate_gate):
+-                return QuadraticFit(candidate, candidate_q, *stats, True, iteration, polish_iterations)
++            objective = _objective_context(x, h, target, lower, upper, caps)
++            proposal = _prepare_equality_proposal(
++                x, q, h, target, lower, upper, caps, kernels, policy,
++                policy.fusion_tol, objective)
++            if proposal is not None:
++                polish_iterations += 1
++                if proposal.qualified:
++                    return QuadraticFit(proposal.candidate, proposal.dual, *proposal.stats,
++                                        True, iteration, polish_iterations)
+             stats = kernels.gap_kkt(x, q, h, target, lower, upper, caps)
+             gate = (
+                 torch.isfinite(stats).all()
+@@ -272,7 +312,9 @@ def solve_qp(
+                 & (stats[2] <= policy.inner_kkt_tol)
+             )
+             if bool(gate):
+-                refined, steps = _refine_polish(x, q, h, target, lower, upper, caps, kernels, policy)
++                refined, steps = _refine_polish(
++                    x, q, h, target, lower, upper, caps, kernels, policy,
++                    _initial_proposal=proposal, _objective=objective)
+                 polish_iterations += steps
+                 if refined is not None:
+                     candidate, candidate_q, stats = refined
+@@ -280,7 +322,9 @@ def solve_qp(
+                 return QuadraticFit(x, q, *stats, True, iteration, polish_iterations)
+             if ((iteration % (64 * policy.check_every) == 0 or iteration == policy.inner_max_iterations)
+                     and bool(torch.isfinite(stats).all())):
+-                refined, steps = _refine_polish(x, q, h, target, lower, upper, caps, kernels, policy)
++                refined, steps = _refine_polish(
++                    x, q, h, target, lower, upper, caps, kernels, policy,
++                    _initial_proposal=proposal, _objective=objective)
+                 polish_iterations += steps
+                 if refined is not None:
+                     candidate, candidate_q, stats = refined
+diff --git a/src/clipp1d/cuda/selection.py b/src/clipp1d/cuda/selection.py
+index 4544d80..43eeeab 100644
+--- a/src/clipp1d/cuda/selection.py
++++ b/src/clipp1d/cuda/selection.py
+@@ -115,7 +115,7 @@ def _fit_tensor_model(model, policy, *, lambda_values):
+             else:
+                 record["refit_status"] = "unresolved"
+             record.update(error=str(error), failure_diagnostics=error.diagnostics, search_complete=False)
+-            for name in ("qp_seconds", "audit_seconds", "qp_calls", "audit_calls", "qp_dual_warm_starts",
++            for name in ("qp_seconds", "audit_seconds", "qp_calls", "qp_admm_iterations", "audit_calls", "qp_dual_warm_starts",
+                          "qp_dual_warm_resets", "qp_polish_iterations"):
+                 if name in error.diagnostics:
+                     record[name] = error.diagnostics[name]
+@@ -149,6 +149,8 @@ def _fit_tensor_model(model, policy, *, lambda_values):
+                           audit_seconds=sum(r.get("audit_seconds", 0.) for r in records),
+                           inner_timing_scope="QP and audit times are subsets of path_seconds",
+                           qp_calls=sum(r.get("qp_calls", 0) for r in records),
++                          qp_admm_iterations=sum(r.get("qp_admm_iterations", 0) for r in records),
++                          qp_work_scope="all attempted QPs across all starts and planned penalties, including unresolved attempts",
+                           audit_calls=sum(r.get("audit_calls", 0) for r in records),
+                           qp_dual_warm_starts=sum(r.get("qp_dual_warm_starts", 0) for r in records),
+                           qp_dual_warm_resets=sum(r.get("qp_dual_warm_resets", 0) for r in records),
+diff --git a/src/clipp1d/cuda/solver.py b/src/clipp1d/cuda/solver.py
+index 82e41fe..1230098 100644
+--- a/src/clipp1d/cuda/solver.py
++++ b/src/clipp1d/cuda/solver.py
+@@ -100,6 +100,7 @@ def _solve_start(model, graph, lam, start, policy):
+                            box_feasible=bool(((x >= model.lower) & (x <= model.upper)).all()),
+                            clonal_constraint=False, global_optimality_proven=False,
+                            outer_iterations=iterations, inner_iterations=inner,
++                           qp_admm_iterations=inner,
+                            surrogate_qp_calls=surrogate_calls, backtracks=backtracks,
+                            qp_calls=surrogate_calls, qp_dual_warm_starts=dual_warm_starts,
+                            qp_dual_warm_resets=dual_warm_resets,
+@@ -263,7 +264,7 @@ def _fit_lambda(model, graph, pilots, lam, previous, policy):
+                            audit_signed_direction_count=audit.signed_direction_count,
+                            inner_gap_qualified=True, inner_gap=0., inner_gap_scale=0.,
+                            inner_kkt_qualified=True, inner_kkt_residual=0.,
+-                           inner_iterations=0, outer_iterations=0, surrogate_qp_calls=0,
++                           inner_iterations=0, qp_admm_iterations=0, outer_iterations=0, surrogate_qp_calls=0,
+                            qp_calls=0, qp_dual_warm_starts=0, qp_seconds=0.0,
+                            qp_dual_warm_resets=0,
+                            qp_polish_iterations=0, inner_polish_iterations=0,
+@@ -299,7 +300,7 @@ def _fit_lambda(model, graph, pilots, lam, previous, policy):
+                     starts_unresolved=sum(not d["qualified"] for d in diagnostics),
+                     search_policy="unconstrained_complete_graph_multistart_v1", clonal_constraint=False)
+     # Selected-start diagnostics remain in starts; phase totals cover all attempted starts.
+-    for name in ("qp_calls", "qp_dual_warm_starts", "qp_dual_warm_resets", "qp_polish_iterations", "qp_seconds", "audit_calls", "audit_seconds"):
++    for name in ("qp_calls", "qp_admm_iterations", "qp_dual_warm_starts", "qp_dual_warm_resets", "qp_polish_iterations", "qp_seconds", "audit_calls", "audit_seconds"):
+         coverage[name] = sum(row[name] for row in diagnostics)
+     if best is None:
+         raise QualificationError("No qualified unconstrained complete-graph start", **coverage)

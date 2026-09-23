@@ -1,0 +1,16 @@
+{
+  "schema": "clipp1d.qp.study.execution.v1",
+  "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+  "current_source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+  "scope": "synthetic QP optimization and qualification, no cohort reruns",
+  "max_nonterminal_jobs": 2,
+  "shape": "one independent qualification fixture per scalar exclusive L40 job; paired source phases for a fixture execute serially within its allocation",
+  "stages": [
+    "complete existing production qualification",
+    "paired uninstrumented QP throughput and separate attribution",
+    "mixed_support and below_one at64, baseline reference plus current paired",
+    "current complete mixed_support and below_one at256, gated on same-family current64 success",
+    "current complete mixed_support and below_one at512, gated on same-family current256 success"
+  ],
+  "scientific_settings": "unchanged default policy, dense all-pairs storage, original likelihood/boxes/weights/gates/budgets and unconstrained fit"
+}

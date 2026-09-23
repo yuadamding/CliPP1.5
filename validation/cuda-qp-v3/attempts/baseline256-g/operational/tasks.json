@@ -1,0 +1,24 @@
+[
+  {
+    "name": "mixed256-baseline",
+    "source_role": "baseline",
+    "script": "qualify_mixed_cuda.py",
+    "args": [
+      "--fixture",
+      "mixed_support",
+      "--nodes",
+      "256",
+      "--mode",
+      "reference",
+      "--expected-source-sha256",
+      "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+      "--timeout-seconds",
+      "3300",
+      "--predecessor",
+      "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923c/results/mixed64-baseline.json",
+      "--predecessor-sha256",
+      "71c16d6cad88767c4faa6d302a37cff767f446f4e3de1a7637d185783902977b"
+    ],
+    "timeout_seconds": 3420
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "name": "attribution-baseline",
+    "source_role": "baseline",
+    "script": "attribute_qp_cuda.py",
+    "args": [
+      "--label",
+      "baseline",
+      "--repeats",
+      "5",
+      "--warmups",
+      "1",
+      "--timeout-seconds",
+      "900"
+    ],
+    "timeout_seconds": 1020
+  },
+  {
+    "name": "attribution-current",
+    "source_role": "current",
+    "script": "attribute_qp_cuda.py",
+    "args": [
+      "--label",
+      "current",
+      "--repeats",
+      "5",
+      "--warmups",
+      "1",
+      "--timeout-seconds",
+      "900"
+    ],
+    "timeout_seconds": 1020
+  }
+]

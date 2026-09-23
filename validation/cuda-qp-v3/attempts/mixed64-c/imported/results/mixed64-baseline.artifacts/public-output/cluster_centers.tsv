@@ -1,0 +1,17 @@
+tumor_id	sample_id	cluster_label	cluster_size	refitted_ccf	designated_clonal
+input	sample1	0	1	1.0	1
+input	sample1	1	1	0.8544544919773835	0
+input	sample1	2	1	0.6141368487757219	0
+input	sample1	3	1	0.5591276658435084	0
+input	sample1	4	1	0.4627861535946132	0
+input	sample1	5	1	0.45073119702578457	0
+input	sample1	6	1	0.43547246960106667	0
+input	sample1	7	1	0.41291217921073586	0
+input	sample1	8	8	0.3814469734175941	0
+input	sample1	9	2	0.3205093310121201	0
+input	sample1	10	4	0.3043463590154853	0
+input	sample1	11	8	0.2723259951612763	0
+input	sample1	12	1	0.25088126301959246	0
+input	sample1	13	5	0.2221968332520002	0
+input	sample1	14	26	0.19164532955998537	0
+input	sample1	15	2	1e-06	0

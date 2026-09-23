@@ -30,7 +30,7 @@ before uploading the numerical model.
 PyTorch CUDA tensors hold the float64 likelihood, posteriors, one-sided
 derivatives, curvature, pilots, grouped scalar refits, graph weights, ADMM states,
 raw certificates, path scores and final multiplicity computations. Pure tensor
-hot kernels use `torch.compile(fullgraph=True, dynamic=True)`. Each of the six
+hot kernels use `torch.compile(fullgraph=True, dynamic=True)`. Each of the eight
 compiled kernels has its own per-fit LRU bank of up to 32 structural families.
 These separate singleton dimensions, dimension-equality patterns, layouts and
 aliases using independent Python code objects; numeric extents remain dynamic
@@ -56,7 +56,10 @@ The likelihood kernels share log-kernel arithmetic but expose loss-only,
 loss–gradient and full-term interfaces. Scalar search and objective comparisons
 request only the outputs they need. Full terms remain available for curvature,
 one-sided audits and final posteriors; the other compiled kernels implement the
-bounded node update, edge update and QP certificates.
+bounded node update, edge update, combined ADMM step, prepared flow-repair step
+and QP certificates. Compilation covers these functions, while data-dependent
+admission remains in Python. `fullgraph=True` applies to each compiled function,
+not the entire fit; see the [PyTorch compilation contract](https://docs.pytorch.org/docs/stable/generated/torch.compile).
 
 ## Fixed graph and storage
 
@@ -127,6 +130,22 @@ stop early. These smaller tolerances are
 numerical proposal settings only; exported memberships still use `fusion_tol`.
 An unsuccessful repair remains unqualified, including when bound-normal
 allocation prevents its projections from converging.
+
+Each equality proposal now owns its fixed group geometry, bound-active masks,
+quadratic gradient, nonfused-edge values and a copy of the caps. Repeated flow
+steps update only the dual against those prepared values. The context exists
+only inside that proposal; another candidate or surrogate prepares new geometry.
+The original QP arrays independently supply every certificate. Within one exact
+checkpoint, refinement can reuse the first default-tolerance proposal and its
+initial certificate rather than preparing and qualifying them twice. The reused
+first projection consumes one of the same 1,024 allowed steps.
+
+One pure-tensor ADMM step combines the node right-hand side, bounded rank-one
+solve and edge update. It reuses the fixed-coordinate-safe weighted target for
+that QP. A second compiled step applies prepared flow correction and cap
+projection. Qualification checkpoints, residual balancing, numerical rho and
+the production iteration limits are unchanged; no fixed iteration blocks or
+edge-storage migration are introduced.
 
 A qualified QP dual can initialize the next surrogate or backtrack within the
 same start and lambda. This state is bound to the frozen graph and literal
@@ -280,7 +299,11 @@ synchronize CUDA so they measure completed work, not just queued operations.
 
 `provenance.numerical_stages` also carries all-start `qp_seconds` and
 `audit_seconds`, their call counts, `qp_dual_warm_starts`, `qp_dual_warm_resets` and
-`qp_polish_iterations`. The two time fields are subsets of
+`qp_polish_iterations`. `qp_admm_iterations` explicitly totals all attempted QPs
+across all starts and penalties, including unresolved attempts; each start also
+retains its original `inner_iterations`. The selected raw diagnostic's legacy
+`inner_iterations` remains selected-start work, not the all-start total.
+The two time fields are subsets of
 `path_seconds`, not additional nonoverlapping phases. `numerical_wall_seconds`
 covers the pilot/graph/path/refit stages and their boundary reconciliation; it
 excludes final publication work. Detailed directional-audit diagnostics are

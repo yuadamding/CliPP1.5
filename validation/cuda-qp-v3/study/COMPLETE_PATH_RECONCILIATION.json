@@ -1,0 +1,69 @@
+{
+  "status": "passed",
+  "comparisons": [
+    {
+      "nodes": 16,
+      "all_start_admm_iterations": 6048,
+      "baseline_admm_iterations": 6048,
+      "new_polish_steps": 353,
+      "baseline_polish_steps": 381,
+      "literal_adaptive_graph_and_path_equal": true,
+      "labels_equal": true,
+      "max_absolute_differences": {
+        "raw_ccf": 0.0,
+        "refitted_ccf": 0.0,
+        "cluster_centers": 0.0,
+        "raw_objective": 0.0,
+        "score": 0.0,
+        "selected_lambda": 0.0
+      },
+      "peak_allocated_bytes": 144896,
+      "peak_reserved_bytes": 8388608,
+      "current_total_seconds": 4.627497449982911,
+      "baseline_artifact_sha256": "1a5201f6d5fc8eac6536074c33158c1ed13197c9594c388bd379fc9ccda06015"
+    },
+    {
+      "nodes": 64,
+      "all_start_admm_iterations": 20128,
+      "baseline_admm_iterations": 20128,
+      "new_polish_steps": 4354,
+      "baseline_polish_steps": 4835,
+      "literal_adaptive_graph_and_path_equal": true,
+      "labels_equal": true,
+      "max_absolute_differences": {
+        "raw_ccf": 0.0,
+        "refitted_ccf": 0.0,
+        "cluster_centers": 0.0,
+        "raw_objective": 0.0,
+        "score": 0.0,
+        "selected_lambda": 0.0
+      },
+      "peak_allocated_bytes": 845312,
+      "peak_reserved_bytes": 8388608,
+      "current_total_seconds": 10.182656442048028,
+      "baseline_artifact_sha256": "a09977b9b9b60a7fc84c197b69c9442de266fce2ff6c3e8eaac06031021381fd"
+    },
+    {
+      "nodes": 256,
+      "all_start_admm_iterations": 25904,
+      "baseline_admm_iterations": 25904,
+      "new_polish_steps": 3860,
+      "baseline_polish_steps": 4260,
+      "literal_adaptive_graph_and_path_equal": true,
+      "labels_equal": true,
+      "max_absolute_differences": {
+        "raw_ccf": 0.0,
+        "refitted_ccf": 0.0,
+        "cluster_centers": 0.0,
+        "raw_objective": 0.0,
+        "score": 0.0,
+        "selected_lambda": 0.0
+      },
+      "peak_allocated_bytes": 11945984,
+      "peak_reserved_bytes": 12582912,
+      "current_total_seconds": 76.72064912109636,
+      "baseline_artifact_sha256": "f7aa4d3baa995447022249658a0229545f58cf87d9d9c56b6e6156e99c623ac3"
+    }
+  ],
+  "scope": "Source-bound scientific comparison to preserved prior L40 results and all-start counter reconciliation; different allocations so timing is not matched throughput evidence"
+}

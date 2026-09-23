@@ -1,0 +1,129 @@
+{
+  "baseline_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+  "compiler": {
+    "path": "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/x86_64-conda-linux-gnu-gcc",
+    "resolved": "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/x86_64-conda-linux-gnu-gcc",
+    "sha256": "b84b3a39da544e68b2eac6d285433431d58fa09d3aa2b5f925ed387127be5512",
+    "version": "x86_64-conda-linux-gnu-gcc (conda-forge gcc 15.1.0-5) 15.1.0"
+  },
+  "created_utc": "2026-09-23T01:04:26.969172+00:00",
+  "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+  "job_name": "clipp1d_qp_20260923a",
+  "max_submitted": 1,
+  "python": "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13",
+  "remote_root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923a",
+  "resource_contract": {
+    "cpus": 2,
+    "gpu_count": 1,
+    "gpu_request": "num=1:mode=exclusive_process:gmodel=NVIDIAL40",
+    "memory_gb": 8,
+    "memory_unit": "GB",
+    "queue": "egpu",
+    "wall_minutes": 60
+  },
+  "run_id": "clipp2_clipp1d_qp_20260923a",
+  "schema": "clipp1d.qp.optimization.qualification.v1",
+  "scope": "isolated paired synthetic CUDA optimization qualification; no cohort launch",
+  "source_commit": "daaf50ad5a2ae7301e9b54b9c31e87d87b24cfa6",
+  "source_identities": {
+    "baseline": {
+      "source_files": {
+        "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+        "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+        "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+        "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+        "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+        "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+        "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+        "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+        "cuda/kernels.py": "ca28d50155001f0722b04728b633e13ac4b12e9f663bdfd94eb0c5ac77a4d562",
+        "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+        "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+        "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+        "cuda/qp.py": "f600359924bc8670f1bb9dc577758b9590ca13e45973de82fb6fac219a887623",
+        "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+        "cuda/selection.py": "137c5c12557a69e94096fdbde7ce319c5a5a296baf32dcdee1fbac9e68e2220c",
+        "cuda/solver.py": "3a3e133696669ffb5e7d21d4346841ccb140883f46db360865cc571c1c9ddbc3",
+        "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+        "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+        "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+        "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+        "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+        "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+        "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+        "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+        "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+        "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+        "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+        "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+        "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+        "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+        "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+        "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+      },
+      "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26"
+    },
+    "current": {
+      "source_files": {
+        "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+        "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+        "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+        "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+        "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+        "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+        "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+        "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+        "cuda/kernels.py": "138bcf327b30f5bca5fd7890f741f76cb1981e0237f67f5d902acdec84e4f91e",
+        "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+        "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+        "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+        "cuda/qp.py": "925e1e5ee67f7630f0d229a560f2af8958fffd1b01ac7609f868a85aa01a74b0",
+        "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+        "cuda/selection.py": "eb24065f286841fd83701816996036fcd7f9fc7624d0975cc1af67baf38ff099",
+        "cuda/solver.py": "80a0b34cd856698efd7034a523e6d850c21ba21e3805f38928897db1f2d6091b",
+        "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+        "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+        "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+        "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+        "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+        "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+        "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+        "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+        "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+        "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+        "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+        "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+        "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+        "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+        "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+        "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+      },
+      "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+    }
+  },
+  "source_is_dirty_overlay": true,
+  "source_sha256": {
+    "baseline": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+    "current": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88"
+  },
+  "tasks": [
+    {
+      "args": [
+        "--path-grid",
+        "default",
+        "--resource-n",
+        "256",
+        "--resource-iterations",
+        "20000",
+        "--timeout-seconds",
+        "2700"
+      ],
+      "name": "qualification-current",
+      "script": "qualify_cuda.py",
+      "source_role": "current",
+      "timeout_seconds": 2820
+    }
+  ]
+}

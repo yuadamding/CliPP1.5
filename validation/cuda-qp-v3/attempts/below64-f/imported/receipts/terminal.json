@@ -1,0 +1,19 @@
+{
+  "elapsed_seconds": 81.43801188468933,
+  "error": "{'name': 'below64-current', 'source_role': 'current', 'returncode': 1, 'receipt_sha256': 'd35b9386f667a0f0e79de45d68fcc182680daed00d94c36116719d57d91da202', 'status': 'failed'}",
+  "error_type": "AssertionError",
+  "job_id": "77334588",
+  "passed": false,
+  "plan_sha256": "e067e6895d5e8644f862723490e4b6a49dd407e5e8b0dd16cecee6da3ad3f7e6",
+  "scope": "source-bound synthetic CUDA qualification, not cohort accuracy",
+  "tasks": [
+    {
+      "name": "below64-current",
+      "receipt_sha256": "d35b9386f667a0f0e79de45d68fcc182680daed00d94c36116719d57d91da202",
+      "returncode": 1,
+      "source_role": "current",
+      "status": "failed"
+    }
+  ],
+  "traceback": "Traceback (most recent call last):\n  File \"/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_qp_20260923f/worker.py\", line 112, in main\n    assert completed.returncode == 0 and entry.get(\"status\") == \"passed\", entry\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'name': 'below64-current', 'source_role': 'current', 'returncode': 1, 'receipt_sha256': 'd35b9386f667a0f0e79de45d68fcc182680daed00d94c36116719d57d91da202', 'status': 'failed'}\n"
+}
