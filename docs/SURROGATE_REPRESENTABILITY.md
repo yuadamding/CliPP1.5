@@ -1,6 +1,6 @@
 # Binary64 representability and separately reported QP gates
 
-The development baseline is `a0e14067e2e3bdd48e4769ebfd54b9221dfbb7d8`.
+The reviewed development baseline is `75c102f9dd1dafbe54010f1b96c1dfd551220341`.
 Its fixed below256 quadratic surrogate remains unresolved. None of the work in
 this document changes that saved problem, raises a gate, or claims complete
 below256/below512 qualification without fresh allocated-CUDA evidence.
@@ -116,7 +116,10 @@ Research starts additionally retain bounded observations: the first 128 and last
 scalar/vector inflation, curvature range and each original acceptance slack.
 Every unresolved QP retains exact h/target/boxes/caps/initialization/returned
 states and its original certificate in hash-bound artifacts. The production
-default supplies no observer. Instrumented times include synchronization,
+default supplies no observer. Trace IDs are reserved on entry, independently
+of returned calls. Attempted, returned, qualified and raised counts remain
+separate even when a caller catches a start exception and continues.
+Instrumented times include synchronization,
 copies and artifact writes and do not establish uninstrumented throughput.
 
 Qualify below64, then below256, then below512. Each size above 64 requires a
@@ -124,24 +127,30 @@ passed same-source, same-helper, same-family candidate receipt at the immediatel
 smaller size. An incomplete below256 candidate prevents below512 admission.
 Mixed-support fixtures use the same 64/256/512 predecessor rule.
 
-After coverage qualification, three repeated paired trials distinguish complete
-inference time from incomplete recovery time. Order alternates between strategies.
-Repeat zero includes cold shape specialization; subsequent repeats reuse the
-process/compiler cache. Report each fit time, QP work, completeness, selected raw
-and refit differences and score difference. Do not turn incomplete-search runtime
-or one observed pair into a general speedup claim.
+After coverage qualification, `benchmarks/time_surrogate_cuda.py` runs a separate
+study without the observer or candidate tracer. One cold pair is retained
+separately from three warm pairs with alternating order. Each fresh fit reuses
+process/compiler caches, not another fit's solution. Synchronized inference
+timing includes normal audits/refits, while input/upload, additional graph checks,
+comparisons, export/publication and file writes remain outside it. Report each
+fit time, QP work, completeness, selected raw and refit differences and scores.
+Compute speed ratios only for complete, published warm pairs.
 
 No CUDA results for this strategy are claimed by the local tests. The running
 four-cohort attempt retains its frozen `a0e1406` source and production
 `scalar_backtracking_v1` policy; it does not enable or qualify this experiment.
 
-The September 23 review fixes passed 1,111 local tests (including reexecution
-of the rational proof), lint, and four separate operational sequencing tests.
-The review ZIP's original, Git-blob-verified reproductions also reproduced all
-three reporting/deadline defects before their corrected regression tests passed.
-A separate source-frozen LSF study was initiated with scalar job **77341022**.
-Its evidence and exact serial owner are indexed in
-`results/cuda-surrogate-review-20260923-v1/README.md`. Allocation, complete-path
-qualification and throughput remain separate claims: consult that study's
-receipts, not a submission or these CPU checks, for CUDA results. Larger sizes
-require a passed same-family predecessor; no production promotion is automatic.
+The completed L40 experiment qualified all six coordinate-backtracking stages:
+below-one and mixed-support at 64, 256 and 512 mutations, each with 99 starts
+across 26 penalties. Scalar below256 remained incomplete. All six selected
+labels, raw/refitted CCFs, scores and lambdas matched; the original literal QP
+still failed both eager and compiled KKT checks. The
+[retrievable evidence bundle](../validation/cuda-surrogate-review-v4/README.md)
+includes the original source, full artifacts and exact job receipts, plus actual
+cohort staging adoption evidence. No production promotion is automatic.
+
+The trace-attempt and separate timing-driver updates passed 1,126 local tests,
+including the rational proof, plus lint. The supplied review ZIP's Git-verified
+checks reproduced the conditional collision before its regression was fixed.
+The uninstrumented timing study has its own frozen source and receipts; the
+instrumented qualification results establish coverage, not throughput.

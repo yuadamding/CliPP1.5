@@ -35,5 +35,13 @@ preserved filename, explicit metadata, byte identity, retained population and
 fail-closed staging checks. Full staged-input preflight covered all 5,456 inputs;
 these CPU I/O checks are separate from the allocated CUDA qualification.
 
-Current receipts and controller identity are indexed by
-`results/CURRENT_LSF_RUN.json`. Historical receipts must not be overwritten.
+The [retrievable staging evidence](../validation/cuda-surrogate-review-v4/README.md#actual-cohort-worker-adoption)
+contains the actual frozen worker/helper, full case manifest and remote readback
+of canary job 77339914. Its original basename, 200 retained mutation IDs and
+published tumor/sample IDs match; fitting, internal refitting and final validation
+use the same staged input. Its plan retains the original `a0e1406` source and
+112 imported fits. This canary does not establish completion of the full cohort.
+
+Live operational receipts and controller identity remain indexed locally by
+`results/CURRENT_LSF_RUN.json` (intentionally excluded from Git). Use the tracked
+evidence link above for review; historical receipts must not be overwritten.

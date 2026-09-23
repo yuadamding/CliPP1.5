@@ -89,6 +89,13 @@ See [the CUDA framework](docs/CUDA_FRAMEWORK.md) for the model, certification an
 output semantics. The [bound-recovery study](VALIDATION_BOUND_RECOVERY.md) records
 exact failed-surrogate diagnoses and the current qualification status; its
 [diagnostic contract](docs/BOUND_RECOVERY.md) explains capture and replay.
+The [coordinate-backtracking evidence](validation/cuda-surrogate-review-v4/README.md)
+qualifies all six declared synthetic CUDA stages and verifies actual cohort
+staging adoption. It retains the negative literal-QP result and keeps scalar
+backtracking as the production default. Diagnostic qualification timings do not
+establish throughput; the separate timing driver disables tracing.
+Its [first completed timing stage](validation/cuda-surrogate-timing-v1/README.md)
+retains cold and warm pairs separately and excludes incomplete work from ratios.
 The historical [QP optimization report](VALIDATION_QP.md) records `430db26`'s
 matched timing, numerical parity and failed heterogeneous stress cases;
 its [evidence archive](validation/cuda-qp-v3/README.md) retains every attempt.

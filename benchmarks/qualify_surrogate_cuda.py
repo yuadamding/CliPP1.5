@@ -69,6 +69,19 @@ def load_predecessor(args,source):
     return dict(path=str(path),sha256=args.predecessor_sha256,nodes=prior['nodes'])
 
 
+class StartLog(list):
+    """Returned, policy-checked calls plus independently reserved attempt identities."""
+    def __init__(self):
+        super().__init__()
+        self.attempts=[]
+
+    def counts(self):
+        return dict(starts_attempted=len(self.attempts),
+                    starts_returned=sum(row['returned'] for row in self.attempts),
+                    starts_qualified=sum(row['qualified'] for row in self.attempts),
+                    starts_raised=sum('error_type' in row for row in self.attempts))
+
+
 @contextmanager
 def strategy(name, journal=None):
     """The sole numerical intervention is the declared solve_start keyword."""
@@ -78,18 +91,27 @@ def strategy(name, journal=None):
     old_source=mixed.source_provenance
     old_predecessor=mixed.check_predecessor
     old_helpers=mixed.helper_hashes
-    calls=[]
+    calls=StartLog()
     def execute(model,graph,lam,start,policy):
-        trace=None if journal is None else tracing.SurrogateTrace(journal,len(calls),lam,policy)
+        index=len(calls.attempts)
+        attempt=dict(index=index,returned=False,qualified=False)
+        calls.attempts.append(attempt)
+        trace=None
         try:
+            trace=None if journal is None else tracing.SurrogateTrace(journal,index,lam,policy)
             kwargs={} if trace is None else dict(observer=trace)
             fit=original(model,graph,lam,start,policy,surrogate_policy=name,**kwargs)
+            attempt['returned']=True
+            mixed.require(fit.diagnostics['outer_surrogate_policy']==name,'Strategy dispatch changed')
+            attempt.update(qualified=fit.qualified,status=fit.diagnostics['status'])
+            calls.append(dict(qualified=fit.qualified,status=fit.diagnostics['status']))
+            return fit
+        except BaseException as error:
+            attempt.update(error_type=type(error).__name__,error=str(error))
+            raise
         finally:
             if trace is not None:
                 trace.finish()
-        mixed.require(fit.diagnostics['outer_surrogate_policy']==name,'Strategy dispatch changed')
-        calls.append(dict(qualified=fit.qualified,status=fit.diagnostics['status']))
-        return fit
     def source():
         return dict(source_provenance(),outer_surrogate_policy=name,
                     research_execution=True,production_default_outer_surrogate_policy=CONTROL,
@@ -147,11 +169,12 @@ def trial(args,out,name,repeat):
         events_file=journal.path.name,surrogate_policy=name,repeat=repeat,
         production_default_changed=False,artifacts={})
     began=perf_counter()
+    calls=StartLog()
     try:
         with strategy(name,journal) as calls:
             mixed.execute(args,record,journal)
         mixed.require(calls and all(c['qualified'] for c in calls),'Planned starts incompletely qualified')
-        record.update(status='passed',starts_attempted=len(calls))
+        record.update(status='passed')
     except BaseException as error:
         record.update(status='failed',error_type=type(error).__name__,error=str(error),
                       traceback=traceback.format_exc())
@@ -159,7 +182,7 @@ def trial(args,out,name,repeat):
             raise
     finally:
         record.update(elapsed_seconds=perf_counter()-began,events_sha256=common.sha(journal.path),
-                      artifacts=journal.artifacts)
+                      artifacts=journal.artifacts,start_attempts=calls.attempts,**calls.counts())
         common.write_json(out,record)
     return record
 

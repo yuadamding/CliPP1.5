@@ -1,0 +1,14 @@
+{
+  "schema": "clipp1d.surrogate.review.study.v1",
+  "base_commit": "a0e14067e2e3bdd48e4769ebfd54b9221dfbb7d8",
+  "max_nonterminal_jobs": 1,
+  "scope": "Source-bound reviewed coordinate-backtracking experiment only; existing cohort controller and scalar production strategy unchanged",
+  "phases": [
+    "below_one64 with permanent literal replay",
+    "below_one256 if same-source below_one64 passes",
+    "below_one512 only if below_one256 passes",
+    "mixed_support64/256/512 with same-family predecessor gates",
+    "repeated timing only after coverage qualifies"
+  ],
+  "review_zip_sha256": "f8ac311c0f2ecebcba5a9cf0cbc0f30ab87926e940998702213dca1a83baf7cb"
+}

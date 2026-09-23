@@ -1,0 +1,61 @@
+{
+  "phase": "complete",
+  "completed": [
+    {
+      "attempt": "below64-a",
+      "fixture": "below_one",
+      "nodes": 64,
+      "passed": true,
+      "job_id": "77341022",
+      "receipt_sha256": "69f2531efa8fed1c75992139ec69578244fd5696b0eb2d8938bb37ebda51a2ff",
+      "error": null
+    },
+    {
+      "attempt": "below256-b",
+      "fixture": "below_one",
+      "nodes": 256,
+      "passed": true,
+      "job_id": "77341055",
+      "receipt_sha256": "7087dfeb0c14a8e6781a130b2168ec75bcfc5dbc5fe31fbf543271731a4c4eda",
+      "error": null
+    },
+    {
+      "attempt": "below512-c",
+      "fixture": "below_one",
+      "nodes": 512,
+      "passed": true,
+      "job_id": "77341109",
+      "receipt_sha256": "e9994d644e4435ca5aeb3cdace3a347b9f74885aebadce812bef607c0036345e",
+      "error": null
+    },
+    {
+      "attempt": "mixed64-d",
+      "fixture": "mixed_support",
+      "nodes": 64,
+      "passed": true,
+      "job_id": "77341170",
+      "receipt_sha256": "453105ca4e070df8efa11595b578cdd6e1c22501f8ed41af06ce5483b7bb7153",
+      "error": null
+    },
+    {
+      "attempt": "mixed256-e",
+      "fixture": "mixed_support",
+      "nodes": 256,
+      "passed": true,
+      "job_id": "77341215",
+      "receipt_sha256": "7d341c6b3bbe57999e04e244021f906fc68d358f5a0db83322f2438e4933ee15",
+      "error": null
+    },
+    {
+      "attempt": "mixed512-f",
+      "fixture": "mixed_support",
+      "nodes": 512,
+      "passed": true,
+      "job_id": "77341258",
+      "receipt_sha256": "9c8ce3c3e0e2ab93412cce7b2ea63d561379edc461ac15e78cd077911077daf7",
+      "error": null
+    }
+  ],
+  "utc": "2026-09-23T17:46:14.679565+00:00",
+  "pid": 905005
+}

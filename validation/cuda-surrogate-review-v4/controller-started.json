@@ -1,0 +1,15 @@
+{
+  "helpers": {
+    "collect_terminal.py": "77a2504ed1e5fee1ee3cd67deb72b9acd102d2664497800b0135b07047072dac",
+    "continue_study.py": "96030e26eac9dac14fc5f305d748ac668d6fed7eba8c2ec6cde472fd0ebeb910",
+    "launch.py": "6335e5b0d365a9afc9e337343153b3a548a3a1869818bdeea105fefd5ce313a8",
+    "launch_prepared.py": "5c19320f002b3b410b57c3d41dcb5eb3e32dacecfb61bf3163ca77874d6498eb",
+    "preflight.py": "06385d09670a69187b8730ce301ec0cf780b33b9c6458d505f9bd5e30689b387",
+    "prepare.py": "5714c7cee675f1372a70a577db3f59bcb40a5d90487e6eda75e09f77db6edaaf",
+    "worker.py": "09c910404c1b56de24984807c1e9acf371913d8aa8406d25ee975a1093eba534"
+  },
+  "max_nonterminal_research_jobs": 1,
+  "pid": 905005,
+  "source_sha256": "40c5304905d3e86832e22832e768bc9fe61cb291351358680d9053e93dd9505c",
+  "utc": "2026-09-23T17:06:18.145446+00:00"
+}

@@ -1,0 +1,45 @@
+{
+  "below256-b.zip": {
+    "bytes": 3391126,
+    "scope": "Complete imported experiment artifacts and original frozen execution bundle, including full traces, matrices, arrays, public outputs and LSF receipts; no artifacts omitted",
+    "sha256": "dbd51fb5537d5fb6556839d08cc347d766c7a28e601990c16a60f404111dbf64"
+  },
+  "below512-c.zip": {
+    "bytes": 5727647,
+    "scope": "Complete imported experiment artifacts and original frozen execution bundle, including full traces, matrices, arrays, public outputs and LSF receipts; no artifacts omitted",
+    "sha256": "b2a227e56b31e656aa353c92f47a6593774118b9d23e263c6ffb4a463b8eded5"
+  },
+  "below64-a.zip": {
+    "bytes": 2215297,
+    "scope": "Complete imported experiment artifacts and original frozen execution bundle, including full traces, matrices, arrays, public outputs and LSF receipts; no artifacts omitted",
+    "sha256": "dfcc409b90cab8df87756b857c6e129256759fa453c82efeb4df051d15cb0299"
+  },
+  "cohort-staging-canary.zip": {
+    "bytes": 3133429,
+    "omitted_sealed_members": {
+      "payload.zip": "197f1d34a1d1bb1800285c1b25875cd0444118a507b8f3011024b7edc3b5339e",
+      "source/src/clipp1d/__pycache__/__init__.cpython-313.pyc": "5b879b21286cd27fac8ef9413d7f6df26c6d9cfe0e7406b5c218d5b8708ffa58",
+      "source/src/clipp1d/__pycache__/api.cpython-313.pyc": "81229e14e2d4a0ced293b2b4ae2bb943afc293d0cf0e3feff581f8b24ba1ef2f",
+      "source/src/clipp1d/__pycache__/types.cpython-313.pyc": "e4b46f06133704e772a1259f38a0cb46730006b4604dde0c8e010353c63f8aa9",
+      "source/src/clipp1d/cuda/__pycache__/__init__.cpython-313.pyc": "b96affc99dc6b625f74ae6fe6212b3f5660d6876c860b5684052f857d6794391",
+      "source/src/clipp1d/cuda/__pycache__/policy.cpython-313.pyc": "e898be35ff98849a350f06d4eedafd580e17533a7ad01a4d1866e3340d551c58"
+    },
+    "scope": "Exact frozen worker/source/config/cases and remote canary readback; full cohort payload ZIP and other case outputs remain external, no all-cohort completion claim",
+    "sha256": "e4c5b12daeaf5512f42541484d407a1dd5075bbb878baee106a42a7fcce48b2e"
+  },
+  "mixed256-e.zip": {
+    "bytes": 1971578,
+    "scope": "Complete imported experiment artifacts and original frozen execution bundle, including full traces, matrices, arrays, public outputs and LSF receipts; no artifacts omitted",
+    "sha256": "b86c3bb4b464ef0b9ccbcf66f0d3a70842c27272d9e9526304a4edbc6bab501f"
+  },
+  "mixed512-f.zip": {
+    "bytes": 5627003,
+    "scope": "Complete imported experiment artifacts and original frozen execution bundle, including full traces, matrices, arrays, public outputs and LSF receipts; no artifacts omitted",
+    "sha256": "40bea59001889d06c14c38da65cdcf2329985016084a814747b36d7da7513cac"
+  },
+  "mixed64-d.zip": {
+    "bytes": 925647,
+    "scope": "Complete imported experiment artifacts and original frozen execution bundle, including full traces, matrices, arrays, public outputs and LSF receipts; no artifacts omitted",
+    "sha256": "3e0a551bb2abd453525e785bb81a3e9c37742b04ceec85712f6bb636b610ca0c"
+  }
+}

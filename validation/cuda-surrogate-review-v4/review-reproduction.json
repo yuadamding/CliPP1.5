@@ -1,0 +1,6 @@
+{
+  "returncode": 0,
+  "stdout": "{\n  \"lambda_aware_comparison\": \"passed\",\n  \"unqualified_common_lambda\": \"passed\",\n  \"nonpositive_deadlines\": \"passed\",\n  \"handler_restoration\": \"passed\",\n  \"literal_replay_evidence\": \"passed\",\n  \"bounded_trace\": \"passed\",\n  \"NPZ_bit_preservation\": \"passed\",\n  \"conditional_trace_index_collision\": \"reproduced conditional issue\",\n  \"staging_helper\": \"passed\"\n}\n",
+  "stderr": "",
+  "zip_sha256": "18b68a9531c4c758f50497b5a119b07ab95fa61c2403782ce8cb44140f5c1c67"
+}

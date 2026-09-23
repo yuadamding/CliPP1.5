@@ -40,6 +40,45 @@ def test_unknown_research_strategy_rejected_before_dispatch():
             pass
 
 
+@pytest.mark.parametrize('failure',['solver_exception','dispatch_exception'])
+def test_exception_then_continued_start_reserves_distinct_trace_ids(monkeypatch,tmp_path,failure):
+    count=0
+    def original(*args,**kwargs):
+        nonlocal count
+        count+=1
+        if count==1 and failure=='solver_exception':
+            raise RuntimeError('first start raised')
+        return SimpleNamespace(qualified=True,diagnostics=dict(
+            outer_surrogate_policy='wrong' if count==1 else study.CANDIDATE,status='qualified'))
+    monkeypatch.setattr(study.solver,'solve_start',original)
+    journal=study.mixed.Journal(tmp_path/'trial.json')
+    with study.strategy(study.CANDIDATE,journal) as calls:
+        with pytest.raises((RuntimeError,AssertionError)):
+            study.solver.solve_start(None,None,1.,None,CudaPolicy())
+        first=journal.root/'start-000-surrogate-trace.json'
+        retained=first.read_bytes()
+        fit=study.solver.solve_start(None,None,1.,None,CudaPolicy())
+        assert fit.qualified
+        assert first.read_bytes()==retained
+        assert json.loads((journal.root/'start-001-surrogate-trace.json').read_text())['start_index']==1
+        assert calls.counts()==dict(starts_attempted=2,starts_returned=1 if failure=='solver_exception' else 2,
+                                   starts_qualified=1,starts_raised=1)
+        assert len(calls)==1
+    assert study.solver.solve_start is original
+
+
+def test_trial_retains_exception_attempt_counts(monkeypatch,tmp_path):
+    def original(*args,**kwargs):
+        raise RuntimeError('failed start')
+    monkeypatch.setattr(study.solver,'solve_start',original)
+    monkeypatch.setattr(study.mixed,'execute',lambda *a:
+                        study.solver.solve_start(None,None,1.,None,CudaPolicy()))
+    record=study.trial(SimpleNamespace(fixture='below_one',nodes=64),tmp_path/'trial.json',study.CANDIDATE,0)
+    assert record['starts_attempted']==record['starts_raised']==1
+    assert record['starts_returned']==record['starts_qualified']==0
+    assert record['start_attempts'][0]['error']=='failed start'
+
+
 def predecessor(tmp_path, **changes):
     record=dict(schema=study.SCHEMA,status='passed',fixture_family='below_one',nodes=64,
         source={'source_sha256':'source'},helpers=study.helpers(),policy=asdict(CudaPolicy()),

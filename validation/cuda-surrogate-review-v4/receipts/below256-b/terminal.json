@@ -1,0 +1,16 @@
+{
+  "elapsed_seconds": 98.09654951095581,
+  "job_id": "77341055",
+  "passed": true,
+  "plan_sha256": "84f02d178be46b36b6a243d7847132caae22198bf639daf3c5d8cabbff3e1e82",
+  "scope": "source-bound synthetic CUDA task; diagnostic capture success is not complete-fit qualification",
+  "tasks": [
+    {
+      "name": "below256",
+      "receipt_sha256": "7087dfeb0c14a8e6781a130b2168ec75bcfc5dbc5fe31fbf543271731a4c4eda",
+      "returncode": 0,
+      "source_role": "current",
+      "status": "passed"
+    }
+  ]
+}

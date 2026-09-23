@@ -1,0 +1,14 @@
+{
+  "schema": "clipp1d.surrogate.timing.study.v1",
+  "base_commit": "75c102f9dd1dafbe54010f1b96c1dfd551220341",
+  "max_nonterminal_jobs": 1,
+  "phases": [
+    "below64",
+    "mixed64",
+    "below256",
+    "mixed256",
+    "below512",
+    "mixed512"
+  ],
+  "scope": "One cold pair and three warm paired repeats per previously qualified fixture; no observer or candidate tracer; unchanged scalar production/cohort work"
+}

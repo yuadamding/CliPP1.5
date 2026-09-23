@@ -1,0 +1,33 @@
+{
+  "schema": "clipp1d.surrogate.timing.archive.v1",
+  "attempts": [
+    {
+      "attempt": "below64-a",
+      "archive": "below64-a.zip",
+      "sha256": "cb203af2df71ece803530e39f894a016f2e2f3f006e5f704aae8d8a9fb5ad3de",
+      "bytes": 369887,
+      "job_id": "77342485",
+      "receipt": "imported/results/below64.json",
+      "status": "failed",
+      "error": "Public timing phases are missing, negative, or nonfinite",
+      "timing_summary": null
+    },
+    {
+      "attempt": "below64-b",
+      "archive": "below64-b.zip",
+      "sha256": "b8d5760178f7dd2ea2008f8d2258975bc322eb7d96b3390709bbac0bd28c3ef2",
+      "bytes": 840753,
+      "job_id": "77342695",
+      "receipt": "imported/results/below64.json",
+      "status": "passed",
+      "error": null,
+      "timing_summary": {
+        "candidate_median_seconds": 15.702466500923038,
+        "complete_warm_pairs": 3,
+        "control_median_seconds": 15.91534615890123,
+        "median_paired_speedup": 1.0135570840393564,
+        "scope": "Only complete, published warm pairs; incomplete or failed work has no throughput ratio"
+      }
+    }
+  ]
+}

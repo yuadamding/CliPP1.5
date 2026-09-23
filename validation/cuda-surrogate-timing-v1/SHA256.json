@@ -1,0 +1,20 @@
+{
+  "INDEX.json": "f8352da3d873acbf7f5c83e64e07f2a94863f5ae91199556557e53f3fe38a35e",
+  "README.md": "f68639699974a78a8b992e16ad7de035729ba87fa4715a09df21e4de3c874fe1",
+  "STUDY_PLAN.json": "5c6ce59b5b9cc77d94f82a04702ff2efc4e9c60cfe19755ee051f8ab95541f6c",
+  "below64-a.json": "756c32a2a3325f0fdb774bade9ad8a65a859ab327705ee44997149277914dd2c",
+  "below64-a.zip": "cb203af2df71ece803530e39f894a016f2e2f3f006e5f704aae8d8a9fb5ad3de",
+  "below64-b.json": "8a3bc4735cd82ffd3708fa094a86bc1e4a03f3883cf70ca489d7eb61b4cf8e15",
+  "below64-b.zip": "b8d5760178f7dd2ea2008f8d2258975bc322eb7d96b3390709bbac0bd28c3ef2",
+  "controller-progress.json": "fb5b526eed37aabf80b3cda8a1031d1a6d104a1595b01a8190d15f88272a4fae",
+  "controller-started.json": "ad74d7734f90fd1b524ab2e5a111e67ec045e59d322b2f98c9dafa7eb4608c35",
+  "first-canary-disposition.json": "399f7e2882f60856515c260e401d94e2ad5c642160ba5d305a29f7001b278308",
+  "operations/collect_terminal.py": "77a2504ed1e5fee1ee3cd67deb72b9acd102d2664497800b0135b07047072dac",
+  "operations/continue_study.py": "1b1f525f902104ba6993291f53ca36d706d6b16bf236f50c942ffafd3b5b8f3d",
+  "operations/launch.py": "eeffab6d77e15babdad49d3751f55504a96437001ad9bd7b6d3dd0a890b8afe8",
+  "operations/launch_prepared.py": "5c19320f002b3b410b57c3d41dcb5eb3e32dacecfb61bf3163ca77874d6498eb",
+  "operations/preflight.py": "067f33e76b4e5ff63b8e5a36fbd9fac7af4a1bc8edfbf759292674dc3a194972",
+  "operations/prepare.py": "60b007f9d59bbd30fab067eb1ef8f34b58c3156939aba2dfbfa257a90cdbb78d",
+  "operations/worker.py": "1c9f3f689a5092bbeb56da3cee4e26b34c825f38ea5444d81420fce1ac191273",
+  "verify.py": "6dfd2da491b3cfb2c8517f6e3149e675ad47ac11ff9bfe79b4d1e461b022751b"
+}

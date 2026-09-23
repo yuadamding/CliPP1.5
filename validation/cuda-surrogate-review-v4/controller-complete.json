@@ -1,0 +1,61 @@
+{
+  "all_six_coverage_stages_passed": true,
+  "completed": [
+    {
+      "attempt": "below64-a",
+      "error": null,
+      "fixture": "below_one",
+      "job_id": "77341022",
+      "nodes": 64,
+      "passed": true,
+      "receipt_sha256": "69f2531efa8fed1c75992139ec69578244fd5696b0eb2d8938bb37ebda51a2ff"
+    },
+    {
+      "attempt": "below256-b",
+      "error": null,
+      "fixture": "below_one",
+      "job_id": "77341055",
+      "nodes": 256,
+      "passed": true,
+      "receipt_sha256": "7087dfeb0c14a8e6781a130b2168ec75bcfc5dbc5fe31fbf543271731a4c4eda"
+    },
+    {
+      "attempt": "below512-c",
+      "error": null,
+      "fixture": "below_one",
+      "job_id": "77341109",
+      "nodes": 512,
+      "passed": true,
+      "receipt_sha256": "e9994d644e4435ca5aeb3cdace3a347b9f74885aebadce812bef607c0036345e"
+    },
+    {
+      "attempt": "mixed64-d",
+      "error": null,
+      "fixture": "mixed_support",
+      "job_id": "77341170",
+      "nodes": 64,
+      "passed": true,
+      "receipt_sha256": "453105ca4e070df8efa11595b578cdd6e1c22501f8ed41af06ce5483b7bb7153"
+    },
+    {
+      "attempt": "mixed256-e",
+      "error": null,
+      "fixture": "mixed_support",
+      "job_id": "77341215",
+      "nodes": 256,
+      "passed": true,
+      "receipt_sha256": "7d341c6b3bbe57999e04e244021f906fc68d358f5a0db83322f2438e4933ee15"
+    },
+    {
+      "attempt": "mixed512-f",
+      "error": null,
+      "fixture": "mixed_support",
+      "job_id": "77341258",
+      "nodes": 512,
+      "passed": true,
+      "receipt_sha256": "9c8ce3c3e0e2ab93412cce7b2ea63d561379edc461ac15e78cd077911077daf7"
+    }
+  ],
+  "production_default_promoted": false,
+  "timing_scope": "Instrumented diagnostic qualification; no uninstrumented throughput claim"
+}

@@ -1,0 +1,7 @@
+{
+  "attempt": "below64-a",
+  "job_id": "77342485",
+  "reason": "Public timing phases are missing, negative, or nonfinite",
+  "receipt_sha256": "756c32a2a3325f0fdb774bade9ad8a65a859ab327705ee44997149277914dd2c",
+  "scope": "Timing receipt phase omission; preserved full failure. Corrected helper frozen separately in below64-b; numerical package unchanged."
+}

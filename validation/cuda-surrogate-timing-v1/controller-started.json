@@ -1,0 +1,55 @@
+{
+  "cmdline_sha256": "ab3b0aaa817550bfe38189ad9920ba571daae2460b2eccf02bcf1b558768a692",
+  "helpers": {
+    "collect_terminal.py": "77a2504ed1e5fee1ee3cd67deb72b9acd102d2664497800b0135b07047072dac",
+    "continue_study.py": "1b1f525f902104ba6993291f53ca36d706d6b16bf236f50c942ffafd3b5b8f3d",
+    "launch.py": "eeffab6d77e15babdad49d3751f55504a96437001ad9bd7b6d3dd0a890b8afe8",
+    "launch_prepared.py": "5c19320f002b3b410b57c3d41dcb5eb3e32dacecfb61bf3163ca77874d6498eb",
+    "preflight.py": "067f33e76b4e5ff63b8e5a36fbd9fac7af4a1bc8edfbf759292674dc3a194972",
+    "prepare.py": "60b007f9d59bbd30fab067eb1ef8f34b58c3156939aba2dfbfa257a90cdbb78d",
+    "worker.py": "1c9f3f689a5092bbeb56da3cee4e26b34c825f38ea5444d81420fce1ac191273"
+  },
+  "max_nonterminal_research_jobs": 1,
+  "pid": 925674,
+  "source_sha256": "40c5304905d3e86832e22832e768bc9fe61cb291351358680d9053e93dd9505c",
+  "stages": [
+    [
+      "below_one",
+      64,
+      "below64-b",
+      "below64-a"
+    ],
+    [
+      "mixed_support",
+      64,
+      "mixed64-c",
+      "mixed64-d"
+    ],
+    [
+      "below_one",
+      256,
+      "below256-d",
+      "below256-b"
+    ],
+    [
+      "mixed_support",
+      256,
+      "mixed256-e",
+      "mixed256-e"
+    ],
+    [
+      "below_one",
+      512,
+      "below512-f",
+      "below512-c"
+    ],
+    [
+      "mixed_support",
+      512,
+      "mixed512-g",
+      "mixed512-f"
+    ]
+  ],
+  "start_ticks": "295712716",
+  "utc": "2026-09-23T18:24:21.880947+00:00"
+}
