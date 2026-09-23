@@ -4,9 +4,10 @@ No mutation or cluster is required to attain one. Clonal designation occurs
 only after independent membership refitting and never changes these solutions.
 """
 from dataclasses import dataclass
+from time import perf_counter
 import torch
 from .kernels import differences
-from .qp import solve_qp
+from .qp import QualifiedDualWarmState, solve_qp
 from .audit import audit_raw
 from .policy import CudaPolicy, QualificationError
 
@@ -43,7 +44,7 @@ class PrimalWarmState:
 
 
 def objective(model, x, caps):
-    return model.terms(x)[0].sum() + .5 * (caps * differences(x).abs()).sum()
+    return model.loss(x).sum() + .5 * (caps * differences(x).abs()).sum()
 
 
 def direction_restart(model, x, direction, caps, current, policy):
@@ -62,14 +63,33 @@ def direction_restart(model, x, direction, caps, current, policy):
 
 
 def solve_start(model, graph, lam, start, policy=CudaPolicy()):
+    with model.validated_stage(), graph.validated_stage():
+        return _solve_start(model, graph, lam, start, policy)
+
+
+def _solve_start(model, graph, lam, start, policy):
     x = start.clamp(model.lower, model.upper).clone()
     caps = graph.weights * lam
     q = torch.zeros_like(caps)
     current = objective(model, x, caps)
     inflation = 1.
-    backtracks = surrogate_calls = inner = restarts = 0
+    backtracks = surrogate_calls = inner = restarts = polish_iterations = 0
     tail = []
     last_inner = None
+    warm_dual = None
+    lambda_literal = float(lam)
+    qp_seconds = audit_seconds = 0.0
+    audit_calls = dual_warm_starts = dual_warm_resets = 0
+
+    def run_audit():
+        nonlocal audit_seconds, audit_calls
+        began = perf_counter()
+        audited = audit_raw(model, x, q, caps, None, policy)
+        # Audit and QP return through device-scalar qualification checkpoints;
+        # measuring that stage needs no additional per-iteration synchronization.
+        audit_seconds += perf_counter() - began
+        audit_calls += 1
+        return audited
 
     def result(audit, qualified, status, iterations, **extra):
         qualified = qualified and bool(torch.isfinite(current))
@@ -81,14 +101,23 @@ def solve_start(model, graph, lam, start, policy=CudaPolicy()):
                            clonal_constraint=False, global_optimality_proven=False,
                            outer_iterations=iterations, inner_iterations=inner,
                            surrogate_qp_calls=surrogate_calls, backtracks=backtracks,
+                           qp_calls=surrogate_calls, qp_dual_warm_starts=dual_warm_starts,
+                           qp_dual_warm_resets=dual_warm_resets,
+                           qp_polish_iterations=polish_iterations,
+                           qp_seconds=qp_seconds, audit_seconds=audit_seconds,
+                           audit_calls=audit_calls,
+                           phase_timing_scope="host wall through device-qualified QP/audit returns",
                            direction_restarts=restarts, objective_tail=tail,
                            stationarity_residual=None if audit is None else audit.residual,
                            audit_status=None if audit is None else audit.status,
+                           audit_diagnostics={} if audit is None else audit.diagnostics,
+                           audit_signed_direction_count=0 if audit is None else audit.signed_direction_count,
                            inner_gap_qualified=bool(last_inner and last_inner.qualified),
                            inner_kkt_qualified=bool(last_inner and last_inner.qualified),
                            inner_gap=None if last_inner is None else float(last_inner.gap),
                            inner_gap_scale=None if last_inner is None else float(last_inner.scale),
                            inner_kkt_residual=None if last_inner is None else float(last_inner.kkt),
+                           inner_polish_iterations=0 if last_inner is None else last_inner.polish_iterations,
                            inner_certificate_scope="last_solved_surrogate_not_raw_likelihood")
         diagnostics.update(extra)
         return RawFit(x, q, current, None, qualified, diagnostics)
@@ -96,7 +125,7 @@ def solve_start(model, graph, lam, start, policy=CudaPolicy()):
     if not bool(torch.isfinite(current) & torch.isfinite(caps).all()):
         return result(None, False, "nonfinite_initial_objective", 0)
     for iteration in range(policy.outer_max_iterations):
-        graph.validate()
+        graph.validate_metadata()
         losses, grad, curv, _, left, right = model.terms(x)
         grad = torch.where(x == model.lower, right, grad)
         grad = torch.where(x == model.upper, left, grad)
@@ -109,15 +138,24 @@ def solve_start(model, graph, lam, start, policy=CudaPolicy()):
             target = x - grad / h
             if not bool(torch.isfinite(h).all() & torch.isfinite(target).all()):
                 return result(None, False, "nonfinite_majorization_surrogate", iteration)
+            initial_dual = None if warm_dual is None else warm_dual.for_problem(graph, lambda_literal)
+            began = perf_counter()
             last_inner = solve_qp(h, target, model.lower, model.upper, caps,
-                                  model.kernels, policy, start=x)
+                                  model.kernels, policy, start=x, dual=initial_dual)
+            qp_seconds += perf_counter() - began
+            dual_warm_starts += initial_dual is not None
             surrogate_calls += 1
             inner += last_inner.iterations
+            polish_iterations += last_inner.polish_iterations
             if not last_inner.qualified:
                 return result(None, False, "surrogate_unresolved", iteration)
+            # The QP can qualify even when the likelihood majorization trial is
+            # rejected. Its physical dual remains a valid initialization for the
+            # changed surrogate, whose certificate must be recomputed from scratch.
+            warm_dual = QualifiedDualWarmState.from_fit(last_inner, graph, lambda_literal)
             trial = last_inner.x
             d = trial - x
-            trial_loss = model.terms(trial)[0].sum()
+            trial_loss = model.loss(trial).sum()
             major = losses.sum() + (grad * d + .5 * h * d.square()).sum()
             penalty_trial = .5 * (caps * differences(trial).abs()).sum()
             trial_value = trial_loss + penalty_trial
@@ -141,7 +179,7 @@ def solve_start(model, graph, lam, start, policy=CudaPolicy()):
             backtracks += 1
         if accepted and not bool(decrease.abs() <= 1e-10 * (1 + current.abs())):
             continue
-        audit = audit_raw(model, x, q, caps, None, policy)
+        audit = run_audit()
         if audit.qualified:
             return result(audit, True, "qualified", iteration + 1)
         if audit.direction is not None:
@@ -150,12 +188,18 @@ def solve_start(model, graph, lam, start, policy=CudaPolicy()):
                 x = restart
                 current = objective(model, x, caps)
                 q = torch.zeros_like(caps)
+                warm_dual = None
                 inflation = 1.
                 restarts += 1
                 continue
+        # An unchanged, gap-qualified QP state may fail the stricter raw kink
+        # audit. Do not repeatedly admit that same warm state without ADMM work.
+        if warm_dual is not None:
+            warm_dual = None
+            dual_warm_resets += 1
         if not accepted:
             break
-    audit = audit_raw(model, x, q, caps, None, policy)
+    audit = run_audit()
     return result(audit, audit.qualified, "qualified" if audit.qualified else "outer_unresolved", iteration + 1)
 
 
@@ -166,7 +210,7 @@ def _validate_pilots(model, graph, pilots, policy):
     if (pilots.qualified.shape != (model.n,) or pilots.qualified.dtype != torch.bool or
             pilots.qualified.device != model.device):
         raise ValueError("Pilot qualification mask must match the model")
-    actual = model.terms(pilots.phi)[0]
+    actual = model.loss(pilots.phi)
     margin = 256 * torch.finfo(actual.dtype).eps * (1 + actual.abs() + pilots.loss.abs())
     valid = (torch.stack([torch.isfinite(v).all() for v in fields]).all() &
              pilots.qualified.all() & (pilots.phi >= model.lower).all() &
@@ -181,8 +225,11 @@ def _validate_pilots(model, graph, pilots, policy):
 
 
 def fit_lambda(model, graph, pilots, lam, previous=None, policy=CudaPolicy()):
-    model.validate()
-    graph.validate()
+    with model.validated_stage(), graph.validated_stage():
+        return _fit_lambda(model, graph, pilots, lam, previous, policy)
+
+
+def _fit_lambda(model, graph, pilots, lam, previous, policy):
     lam = torch.as_tensor(lam, dtype=torch.float64, device=model.device)
     if lam.ndim != 0 or not bool(torch.isfinite(lam) & (lam >= 0)):
         raise ValueError("Penalty must be a finite nonnegative scalar")
@@ -198,10 +245,12 @@ def fit_lambda(model, graph, pilots, lam, previous=None, policy=CudaPolicy()):
     if bool(lam == 0):
         x = pilots.phi.clone()
         caps = torch.zeros_like(graph.weights)
-        value, gap = model.terms(x)[0].sum(), pilots.gap.sum()
+        value, gap = model.loss(x).sum(), pilots.gap.sum()
         if not bool(torch.isfinite(value) & torch.isfinite(gap)):
             raise QualificationError("Separable objective or aggregate scalar gap is nonfinite")
+        began = perf_counter()
         audit = audit_raw(model, x, caps, caps, None, policy)
+        audit_seconds = perf_counter() - began
         return RawFit(x, caps, value, None, True,
                       dict(status="qualified_separable", separable_scalar_gap_qualified=True,
                            separable_global_gap=float(gap), clonal_constraint=False,
@@ -210,9 +259,16 @@ def fit_lambda(model, graph, pilots, lam, previous=None, policy=CudaPolicy()):
                            raw_branch_stationarity_qualified=audit.qualified,
                            directional_qualified=audit.qualified, box_feasible=True,
                            stationarity_residual=audit.residual, audit_status=audit.status,
+                           audit_diagnostics=audit.diagnostics,
+                           audit_signed_direction_count=audit.signed_direction_count,
                            inner_gap_qualified=True, inner_gap=0., inner_gap_scale=0.,
                            inner_kkt_qualified=True, inner_kkt_residual=0.,
                            inner_iterations=0, outer_iterations=0, surrogate_qp_calls=0,
+                           qp_calls=0, qp_dual_warm_starts=0, qp_seconds=0.0,
+                           qp_dual_warm_resets=0,
+                           qp_polish_iterations=0, inner_polish_iterations=0,
+                           audit_calls=1, audit_seconds=audit_seconds,
+                           phase_timing_scope="host wall through device-qualified QP/audit returns",
                            starts_attempted=0, search_complete=True, global_optimality_proven=False))
     curvature = model.terms(pilots.phi)[2].clamp_min(1.)
     if not bool(torch.isfinite(curvature).all() & torch.isfinite(graph.weights * lam).all()):
@@ -242,6 +298,9 @@ def fit_lambda(model, graph, pilots, lam, previous=None, policy=CudaPolicy()):
                     starts_attempted=len(starts), starts_qualified=sum(d["qualified"] for d in diagnostics),
                     starts_unresolved=sum(not d["qualified"] for d in diagnostics),
                     search_policy="unconstrained_complete_graph_multistart_v1", clonal_constraint=False)
+    # Selected-start diagnostics remain in starts; phase totals cover all attempted starts.
+    for name in ("qp_calls", "qp_dual_warm_starts", "qp_dual_warm_resets", "qp_polish_iterations", "qp_seconds", "audit_calls", "audit_seconds"):
+        coverage[name] = sum(row[name] for row in diagnostics)
     if best is None:
         raise QualificationError("No qualified unconstrained complete-graph start", **coverage)
     best.diagnostics.update(coverage)

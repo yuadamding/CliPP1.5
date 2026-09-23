@@ -1,0 +1,1053 @@
+{
+  "capability": [
+    8,
+    9
+  ],
+  "cases": [
+    {
+      "elapsed_seconds": 0.09578313399106264,
+      "fixture": {
+        "arrays": {
+          "alt": {
+            "dtype": "float64",
+            "sha256": "b417b145e48fd4330a5c4c3395b5a728718dfa72881671289eb6fc5172aff131",
+            "shape": [
+              32
+            ]
+          },
+          "log_prior": {
+            "dtype": "float64",
+            "sha256": "98c3b1dee024d1329d0dae2c2b0f88e1149975c809f46e487bfc8525d5f331a2",
+            "shape": [
+              32,
+              1
+            ]
+          },
+          "lower": {
+            "dtype": "float64",
+            "sha256": "3abb38d4dbdf2a1824549f176a11a3e9703b685a8869845f977a2687b67b20ea",
+            "shape": [
+              32
+            ]
+          },
+          "ref": {
+            "dtype": "float64",
+            "sha256": "4700ef2d059fd5e53bfb16735f42b0f387ef42920878f22ee026c55216ed2de9",
+            "shape": [
+              32
+            ]
+          },
+          "slope": {
+            "dtype": "float64",
+            "sha256": "df26ee0bfd77ebe2817ba0008a6e3b86da71f4ce5428dcfcda1eb40b3883089f",
+            "shape": [
+              32,
+              1
+            ]
+          },
+          "upper": {
+            "dtype": "float64",
+            "sha256": "acfc7c36fce590b14adfc8a479e0dcd297e910a7212694c976c8b4284d34c144",
+            "shape": [
+              32
+            ]
+          },
+          "valid": {
+            "dtype": "bool",
+            "sha256": "72cd6e8422c407fb6d098690f1130b7ded7ec2f7f5e1d30bd9d521f015363793",
+            "shape": [
+              32,
+              1
+            ]
+          }
+        },
+        "eps": 1e-06,
+        "model_sha256": "cacb2c6915539af876e875008b2a9d57261662d90c91be8ad1e964cf703db81b",
+        "mutation_ids": [
+          "m0000",
+          "m0001",
+          "m0002",
+          "m0003",
+          "m0004",
+          "m0005",
+          "m0006",
+          "m0007",
+          "m0008",
+          "m0009",
+          "m0010",
+          "m0011",
+          "m0012",
+          "m0013",
+          "m0014",
+          "m0015",
+          "m0016",
+          "m0017",
+          "m0018",
+          "m0019",
+          "m0020",
+          "m0021",
+          "m0022",
+          "m0023",
+          "m0024",
+          "m0025",
+          "m0026",
+          "m0027",
+          "m0028",
+          "m0029",
+          "m0030",
+          "m0031"
+        ]
+      },
+      "kind": "fixture_started",
+      "name": "analytical32",
+      "utc": "2026-09-23T00:25:26.826151+00:00"
+    },
+    {
+      "elapsed_seconds": 3.781196675961837,
+      "kind": "warmup_qualified",
+      "name": "analytical32",
+      "result": {
+        "gap": [
+          9.265477274311706e-12,
+          1.602984411874786e-11,
+          1.921307557495311e-11,
+          9.322320693172514e-12,
+          1.602984411874786e-11,
+          1.921307557495311e-11,
+          9.379164112033322e-12,
+          1.602984411874786e-11,
+          1.921307557495311e-11,
+          9.43600753089413e-12,
+          1.6143530956469476e-11,
+          1.921307557495311e-11,
+          9.492850949754938e-12,
+          1.6143530956469476e-11,
+          1.921307557495311e-11,
+          9.549694368615746e-12,
+          1.6143530956469476e-11,
+          1.921307557495311e-11,
+          9.663381206337363e-12,
+          1.6143530956469476e-11,
+          1.921307557495311e-11,
+          9.72022462519817e-12,
+          1.6257217794191092e-11,
+          1.921307557495311e-11,
+          9.777068044058979e-12,
+          1.6257217794191092e-11,
+          1.921307557495311e-11,
+          9.833911462919787e-12,
+          1.6257217794191092e-11,
+          1.921307557495311e-11,
+          9.890754881780595e-12,
+          1.6370904631912708e-11
+        ],
+        "loss": [
+          325.0829733914482,
+          562.3351446188083,
+          673.0116670092565,
+          327.27465879118324,
+          563.4310926056619,
+          673.4150493610487,
+          329.45533069176616,
+          564.5217214043494,
+          673.8142684948128,
+          331.62508492774447,
+          565.6070450398599,
+          674.2093278222404,
+          333.7840154458966,
+          566.6870774074232,
+          674.600230714884,
+          335.9322143596016,
+          567.7618322739665,
+          674.9869805043389,
+          338.0697720011363,
+          568.8313232795487,
+          675.3695804824225,
+          340.19677697199944,
+          569.8955639387705,
+          675.7480339013498,
+          342.31331619135295,
+          570.9545676421635,
+          676.1223439739076,
+          344.4194749426693,
+          572.0083476575563,
+          676.4925138736271,
+          346.51533691866615,
+          573.0569171314204
+        ],
+        "lower_bound": [
+          325.08297339143894,
+          562.3351446187922,
+          673.0116670092373,
+          327.2746587911739,
+          563.4310926056459,
+          673.4150493610294,
+          329.4553306917568,
+          564.5217214043333,
+          673.8142684947936,
+          331.62508492773503,
+          565.6070450398438,
+          674.2093278222212,
+          333.7840154458871,
+          566.6870774074071,
+          674.6002307148648,
+          335.932214359592,
+          567.7618322739504,
+          674.9869805043197,
+          338.06977200112664,
+          568.8313232795325,
+          675.3695804824033,
+          340.1967769719897,
+          569.8955639387542,
+          675.7480339013306,
+          342.3133161913432,
+          570.9545676421473,
+          676.1223439738884,
+          344.41947494265946,
+          572.0083476575401,
+          676.4925138736079,
+          346.51533691865626,
+          573.056917131404
+        ],
+        "phi": [
+          0.2,
+          0.5,
+          0.8,
+          0.202,
+          0.502,
+          0.802,
+          0.204,
+          0.504,
+          0.804,
+          0.206,
+          0.506,
+          0.806,
+          0.208,
+          0.508,
+          0.808,
+          0.21,
+          0.51,
+          0.81,
+          0.212,
+          0.512,
+          0.812,
+          0.214,
+          0.514,
+          0.814,
+          0.216,
+          0.516,
+          0.816,
+          0.218,
+          0.518,
+          0.818,
+          0.22,
+          0.52
+        ],
+        "qualified": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "seconds": 0.6544365459121764,
+      "utc": "2026-09-23T00:25:30.511561+00:00"
+    },
+    {
+      "compilation_statistics": {
+        "boxed_rank_one": {
+          "active_families": 0,
+          "backend": "inductor",
+          "calls": 0,
+          "dynamic_extents": true,
+          "eager_fallback": false,
+          "evictions": 0,
+          "families_created": 0,
+          "fullgraph": true,
+          "global_cache_limit_modified": false,
+          "max_families": 32,
+          "policy": "bounded_structural_families_v1"
+        },
+        "edge_update": {
+          "active_families": 0,
+          "backend": "inductor",
+          "calls": 0,
+          "dynamic_extents": true,
+          "eager_fallback": false,
+          "evictions": 0,
+          "families_created": 0,
+          "fullgraph": true,
+          "global_cache_limit_modified": false,
+          "max_families": 32,
+          "policy": "bounded_structural_families_v1"
+        },
+        "gap_kkt": {
+          "active_families": 0,
+          "backend": "inductor",
+          "calls": 0,
+          "dynamic_extents": true,
+          "eager_fallback": false,
+          "evictions": 0,
+          "families_created": 0,
+          "fullgraph": true,
+          "global_cache_limit_modified": false,
+          "max_families": 32,
+          "policy": "bounded_structural_families_v1"
+        },
+        "likelihood": {
+          "active_families": 0,
+          "backend": "inductor",
+          "calls": 0,
+          "dynamic_extents": true,
+          "eager_fallback": false,
+          "evictions": 0,
+          "families_created": 0,
+          "fullgraph": true,
+          "global_cache_limit_modified": false,
+          "max_families": 32,
+          "policy": "bounded_structural_families_v1"
+        },
+        "loss_gradient": {
+          "active_families": 0,
+          "backend": "inductor",
+          "calls": 0,
+          "dynamic_extents": true,
+          "eager_fallback": false,
+          "evictions": 0,
+          "families_created": 0,
+          "fullgraph": true,
+          "global_cache_limit_modified": false,
+          "max_families": 32,
+          "policy": "bounded_structural_families_v1"
+        },
+        "loss_only": {
+          "active_families": 1,
+          "backend": "inductor",
+          "calls": 2,
+          "dynamic_extents": true,
+          "eager_fallback": false,
+          "evictions": 0,
+          "families_created": 1,
+          "fullgraph": true,
+          "global_cache_limit_modified": false,
+          "max_families": 32,
+          "policy": "bounded_structural_families_v1"
+        }
+      },
+      "counter_deltas": {
+        "integrity_counters": {
+          "full_checks": 5,
+          "metadata_checks": 15
+        },
+        "scalar_work_counters": {
+          "analytical_groups": 32,
+          "full_terms_calls": 0,
+          "general_groups": 0,
+          "golden_padded_group_slots": 0,
+          "golden_wells": 0,
+          "loss_gradient_calls": 0,
+          "loss_only_calls": 1,
+          "scalar_proposals_evaluated": 32,
+          "scalar_rows_evaluated": 32
+        }
+      },
+      "counters_after": {
+        "integrity_counters": {
+          "full_checks": 10,
+          "metadata_checks": 30
+        },
+        "scalar_work_counters": {
+          "analytical_groups": 64,
+          "full_terms_calls": 0,
+          "general_groups": 0,
+          "golden_padded_group_slots": 0,
+          "golden_wells": 0,
+          "loss_gradient_calls": 0,
+          "loss_only_calls": 2,
+          "scalar_proposals_evaluated": 64,
+          "scalar_rows_evaluated": 64
+        }
+      },
+      "counters_before": {
+        "integrity_counters": {
+          "full_checks": 5,
+          "metadata_checks": 15
+        },
+        "scalar_work_counters": {
+          "analytical_groups": 32,
+          "full_terms_calls": 0,
+          "general_groups": 0,
+          "golden_padded_group_slots": 0,
+          "golden_wells": 0,
+          "loss_gradient_calls": 0,
+          "loss_only_calls": 1,
+          "scalar_proposals_evaluated": 32,
+          "scalar_rows_evaluated": 32
+        }
+      },
+      "counts_file": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922i/results/scalar-profile-current.artifacts/analytical32.counts.json",
+      "counts_sha256": "d254935aff0da995bac6f507fb098413ce993e0f05d62d99cf8e78a2678e988f",
+      "elapsed_seconds": 3.9290759470313787,
+      "kind": "profile_qualified",
+      "name": "analytical32",
+      "optional_counters_available": true,
+      "peak_allocated_bytes": 24576,
+      "peak_reserved_bytes": 2097152,
+      "proxy_scope": "host scalar-read operations; not a direct CUDA synchronization duration or CPU inference measure",
+      "result": {
+        "gap": [
+          9.265477274311706e-12,
+          1.602984411874786e-11,
+          1.921307557495311e-11,
+          9.322320693172514e-12,
+          1.602984411874786e-11,
+          1.921307557495311e-11,
+          9.379164112033322e-12,
+          1.602984411874786e-11,
+          1.921307557495311e-11,
+          9.43600753089413e-12,
+          1.6143530956469476e-11,
+          1.921307557495311e-11,
+          9.492850949754938e-12,
+          1.6143530956469476e-11,
+          1.921307557495311e-11,
+          9.549694368615746e-12,
+          1.6143530956469476e-11,
+          1.921307557495311e-11,
+          9.663381206337363e-12,
+          1.6143530956469476e-11,
+          1.921307557495311e-11,
+          9.72022462519817e-12,
+          1.6257217794191092e-11,
+          1.921307557495311e-11,
+          9.777068044058979e-12,
+          1.6257217794191092e-11,
+          1.921307557495311e-11,
+          9.833911462919787e-12,
+          1.6257217794191092e-11,
+          1.921307557495311e-11,
+          9.890754881780595e-12,
+          1.6370904631912708e-11
+        ],
+        "loss": [
+          325.0829733914482,
+          562.3351446188083,
+          673.0116670092565,
+          327.27465879118324,
+          563.4310926056619,
+          673.4150493610487,
+          329.45533069176616,
+          564.5217214043494,
+          673.8142684948128,
+          331.62508492774447,
+          565.6070450398599,
+          674.2093278222404,
+          333.7840154458966,
+          566.6870774074232,
+          674.600230714884,
+          335.9322143596016,
+          567.7618322739665,
+          674.9869805043389,
+          338.0697720011363,
+          568.8313232795487,
+          675.3695804824225,
+          340.19677697199944,
+          569.8955639387705,
+          675.7480339013498,
+          342.31331619135295,
+          570.9545676421635,
+          676.1223439739076,
+          344.4194749426693,
+          572.0083476575563,
+          676.4925138736271,
+          346.51533691866615,
+          573.0569171314204
+        ],
+        "lower_bound": [
+          325.08297339143894,
+          562.3351446187922,
+          673.0116670092373,
+          327.2746587911739,
+          563.4310926056459,
+          673.4150493610294,
+          329.4553306917568,
+          564.5217214043333,
+          673.8142684947936,
+          331.62508492773503,
+          565.6070450398438,
+          674.2093278222212,
+          333.7840154458871,
+          566.6870774074071,
+          674.6002307148648,
+          335.932214359592,
+          567.7618322739504,
+          674.9869805043197,
+          338.06977200112664,
+          568.8313232795325,
+          675.3695804824033,
+          340.1967769719897,
+          569.8955639387542,
+          675.7480339013306,
+          342.3133161913432,
+          570.9545676421473,
+          676.1223439738884,
+          344.41947494265946,
+          572.0083476575401,
+          676.4925138736079,
+          346.51533691865626,
+          573.056917131404
+        ],
+        "phi": [
+          0.2,
+          0.5,
+          0.8,
+          0.202,
+          0.502,
+          0.802,
+          0.204,
+          0.504,
+          0.804,
+          0.206,
+          0.506,
+          0.806,
+          0.208,
+          0.508,
+          0.808,
+          0.21,
+          0.51,
+          0.81,
+          0.212,
+          0.512,
+          0.812,
+          0.214,
+          0.514,
+          0.814,
+          0.216,
+          0.516,
+          0.816,
+          0.218,
+          0.518,
+          0.818,
+          0.22,
+          0.52
+        ],
+        "qualified": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "scalar_read_proxy_counts": {
+        "aten::_local_scalar_dense": 17,
+        "aten::is_nonzero": 12,
+        "aten::item": 17
+      },
+      "seconds": 0.09443114697933197,
+      "timing_scope": "warmed scalar call plus CPU profiler overhead",
+      "trace": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922i/results/scalar-profile-current.artifacts/analytical32.trace.json",
+      "trace_sha256": "9c8f6175035ebf34a4903e3f5d8af4757af2e7fa083dd2e3444dc38b98cbdc6e",
+      "utc": "2026-09-23T00:25:30.659444+00:00"
+    },
+    {
+      "elapsed_seconds": 3.9303036578930914,
+      "fixture": {
+        "arrays": {
+          "alt": {
+            "dtype": "float64",
+            "sha256": "40b1c0ddea78316ee53d87a8f7adb1411ca8579255eeba3e55f4fd337d29fda7",
+            "shape": [
+              6
+            ]
+          },
+          "log_prior": {
+            "dtype": "float64",
+            "sha256": "fe9a0170069e258ea2f2d4796aef37841d5ce5e1e565feff4f56cde3a6f7ae4f",
+            "shape": [
+              6,
+              4
+            ]
+          },
+          "lower": {
+            "dtype": "float64",
+            "sha256": "29f1c76f0ed8127f4c9640918878e2e6a00c52b85b8d57a287df070935cb19e0",
+            "shape": [
+              6
+            ]
+          },
+          "ref": {
+            "dtype": "float64",
+            "sha256": "5780ce1f02cd447e825ac4edcf62a61b506d7ce03d5c830d3c4fcbbd5910ce79",
+            "shape": [
+              6
+            ]
+          },
+          "slope": {
+            "dtype": "float64",
+            "sha256": "9ef4cf81a6f886e82dac21d96de68db27e7d4368fcd11b45631d2e989070c1ab",
+            "shape": [
+              6,
+              4
+            ]
+          },
+          "upper": {
+            "dtype": "float64",
+            "sha256": "8c75544285232e2f67034f27867cb9fdf278979f6701d6970281fa4e2dba5b6d",
+            "shape": [
+              6
+            ]
+          },
+          "valid": {
+            "dtype": "bool",
+            "sha256": "10b95f6b4767f3bfaf41ac5a4f6a14e5876e03c64b26593527c00f5fb784392c",
+            "shape": [
+              6,
+              4
+            ]
+          }
+        },
+        "eps": 1e-06,
+        "model_sha256": "dab0802646b46140fb5c8dc562646c026484f2aee374610d3ef3e201548be548",
+        "mutation_ids": [
+          "m0000",
+          "m0001",
+          "m0002",
+          "m0003",
+          "m0004",
+          "m0005"
+        ]
+      },
+      "kind": "fixture_started",
+      "name": "mixed6",
+      "utc": "2026-09-23T00:25:30.660673+00:00"
+    },
+    {
+      "elapsed_seconds": 6.670074911089614,
+      "kind": "warmup_qualified",
+      "name": "mixed6",
+      "result": {
+        "gap": [
+          1.2789769243681803e-12,
+          6.266039775937315e-08,
+          8.589181277329772e-08,
+          5.304227812530371e-08,
+          1.0517163673284813e-07,
+          7.307130545086693e-08
+        ],
+        "loss": [
+          43.966987940134295,
+          59.987133648336645,
+          66.9692765439757,
+          49.520127342063574,
+          67.99428535973068,
+          70.09175778894827
+        ],
+        "lower_bound": [
+          43.966987940133016,
+          59.98713358567625,
+          66.96927645808388,
+          49.520127289021296,
+          67.99428525455905,
+          70.09175771587697
+        ],
+        "phi": [
+          0.39999999999999997,
+          0.5603168103425415,
+          0.8282729732319339,
+          0.4598012284504956,
+          0.5714346800330465,
+          0.4286982687492306
+        ],
+        "qualified": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "seconds": 2.7365834231022745,
+      "utc": "2026-09-23T00:25:33.400439+00:00"
+    },
+    {
+      "compilation_statistics": {
+        "boxed_rank_one": {
+          "active_families": 0,
+          "backend": "inductor",
+          "calls": 0,
+          "dynamic_extents": true,
+          "eager_fallback": false,
+          "evictions": 0,
+          "families_created": 0,
+          "fullgraph": true,
+          "global_cache_limit_modified": false,
+          "max_families": 32,
+          "policy": "bounded_structural_families_v1"
+        },
+        "edge_update": {
+          "active_families": 0,
+          "backend": "inductor",
+          "calls": 0,
+          "dynamic_extents": true,
+          "eager_fallback": false,
+          "evictions": 0,
+          "families_created": 0,
+          "fullgraph": true,
+          "global_cache_limit_modified": false,
+          "max_families": 32,
+          "policy": "bounded_structural_families_v1"
+        },
+        "gap_kkt": {
+          "active_families": 0,
+          "backend": "inductor",
+          "calls": 0,
+          "dynamic_extents": true,
+          "eager_fallback": false,
+          "evictions": 0,
+          "families_created": 0,
+          "fullgraph": true,
+          "global_cache_limit_modified": false,
+          "max_families": 32,
+          "policy": "bounded_structural_families_v1"
+        },
+        "likelihood": {
+          "active_families": 0,
+          "backend": "inductor",
+          "calls": 0,
+          "dynamic_extents": true,
+          "eager_fallback": false,
+          "evictions": 0,
+          "families_created": 0,
+          "fullgraph": true,
+          "global_cache_limit_modified": false,
+          "max_families": 32,
+          "policy": "bounded_structural_families_v1"
+        },
+        "loss_gradient": {
+          "active_families": 1,
+          "backend": "inductor",
+          "calls": 98,
+          "dynamic_extents": true,
+          "eager_fallback": false,
+          "evictions": 0,
+          "families_created": 1,
+          "fullgraph": true,
+          "global_cache_limit_modified": false,
+          "max_families": 32,
+          "policy": "bounded_structural_families_v1"
+        },
+        "loss_only": {
+          "active_families": 3,
+          "backend": "inductor",
+          "calls": 298,
+          "dynamic_extents": true,
+          "eager_fallback": false,
+          "evictions": 0,
+          "families_created": 3,
+          "fullgraph": true,
+          "global_cache_limit_modified": false,
+          "max_families": 32,
+          "policy": "bounded_structural_families_v1"
+        }
+      },
+      "counter_deltas": {
+        "integrity_counters": {
+          "full_checks": 11,
+          "metadata_checks": 863
+        },
+        "scalar_work_counters": {
+          "analytical_groups": 1,
+          "full_terms_calls": 0,
+          "general_groups": 5,
+          "golden_padded_group_slots": 15,
+          "golden_wells": 11,
+          "loss_gradient_calls": 49,
+          "loss_only_calls": 149,
+          "scalar_proposals_evaluated": 2571,
+          "scalar_rows_evaluated": 986
+        }
+      },
+      "counters_after": {
+        "integrity_counters": {
+          "full_checks": 22,
+          "metadata_checks": 1726
+        },
+        "scalar_work_counters": {
+          "analytical_groups": 2,
+          "full_terms_calls": 0,
+          "general_groups": 10,
+          "golden_padded_group_slots": 30,
+          "golden_wells": 22,
+          "loss_gradient_calls": 98,
+          "loss_only_calls": 298,
+          "scalar_proposals_evaluated": 5142,
+          "scalar_rows_evaluated": 1972
+        }
+      },
+      "counters_before": {
+        "integrity_counters": {
+          "full_checks": 11,
+          "metadata_checks": 863
+        },
+        "scalar_work_counters": {
+          "analytical_groups": 1,
+          "full_terms_calls": 0,
+          "general_groups": 5,
+          "golden_padded_group_slots": 15,
+          "golden_wells": 11,
+          "loss_gradient_calls": 49,
+          "loss_only_calls": 149,
+          "scalar_proposals_evaluated": 2571,
+          "scalar_rows_evaluated": 986
+        }
+      },
+      "counts_file": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922i/results/scalar-profile-current.artifacts/mixed6.counts.json",
+      "counts_sha256": "f31087c7ebe85a0afc4e3900c1aca335f8f4e379afce7368a4deadbbcd1cfbf6",
+      "elapsed_seconds": 9.251248927088454,
+      "kind": "profile_qualified",
+      "name": "mixed6",
+      "optional_counters_available": true,
+      "peak_allocated_bytes": 636928,
+      "peak_reserved_bytes": 2097152,
+      "proxy_scope": "host scalar-read operations; not a direct CUDA synchronization duration or CPU inference measure",
+      "result": {
+        "gap": [
+          1.2789769243681803e-12,
+          6.266039775937315e-08,
+          8.589181277329772e-08,
+          5.304227812530371e-08,
+          1.0517163673284813e-07,
+          7.307130545086693e-08
+        ],
+        "loss": [
+          43.966987940134295,
+          59.987133648336645,
+          66.9692765439757,
+          49.520127342063574,
+          67.99428535973068,
+          70.09175778894827
+        ],
+        "lower_bound": [
+          43.966987940133016,
+          59.98713358567625,
+          66.96927645808388,
+          49.520127289021296,
+          67.99428525455905,
+          70.09175771587697
+        ],
+        "phi": [
+          0.39999999999999997,
+          0.5603168103425415,
+          0.8282729732319339,
+          0.4598012284504956,
+          0.5714346800330465,
+          0.4286982687492306
+        ],
+        "qualified": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "scalar_read_proxy_counts": {
+        "aten::_local_scalar_dense": 243,
+        "aten::is_nonzero": 33,
+        "aten::item": 243
+      },
+      "seconds": 0.2854190089274198,
+      "timing_scope": "warmed scalar call plus CPU profiler overhead",
+      "trace": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922i/results/scalar-profile-current.artifacts/mixed6.trace.json",
+      "trace_sha256": "8f181a94e49d9faf7968262a4b4ac7156f6be7eaa65859d44590185918cce69c",
+      "utc": "2026-09-23T00:25:35.981606+00:00"
+    }
+  ],
+  "cc": "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/x86_64-conda-linux-gnu-gcc",
+  "command": [
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922i/source/benchmarks/profile_scalar_cuda.py",
+    "--device",
+    "cuda:0",
+    "--out",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922i/results/scalar-profile-current.json",
+    "--timeout-seconds",
+    "180"
+  ],
+  "cuda_runtime": "12.8",
+  "device": "cuda:0",
+  "elapsed_seconds": 9.254931349074468,
+  "events_sha256": "a4c8b162c32fe0b81597f280a1c2616c77b8bf4c4b3e8bea32903bc32ddea01c",
+  "finished_utc": "2026-09-23T00:25:35.985303+00:00",
+  "gpu": "NVIDIA L40",
+  "interpreter": "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13",
+  "lsf_job_id": "77334328",
+  "numerical_execution": "CUDA float64",
+  "policy": {
+    "check_every": 16,
+    "eps": 1e-06,
+    "fusion_tol": 2e-05,
+    "inner_atol": 1e-10,
+    "inner_kkt_tol": 1e-07,
+    "inner_max_iterations": 20000,
+    "inner_rtol": 1e-11,
+    "max_backtracks": 24,
+    "memory_fraction": 0.7,
+    "outer_max_iterations": 150,
+    "path_extensions": 3,
+    "path_max_exponent": 12,
+    "path_min_exponent": -12,
+    "policy_id": "clipp1d_complete_cuda_unconstrained_v3",
+    "scalar_atol": 1e-07,
+    "scalar_batch_size": 64,
+    "scalar_max_intervals": 4096,
+    "scalar_rtol": 1e-10,
+    "stationarity_tol": 2e-05,
+    "weight_rule": "all_pairs_inverse_gap_mean_one_adjacent_floor_v1"
+  },
+  "profiler_activities": [
+    "CPU host dispatch"
+  ],
+  "python": "3.13.7",
+  "schema": "clipp1d.cuda.scalar_profile.v1",
+  "script_sha256": "19f8108c9cd755f1ca4bbc55eebfead9edf480a24c31e54807c41855c6c0c7cb",
+  "source": {
+    "dtype": "float64",
+    "floating_point_formats": {
+      "float64": {
+        "dtype": "float64",
+        "eps": "2.220446049250313e-16",
+        "epsneg": "1.1102230246251565e-16",
+        "exponent_bits": 11,
+        "machep": -52,
+        "max_finite": "1.7976931348623157e+308",
+        "maxexp": 1024,
+        "minexp": -1022,
+        "nmant": 52,
+        "significand_bits": 53,
+        "smallest_normal": "2.2250738585072014e-308",
+        "storage_bits": 64
+      },
+      "longdouble": {
+        "dtype": "float128",
+        "eps": "1.084202172485504434e-19",
+        "epsneg": "5.42101086242752217e-20",
+        "exponent_bits": 15,
+        "machep": -63,
+        "max_finite": "1.189731495357231765e+4932",
+        "maxexp": 16384,
+        "minexp": -16382,
+        "nmant": 63,
+        "significand_bits": 64,
+        "smallest_normal": "3.3621031431120935063e-4932",
+        "storage_bits": 128
+      }
+    },
+    "interpreter": "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13",
+    "machine": "x86_64",
+    "numpy": "2.2.6",
+    "package_version": "0.5.1.dev0",
+    "platform": "Linux-4.18.0-425.3.1.el8.x86_64-x86_64-with-glibc2.28",
+    "precision_scope": "PyTorch CUDA inference uses float64. This receipt does not qualify other platforms.",
+    "python": "3.13.7",
+    "scipy": "1.16.2",
+    "source_commit": null,
+    "source_files": {
+      "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+      "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "api.py": "84d672678e803652152955e76a6f9f7d7be2ce0c70ea30bbf50dbf9d49fd0882",
+      "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+      "cli.py": "649325f590605e8c473eb84995d140161818ca4d86b5cd3ac673e9b5f863f775",
+      "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+      "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+      "cuda/audit.py": "cf44d263fa8c4a1d07f2069aee98a9023a4ff3e84a1bbbcf111259a528e4ad84",
+      "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+      "cuda/kernels.py": "ca28d50155001f0722b04728b633e13ac4b12e9f663bdfd94eb0c5ac77a4d562",
+      "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+      "cuda/partition.py": "fa6e171ab2b47db51d5b07574399c1c5a8e1a8cd1efb62d475f576c6bfecfe40",
+      "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+      "cuda/qp.py": "f600359924bc8670f1bb9dc577758b9590ca13e45973de82fb6fac219a887623",
+      "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+      "cuda/selection.py": "137c5c12557a69e94096fdbde7ce319c5a5a296baf32dcdee1fbac9e68e2220c",
+      "cuda/solver.py": "3a3e133696669ffb5e7d21d4346841ccb140883f46db360865cc571c1c9ddbc3",
+      "cuda_api.py": "0b95af9c61dcc5eca3cc2c7cc5ef15d42b039685ed8bb7508edfafd01e00011c",
+      "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+      "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+      "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+      "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+      "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+      "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+      "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+      "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+      "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+      "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+      "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+      "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+      "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+      "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+      "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+    },
+    "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+    "torch": "2.9.1+cu128"
+  },
+  "started_utc": "2026-09-23T00:25:26.724405+00:00",
+  "status": "passed",
+  "torch": "2.9.1+cu128"
+}

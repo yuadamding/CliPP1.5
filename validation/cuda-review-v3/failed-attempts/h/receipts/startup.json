@@ -1,0 +1,11 @@
+{
+  "compiler_sha256": "b84b3a39da544e68b2eac6d285433431d58fa09d3aa2b5f925ed387127be5512",
+  "cuda": "12.8",
+  "dirty_overlay": true,
+  "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+  "gpu": "NVIDIA L40",
+  "inventory_sha256": "c9c0ee83247bfd25884a460df99fdc16b918d183e9377f368895a34b5e7839e5",
+  "job_id": "77334195",
+  "source": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922h/source/src/clipp1d/__init__.py",
+  "torch": "2.9.1+cu128"
+}

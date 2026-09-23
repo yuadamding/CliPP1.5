@@ -6,7 +6,7 @@ from ..types import NumericalQualificationError
 
 @dataclass(frozen=True)
 class CudaPolicy:
-    policy_id: str = "clipp1d_complete_cuda_unconstrained_v2"
+    policy_id: str = "clipp1d_complete_cuda_unconstrained_v3"
     weight_rule: str = "all_pairs_inverse_gap_mean_one_adjacent_floor_v1"
     eps: float = 1e-6
     scalar_atol: float = 1e-7

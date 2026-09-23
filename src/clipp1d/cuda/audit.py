@@ -34,7 +34,7 @@ def _cut_inputs(a, caps, allowed, initial_dual):
 
 
 def directional_cut(a, caps, allowed, initial_dual, policy=CudaPolicy(), *, diagnostics=None,
-                    tolerance=None):
+                    tolerance=None, roundoff_unit=1.0):
     """Minimize a't + sum caps_ij |t_j-t_i| over 0 <= t <= allowed.
 
     All quantities remain on the input device. For every feasible skew dual q,
@@ -43,12 +43,24 @@ def directional_cut(a, caps, allowed, initial_dual, policy=CudaPolicy(), *, diag
     reduction error, and attained descent has an independent primal margin.
     ``diagnostics`` receives scalar bounds and status; no fitted array is moved
     to host. An iteration limit produces (False, None), never approximate success.
+
+    If all objective coefficients and the tolerance were divided by S, callers
+    must also pass roundoff_unit=1/S. The error bound Gamma*(1+absolute terms)
+    then becomes Gamma*(1/S+absolute scaled terms), preserving the original-unit
+    constant floor. The absolute a/q terms cover both reduction cancellation
+    and relative coefficient/cap errors from normalization; the primal bound
+    similarly includes every absolute node/edge term. No tolerance is increased.
     """
     _cut_inputs(a, caps, allowed, initial_dual)
     threshold = a.new_tensor(policy.stationarity_tol) if tolerance is None else torch.as_tensor(
         tolerance, dtype=a.dtype, device=a.device)
     if threshold.ndim != 0 or not bool(torch.isfinite(threshold) & (threshold > 0)):
         raise ValueError("Directional cut tolerance must be a finite positive scalar")
+    unit = torch.as_tensor(roundoff_unit, dtype=a.dtype, device=a.device)
+    if unit.ndim != 0 or not bool(torch.isfinite(unit) & (unit > 0)):
+        raise ValueError("Directional cut roundoff unit must be a finite positive scalar")
+    if diagnostics is not None:
+        diagnostics.update(roundoff_unit=float(unit), tolerance=float(threshold))
     n = a.numel()
     q = torch.maximum(-caps, torch.minimum(caps, initial_dual)).clone()
     q = (q - q.T) * .5
@@ -64,7 +76,7 @@ def directional_cut(a, caps, allowed, initial_dual, policy=CudaPolicy(), *, diag
             # Bounding only |r| would miss cancellation in a + D'q. Account for
             # every absolute summand before the row and final reductions.
             margin = (8 * (n + 2) * eps *
-                      (1 + ((a.abs() + q.abs().sum(-1)) * allowed).sum()))
+                      (unit + ((a.abs() + q.abs().sum(-1)) * allowed).sum()))
             lower = lower - margin
             dual_valid = (torch.isfinite(q).all() & (q.abs() <= caps).all() & (q == -q.T).all())
             if bool(dual_valid & torch.isfinite(lower) & (lower >= -threshold)):
@@ -76,7 +88,7 @@ def directional_cut(a, caps, allowed, initial_dual, policy=CudaPolicy(), *, diag
             node_terms = a * t
             edge_terms = caps * differences(t).abs()
             value = node_terms.sum() + .5 * edge_terms.sum()
-            primal_margin = 8 * (n + 2) * eps * (1 + node_terms.abs().sum() + .5 * edge_terms.sum())
+            primal_margin = 8 * (n + 2) * eps * (unit + node_terms.abs().sum() + .5 * edge_terms.sum())
             primal_valid = (torch.isfinite(t).all() & (t >= 0).all() & (t <= allowed).all())
             if bool(primal_valid & torch.isfinite(value) & (value + primal_margin < -threshold)):
                 status = "attained_descent"
@@ -106,7 +118,11 @@ def audit_raw(model, x, q, caps, witness=None, policy=CudaPolicy()):
     """
     if witness is not None:
         raise ValueError("Unconstrained audit cannot fix or exempt a clonal witness")
-    model.validate()
+    with model.validated_stage():
+        return _audit_raw(model, x, q, caps, policy)
+
+
+def _audit_raw(model, x, q, caps, policy):
     _cut_inputs(x, caps, torch.ones_like(x), q)
     losses, grad, _, _, left, right = model.terms(x)
     valid = ((x >= model.lower).all() & (x <= model.upper).all()
@@ -153,7 +169,8 @@ def audit_raw(model, x, q, caps, witness=None, policy=CudaPolicy()):
         cut = {}
         ok, direction = directional_cut(linear / scale, fc / scale, allowed, dual / scale,
                                         policy, diagnostics=cut,
-                                        tolerance=policy.stationarity_tol / scale)
+                                        tolerance=policy.stationarity_tol / scale,
+                                        roundoff_unit=torch.ones_like(scale) / scale)
         cut["objective_scale"] = float(scale)
         name = "positive" if sign > 0 else "negative"
         diagnostics[name] = cut

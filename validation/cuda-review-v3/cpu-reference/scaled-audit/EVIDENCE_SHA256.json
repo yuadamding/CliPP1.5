@@ -1,0 +1,36 @@
+{
+  "completed_penalties": 26,
+  "created_utc": "2026-09-23T00:22:52.954835+00:00",
+  "directory": "n256-cpu-reference-scaled-audit",
+  "elapsed_seconds": 49.58742917329073,
+  "files": {
+    "AUDIT_SCALING_DERIVATION.md": {
+      "bytes": 2840,
+      "sha256": "f7bc35ab523fc113f03fcae8215f5bb574acbb57d5002176a2c7f58430a8178a"
+    },
+    "driver.py": {
+      "bytes": 3170,
+      "sha256": "689046537f1f67522334bf0d4aae04679846069c8554fd4f63e7af46fbe1a84c"
+    },
+    "events.jsonl": {
+      "bytes": 212722,
+      "sha256": "62871a1c5e6abf7c85e1fd32e92d7b7bc0d061360d0abc1a89280be0696cf6ec"
+    },
+    "path.json": {
+      "bytes": 270111,
+      "sha256": "d5951dc4505d5175c30f88b4cc06205e7e71ea68a757cbc09d99f2fb755efea2"
+    },
+    "source-and-plan.json": {
+      "bytes": 16824,
+      "sha256": "3a999049f6cdb7890008ca7c987cec7cc35dbb97929e66533f6538024af04184"
+    },
+    "terminal.json": {
+      "bytes": 13978,
+      "sha256": "ba96896e058e11d863df6e99b7b38ef15e820af307e50ba18d068f16645d497f"
+    }
+  },
+  "schema": "clipp1d.cpu_reference.evidence_inventory.v1",
+  "scope": "Bounded CPU reference diagnosis only; not CUDA qualification, no GPU timing or speedup claim.",
+  "source_sha256": "ea7071788094e0cd3537530fcdc62e4228054fce19ff02ba8f2cf4eacce1dd26",
+  "status": "complete"
+}

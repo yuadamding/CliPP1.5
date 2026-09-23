@@ -5,6 +5,7 @@ arrays. Interval budgets and float64 admission tolerances match the source polic
 Bounds are numerical float64 qualifications, not directed-rounding proofs.
 """
 from dataclasses import dataclass
+from contextlib import contextmanager
 import torch
 from .model import TensorModel
 from .policy import CudaPolicy, QualificationError
@@ -39,27 +40,76 @@ class Problems:
         self.upper = self.reduce(model.upper, "min")
         if not bool((self.lower <= self.upper).all()):
             raise ValueError("Scalar group has no common feasible domain")
-        self._versions = tuple((id(v), v._version) for v in
-                               (self.lengths, self.group, self.lower, self.upper))
+        self._versions = self._metadata()
+        self._snapshots = tuple(value.clone() for value in
+                                (self.lengths, self.group, self.lower, self.upper))
+        self._stage_depth = 0
 
-    def validate(self):
+    def _metadata(self):
+        return (id(self.model), tuple((id(value), value._version, value.shape, value.dtype,
+                                      value.device, value.data_ptr()) for value in
+                                     (self.lengths, self.group, self.lower, self.upper)))
+
+    def validate(self, *, full=None):
         self.model.validate()
-        if tuple((id(v), v._version) for v in
-                 (self.lengths, self.group, self.lower, self.upper)) != self._versions:
+        if self._metadata() != self._versions:
             raise ValueError("Scalar membership or domain tensors were modified")
+        if full is None:
+            full = self._stage_depth == 0
+        if full:
+            if not bool(torch.stack([(value == frozen).all() for value, frozen in zip(
+                    (self.lengths, self.group, self.lower, self.upper), self._snapshots)]).all()):
+                raise ValueError("Scalar membership or domain tensors were modified")
+
+    @contextmanager
+    def validated_stage(self):
+        with self.model.validated_stage():
+            outermost = self._stage_depth == 0
+            self.validate(full=outermost)
+            self._stage_depth += 1
+            try:
+                yield self
+            finally:
+                self._stage_depth -= 1
+                self.validate(full=outermost)
+
+    def subset(self, groups):
+        """Retain requested canonical groups and their rows entirely on device."""
+        self.validate()
+        selected = torch.zeros(self.count, dtype=torch.bool, device=self.model.device)
+        selected[groups] = True
+        rows = torch.nonzero(selected[self.group], as_tuple=True)[0]
+        return Problems(self.model.subset(rows), self.lengths[groups])
 
     def reduce(self, x, reduction="sum"):
-        return torch.segment_reduce(x, reduction, lengths=self.lengths)
+        if hasattr(self, "_versions"):
+            self.validate()
+        # ATen's default length checks perform scalar device reads on every
+        # reduction. An owned stage already proved these immutable lengths;
+        # metadata checks above and full entry/exit reconciliation retain that
+        # invariant. Calls outside the stage keep ATen's independent checks.
+        return torch.segment_reduce(x, reduction, lengths=self.lengths,
+                                    unsafe=getattr(self, "_stage_depth", 0) > 0)
 
-    def evaluate(self, points):
+    def _proposal(self, points, kernel):
         self.validate()
         if (points.ndim != 2 or points.shape[0] != self.count or
                 points.dtype != torch.float64 or points.device != self.model.device):
             raise ValueError("Scalar proposal points must be a matching float64 device matrix")
         row_phi = points[self.group]
-        out = self.model.kernels.likelihood(self.model.alt, self.model.ref, self.model.slope,
-                                            self.model.log_prior, row_phi, self.model.eps)
+        counters = self.model.scalar_work_counters
+        counters["scalar_rows_evaluated"] += self.model.n
+        counters["scalar_proposals_evaluated"] += row_phi.numel()
+        counters[kernel + "_calls"] += 1
+        return getattr(self.model.kernels, kernel)(self.model.alt, self.model.ref, self.model.slope,
+                                                   self.model.log_prior, row_phi, self.model.eps)
+
+    def evaluate(self, points):
+        out = self._proposal(points, "loss_gradient")
         return self.reduce(out[0]), self.reduce(out[1])
+
+    def loss(self, points):
+        return self.reduce(self._proposal(points, "loss_only"))
 
     def bounds(self, left, right):
         self.validate()
@@ -129,77 +179,133 @@ class Problems:
         return torch.where(torch.isfinite(point), point, left + (right - left) * .5)
 
 
+def _join_batches(results):
+    return ScalarBatch(*(torch.cat([getattr(result, key) for result in results]) for key in
+                         ("phi", "loss", "lower_bound", "gap", "alternative", "qualified")),
+                       subdivisions=sum(result.subdivisions for result in results))
+
+
+def _analytical_points(p):
+    """Identify exact lanes before any grid or marginalized likelihood work."""
+    m = p.model
+    valid = torch.isfinite(m.log_prior)
+    single = p.reduce((valid.sum(-1) == 1).to(torch.float64), "min") == 1
+    slope = torch.where(valid, m.slope, 0.).sum(-1)
+    smin, smax = p.reduce(slope, "min"), p.reduce(slope, "max")
+    exact = single & (smin == smax)
+    alt, ref = p.reduce(m.alt), p.reduce(m.ref)
+    empirical = alt / (alt + ref)
+    plo, phi = (smin * p.lower).clamp(m.eps, 1 - m.eps), (smin * p.upper).clamp(m.eps, 1 - m.eps)
+    point = (empirical.clamp_max(1 - m.eps) / smin).clamp(p.lower, p.upper)
+    point = torch.where((empirical <= plo) | (plo == phi), p.lower, point)
+    return exact, point
+
+
+def _analytical(p, point, policy):
+    loss = p.loss(point[:, None])[:, 0]
+    lower = loss - 128 * torch.finfo(torch.float64).eps * (1 + loss.abs())
+    gap = (loss - lower).clamp_min(0.)
+    qualified = (torch.isfinite(point) & torch.isfinite(loss) & torch.isfinite(lower) &
+                 (point >= p.lower) & (point <= p.upper) &
+                 (gap <= policy.scalar_atol + policy.scalar_rtol * loss.abs()))
+    p.model.scalar_work_counters["analytical_groups"] += p.count
+    return ScalarBatch(point, loss, lower, gap, point.clone(), qualified, 0)
+
+
 def solve_scalar(problems: Problems, policy=CudaPolicy()):
-    p, m, b = problems, problems.model, problems.count
-    p.validate()
+    """Qualify scalar groups with one integrity boundary around each owned stage."""
+    with problems.validated_stage():
+        return _solve_scalar(problems, policy)
+
+
+def _solve_scalar(p, policy):
+    m, b = p.model, p.count
     if b > policy.scalar_batch_size:
-        # Only batch-boundary counts enter host control; no likelihood, fitted
-        # coordinate, or optimization array is transferred to or solved on CPU.
         results = []
         row_start = 0
         for group_start in range(0, b, policy.scalar_batch_size):
             lengths = p.lengths[group_start:group_start + policy.scalar_batch_size]
+            # Only a batch-boundary count enters host control; numerical arrays
+            # and all likelihood/optimization work remain on their input device.
             row_stop = row_start + int(lengths.sum())
             batch = Problems(m.subset(slice(row_start, row_stop)), lengths)
             results.append(solve_scalar(batch, policy))
             row_start = row_stop
-        return ScalarBatch(*(torch.cat([getattr(result, key) for result in results]) for key in
-                             ("phi", "loss", "lower_bound", "gap", "alternative", "qualified")),
-                           subdivisions=sum(result.subdivisions for result in results))
-    device = m.device
+        return _join_batches(results)
+    exact, point = _analytical_points(p)
+    if bool(exact.all()):
+        return _analytical(p, point, policy)
+    if not bool(exact.any()):
+        return _solve_general(p, policy)
+    analytical_ids = torch.nonzero(exact, as_tuple=True)[0]
+    general_ids = torch.nonzero(~exact, as_tuple=True)[0]
+    analytical = p.subset(analytical_ids)
+    general = p.subset(general_ids)
+    with analytical.validated_stage():
+        direct = _analytical(analytical, point[analytical_ids], policy)
+    with general.validated_stage():
+        searched = _solve_general(general, policy)
+    arrays = []
+    for key in ("phi", "loss", "lower_bound", "gap", "alternative", "qualified"):
+        value = getattr(direct, key).new_empty((b,))
+        value[analytical_ids] = getattr(direct, key)
+        value[general_ids] = getattr(searched, key)
+        arrays.append(value)
+    return ScalarBatch(*arrays, searched.subdivisions)
+
+
+def _golden_wells(p, seeds, values, best_x):
+    """Refine only actual initial local wells, with bounded per-group padding.
+
+    Packing keeps original seed-column order, so ties retain the same first well
+    as the prior full-grid search. Padded lanes are masked throughout selection.
+    Their count is bounded by the largest actual-well count in the scalar batch.
+    """
+    local = (values[:, 1:-1] <= values[:, :-2]) & (values[:, 1:-1] <= values[:, 2:])
+    counts = local.sum(-1)
+    width, total = torch.stack((counts.max(), counts.sum())).tolist()
+    width, total = int(width), int(total)
+    counters = p.model.scalar_work_counters
+    counters["golden_wells"] += total
+    counters["golden_padded_group_slots"] += p.count * width
+    if not width:
+        return best_x[:, None], torch.full_like(best_x[:, None], float("inf")), False
+    columns = torch.arange(local.shape[1], device=seeds.device).expand_as(local)
+    packed = torch.sort(torch.where(local, columns, local.shape[1]), dim=-1).values[:, :width]
+    occupied = packed < local.shape[1]
+    index = packed.clamp_max(local.shape[1] - 1)
+    a = torch.where(occupied, seeds[:, :-2].gather(1, index), best_x[:, None])
+    z = torch.where(occupied, seeds[:, 2:].gather(1, index), best_x[:, None])
+    ratio = (5. ** .5 - 1) / 2
+    for _ in range(48):
+        c, d = z - ratio * (z - a), a + ratio * (z - a)
+        fc, fd = p.loss(c), p.loss(d)
+        take = fc <= fd
+        a, z = torch.where(take, a, c), torch.where(take, d, z)
+    wells = (a + z) * .5
+    values = torch.where(occupied, p.loss(wells), float("inf"))
+    return wells, values, True
+
+
+def _solve_general(p, policy):
+    m, b, device = p.model, p.count, p.model.device
+    m.scalar_work_counters["general_groups"] += b
     grid = torch.linspace(0., 1., 33, device=device, dtype=torch.float64)
     seeds = p.lower[:, None] + (p.upper - p.lower)[:, None] * grid
-    # Candidate-mode averages are attained seeds only; bounds still cover the full domain.
     modes = ((m.alt / (m.alt + m.ref))[:, None]
              / torch.where(m.slope > 0, m.slope, torch.ones_like(m.slope)))
     valid = torch.isfinite(m.log_prior)
     modes = p.reduce(torch.where(valid, modes, 0.)) / p.reduce(valid.to(torch.float64)).clamp_min(1.)
     modes = torch.maximum(p.lower[:, None], torch.minimum(p.upper[:, None], modes))
     seeds = torch.sort(torch.cat((seeds, modes), -1), dim=-1).values
-    values, _ = p.evaluate(seeds)
+    values = p.loss(seeds)
     best_loss, idx = values.min(-1)
     best_x = seeds.gather(1, idx[:, None])[:, 0]
-    # Exact same-slope single-candidate groups (including zero-alt clipping plateaus).
-    single = p.reduce((valid.sum(-1) == 1).to(torch.float64), "min") == 1
-    # The unique valid support need not occupy storage column zero.
-    candidate_slope = torch.where(valid, m.slope, 0.).sum(-1)
-    smin, smax = p.reduce(candidate_slope, "min"), p.reduce(candidate_slope, "max")
-    exact = single & (smin == smax)
-    alt, ref = p.reduce(m.alt), p.reduce(m.ref)
-    empirical = alt / (alt + ref)
-    plo, phi = (smin * p.lower).clamp(m.eps, 1 - m.eps), (smin * p.upper).clamp(m.eps, 1 - m.eps)
-    direct_x = (empirical.clamp_max(1 - m.eps) / smin).clamp(p.lower, p.upper)
-    direct_x = torch.where((empirical <= plo) | (plo == phi), p.lower, direct_x)
-    direct_loss = p.evaluate(direct_x[:, None])[0][:, 0]
-    exact_lb = direct_loss - 128 * torch.finfo(torch.float64).eps * (1 + direct_loss.abs())
-    best_x = torch.where(exact, direct_x, best_x)
-    best_loss = torch.where(exact, direct_loss, best_loss)
-    if bool(exact.all()):
-        gap = (best_loss - exact_lb).clamp_min(0.)
-        qualified = (torch.isfinite(best_x) & torch.isfinite(best_loss) & torch.isfinite(exact_lb) &
-                     (best_x >= p.lower) & (best_x <= p.upper) &
-                     (gap <= policy.scalar_atol + policy.scalar_rtol * best_loss.abs()))
-        return ScalarBatch(best_x, best_loss, exact_lb, gap, best_x.clone(), qualified, 0)
-    # Local golden searches produce multistart proposals, never scalar certificates.
-    if not bool(exact.all()):
-        local = (values[:, 1:-1] <= values[:, :-2]) & (values[:, 1:-1] <= values[:, 2:])
-        a, z = seeds[:, :-2].clone(), seeds[:, 2:].clone()
-        ratio = (5. ** .5 - 1) / 2
-        for _ in range(48):
-            c, d = z - ratio * (z - a), a + ratio * (z - a)
-            fc, _ = p.evaluate(c)
-            fd, _ = p.evaluate(d)
-            take = fc <= fd
-            a, z = torch.where(take, a, c), torch.where(take, d, z)
-        wells = (a + z) * .5
-        well_loss, _ = p.evaluate(wells)
-        well_loss = torch.where(local, well_loss, float("inf"))
-        win, wi = well_loss.min(-1)
-        wx = wells.gather(1, wi[:, None])[:, 0]
-        improve = (~exact) & (win < best_loss)
-        best_x, best_loss = torch.where(improve, wx, best_x), torch.where(improve, win, best_loss)
-    else:
-        wells, well_loss = seeds, values
+    wells, well_loss, have_wells = _golden_wells(p, seeds, values, best_x)
+    win, wi = well_loss.min(-1)
+    wx = wells.gather(1, wi[:, None])[:, 0]
+    improve = win < best_loss
+    best_x, best_loss = torch.where(improve, wx, best_x), torch.where(improve, win, best_loss)
     initial = seeds.shape[1] - 1
     capacity = initial + policy.scalar_max_intervals
     left = torch.zeros((b, capacity), dtype=torch.float64, device=device)
@@ -211,7 +317,7 @@ def solve_scalar(problems: Problems, policy=CudaPolicy()):
     row = torch.arange(b, device=device)
     for iteration in range(policy.scalar_max_intervals + 1):
         smallest, at = bounds[:, :slots].min(-1)
-        lb = torch.where(exact, exact_lb, torch.minimum(best_loss, smallest))
+        lb = torch.minimum(best_loss, smallest)
         gap = (best_loss - lb).clamp_min(0.)
         qualified = (torch.isfinite(best_x) & torch.isfinite(best_loss) & torch.isfinite(lb) &
                      torch.isfinite(gap) & (best_x >= p.lower) & (best_x <= p.upper) &
@@ -223,10 +329,9 @@ def solve_scalar(problems: Problems, policy=CudaPolicy()):
         lo, r = left[row, at], right[row, at]
         cut = p.nearest_kink(lo, r)
         active = (~qualified) & (cut > lo) & (cut < r)
-        # Inactive lanes retain their whole-interval lower bound; no false qualification.
         lnew, rnew = torch.stack((lo, cut), -1), torch.stack((cut, r), -1)
         lbnew, mid, midloss = p.bounds(lnew, rnew)
-        cutloss = p.evaluate(cut[:, None])[0][:, 0]
+        cutloss = p.loss(cut[:, None])[:, 0]
         props, prop_loss = torch.cat((cut[:, None], mid), -1), torch.cat((cutloss[:, None], midloss), -1)
         v, atp = prop_loss.min(-1)
         t = props.gather(1, atp[:, None])[:, 0]
@@ -239,27 +344,28 @@ def solve_scalar(problems: Problems, policy=CudaPolicy()):
         bounds[:, slots] = torch.where(active, lbnew[:, 1], float("inf"))
         slots += 1
         rounds += 1
-    delta = ((p.upper - p.lower) * 1e-4).clamp_max(1e-5)
-    wl, _ = p.evaluate(torch.maximum(p.lower[:, None], wells - delta[:, None]))
-    wr, _ = p.evaluate(torch.minimum(p.upper[:, None], wells + delta[:, None]))
-    admissible = ((wells - best_x[:, None]).abs() > 1e-3) & (well_loss <= best_loss[:, None] + 2.)
-    admissible &= (well_loss <= wl) & (well_loss <= wr)
-    alt_loss, ai = torch.where(admissible, well_loss, float("inf")).min(-1)
-    alternative = torch.where(torch.isfinite(alt_loss), wells.gather(1, ai[:, None])[:, 0], best_x)
+    alternative = best_x
+    if have_wells:
+        delta = ((p.upper - p.lower) * 1e-4).clamp_max(1e-5)
+        wl = p.loss(torch.maximum(p.lower[:, None], wells - delta[:, None]))
+        wr = p.loss(torch.minimum(p.upper[:, None], wells + delta[:, None]))
+        admissible = ((wells - best_x[:, None]).abs() > 1e-3) & (well_loss <= best_loss[:, None] + 2.)
+        admissible &= (well_loss <= wl) & (well_loss <= wr)
+        alt_loss, ai = torch.where(admissible, well_loss, float("inf")).min(-1)
+        alternative = torch.where(torch.isfinite(alt_loss), wells.gather(1, ai[:, None])[:, 0], best_x)
     return ScalarBatch(best_x, best_loss, lb, gap, alternative, qualified, rounds)
 
 
 def pilot(model: TensorModel, policy=CudaPolicy()):
     results = []
-    for start in range(0, model.n, policy.scalar_batch_size):
-        stop = min(model.n, start + policy.scalar_batch_size)
-        sub = model.subset(slice(start, stop))
-        lengths = torch.ones(stop - start, dtype=torch.long, device=model.device)
-        result = solve_scalar(Problems(sub, lengths), policy)
-        if not bool(result.qualified.all()):
-            raise QualificationError("CUDA scalar pilot unresolved", batch_start=start,
-                                      maximum_gap=float(result.gap.max()))
-        results.append(result)
-    return ScalarBatch(*(torch.cat([getattr(r, key) for r in results]) for key in
-                         ("phi", "loss", "lower_bound", "gap", "alternative", "qualified")),
-                        subdivisions=sum(r.subdivisions for r in results))
+    with model.validated_stage():
+        for start in range(0, model.n, policy.scalar_batch_size):
+            stop = min(model.n, start + policy.scalar_batch_size)
+            sub = model.subset(slice(start, stop))
+            lengths = torch.ones(stop - start, dtype=torch.long, device=model.device)
+            result = solve_scalar(Problems(sub, lengths), policy)
+            if not bool(result.qualified.all()):
+                raise QualificationError("CUDA scalar pilot unresolved", batch_start=start,
+                                          maximum_gap=float(result.gap.max()))
+            results.append(result)
+    return _join_batches(results)

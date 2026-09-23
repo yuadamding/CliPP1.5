@@ -1,5 +1,6 @@
 """A single upload of canonical float64 likelihood inputs; no fitted CPU state."""
 from dataclasses import dataclass
+from contextlib import contextmanager
 import math
 import torch
 from .kernels import Kernels
@@ -43,16 +44,50 @@ class TensorModel:
                   ((self.slope > 0) | ~valid).all())
         if not bool(finite & domain):
             raise ValueError("Invalid source counts, supports, or original feasibility bounds")
-        object.__setattr__(self, "_versions", tuple((id(v), v._version) for v in arrays))
+        object.__setattr__(self, "_versions", self._metadata())
         object.__setattr__(self, "_snapshots", tuple(v.detach().clone() for v in arrays))
+        object.__setattr__(self, "_stage_depth", 0)
+        object.__setattr__(self, "integrity_counters", dict(full_checks=0, metadata_checks=0))
+        object.__setattr__(self, "scalar_work_counters", dict(
+            scalar_rows_evaluated=0, scalar_proposals_evaluated=0, loss_only_calls=0,
+            loss_gradient_calls=0, full_terms_calls=0, analytical_groups=0,
+            general_groups=0, golden_wells=0, golden_padded_group_slots=0))
 
-    def validate(self):
+    def _metadata(self):
         arrays = (self.alt, self.ref, self.slope, self.log_prior, self.lower, self.upper)
-        if tuple((id(v), v._version) for v in arrays) != self._versions:
+        return (self.mutation_ids, self.eps, id(self.kernels),
+                tuple((id(v), v._version, v.shape, v.stride(), v.dtype, v.device, v.data_ptr())
+                      for v in arrays))
+
+    def validate(self, *, full=None):
+        """Check metadata cheaply inside an owned stage, otherwise reconcile values.
+
+        ``full=True`` always checks immutable snapshots, including writes through
+        ``Tensor.data`` that bypass the version counter. Stage entry and exit do
+        this unconditionally; no fitted stage result escapes before reconciliation.
+        """
+        self.integrity_counters["metadata_checks"] += 1
+        if self._metadata() != self._versions:
             raise ValueError("Canonical likelihood tensors were modified")
-        if not bool(torch.stack([(value == frozen).all()
-                                 for value, frozen in zip(arrays, self._snapshots)]).all()):
-            raise ValueError("Canonical likelihood tensors were modified")
+        if full is None:
+            full = self._stage_depth == 0
+        if full:
+            self.integrity_counters["full_checks"] += 1
+            arrays = (self.alt, self.ref, self.slope, self.log_prior, self.lower, self.upper)
+            if not bool(torch.stack([(value == frozen).all()
+                                     for value, frozen in zip(arrays, self._snapshots)]).all()):
+                raise ValueError("Canonical likelihood tensors were modified")
+
+    @contextmanager
+    def validated_stage(self):
+        outermost = self._stage_depth == 0
+        self.validate(full=outermost)
+        object.__setattr__(self, "_stage_depth", self._stage_depth + 1)
+        try:
+            yield self
+        finally:
+            object.__setattr__(self, "_stage_depth", self._stage_depth - 1)
+            self.validate(full=outermost)
 
     @classmethod
     def from_host(cls, model, device="cuda:0", compiled=True):
@@ -72,13 +107,33 @@ class TensorModel:
     def subset(self, idx):
         # IDs stay in host metadata. Numeric indexing remains entirely on device.
         self.validate()
-        return TensorModel((), self.alt[idx], self.ref[idx], self.slope[idx], self.log_prior[idx],
-                           self.lower[idx], self.upper[idx], self.eps, self.kernels)
+        result = TensorModel((), self.alt[idx], self.ref[idx], self.slope[idx], self.log_prior[idx],
+                             self.lower[idx], self.upper[idx], self.eps, self.kernels)
+        object.__setattr__(result, "integrity_counters", self.integrity_counters)
+        object.__setattr__(result, "scalar_work_counters", self.scalar_work_counters)
+        return result
 
-    def terms(self, x):
+    def _validate_point(self, x):
         self.validate()
         if x.shape != (self.n,) or x.dtype != torch.float64 or x.device != self.device:
             raise ValueError("Likelihood values must be a float64 vector on the model device")
+
+    def loss(self, x):
+        self._validate_point(x)
+        self.scalar_work_counters["loss_only_calls"] += 1
+        return self.kernels.loss_only(self.alt, self.ref, self.slope, self.log_prior,
+                                      x[:, None], self.eps)[:, 0]
+
+    def loss_gradient(self, x):
+        self._validate_point(x)
+        self.scalar_work_counters["loss_gradient_calls"] += 1
+        out = self.kernels.loss_gradient(self.alt, self.ref, self.slope, self.log_prior,
+                                         x[:, None], self.eps)
+        return tuple(value[:, 0] for value in out)
+
+    def terms(self, x):
+        self._validate_point(x)
+        self.scalar_work_counters["full_terms_calls"] += 1
         out = self.kernels.likelihood(self.alt, self.ref, self.slope, self.log_prior,
                                       x[:, None], self.eps)
         return tuple(v[:, 0] for v in out)

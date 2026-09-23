@@ -10,7 +10,7 @@ from types import FunctionType
 import torch
 
 
-def likelihood(alt, ref, slope, log_prior, phi, eps):
+def _log_kernel(alt, ref, slope, log_prior, phi, eps):
     # phi is [rows, proposals]; the final dimension always means multiplicity.
     mass = phi.unsqueeze(-1) * slope.unsqueeze(1)
     p = mass.clamp(eps, 1 - eps)
@@ -18,6 +18,26 @@ def likelihood(alt, ref, slope, log_prior, phi, eps):
         alt[:, None, None] * p.log() + ref[:, None, None] * torch.log1p(-p) + log_prior[:, None, :]
     )
     norm = torch.logsumexp(joint, dim=-1)
+    return mass, p, joint, norm
+
+
+def loss_only(alt, ref, slope, log_prior, phi, eps):
+    """Observed loss with the same arithmetic as the full likelihood kernel."""
+    return -_log_kernel(alt, ref, slope, log_prior, phi, eps)[3]
+
+
+def loss_gradient(alt, ref, slope, log_prior, phi, eps):
+    """Observed loss and represented-mass gradient; no curvature/audit outputs."""
+    mass, p, joint, norm = _log_kernel(alt, ref, slope, log_prior, phi, eps)
+    post = torch.exp(joint - norm.unsqueeze(-1))
+    score = alt[:, None, None] / p - ref[:, None, None] / (1 - p)
+    moving = torch.where((mass > eps) & (mass < 1 - eps), slope[:, None, :], 0.0)
+    grad = -(post * moving * score).sum(-1)
+    return -norm, grad
+
+
+def likelihood(alt, ref, slope, log_prior, phi, eps):
+    mass, p, joint, norm = _log_kernel(alt, ref, slope, log_prior, phi, eps)
     post = torch.exp(joint - norm.unsqueeze(-1))
     score = alt[:, None, None] / p - ref[:, None, None] / (1 - p)
     safe = torch.where(slope > 0, slope, torch.ones_like(slope))
@@ -301,7 +321,7 @@ class Kernels:
             probe = torch.compile(compiler_probe, backend="inductor", fullgraph=True)
             if not bool(probe(torch.zeros((), device=device, dtype=torch.float64)) == 1.0):
                 raise RuntimeError("CUDA compilation was disabled; compiled-path admission failed")
-        for name in ("likelihood", "boxed_rank_one", "edge_update", "gap_kkt"):
+        for name in ("likelihood", "loss_only", "loss_gradient", "boxed_rank_one", "edge_update", "gap_kkt"):
             fn = globals()[name]
             if self.compiled:
                 fn = StructuralCompileBank(fn)
@@ -310,6 +330,6 @@ class Kernels:
     def compilation_diagnostics(self):
         return {
             name: getattr(self, name).diagnostics()
-            for name in ("likelihood", "boxed_rank_one", "edge_update", "gap_kkt")
+            for name in ("likelihood", "loss_only", "loss_gradient", "boxed_rank_one", "edge_update", "gap_kkt")
             if isinstance(getattr(self, name), StructuralCompileBank)
         }

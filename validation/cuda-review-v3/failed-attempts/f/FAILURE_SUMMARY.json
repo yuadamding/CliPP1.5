@@ -1,0 +1,49 @@
+{
+  "diagnosis": "N256 QP hit unchanged production iteration limit; KKT passed but strict aggregate primal-dual gap failed; larger fits not reached",
+  "failure": {
+    "elapsed_seconds": 593.3074444341473,
+    "gap": 4.875462777557078e-10,
+    "gap_scale": 0.08206629089261117,
+    "iterations": 20000,
+    "kind": "resource_qp_attempt",
+    "kkt": 3.2275596878166204e-09,
+    "nodes": 256,
+    "peak_allocated_bytes": 7985664,
+    "peak_reserved_bytes": 8388608,
+    "qp_qualified": false,
+    "repeat": 0,
+    "seconds": 62.50990386796184,
+    "utc": "2026-09-22T23:18:07.036477+00:00"
+  },
+  "job_id": "77333999",
+  "prior_checks": {
+    "matched_graph_parity": 12,
+    "pipeline_parity": 3,
+    "public_publication": 1
+  },
+  "qualification_sha256": "de948a53951913bc3e332ab6a2a252a22a8273e8014ab30cb275d554a9246f5a",
+  "retained_gates": {
+    "check_every": 16,
+    "eps": 1e-06,
+    "fusion_tol": 2e-05,
+    "inner_atol": 1e-10,
+    "inner_kkt_tol": 1e-07,
+    "inner_max_iterations": 20000,
+    "inner_rtol": 1e-11,
+    "max_backtracks": 24,
+    "memory_fraction": 0.7,
+    "outer_max_iterations": 150,
+    "path_extensions": 3,
+    "path_max_exponent": 12,
+    "path_min_exponent": -12,
+    "policy_id": "clipp1d_complete_cuda_unconstrained_v3",
+    "scalar_atol": 1e-07,
+    "scalar_batch_size": 64,
+    "scalar_max_intervals": 4096,
+    "scalar_rtol": 1e-10,
+    "stationarity_tol": 2e-05,
+    "weight_rule": "all_pairs_inverse_gap_mean_one_adjacent_floor_v1"
+  },
+  "source_sha256": "3fc69f09a9880ad8220e6cdca7637d9fd03b389f2c8bc1e1d8ec02b49bd01e85",
+  "status": "failed"
+}

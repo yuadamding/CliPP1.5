@@ -1,0 +1,12 @@
+{
+  "elapsed_seconds": 910.5946829319,
+  "error": "CUDA qualification exited nonzero; preserve result and logs",
+  "error_type": "AssertionError",
+  "job_id": "77334114",
+  "passed": false,
+  "plan_sha256": "347f32e5dc0dcc50674c053fb6b8a1be10f65040efa313adda6550aa9247fb69",
+  "returncode": 1,
+  "scalar_profile_comparison_sha256": "568c3ddd8492568c2b36a677ee2b546619b6da444afb6db5643d0eddd025e99d",
+  "scope": "isolated_cuda_qualification_not_cohort_performance",
+  "traceback": "Traceback (most recent call last):\n  File \"/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922g/worker.py\", line 137, in main\n    assert completed.returncode == 0, 'CUDA qualification exited nonzero; preserve result and logs'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: CUDA qualification exited nonzero; preserve result and logs\n"
+}

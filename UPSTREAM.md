@@ -11,7 +11,7 @@ preserved verbatim in `LICENSE`; adapted likelihood code carries an attribution
 notice. No upstream runtime imports, submodule, or full repository copy is used.
 
 The pinned source and fixtures below document the original port. The current
-0.5.0.dev0 implementation uses a complete graph and PyTorch CUDA float64;
+0.5.1.dev0 implementation uses a complete graph and PyTorch CUDA float64;
 the earlier chain implementation is historical reference code. See the
 [current CUDA framework](docs/CUDA_FRAMEWORK.md) for the production contract.
 
@@ -38,12 +38,22 @@ No external solver implementation was copied; the box handling, certificate and
 common-surrogate profiling are qualified by the independent tests described in
 [revision validation](VALIDATION_REVISION.md).
 
-Version 0.5.0.dev0 replaces the production chain with a frozen adaptive complete
+Version 0.5.0.dev0 replaced the production chain with a frozen adaptive complete
 graph, a CUDA bounded ADMM surrogate solver and membership-based likelihood
 refits. It fits within the original boxes without an occupied CCF-one constraint;
 the refitted cluster closest to one receives public label zero after fitting.
 Historical chain solvers and their validation records do not establish CUDA
 qualification.
+
+Version 0.5.1.dev0 corrects the overlay's exact-fusion partition fragmentation and
+adds local stage-integrity controls, reduced-output likelihood kernels,
+analytical-first scalar processing, packed scalar wells, bounded refit reuse and within-lambda
+dual initialization. These changes do not import another upstream solver or
+restore a clonal fitting constraint. Policy and receipt schema advance to v3;
+measurement now separates completed CUDA work, output preparation and returned
+durable-publication timing. The
+[retrievable prior CUDA evidence](validation/371003f/README.md) remains bound to
+`371003f` and policy v2, rather than qualifying these changes.
 
 `tests/fixtures/upstream_reference.npz` contains loss, gradient, expected candidate
 curvature, posterior, slopes and original upper bounds evaluated by the pinned

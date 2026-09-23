@@ -1,0 +1,308 @@
+{
+  "causal_diagnosis": {
+    "audit_source_path": "src/clipp1d/cuda/audit.py",
+    "audit_source_sha256": "fbfc8388e04b2b8e485e38d410f78c42b0dd7b638b30e27a04323ffd6184b435",
+    "correction_qualification": "Not established by H or this bounded CPU trace; requires a fresh source-bound qualification attempt",
+    "cpu_reference_active": {
+      "index": 23,
+      "lambda_started": 2891557.10363364,
+      "lambda_value": 154555.71518032427,
+      "qp_count": 256
+    },
+    "cpu_reference_completed_penalties": 23,
+    "cpu_reference_elapsed_seconds": 120.06799676222727,
+    "cpu_reference_scope": "bounded CPU reference diagnosis only; not CUDA acceptance",
+    "cpu_reference_source_sha256": "3ec21cd883d78e352222d9e0571cec049dec1cc4d8f0887446898e51b6148397",
+    "cpu_reference_status": "limited",
+    "cpu_reference_terminal": "cpu-reference/terminal.json",
+    "cpu_reference_terminal_sha256": "c1c234beb3e46e540ae687ae2e19a309b34e0c757a3d7d95e15dcec06771b1f8",
+    "diagnostic_script_availability": "No separate diagnostic script file exists in this reference directory; exact terminal, event stream, source-and-plan receipt and sealed production source are retained.",
+    "minimum_normalized_roundoff_floor": 4.583000645652646e-13,
+    "scale_above_which_floor_exceeds_tolerance": 43639531.272969924,
+    "source_analysis": "The normalized directional-cut roundoff margin contains a scale-independent 8*(N+2)*eps floor while its tolerance is stationarity_tol/scale. Since the dual lower bound before the margin is nonpositive, a floor larger than that threshold makes the lower-bound gate impossible even at a stationary point. The correction must express the roundoff constant consistently with the original objective units."
+  },
+  "compilation_scope": "Initial compiler-admission time only; later lazy specializations remain charged to their executing phases.",
+  "compiler_admission": {
+    "backend": "inductor",
+    "compiled": true,
+    "dtype": "float64",
+    "dynamic_tensor_shapes": true,
+    "elapsed_seconds": 2.2394527778960764,
+    "fullgraph": true,
+    "kind": "compiler_admission",
+    "seconds": 2.0828209810424596,
+    "utc": "2026-09-23T00:03:12.268639+00:00"
+  },
+  "created_utc": "2026-09-23T00:18:39.321990+00:00",
+  "diagnosis": "Task-owned isolated GPU qualification was explicitly cancelled during N256 inference after a source-matched CPU trace and source analysis identified a scale-dependent directional-audit margin floor. This is an intentional stop, not a naturally terminated N256 fit or a qualified complete run.",
+  "disposition": "explicitly_stopped_after_confirmed_diagnostic_failure",
+  "error": "",
+  "error_type": "KeyboardInterrupt",
+  "evidence": {
+    "receipts/accepted.json": {
+      "bytes": 178,
+      "sha256": "8d8b4099a219ff86f5e2b8c14e4c41730238c0e3eb4576df0dfb8df27b46b8da"
+    },
+    "receipts/cancellation-intent.json": {
+      "bytes": 3166,
+      "sha256": "46c44d6daf827b39e4f9085e9d9659de67ff95783759c8a496059be5d26ca43e"
+    },
+    "receipts/cancellation-result.json": {
+      "bytes": 154,
+      "sha256": "f06491a2a8f3e0ca7b53a6d999566f6b34e90853cf187d6bf2cd3635ac7cbe6f"
+    },
+    "receipts/terminal.json": {
+      "bytes": 341,
+      "sha256": "0e693b38804c9825d35cf32038a7727d4a3edd53484fd32cab5b758470dac306"
+    },
+    "results/qualification.artifacts/scaling-16-path.json": {
+      "bytes": 285962,
+      "sha256": "527d2798e0655161fe4c6101518766553c4f067646f6060795c1b70b6a9c08b6"
+    },
+    "results/qualification.artifacts/scaling-16-qualified.json": {
+      "bytes": 14939,
+      "sha256": "22e3faf22b81e28234e104a5450ddb7d39ba9af13ebf9b9609581afe94df767d"
+    },
+    "results/qualification.artifacts/scaling-64-path.json": {
+      "bytes": 403551,
+      "sha256": "da2f65ae1c8d09671002cc886953a5d8a45bc28be62f91007c954d2347911425"
+    },
+    "results/qualification.artifacts/scaling-64-qualified.json": {
+      "bytes": 17878,
+      "sha256": "7ccb9836a65deb8e51e2f9c9f6155cce5f0888f95d468bedb3e73c74cb8f3920"
+    },
+    "results/qualification.events.jsonl": {
+      "bytes": 42257,
+      "sha256": "8de6773c96861a9c3014ea5d1b5afa3e47384957424691519715448daf02cd90"
+    },
+    "results/qualification.json": {
+      "bytes": 74629,
+      "sha256": "65289bd5cc0ef4760708b52e278c400dd21268cbf514b8c2754459e9f8c75cae"
+    }
+  },
+  "failure": {
+    "cancellation_intent": "receipts/cancellation-intent.json",
+    "cancellation_result": "receipts/cancellation-result.json",
+    "final_fit_available": false,
+    "kind": "explicit_stop_after_audit_scale_diagnosis",
+    "natural_numerical_termination": false,
+    "nodes": 256,
+    "qualification_status": "failed",
+    "qualifier_error_type": "KeyboardInterrupt"
+  },
+  "inventory_sha256": "c9c0ee83247bfd25884a460df99fdc16b918d183e9377f368895a34b5e7839e5",
+  "job_id": "77334195",
+  "local_evidence": {
+    "n256-cpu-reference-20260923T001043Z/events.jsonl": {
+      "bytes": 29796,
+      "published_path": "cpu-reference/events.jsonl",
+      "scope": "Bounded CPU reference diagnosis only; not allocated-CUDA acceptance",
+      "sha256": "57f7483d4ca1013783a242b97b62776db0507faab4cc5927b24093e671683264"
+    },
+    "n256-cpu-reference-20260923T001043Z/source-and-plan.json": {
+      "bytes": 16751,
+      "published_path": "cpu-reference/source-and-plan.json",
+      "scope": "Bounded CPU reference diagnosis only; not allocated-CUDA acceptance",
+      "sha256": "0a837930ea5865ee26fd089477eeecb4f1a256221f151f913c6e60cfc712b050"
+    },
+    "n256-cpu-reference-20260923T001043Z/terminal.json": {
+      "bytes": 40170,
+      "published_path": "cpu-reference/terminal.json",
+      "scope": "Bounded CPU reference diagnosis only; not allocated-CUDA acceptance",
+      "sha256": "c1c234beb3e46e540ae687ae2e19a309b34e0c757a3d7d95e15dcec06771b1f8"
+    }
+  },
+  "not_reached": [
+    "N256 complete nonlinear default path and final export",
+    "Later eager/compiled small default-path parity stage",
+    "Later public default-path durable-publication stage"
+  ],
+  "plan_sha256": "05f7acb53f251783e8f6f82f245a9da41f3897887f59112070261f578dd3b1e6",
+  "prior_checks": {
+    "case_counts": {
+      "compilation_banks": 1,
+      "compiler_admission": 1,
+      "exact_fusion_grouping": 2,
+      "failure": 1,
+      "fixture": 1,
+      "likelihood_parity": 7,
+      "qp_attempt": 16,
+      "qp_parity": 8,
+      "qp_warm_attempt": 8,
+      "qp_warm_parity": 4,
+      "resource_probe": 1,
+      "resource_qp_attempt": 2,
+      "scaling_path_complete": 2,
+      "scaling_qualified": 2,
+      "scaling_started": 3,
+      "stage_started": 3
+    },
+    "complete_scaling": {
+      "16": {
+        "final_device_qualification_and_export_complete": true,
+        "numerical_stages": {
+          "audit_calls": 75,
+          "audit_seconds": 0.17465391987934709,
+          "candidate_family": "qualified_complete_graph_path",
+          "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+          "extension_limit_reached": false,
+          "extensions": 0,
+          "graph_build_seconds": 1.4193599179852754,
+          "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+          "lambda_reference": 3326.760649621097,
+          "numerical_wall_seconds": 5.47294189594686,
+          "path_seconds": 3.0584537060931325,
+          "path_truncated": false,
+          "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+          "pilot_seconds": 0.6438139090314507,
+          "planned_path_complete": true,
+          "qp_calls": 285,
+          "qp_dual_warm_resets": 0,
+          "qp_dual_warm_starts": 211,
+          "qp_polish_iterations": 381,
+          "qp_seconds": 2.522920475807041,
+          "raw_unresolved_penalties": 0,
+          "refit_seconds": 0.3509583149570972,
+          "refit_unresolved_penalties": 0,
+          "refits_computed": 4,
+          "refits_reused": 22,
+          "selected_at_upper_boundary": false,
+          "singleton_pilots_reused": 22,
+          "stage_integrity_seconds": 0.0003560478799045086
+        },
+        "peak_allocated_bytes": 140800,
+        "peak_reserved_bytes": 10485760,
+        "phase_seconds": {
+          "device_export_seconds": 0.001965414034202695,
+          "device_upload_and_compile_seconds": 0.0007428068201988935,
+          "final_device_qualification_seconds": 0.007459490094333887,
+          "graph_build_seconds": 1.4193599179852754,
+          "input_preparation_seconds": 0.0,
+          "path_seconds": 3.0584537060931325,
+          "pilot_seconds": 0.6438139090314507,
+          "refit_seconds": 0.3509583149570972
+        },
+        "qualified": true,
+        "search_status": "complete",
+        "seconds": 5.513892482034862
+      },
+      "64": {
+        "final_device_qualification_and_export_complete": true,
+        "numerical_stages": {
+          "audit_calls": 75,
+          "audit_seconds": 0.17490103305317461,
+          "candidate_family": "qualified_complete_graph_path",
+          "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+          "extension_limit_reached": false,
+          "extensions": 0,
+          "graph_build_seconds": 0.001377999084070325,
+          "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+          "lambda_reference": 461.2953429415822,
+          "numerical_wall_seconds": 12.322886734036729,
+          "path_seconds": 12.273321820888668,
+          "path_truncated": false,
+          "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+          "pilot_seconds": 0.002689894987270236,
+          "planned_path_complete": true,
+          "qp_calls": 287,
+          "qp_dual_warm_resets": 0,
+          "qp_dual_warm_starts": 213,
+          "qp_polish_iterations": 4835,
+          "qp_seconds": 11.73796957032755,
+          "raw_unresolved_penalties": 0,
+          "refit_seconds": 0.04513532714918256,
+          "refit_unresolved_penalties": 0,
+          "refits_computed": 7,
+          "refits_reused": 19,
+          "selected_at_upper_boundary": false,
+          "singleton_pilots_reused": 177,
+          "stage_integrity_seconds": 0.00036169192753732204
+        },
+        "peak_allocated_bytes": 880640,
+        "peak_reserved_bytes": 10485760,
+        "phase_seconds": {
+          "device_export_seconds": 0.0020390371792018414,
+          "device_upload_and_compile_seconds": 0.0006246531847864389,
+          "final_device_qualification_seconds": 0.005423437105491757,
+          "graph_build_seconds": 0.001377999084070325,
+          "input_preparation_seconds": 0.0,
+          "path_seconds": 12.273321820888668,
+          "pilot_seconds": 0.002689894987270236,
+          "refit_seconds": 0.04513532714918256
+        },
+        "qualified": true,
+        "search_status": "complete",
+        "seconds": 12.368294347077608
+      }
+    },
+    "resource_n256": {
+      "baseline_allocated_bytes": 1592320,
+      "bounded_qp_iteration_budget": 20000,
+      "edges": 32640,
+      "elapsed_seconds": 15.756254134932533,
+      "graph_build_seconds": 0.000845019007101655,
+      "kind": "resource_probe",
+      "nodes": 256,
+      "one_dense_float64_matrix_bytes": 524288,
+      "repeats": [
+        {
+          "gap": 1.6053082482711933e-18,
+          "gap_scale": 0.08206629040518686,
+          "iterations": 576,
+          "kkt": 3.2901472441298065e-14,
+          "peak_allocated_bytes": 7993344,
+          "peak_reserved_bytes": 8388608,
+          "polish_iterations": 37,
+          "qp_qualified": true,
+          "repeat": 0,
+          "seconds": 1.833393180044368
+        },
+        {
+          "gap": 1.6053082482711933e-18,
+          "gap_scale": 0.08206629040518686,
+          "iterations": 576,
+          "kkt": 3.2901472441298065e-14,
+          "peak_allocated_bytes": 8520192,
+          "peak_reserved_bytes": 10485760,
+          "polish_iterations": 37,
+          "qp_qualified": true,
+          "repeat": 1,
+          "seconds": 1.8290216240566224
+        }
+      ],
+      "scope": "synthetic complete-graph QP only; no cohort accuracy or full-fit speed claim",
+      "status": "qualified",
+      "timing_scope": "repeat0 may include compilation; repeat1 uses warmed kernel shapes",
+      "utc": "2026-09-23T00:03:25.785451+00:00"
+    }
+  },
+  "qualification_sha256": "65289bd5cc0ef4760708b52e278c400dd21268cbf514b8c2754459e9f8c75cae",
+  "retained_gates": {
+    "check_every": 16,
+    "eps": 1e-06,
+    "fusion_tol": 2e-05,
+    "inner_atol": 1e-10,
+    "inner_kkt_tol": 1e-07,
+    "inner_max_iterations": 20000,
+    "inner_rtol": 1e-11,
+    "max_backtracks": 24,
+    "memory_fraction": 0.7,
+    "outer_max_iterations": 150,
+    "path_extensions": 3,
+    "path_max_exponent": 12,
+    "path_min_exponent": -12,
+    "policy_id": "clipp1d_complete_cuda_unconstrained_v3",
+    "scalar_atol": 1e-07,
+    "scalar_batch_size": 64,
+    "scalar_max_intervals": 4096,
+    "scalar_rtol": 1e-10,
+    "stationarity_tol": 2e-05,
+    "weight_rule": "all_pairs_inverse_gap_mean_one_adjacent_floor_v1"
+  },
+  "run_id": "clipp2_clipp1d_cuda_20260922h",
+  "schema": "clipp1d.cuda.qualification.failure_summary.v1",
+  "scope": "Explicitly stopped unsuccessful allocated-CUDA attempt with separately labeled bounded CPU diagnostic evidence; earlier passed checks do not establish complete qualification or cohort accuracy.",
+  "source_sha256": "3ec21cd883d78e352222d9e0571cec049dec1cc4d8f0887446898e51b6148397",
+  "status": "failed",
+  "transport_receipt_sha256": "70978b0a13199f0b573932b26433717474f316df5e95ea8822836440d2e03b09"
+}

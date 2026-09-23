@@ -433,14 +433,16 @@ def test_structural_compile_family_lru_is_bounded_without_fallback():
 
 
 def test_structural_compile_bank_replays_real_scalar_refit_pipeline_shapes():
-    from clipp1d.cuda.kernels import StructuralCompileBank, likelihood
+    from clipp1d.cuda.kernels import StructuralCompileBank, likelihood, loss_only, loss_gradient
     from clipp1d.cuda.model import TensorModel
     from clipp1d.cuda.selection import fit_tensor_model
     from clipp1d.types import CountModel
 
-    bank = StructuralCompileBank(likelihood, backend="eager")
     kernels = Kernels("cpu")
-    kernels.likelihood = bank
+    banks = {name: StructuralCompileBank(function, backend="eager") for name, function in
+             (("likelihood", likelihood), ("loss_only", loss_only), ("loss_gradient", loss_gradient))}
+    for name, bank in banks.items():
+        setattr(kernels, name, bank)
     fixtures = [
         (np.array([20.0, 21.0, 48.0]), np.ones(3, dtype=int), np.full(3, 0.5)),
         (
@@ -467,11 +469,12 @@ def test_structural_compile_bank_replays_real_scalar_refit_pipeline_shapes():
             1e-6,
         )
         model = TensorModel.from_host(host, "cpu", compiled=False)
-        object.__setattr__(model, "kernels", kernels)
+        model = replace(model, kernels=kernels)
         actual = fit_tensor_model(model, lambda_values=[0.0, 0.1])
         assert actual.raw.qualified and actual.search_status == "complete"
-    assert bank.calls > 100
-    assert bank.families_created <= bank.max_families
+    assert sum(bank.calls for bank in banks.values()) > 100
+    assert all(bank.calls > 0 for bank in banks.values())
+    assert all(bank.families_created <= bank.max_families for bank in banks.values())
 
 
 def test_qualifier_path_coordinate_preserves_observed_independent_reference_difference():

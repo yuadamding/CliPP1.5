@@ -1,0 +1,114 @@
+[
+  {
+    "fixture": "analytical32",
+    "profile_receipt": "results/scalar-profile-baseline.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922i/results/scalar-profile-baseline.artifacts/analytical32.trace.json",
+    "scope": "Recorded remote Chrome trace; not copied or re-read by this publisher",
+    "sha256": "a94a4d4fb6577b7bcf543000e90b8fff147eb08eb46950e2eb0eea86b3214a46"
+  },
+  {
+    "fixture": "mixed6",
+    "profile_receipt": "results/scalar-profile-baseline.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922i/results/scalar-profile-baseline.artifacts/mixed6.trace.json",
+    "scope": "Recorded remote Chrome trace; not copied or re-read by this publisher",
+    "sha256": "270476370f2999acaad9d3e18a65010a766bc0b6d67a3f9169b295217c185f55"
+  },
+  {
+    "fixture": "analytical32",
+    "profile_receipt": "results/scalar-profile-current.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922i/results/scalar-profile-current.artifacts/analytical32.trace.json",
+    "scope": "Recorded remote Chrome trace; not copied or re-read by this publisher",
+    "sha256": "9c8f6175035ebf34a4903e3f5d8af4757af2e7fa083dd2e3444dc38b98cbdc6e"
+  },
+  {
+    "fixture": "mixed6",
+    "profile_receipt": "results/scalar-profile-current.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922i/results/scalar-profile-current.artifacts/mixed6.trace.json",
+    "scope": "Recorded remote Chrome trace; not copied or re-read by this publisher",
+    "sha256": "8f181a94e49d9faf7968262a4b4ac7156f6be7eaa65859d44590185918cce69c"
+  },
+  {
+    "fixture": "analytical32",
+    "profile_receipt": "failed-attempts/f/results/scalar-profile-baseline.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922f/results/scalar-profile-baseline.artifacts/analytical32.trace.json",
+    "scope": "Recorded remote trace from preserved failed attempt; not copied or re-read",
+    "sha256": "c19bb5bde77b60aee7a5aa7cb53749c447ecf1994022801386e069b0afb29d49"
+  },
+  {
+    "fixture": "mixed6",
+    "profile_receipt": "failed-attempts/f/results/scalar-profile-baseline.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922f/results/scalar-profile-baseline.artifacts/mixed6.trace.json",
+    "scope": "Recorded remote trace from preserved failed attempt; not copied or re-read",
+    "sha256": "fcc7a895a8239a997f4bfb356e91f3c7c1b3310d187c052ce1cf637301446904"
+  },
+  {
+    "fixture": "analytical32",
+    "profile_receipt": "failed-attempts/f/results/scalar-profile-current.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922f/results/scalar-profile-current.artifacts/analytical32.trace.json",
+    "scope": "Recorded remote trace from preserved failed attempt; not copied or re-read",
+    "sha256": "c1582503b9ba2d9fabc8abcfc166c62fe11e189a8e8b4c5fd8bbd5bc759cc162"
+  },
+  {
+    "fixture": "mixed6",
+    "profile_receipt": "failed-attempts/f/results/scalar-profile-current.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922f/results/scalar-profile-current.artifacts/mixed6.trace.json",
+    "scope": "Recorded remote trace from preserved failed attempt; not copied or re-read",
+    "sha256": "5c638065674af0a68c11af5aa0f9a9a362a8d9bafcfed3501fae35fbdeaf4b3b"
+  },
+  {
+    "fixture": "analytical32",
+    "profile_receipt": "failed-attempts/g/results/scalar-profile-baseline.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922g/results/scalar-profile-baseline.artifacts/analytical32.trace.json",
+    "scope": "Recorded remote trace from preserved failed attempt; not copied or re-read",
+    "sha256": "c3d345b51fae58a16c32422bc9f95afa249e3bc8d6f13ab83c5a95a53fe2a5fb"
+  },
+  {
+    "fixture": "mixed6",
+    "profile_receipt": "failed-attempts/g/results/scalar-profile-baseline.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922g/results/scalar-profile-baseline.artifacts/mixed6.trace.json",
+    "scope": "Recorded remote trace from preserved failed attempt; not copied or re-read",
+    "sha256": "da073f1a2d77d8ab8f041ab87f946a0de45f8ef79b27801ded833e32b25467c0"
+  },
+  {
+    "fixture": "analytical32",
+    "profile_receipt": "failed-attempts/g/results/scalar-profile-current.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922g/results/scalar-profile-current.artifacts/analytical32.trace.json",
+    "scope": "Recorded remote trace from preserved failed attempt; not copied or re-read",
+    "sha256": "129b715166ecc9502688c667d950fc06c85f0d3849d52d4f141cd3c23893eebc"
+  },
+  {
+    "fixture": "mixed6",
+    "profile_receipt": "failed-attempts/g/results/scalar-profile-current.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922g/results/scalar-profile-current.artifacts/mixed6.trace.json",
+    "scope": "Recorded remote trace from preserved failed attempt; not copied or re-read",
+    "sha256": "a503f07a44fce558e5491738d0b89b598665709e3675a409bb77f9a5497b1ac7"
+  },
+  {
+    "fixture": "analytical32",
+    "profile_receipt": "failed-attempts/h/results/scalar-profile-baseline.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922h/results/scalar-profile-baseline.artifacts/analytical32.trace.json",
+    "scope": "Recorded remote trace from preserved failed attempt; not copied or re-read",
+    "sha256": "8dd5b4e1f9ee111754de6e8f8abf9cd114007c737f83dd14dc051c14968b168b"
+  },
+  {
+    "fixture": "mixed6",
+    "profile_receipt": "failed-attempts/h/results/scalar-profile-baseline.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922h/results/scalar-profile-baseline.artifacts/mixed6.trace.json",
+    "scope": "Recorded remote trace from preserved failed attempt; not copied or re-read",
+    "sha256": "356e2bde239ff7cc1c88a4cd96b4041695b295348681a2be21bf45558516f864"
+  },
+  {
+    "fixture": "analytical32",
+    "profile_receipt": "failed-attempts/h/results/scalar-profile-current.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922h/results/scalar-profile-current.artifacts/analytical32.trace.json",
+    "scope": "Recorded remote trace from preserved failed attempt; not copied or re-read",
+    "sha256": "5d8981c06e92b439caccd413d13b969150a91aa514909ae811f31cecd15ca1be"
+  },
+  {
+    "fixture": "mixed6",
+    "profile_receipt": "failed-attempts/h/results/scalar-profile-current.json",
+    "remote_path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922h/results/scalar-profile-current.artifacts/mixed6.trace.json",
+    "scope": "Recorded remote trace from preserved failed attempt; not copied or re-read",
+    "sha256": "d9fa167efa39960a229b3b6ad3432fbfd5abd54596059423ff03ccbe5811991c"
+  }
+]

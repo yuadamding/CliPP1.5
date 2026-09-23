@@ -1,7 +1,7 @@
 # PyTorch CUDA complete-graph framework
 
-Package: `0.5.0.dev0`. Policy: `clipp1d_complete_cuda_unconstrained_v2`.
-Output schema: `clipp1d.cuda.run.v2`.
+Package: `0.5.1.dev0`. Policy: `clipp1d_complete_cuda_unconstrained_v3`.
+Output schema: `clipp1d.cuda.run.v3`.
 
 ## Statistical contract
 
@@ -30,7 +30,7 @@ before uploading the numerical model.
 PyTorch CUDA tensors hold the float64 likelihood, posteriors, one-sided
 derivatives, curvature, pilots, grouped scalar refits, graph weights, ADMM states,
 raw certificates, path scores and final multiplicity computations. Pure tensor
-hot kernels use `torch.compile(fullgraph=True, dynamic=True)`. Each of the four
+hot kernels use `torch.compile(fullgraph=True, dynamic=True)`. Each of the six
 compiled kernels has its own per-fit LRU bank of up to 32 structural families.
 These separate singleton dimensions, dimension-equality patterns, layouts and
 aliases using independent Python code objects; numeric extents remain dynamic
@@ -42,6 +42,21 @@ this is not a claim that the entire dynamic fit is one captured CUDA Graph.
 
 Low-level tensor functions accept CPU tensors for independent numerical tests.
 Such evidence is explicitly recorded as CPU reference execution.
+
+Full snapshot reconciliation occurs at owned numerical stage entry and exit,
+including exceptional exits. Inside a stage, identity, metadata and tensor
+version checks avoid repeated full-array comparisons. Explicit
+`validate(full=True)` still forces full reconciliation. Scalar group reductions
+use `segment_reduce(..., unsafe=True)` only inside an owned validated stage whose
+immutable group lengths have already been checked; outside it, the reduction's
+independent length checks remain enabled. Gap, KKT, finite-value and publication
+gates are unchanged. Integrity-check counters distinguish these operations.
+
+The likelihood kernels share log-kernel arithmetic but expose loss-only,
+loss–gradient and full-term interfaces. Scalar search and objective comparisons
+request only the outputs they need. Full terms remain available for curvature,
+one-sided audits and final posteriors; the other compiled kernels implement the
+bounded node update, edge update and QP certificates.
 
 ## Fixed graph and storage
 
@@ -84,12 +99,45 @@ scalar equation
 
 The implementation uses sorted entry/exit breakpoints and safeguarded roundoff
 polishing. It is not an unconstrained update followed by clipping. Numerical
-`rho` starts at `median(h)/M`; it does not change statistical lambda.
+`rho` starts at `median(h)` and is then adjusted by residual balancing. Dividing
+by all nodes can undercondition consensus on much smaller active fused groups;
+this numerical parameter does not change statistical lambda or the objective.
 
 Surrogate admission requires both the stable primal-dual gap and KKT residual.
 Frozen-coordinate constants do not inflate gap tolerances. Equality polishing
 must pass an objective-nonincreasing check with a float64 roundoff margin and
-fresh certificates for the original QP; it cannot create a reporting-only adjustment. Original tolerances remain unchanged.
+fresh certificates for the original QP. Original tolerances remain unchanged.
+
+The larger qualification exposed a case where conservative tolerance grouping
+missed approximate fused blocks and one cap-clipped dual correction left a KKT
+residual. A bounded QP-only fallback tries tighter equality proposals and repeated
+affine-flow/cap projections. These proposals change neither public partition
+extraction nor the original optimization problem: only a candidate passing the
+same objective, full gap and KKT checks can return. The 20,000 ADMM iteration
+limit remains; polishing rounds are bounded and reported separately from ADMM
+iterations, including the original one-step equality corrections.
+At sparse ADMM checkpoints, and before admitting an otherwise gap-qualified raw
+or zero-step warm state, the fallback tries `fusion_tol`, `fusion_tol/16` and
+`fusion_tol/256`. Each candidate must pass objective descent before at most 1,024
+flow/cap projections. Its initial dual need not already satisfy the gap or KKT
+gate: repairing that dual is the purpose of these projections. Every accepted
+candidate still passes the original full gap and KKT gates. Singleton proposals
+without internal flow freedom and exact nonqualifying projection fixed points
+stop early. These smaller tolerances are
+numerical proposal settings only; exported memberships still use `fusion_tol`.
+An unsuccessful repair remains unqualified, including when bound-normal
+allocation prevents its projections from converging.
+
+A qualified QP dual can initialize the next surrogate or backtrack within the
+same start and lambda. This state is bound to the frozen graph and literal
+lambda, projected onto the current edge caps, and rescaled using the new ADMM
+`rho`. Changed curvature and targets receive fresh solves and certificates;
+even a rejected likelihood trial supplies no inherited certificate. Storage is
+bounded to the current dual state. Across lambdas, continuation remains
+**primal-only**. Dual initialization can change the finite-iteration trajectory.
+When a raw audit fails and a directional restart cannot be accepted, clear the
+warm dual before the next surrogate. This prevents repeatedly admitting an
+unchanged QP state whose tiny nonexact fusions fail the raw nonsmooth audit.
 
 An independent raw audit uses observed one-sided derivatives, exact signed
 contributions from nonfused edges and TV terms on fused edges. Both positive and
@@ -102,7 +150,16 @@ a feasible dual yields the lower bound
     sum_i min(a_i + (D'q)_i, 0) * allowed_i.
 
 Arithmetic margins account for absolute dual-row contributions before
-cancellation. This check covers arbitrary mutation subsets, including groups
+cancellation. If the cut coefficients are divided by a positive scale `S`,
+divide both the stationarity threshold and the constant roundoff unit by `S`.
+Thus the original-unit bound `Gamma*(1 + absolute summands)` becomes
+`Gamma*(1/S + absolute scaled summands)`, where `Gamma = 8*(N+2)*eps`.
+Keeping a unit constant after normalization would incorrectly inflate the
+original-unit error floor by `S` and prevent exact high-penalty stationary states
+from qualifying. The absolute coefficient and dual terms also cover rounded
+division and feasible-cap projection errors; cancellation protection remains.
+Both lower-bound qualification and attained descent retain the original
+absolute stationarity tolerance. This check covers arbitrary mutation subsets, including groups
 noncontiguous in any pilot order. An attained descent direction is backtracked
 against the original objective. An unresolved audit is not success. Raw
 stationarity, inner QP qualification, scalar refit gaps and global optimality are
@@ -111,16 +168,41 @@ separate claims.
 ## Memberships, selection and labels
 
 Partitions derive from raw fitted CCFs. Tolerance-connected runs whose total
-diameter exceeds `fusion_tol` split conservatively into singletons. Exact-one
-and near-one values remain separate. Canonical groups are ordered by their
-smallest mutation ID, not by adjacency in a fixed chain.
+diameter exceeds `fusion_tol` split conservatively into **exact-value groups**.
+Exactly equal values always share a label, including duplicates inside such an
+overwide run. For example, `[.3, .3, .300015, .300030, .300030]` at tolerance
+`2e-5` gives `[0, 0, 1, 2, 2]`. The QP's first equality proposal uses this rule;
+its additional tighter proposals are solver-only and require fresh certificates.
+Exact-one and near-one values remain separate. Canonical groups are ordered by
+their smallest mutation ID, not by adjacency in a fixed chain. The v2 singleton
+fallback could split exact fusions; this correction can change K, scores and the
+selected lambda.
 
 Each arbitrary membership group is independently refitted inside the intersection
 of its original bounds. No group is forced to one. Analytic or interval-search
 scalar certificates qualify pilots and refits. Clipping-aware interval bounds
 account for represented endpoints, midpoint rounding and likelihood sensitivity.
 These are float64 numerical qualifications, not interval-arithmetic proofs. The
-existing score is
+scalar engine identifies same-slope, single-candidate analytical groups before
+building search grids, separates them from general groups, and restores
+canonical group order. General groups refine only detected seed wells in a
+bounded padded batch, preserving seed order and tie behavior. Interval lower
+bounds, rather than golden-search initialization, qualify general scalar fits.
+
+A cache retains only the last qualified membership refit, alongside the selected
+best candidate. Reuse requires the same immutable model, policy and canonical
+membership vector; tensor snapshots guard cached values. Returned refits are
+independent copies. Qualified singleton pilots can supply the matching canonical
+mutation's scalar result, including when other groups are noncontiguous.
+Matching an array position in another model or policy is insufficient. Every
+raw lambda candidate still receives its own qualification, and final publication
+reconciles the selected raw memberships, refit loss, gaps and score.
+
+`refits_computed` counts attempted new membership refits, including unresolved
+ones; `refits_reused` counts cache hits. `singleton_pilots_reused` counts qualified
+singleton lanes reused in new refits. Scalar work counters separately record
+evaluated rows/proposals, kernel calls, analytical/general groups and packed-well
+work. These counters describe work, not a measured speedup. The existing score is
 
     2*L_refit + K*log(M) - 1.4*log_partition_mass.
 
@@ -174,7 +256,51 @@ that raw or refitted CCF is exactly one. `raw_witness_mutation_id` is null.
 
 Output validation precedes successful publication. A failure or an unresolved
 candidate cannot inherit another candidate's certificate. Old chain receipts
-and old constrained CUDA schema-v1 receipts retain their original meaning.
+and CUDA schema-v1/v2 receipts retain their original meaning. Before atomic
+directory publication, the prepared receipt and TSVs are read back and checked
+against their expected hashes, then files and directories are synchronized.
+
+## Timing and memory scopes
+
+`provenance.phase_seconds` records the following scopes. Device phase boundaries
+synchronize CUDA so they measure completed work, not just queued operations.
+
+| Field | Scope |
+| --- | --- |
+| `input_preparation_seconds` | API entry, source/input validation, canonical compilation and device admission |
+| `device_upload_and_compile_seconds` | Model upload and initial compiler probe; later specializations are charged to the phase executing them |
+| `pilot_seconds` | Scalar pilots and qualification for singleton reuse |
+| `graph_build_seconds` | Frozen graph, pilot curvature and lambda reference |
+| `path_seconds` | Planned-path work excluding membership refit time |
+| `refit_seconds` | New refits, singleton reuse and cache validation/hits |
+| `stage_integrity_seconds` | Outer numerical-stage entry/exit reconciliation and boundary bookkeeping |
+| `final_device_qualification_seconds` | Independent selected-state reconciliation, including the nonzero-lambda raw audit |
+| `device_export_seconds` | Posterior calls, graph/model hashing, final transfers and final snapshot checks |
+| `output_preparation_seconds` | Host validation and prepared TSV tables, or in-memory result validation when no output directory is requested |
+
+`provenance.numerical_stages` also carries all-start `qp_seconds` and
+`audit_seconds`, their call counts, `qp_dual_warm_starts`, `qp_dual_warm_resets` and
+`qp_polish_iterations`. The two time fields are subsets of
+`path_seconds`, not additional nonoverlapping phases. `numerical_wall_seconds`
+covers the pilot/graph/path/refit stages and their boundary reconciliation; it
+excludes final publication work. Detailed directional-audit diagnostics are
+retained with the raw start records.
+
+Peak CUDA allocated/reserved bytes, compilation statistics and numerical work
+counters are captured **after** final device qualification, posterior evaluation,
+hashing and transfers. `numerical_completed_utc` and
+`through_device_export_seconds` mark that device-complete boundary. They do not
+claim durable output publication.
+
+The receipt's `elapsed_seconds` and `output_prepared_utc` end after host validation
+and TSV preparation but before serializing the receipt itself, readback, fsync and
+atomic publication. Their `elapsed_scope` states this exclusion. After successful
+publication, the returned `FitResult.operation_metrics` contains
+`publication_seconds`, `publication_completed_utc` and elapsed time through that
+boundary, excluding return bookkeeping. These metrics are **return-only**: the
+receipt cannot time its own durable completion. An external caller may preserve
+them in a separate receipt. With no output directory, the return-only metrics
+instead describe completed in-memory fitting.
 
 ## Validation boundaries
 
@@ -184,6 +310,12 @@ GPU qualification must bind the exact source, environment, input, compiler and
 allocated device, with eager/compiled numerical comparison and public output
 validation. Small synthetic qualification does not establish full-cohort
 accuracy, large-input memory behavior or a GPU speedup.
+
+The [retrievable `371003f` evidence](../validation/371003f/README.md) contains the
+original source-bound policy-v2 GPU receipts and test log. It does not qualify
+this policy-v3 grouping and efficiency revision. Current CUDA acceptance must
+use the current source; no speedup or larger-cohort claim follows from reducing
+work in the implementation.
 
 The retained historical chain files and their test-only API adapter support
 regression comparisons. They are not a production backend. Legacy CPU launchers

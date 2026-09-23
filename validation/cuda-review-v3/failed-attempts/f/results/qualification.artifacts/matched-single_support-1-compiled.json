@@ -1,0 +1,346 @@
+{
+  "clonal_constraint": false,
+  "cluster_centers": [
+    0.96,
+    0.42,
+    0.4
+  ],
+  "cluster_labels": [
+    2,
+    1,
+    0
+  ],
+  "compilation_banks": {
+    "boxed_rank_one": {
+      "active_families": 1,
+      "backend": "inductor",
+      "calls": 6640,
+      "dynamic_extents": true,
+      "eager_fallback": false,
+      "evictions": 0,
+      "families_created": 1,
+      "fullgraph": true,
+      "global_cache_limit_modified": false,
+      "max_families": 32,
+      "policy": "bounded_structural_families_v1"
+    },
+    "edge_update": {
+      "active_families": 1,
+      "backend": "inductor",
+      "calls": 6640,
+      "dynamic_extents": true,
+      "eager_fallback": false,
+      "evictions": 0,
+      "families_created": 1,
+      "fullgraph": true,
+      "global_cache_limit_modified": false,
+      "max_families": 32,
+      "policy": "bounded_structural_families_v1"
+    },
+    "gap_kkt": {
+      "active_families": 2,
+      "backend": "inductor",
+      "calls": 760,
+      "dynamic_extents": true,
+      "eager_fallback": false,
+      "evictions": 0,
+      "families_created": 2,
+      "fullgraph": true,
+      "global_cache_limit_modified": false,
+      "max_families": 32,
+      "policy": "bounded_structural_families_v1"
+    },
+    "likelihood": {
+      "active_families": 2,
+      "backend": "inductor",
+      "calls": 380,
+      "dynamic_extents": true,
+      "eager_fallback": false,
+      "evictions": 0,
+      "families_created": 2,
+      "fullgraph": true,
+      "global_cache_limit_modified": false,
+      "max_families": 32,
+      "policy": "bounded_structural_families_v1"
+    },
+    "loss_gradient": {
+      "active_families": 1,
+      "backend": "inductor",
+      "calls": 7,
+      "dynamic_extents": true,
+      "eager_fallback": false,
+      "evictions": 0,
+      "families_created": 1,
+      "fullgraph": true,
+      "global_cache_limit_modified": false,
+      "max_families": 32,
+      "policy": "bounded_structural_families_v1"
+    },
+    "loss_only": {
+      "active_families": 2,
+      "backend": "inductor",
+      "calls": 441,
+      "dynamic_extents": true,
+      "eager_fallback": false,
+      "evictions": 0,
+      "families_created": 2,
+      "fullgraph": true,
+      "global_cache_limit_modified": false,
+      "max_families": 32,
+      "policy": "bounded_structural_families_v1"
+    }
+  },
+  "graph_edges": 3,
+  "literal_lambda": 0.03839796957710453,
+  "path_records": [],
+  "pilot_and_graph": {
+    "gap_floor": 0.028000000000000004,
+    "independent_numpy_recipe_atol": 2.842170943040401e-14,
+    "independent_numpy_recipe_max_weight_error": 8.881784197001252e-16,
+    "independent_numpy_recipe_rtol": 2.842170943040401e-14,
+    "normalization": 13.11728395061728,
+    "pilot_gaps": [
+      1.4495071809506044e-12,
+      1.4921397450962104e-12,
+      1.9895196601282805e-12
+    ],
+    "pilot_loss": [
+      50.04024235381878,
+      51.39566706172255,
+      69.23469670899615
+    ],
+    "pilot_lower_bounds": [
+      50.040242353817334,
+      51.395667061721056,
+      69.23469670899416
+    ],
+    "pilot_phi": [
+      0.4,
+      0.42,
+      0.96
+    ],
+    "pilot_sha256": "92be688d50ad9bd7cd46f749bb1e7eaf7a8594d2ffecd2ead34b0a5ee32726da",
+    "pilot_subdivisions": 0,
+    "recipe_recomputed_exactly": true,
+    "selected_caps_sha256": "aae2281599c538defb387328d80f21b4b44d60c6f93d9209b54b1b6c1e96d083",
+    "weight_rule": "all_pairs_inverse_gap_mean_one_adjacent_floor_v1",
+    "weights": [
+      [
+        0.0,
+        2.7226890756302526,
+        0.13613445378151265
+      ],
+      [
+        2.7226890756302526,
+        0.0,
+        0.14117647058823532
+      ],
+      [
+        0.13613445378151265,
+        0.14117647058823532,
+        0.0
+      ]
+    ],
+    "weights_sha256": "ec453fbf72a24daa9a8c4f89f86776e7475e793bf37c6ad935ca354e7cbc87ab"
+  },
+  "raw_ccf": [
+    0.40070347344502055,
+    0.4193429634645362,
+    0.9598936895132633
+  ],
+  "raw_objective": 170.6784798631257,
+  "raw_qualified": true,
+  "refitted_ccf": [
+    0.4,
+    0.42,
+    0.96
+  ],
+  "score": 347.860668245271,
+  "search_status": "complete",
+  "seconds": 0.05427262210287154,
+  "selected_lambda": 0.03839796957710453,
+  "selected_raw_diagnostics": {
+    "audit_calls": 2,
+    "audit_diagnostics": {
+      "clonal_constraint": false,
+      "coverage": "all_feasible_signed_subsets_of_exact_fused_groups",
+      "negative": {
+        "attained_value": 0.0,
+        "iterations": 0,
+        "lower_bound": -8.881864124872094e-15,
+        "objective_scale": 1.0,
+        "roundoff_margin": 8.881864124872094e-15,
+        "status": "qualified_lower_bound"
+      },
+      "positive": {
+        "attained_value": 0.0,
+        "iterations": 0,
+        "lower_bound": -8.881864117746598e-15,
+        "objective_scale": 1.0,
+        "roundoff_margin": 8.881864117746598e-15,
+        "status": "qualified_lower_bound"
+      },
+      "proof": "device_dual_lower_bounds_of_complete_subset_cut_relaxation",
+      "tolerance_rule": "derivative_plus_tol_times_one_plus_absolute_node_and_cut_terms"
+    },
+    "audit_seconds": 0.004314631223678589,
+    "audit_signed_direction_count": 2,
+    "audit_status": "qualified",
+    "backtracks": 0,
+    "box_feasible": true,
+    "clonal_constraint": false,
+    "direction_restarts": 0,
+    "directional_qualified": true,
+    "directional_stationarity_qualified": true,
+    "global_optimality_proven": false,
+    "inner_certificate_scope": "last_solved_surrogate_not_raw_likelihood",
+    "inner_gap": 1.9057152928023794e-19,
+    "inner_gap_qualified": true,
+    "inner_gap_scale": 0.007873747325216375,
+    "inner_iterations": 32,
+    "inner_kkt_qualified": true,
+    "inner_kkt_residual": 5.339171175921323e-15,
+    "objective_tail": [
+      170.67847986323568,
+      170.6784798631257
+    ],
+    "outer_iterations": 2,
+    "phase_timing_scope": "host wall through device-qualified QP/audit returns",
+    "qp_calls": 6,
+    "qp_dual_warm_starts": 4,
+    "qp_seconds": 0.038611792493611574,
+    "raw_branch_stationarity_qualified": true,
+    "raw_stationarity_qualified": true,
+    "search_complete": true,
+    "search_policy": "unconstrained_complete_graph_multistart_v1",
+    "starts": [
+      {
+        "audit_calls": 1,
+        "audit_diagnostics": {
+          "clonal_constraint": false,
+          "coverage": "all_feasible_signed_subsets_of_exact_fused_groups",
+          "negative": {
+            "attained_value": 0.0,
+            "iterations": 0,
+            "lower_bound": -8.881864124872094e-15,
+            "objective_scale": 1.0,
+            "roundoff_margin": 8.881864124872094e-15,
+            "status": "qualified_lower_bound"
+          },
+          "positive": {
+            "attained_value": 0.0,
+            "iterations": 0,
+            "lower_bound": -8.881864117746598e-15,
+            "objective_scale": 1.0,
+            "roundoff_margin": 8.881864117746598e-15,
+            "status": "qualified_lower_bound"
+          },
+          "proof": "device_dual_lower_bounds_of_complete_subset_cut_relaxation",
+          "tolerance_rule": "derivative_plus_tol_times_one_plus_absolute_node_and_cut_terms"
+        },
+        "audit_seconds": 0.0021993122063577175,
+        "audit_signed_direction_count": 2,
+        "audit_status": "qualified",
+        "backtracks": 0,
+        "box_feasible": true,
+        "clonal_constraint": false,
+        "direction_restarts": 0,
+        "directional_qualified": true,
+        "directional_stationarity_qualified": true,
+        "global_optimality_proven": false,
+        "inner_certificate_scope": "last_solved_surrogate_not_raw_likelihood",
+        "inner_gap": 1.9057152928023794e-19,
+        "inner_gap_qualified": true,
+        "inner_gap_scale": 0.007873747325216375,
+        "inner_iterations": 32,
+        "inner_kkt_qualified": true,
+        "inner_kkt_residual": 5.339171175921323e-15,
+        "objective": 170.6784798631257,
+        "objective_tail": [
+          170.67847986323568,
+          170.6784798631257
+        ],
+        "outer_iterations": 2,
+        "phase_timing_scope": "host wall through device-qualified QP/audit returns",
+        "qp_calls": 2,
+        "qp_dual_warm_starts": 1,
+        "qp_seconds": 0.012870997190475464,
+        "qualified": true,
+        "raw_branch_stationarity_qualified": true,
+        "raw_stationarity_qualified": true,
+        "stationarity_residual": 2.048711681979653e-10,
+        "status": "qualified",
+        "surrogate_qp_calls": 2
+      },
+      {
+        "audit_calls": 1,
+        "audit_diagnostics": {
+          "clonal_constraint": false,
+          "coverage": "all_feasible_signed_subsets_of_exact_fused_groups",
+          "negative": {
+            "attained_value": 0.0,
+            "iterations": 0,
+            "lower_bound": -8.88186418605718e-15,
+            "objective_scale": 1.0,
+            "roundoff_margin": 8.88186418605718e-15,
+            "status": "qualified_lower_bound"
+          },
+          "positive": {
+            "attained_value": 0.0,
+            "iterations": 0,
+            "lower_bound": -8.881864056559288e-15,
+            "objective_scale": 1.0,
+            "roundoff_margin": 8.881864056559288e-15,
+            "status": "qualified_lower_bound"
+          },
+          "proof": "device_dual_lower_bounds_of_complete_subset_cut_relaxation",
+          "tolerance_rule": "derivative_plus_tol_times_one_plus_absolute_node_and_cut_terms"
+        },
+        "audit_seconds": 0.0021153190173208714,
+        "audit_signed_direction_count": 2,
+        "audit_status": "qualified",
+        "backtracks": 0,
+        "box_feasible": true,
+        "clonal_constraint": false,
+        "direction_restarts": 0,
+        "directional_qualified": true,
+        "directional_stationarity_qualified": true,
+        "global_optimality_proven": false,
+        "inner_certificate_scope": "last_solved_surrogate_not_raw_likelihood",
+        "inner_gap": 1.766722420346703e-20,
+        "inner_gap_qualified": true,
+        "inner_gap_scale": 0.007873746715335053,
+        "inner_iterations": 64,
+        "inner_kkt_qualified": true,
+        "inner_kkt_residual": 4.308398432630651e-15,
+        "objective": 170.67847986312572,
+        "objective_tail": [
+          171.68956190448418,
+          170.6806047183224,
+          170.67847986565744,
+          170.67847986312572
+        ],
+        "outer_iterations": 4,
+        "phase_timing_scope": "host wall through device-qualified QP/audit returns",
+        "qp_calls": 4,
+        "qp_dual_warm_starts": 3,
+        "qp_seconds": 0.02574079530313611,
+        "qualified": true,
+        "raw_branch_stationarity_qualified": true,
+        "raw_stationarity_qualified": true,
+        "stationarity_residual": 5.5964605438347504e-09,
+        "status": "qualified",
+        "surrogate_qp_calls": 4
+      }
+    ],
+    "starts_attempted": 2,
+    "starts_qualified": 2,
+    "starts_unresolved": 0,
+    "stationarity_residual": 2.048711681979653e-10,
+    "status": "qualified",
+    "surrogate_qp_calls": 2
+  },
+  "timings": {
+    "scope": "fixed shared pilot, graph and literal lambda; no prior continuation"
+  }
+}

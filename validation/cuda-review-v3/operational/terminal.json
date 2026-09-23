@@ -1,0 +1,10 @@
+{
+  "elapsed_seconds": 656.2246859073639,
+  "job_id": "77334328",
+  "passed": true,
+  "plan_sha256": "3d2fca74ac3de7c5bf5a84399359cf3ffa810f13a14a8f5172c5b201a18ed10a",
+  "qualification_sha256": "4266d3c9b4ef05c35b25573abbd172fab5aa2312223cecd744bf39ca58247be2",
+  "returncode": 0,
+  "scalar_profile_comparison_sha256": "568c3ddd8492568c2b36a677ee2b546619b6da444afb6db5643d0eddd025e99d",
+  "scope": "isolated_cuda_qualification_not_cohort_performance"
+}

@@ -8,7 +8,7 @@ separate evidence. There is no CPU fitting fallback or skipped-success outcome.
 
 import argparse
 import csv
-from dataclasses import asdict, replace
+from dataclasses import asdict
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -34,14 +34,14 @@ from clipp1d.cuda.model import TensorModel
 from clipp1d.cuda.policy import CudaPolicy
 from clipp1d.cuda.qp import solve_qp
 from clipp1d.cuda.solver import fit_lambda
-from clipp1d.cuda.partition import refit
+from clipp1d.cuda.partition import refit, grouping
 from clipp1d.cuda.selection import fit_tensor_model
 from clipp1d.io import SCHEMA_COLUMNS
 from clipp1d.model import evaluate, one_sided_derivatives
 from clipp1d.types import CountModel
 
 
-SCHEMA = "clipp1d.cuda.qualification.v2"
+SCHEMA = "clipp1d.cuda.qualification.v3"
 
 
 def utc_now():
@@ -134,6 +134,17 @@ def host_identity(model):
     )
 
 
+def scaling_fixture(n):
+    """Deterministic separated, nonidentical single-support count observations."""
+    if n < 1:
+        raise ValueError("Scaling fixtures require positive node counts")
+    i = np.arange(n)
+    alt = np.asarray((100, 250, 400))[i % 3] + (i // 3) % 41
+    return CountModel(tuple(f"m{j:06}" for j in i), alt.astype(np.float64),
+                      (1000 - alt).astype(np.float64), np.full(n, 1e-6), np.ones(n),
+                      np.full((n, 1), 0.5), np.zeros((n, 1)), np.ones((n, 1), dtype=bool), 1e-6)
+
+
 def upload(host, device, kernels):
     arrays = {
         key: torch.tensor(getattr(host, key).copy(), dtype=torch.float64, device=device)
@@ -163,6 +174,14 @@ def closeness(actual, expected, *, atol, rtol):
 
 def kernel_cases(device, eager, compiled, record):
     """Compiled and eager CUDA each compared directly with independent NumPy."""
+    for values, expected in (([0.3, 0.3, 0.300015, 0.30003], [0, 0, 1, 2]),
+                             ([0.3, 0.3, 0.300015, 0.30003, 0.30003], [0, 0, 1, 2, 2])):
+        point = torch.tensor(values, dtype=torch.float64, device=device)
+        _, _, labels, _ = grouping(point, CudaPolicy().fusion_tol)
+        if not torch.equal(labels, torch.tensor(expected, dtype=labels.dtype, device=device)):
+            raise AssertionError("Exact fused groups fragmented in an overwide tolerance run")
+        record("exact_fusion_grouping", dict(raw_ccf=values, labels=labels.cpu().tolist(),
+                                             expected=expected, qualified=True))
     host = host_fixture("mixed_multiplicity")
     record("fixture", dict(name="kernel_mixed_multiplicity", **host_identity(host)))
     n = len(host)
@@ -225,6 +244,20 @@ def kernel_cases(device, eager, compiled, record):
                 seconds=elapsed,
                 timing_scope="first shape call may include compilation",
             )
+            smaller, reduced_seconds = timed(
+                device, lambda: (model.loss(point), *model.loss_gradient(point))
+            )
+            assert_device(*smaller, device=device)
+            reduced_errors = {}
+            for label, value, full in zip(
+                ("loss_only", "loss_gradient_loss", "loss_gradient_gradient"),
+                smaller, (outputs[0], outputs[0], outputs[1]),
+            ):
+                reduced_errors[label] = closeness(
+                    value.cpu().numpy(), full.cpu().numpy(), atol=2e-9, rtol=5e-11
+                )
+            details[mode].update(reduced_output_errors=reduced_errors,
+                                 reduced_output_seconds=reduced_seconds)
         record("likelihood_parity", dict(probe=name, **details))
 
     for n in (1, 2, 7, 13):
@@ -277,6 +310,47 @@ def kernel_cases(device, eager, compiled, record):
                     complete_graph_laplacian_error=lap_error,
                 ),
             )
+
+
+def qp_certificate(result, h, target, lower, upper, caps, kernels):
+    """Recompute the full original-problem certificate independently of result flags."""
+    stats = kernels.gap_kkt(result.x, result.dual, h, target, lower, upper, caps)
+    p = CudaPolicy()
+    detail = dict(qualified=result.qualified, gap=float(stats[0]), gap_scale=float(stats[1]),
+                  kkt=float(stats[2]), iterations=result.iterations)
+    if not (result.qualified and bool(torch.isfinite(stats).all())
+            and detail["gap"] <= p.inner_atol + p.inner_rtol * detail["gap_scale"]
+            and detail["kkt"] <= p.inner_kkt_tol):
+        raise AssertionError(f"QP failed recomputed production gap/KKT gates: {detail}")
+    return detail
+
+
+def warm_qp_cases(device, eager, compiled, record):
+    n = 13
+    h = torch.linspace(1.0, 9.0, n, device=device, dtype=torch.float64)
+    target = torch.linspace(0.1, 0.9, n, device=device, dtype=torch.float64)
+    lower, upper = h * 0, h * 0 + 1
+    lower[0] = upper[0] = 0.3
+    caps = build_graph(target).weights * 0.15
+    for mode, kernels in (("eager", eager), ("compiled", compiled)):
+        original = solve_qp(h, target, lower, upper, caps, kernels)
+        qp_certificate(original, h, target, lower, upper, caps, kernels)
+        for changed in (False, True):
+            hh, tt, cc = (h * 7, target.flip(0) + 0.1, caps * 0.35) if changed else (h, target, caps)
+            outputs = {}
+            for warm in (False, True):
+                fitted, elapsed = timed(device, lambda: solve_qp(
+                    hh, tt, lower, upper, cc, kernels, start=original.x,
+                    dual=original.dual if warm else None))
+                detail = qp_certificate(fitted, hh, tt, lower, upper, cc, kernels)
+                record("qp_warm_attempt", dict(execution=mode, changed_problem=changed,
+                       warm=warm, seconds=elapsed, **detail))
+                outputs[warm] = fitted
+            difference = closeness(outputs[True].x.cpu().numpy(), outputs[False].x.cpu().numpy(),
+                                   atol=2e-6, rtol=1e-8)
+            record("qp_warm_parity", dict(execution=mode, changed_problem=changed,
+                   raw_max_absolute_error=difference, literal_problem_identical=True,
+                   cold_iterations=outputs[False].iterations, warm_iterations=outputs[True].iterations))
 
 
 def canonical_labels(fit):
@@ -737,6 +811,46 @@ def validate_public_search(result, receipt, device):
     return path_position(public_path, "default")
 
 
+def validate_public_measurements(result, receipt):
+    """A durable receipt ends before serializing itself; return metrics end later."""
+    source = receipt["provenance"]
+    phases = source.get("phase_seconds", {})
+    required = ("input_preparation_seconds", "device_upload_and_compile_seconds", "pilot_seconds",
+                "graph_build_seconds", "path_seconds", "refit_seconds",
+                "final_device_qualification_seconds", "device_export_seconds", "output_preparation_seconds")
+    if any(key not in phases or not math.isfinite(phases[key]) or phases[key] < 0 for key in required):
+        raise AssertionError("Public timing phases are missing, negative, or nonfinite")
+    metrics = result.operation_metrics
+    if not isinstance(metrics, dict) or any(
+            key not in metrics or not math.isfinite(metrics[key]) or metrics[key] < 0
+            for key in ("publication_seconds", "elapsed_seconds")):
+        raise AssertionError("Return-only publication completion metrics are missing or invalid")
+    numerical = datetime.fromisoformat(source["numerical_completed_utc"])
+    prepared = datetime.fromisoformat(source["output_prepared_utc"])
+    published = datetime.fromisoformat(metrics["publication_completed_utc"])
+    if any(value.tzinfo is None for value in (numerical, prepared, published)) or not numerical <= prepared <= published:
+        raise AssertionError("Numerical/preparation/publication timestamps are not ordered aware times")
+    if (source.get("device_measurement_scope") != "upload through final qualification and completed device export"
+            or "excludes receipt serialization" not in source.get("elapsed_scope", "")
+            or "return-only operation_metrics" not in source.get("publication_completion_scope", "")
+            or source["elapsed_seconds"] > metrics["elapsed_seconds"]
+            or source["through_device_export_seconds"] > source["elapsed_seconds"]
+            or "operation_metrics" in receipt):
+        raise AssertionError("Public measurement scope improperly claims self-timed durable completion")
+    if any(not isinstance(source.get(key), int) or source[key] < 0
+           for key in ("peak_allocated_bytes", "peak_reserved_bytes")):
+        raise AssertionError("Final CUDA memory peaks are missing or invalid")
+    return dict(phase_seconds=phases, numerical_completed_utc=source["numerical_completed_utc"],
+                output_prepared_utc=source["output_prepared_utc"],
+                return_only_operation_metrics=metrics,
+                device_measurement_scope=source["device_measurement_scope"],
+                receipt_elapsed_scope=source["elapsed_scope"],
+                peak_allocated_bytes=source["peak_allocated_bytes"],
+                peak_reserved_bytes=source["peak_reserved_bytes"],
+                scalar_work_counters=source.get("scalar_work_counters", {}),
+                integrity_counters=source.get("integrity_counters", {}))
+
+
 def public_case(device, artifacts, record):
     """Exercise the actual input/fit/default path/publication/readback contract."""
     input_file = artifacts / "public-input.tsv"
@@ -753,6 +867,7 @@ def public_case(device, artifacts, record):
     result, elapsed = timed(device, lambda: public_fit(input_file, destination, device=str(device)))
     receipt = json.loads((destination / "run.json").read_text())
     public_path = validate_public_search(result, receipt, device)
+    measurements = validate_public_measurements(result, receipt)
     if (
         receipt["status"] != "success"
         or result.raw_witness_mutation_id is not None
@@ -823,15 +938,15 @@ def public_case(device, artifacts, record):
             clonal_constraint=False,
             every_original_upper_bound_below_one=True,
             default_path_recipe=public_path,
+            measurements=measurements,
         ),
     )
 
 
-def resource_probe(device, compiled, n, iterations, record):
-    """Bounded QP resource measurement; this is not cohort/full-fit performance."""
-    if n == 0:
-        record("resource_probe", dict(status="disabled", scope="no scaling evidence"))
-        return
+def resource_probe(device, compiled, n, iterations, record, artifacts=None):
+    """Both synthetic QP repetitions must qualify under the production budget."""
+    if iterations != CudaPolicy().inner_max_iterations or n < 1:
+        raise ValueError("Resource qualification requires positive N and the unchanged production QP budget")
     dtype = torch.float64
     i = torch.arange(n, device=device, dtype=dtype)
     target = 0.15 + 0.35 * (i % 3) + 0.003 * torch.sin(i)
@@ -839,7 +954,7 @@ def resource_probe(device, compiled, n, iterations, record):
     lower, upper = torch.full_like(i, 1e-6), torch.ones_like(i)
     graph, build_seconds = timed(device, lambda: build_graph(target))
     caps = graph.weights * 0.002
-    policy = replace(CudaPolicy(), inner_max_iterations=iterations)
+    policy = CudaPolicy()
     baseline = torch.cuda.memory_allocated(device)
     results = []
     for repeat in range(2):
@@ -853,6 +968,7 @@ def resource_probe(device, compiled, n, iterations, record):
                 seconds=elapsed,
                 qp_qualified=result.qualified,
                 iterations=result.iterations,
+                polish_iterations=result.polish_iterations,
                 gap=float(result.gap),
                 gap_scale=float(result.scale),
                 kkt=float(result.kkt),
@@ -860,10 +976,22 @@ def resource_probe(device, compiled, n, iterations, record):
                 peak_reserved_bytes=torch.cuda.max_memory_reserved(device),
             )
         )
+        record("resource_qp_attempt", dict(nodes=n, **results[-1]))
+        if not result.qualified and artifacts is not None:
+            # Preserve the literal failed QP for diagnosis; never promote it by
+            # increasing the iteration budget or substituting another fixture.
+            state = {name: value.cpu().tolist() for name, value in
+                     (("h", h), ("target", target), ("lower", lower), ("upper", upper),
+                      ("caps", caps), ("x", result.x), ("dual", result.dual))}
+            failure_file = artifacts / f"resource-{n}-repeat{repeat}-unqualified.json"
+            write_json(failure_file, dict(state=state, certificate=results[-1]))
+            record("resource_failure_state", dict(artifact=str(failure_file),
+                   artifact_sha256=sha(failure_file), nodes=n, repeat=repeat))
+        qp_certificate(result, h, target, lower, upper, caps, compiled)
     record(
         "resource_probe",
         dict(
-            status="measurement_completed",
+            status="qualified",
             nodes=n,
             edges=n * (n - 1) // 2,
             one_dense_float64_matrix_bytes=8 * n * n,
@@ -875,6 +1003,57 @@ def resource_probe(device, compiled, n, iterations, record):
             timing_scope="repeat0 may include compilation; repeat1 uses warmed kernel shapes",
         ),
     )
+
+
+def scaling_cases(device, compiled, artifacts, record):
+    """Increasing complete default fits; require final device and host validation."""
+    from clipp1d.cuda_api import _export, _validate_result
+
+    for n in (16, 64, 256):
+        host = scaling_fixture(n)
+        record("scaling_started", dict(nodes=n, execution="compiled", path_grid="default",
+                                       fixture=host_identity(host)))
+        torch.cuda.reset_peak_memory_stats(device)
+        began = perf_counter()
+        model, upload_seconds = timed(device, lambda: upload(host, device, compiled))
+        fitted, fit_seconds = timed(device, lambda: fit_tensor_model(model))
+        before_export = artifacts / f"scaling-{n}-path.json"
+        summary = fit_summary(fitted)
+        summary.update(fit_seconds=fit_seconds, path_position=path_position(fitted, "default"))
+        write_json(before_export, summary)
+        record("scaling_path_complete", dict(nodes=n, search_status=fitted.search_status,
+               seconds=fit_seconds, artifact=str(before_export), artifact_sha256=sha(before_export)))
+        if fitted.search_status != "complete":
+            raise AssertionError(f"Scaling default path N={n} contains unresolved states")
+        source = source_provenance()
+        phases = dict(input_preparation_seconds=0.0, device_upload_and_compile_seconds=upload_seconds)
+        phases.update({key: fitted.timings[key] for key in
+                       ("pilot_seconds", "graph_build_seconds", "path_seconds", "refit_seconds")})
+        source.update(backend="cuda", clonal_constraint=False, policy=asdict(CudaPolicy()),
+                      numerical_stages=fitted.timings, phase_seconds=phases)
+        exported = _export(fitted, source, wall_started=began)
+        data = SimpleNamespace(mutations=[SimpleNamespace(mutation_id=mid, exclusion=None)
+                                          for mid in host.mutation_ids])
+        _validate_result(exported, data, fitted.records)
+        detail = dict(nodes=n, qualified=True, search_status=exported.search_status,
+                      selected_lambda=exported.selected_lambda, raw_objective=exported.raw_objective,
+                      score=exported.selection_score, raw_ccf=exported.raw_phi.tolist(),
+                      refitted_ccf=exported.refitted_phi.tolist(), labels=exported.cluster_labels.tolist(),
+                      cluster_centers=exported.cluster_centers.tolist(), provenance=exported.provenance,
+                      phase_seconds=exported.provenance["phase_seconds"], numerical_stages=fitted.timings,
+                      model_integrity_counters=dict(model.integrity_counters),
+                      graph_integrity_counters=dict(fitted.graph.integrity_counters),
+                      scalar_work_counters=dict(model.scalar_work_counters),
+                      peak_allocated_bytes=exported.provenance["peak_allocated_bytes"],
+                      peak_reserved_bytes=exported.provenance["peak_reserved_bytes"],
+                      final_device_qualification_and_export_complete=True,
+                      seconds=perf_counter() - began,
+                      scope="synthetic complete default path plus final qualification/export; no cohort accuracy claim")
+        detail_file = artifacts / f"scaling-{n}-qualified.json"
+        write_json(detail_file, detail)
+        record("scaling_qualified", {key: value for key, value in detail.items()
+               if key not in ("provenance", "raw_ccf", "refitted_ccf", "labels", "cluster_centers")}
+               | dict(artifact=str(detail_file), artifact_sha256=sha(detail_file)))
 
 
 @torch.no_grad()
@@ -911,16 +1090,21 @@ def run(args, receipt, record, artifacts):
     )
     record("stage_started", dict(stage="independent_likelihood_and_qp"))
     kernel_cases(device, eager, compiled, record)
+    warm_qp_cases(device, eager, compiled, record)
     record(
         "compilation_banks",
         dict(stage="after_kernel_cases", banks=compiled.compilation_diagnostics()),
     )
+    # Exercise the observed convergence boundary before the longer complete
+    # pipeline checks. This reorders the same acceptance inventory only.
+    record("stage_started", dict(stage="bounded_resource_probe"))
+    resource_probe(device, compiled, args.resource_n, args.resource_iterations, record, artifacts)
+    record("stage_started", dict(stage="increasing_complete_default_fits"))
+    scaling_cases(device, compiled, artifacts, record)
     record("stage_started", dict(stage="eager_compiled_complete_pipeline"))
     pipeline_cases(device, eager, compiled, args.path_grid, artifacts, record)
     record("stage_started", dict(stage="public_default_path_and_publication"))
     public_case(device, artifacts, record)
-    record("stage_started", dict(stage="bounded_resource_probe"))
-    resource_probe(device, compiled, args.resource_n, args.resource_iterations, record)
     record("compilation_banks", dict(stage="final", banks=compiled.compilation_diagnostics()))
     current = source_provenance()
     if (
@@ -931,7 +1115,7 @@ def run(args, receipt, record, artifacts):
     receipt.update(
         status="passed",
         finished_utc=utc_now(),
-        scope="actual CUDA eager/compiled kernels and complete small-fixture paths, public default-path publication, separate bounded QP resources; no cohort/scaling qualification",
+        scope="actual CUDA eager/compiled and warm-QP parity, complete small paths, public publication, qualified production-budget QPs and complete synthetic N16/64/256 paths; no cohort accuracy claim",
     )
 
 
@@ -949,19 +1133,20 @@ def main():
         "--resource-n",
         type=int,
         default=256,
-        help="Bounded synthetic QP nodes; 0 disables resource measurement",
+        help="Required qualified synthetic QP nodes",
     )
-    parser.add_argument("--resource-iterations", type=int, default=256)
+    parser.add_argument("--resource-iterations", type=int, default=CudaPolicy().inner_max_iterations,
+                        help="Must equal the unchanged production QP budget")
     parser.add_argument("--timeout-seconds", type=int, default=2700)
     args = parser.parse_args()
     if (
-        args.resource_n < 0
+        args.resource_n < 1
         or args.resource_n > 4096
-        or args.resource_iterations < 1
+        or args.resource_iterations != CudaPolicy().inner_max_iterations
         or args.timeout_seconds < 1
     ):
         parser.error(
-            "Require 0<=resource-n<=4096, positive resource-iterations and timeout-seconds"
+            "Require 1<=resource-n<=4096, production resource-iterations and positive timeout-seconds"
         )
     out = args.out.resolve()
     events = out.with_suffix(".events.jsonl")

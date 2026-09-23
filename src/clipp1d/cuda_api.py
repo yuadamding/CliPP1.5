@@ -4,7 +4,7 @@ Numerical likelihoods, pilots, graph weights, optimization, certificates, path
 scores, secondary refits, and multiplicity posteriors remain on the CUDA device.
 The existing canonical input/model compiler is reused once before the upload.
 """
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from copy import deepcopy
 from datetime import datetime, timezone
 import csv
@@ -22,8 +22,8 @@ from .cuda.model import TensorModel
 from .cuda.policy import CudaPolicy, QualificationError
 from .cuda.selection import fit_tensor_model
 
-SCHEMA = "clipp1d.cuda.run.v2"
-BASE_COMMIT = "f90ac33e34f37a87ee498046cefa98c791df05dd"
+SCHEMA = "clipp1d.cuda.run.v3"
+BASE_COMMIT = "371003ffcadcc57e23c62df5901d9463085cceea"
 
 
 @dataclass(frozen=True)
@@ -48,6 +48,7 @@ class FitResult:
     original_upper_bounds: np.ndarray
     partition_labels: np.ndarray
     candidate_provenance: dict
+    operation_metrics: dict | None = None  # Return-only completion; never a self-timed receipt.
 
     def __post_init__(self):
         for name in ("pilot_phi", "raw_phi", "refitted_phi", "cluster_labels", "cluster_centers",
@@ -56,12 +57,13 @@ class FitResult:
             value = np.ascontiguousarray(getattr(self, name))
             immutable = np.frombuffer(value.tobytes(), dtype=value.dtype).reshape(value.shape)
             object.__setattr__(self, name, immutable)
-        for name in ("raw_diagnostics", "provenance", "candidate_provenance"):
+        for name in ("raw_diagnostics", "provenance", "candidate_provenance", "operation_metrics"):
             object.__setattr__(self, name, deepcopy(getattr(self, name)))
         object.__setattr__(self, "_metadata_sha256", self._metadata_hash())
 
     def _metadata_hash(self):
-        payload = dict(raw=self.raw_diagnostics, source=self.provenance, candidate=self.candidate_provenance)
+        payload = dict(raw=self.raw_diagnostics, source=self.provenance, candidate=self.candidate_provenance,
+                       operation=self.operation_metrics)
         return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
 
@@ -102,6 +104,7 @@ def _json(path, value):
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _host(tensor):
@@ -127,7 +130,31 @@ def _model_hash(mutation_ids, eps, arrays):
     return digest.hexdigest()
 
 
+def _synchronize(device):
+    if device.type == "cuda":
+        torch.cuda.synchronize(device)
+
+
+def _device_metrics(model):
+    """Read after ALL final CUDA qualification, posterior and export work."""
+    _synchronize(model.device)
+    metrics = dict(compilation_statistics=model.kernels.compilation_diagnostics(),
+                   integrity_counters=dict(getattr(model, "integrity_counters", {})),
+                   scalar_work_counters=dict(getattr(model, "scalar_work_counters", {})),
+                   device_measurement_scope="upload through final qualification and completed device export")
+    if model.device.type == "cuda":
+        metrics.update(peak_allocated_bytes=torch.cuda.max_memory_allocated(model.device),
+                       peak_reserved_bytes=torch.cuda.max_memory_reserved(model.device))
+    return metrics
+
+
 def _validate_device_fit(d):
+    # Contexts own full snapshot checks at entry and exit, including exceptions.
+    with d.model.validated_stage(), d.graph.validated_stage():
+        _validate_device_fit_owned(d)
+
+
+def _validate_device_fit_owned(d):
     """Reconcile the selected device states before the final host boundary."""
     from .cuda.audit import audit_raw
     from .cuda.kernels import differences
@@ -157,12 +184,12 @@ def _validate_device_fit(d):
             torch.equal(d.pilot.gap, (d.pilot.loss - d.pilot.lower_bound).clamp_min(0.)) &
             (d.pilot.gap <= p.scalar_atol + p.scalar_rtol * d.pilot.loss.abs()).all(),
             "unqualified scalar pilot")
-    pilot_loss = m.terms(d.pilot.phi)[0]
+    pilot_loss = m.loss(d.pilot.phi)
     require(((pilot_loss - d.pilot.loss).abs() <=
              128 * torch.finfo(torch.float64).eps * (1 + pilot_loss.abs())).all(),
             "pilot loss inconsistent with the model")
     caps = d.graph.weights * d.lambda_value
-    observed_objective = m.terms(d.raw.x)[0].sum() + .5 * (caps * differences(d.raw.x).abs()).sum()
+    observed_objective = m.loss(d.raw.x).sum() + .5 * (caps * differences(d.raw.x).abs()).sum()
     objective_margin = 128 * torch.finfo(torch.float64).eps * (1 + observed_objective.abs())
     require(torch.isfinite(d.raw.objective) & ((d.raw.objective - observed_objective).abs() <= objective_margin),
             "raw objective inconsistent with the exact model/graph state")
@@ -186,7 +213,7 @@ def _validate_device_fit(d):
     require(torch.equal(d.refit.sizes, torch.bincount(d.refit.labels, minlength=k)) and
             torch.equal(d.refit.gap, scalar.gap.sum()) and torch.equal(d.refit.loss, scalar.loss.sum()),
             "inconsistent refit membership sizes or scalar arithmetic")
-    refit_loss = m.terms(d.refit.phi)[0].sum()
+    refit_loss = m.loss(d.refit.phi).sum()
     require((refit_loss - d.refit.loss).abs() <= 128 * torch.finfo(torch.float64).eps * (1 + refit_loss.abs()),
             "secondary refit loss inconsistent with the model")
     require(torch.equal(d.refit.score, partition_score(d.refit.loss, d.refit.sizes)),
@@ -195,9 +222,14 @@ def _validate_device_fit(d):
             "secondary clonal designation inconsistent with closest-to-one rule")
 
 
-def _export(device_fit, source):
+def _export(device_fit, source, *, wall_started=None):
     d, m = device_fit, device_fit.model
+    _synchronize(m.device)
+    qualification_started = perf_counter()
     _validate_device_fit(d)
+    _synchronize(m.device)
+    qualification_seconds = perf_counter() - qualification_started
+    export_started = perf_counter()
     source = deepcopy(source)
     arrays = {name: _host(getattr(m, name)) for name in ("alt", "ref", "lower", "upper", "slope", "log_prior")}
     arrays["valid"] = _host(torch.isfinite(m.log_prior))
@@ -251,11 +283,25 @@ def _export(device_fit, source):
                      raw_qualified=bool(d.raw.qualified), refit_qualified=True,
                      refit_gap=float(d.refit.gap), raw_certificate=dict(d.raw.diagnostics),
                      global_optimality_proven=False)
+    # Materialize every remaining device scalar/array BEFORE the measurement.
+    raw_multiplicity, refit_multiplicity = _host(raw_calls), _host(refit_calls)
+    selected_lambda, score, raw_objective = float(d.lambda_value), float(d.refit.score), float(d.raw.objective)
+    m.validate(full=True)
+    d.graph.validate(full=True)
+    metrics = _device_metrics(m)
+    exported_at = perf_counter()
+    phases = dict(source.get("phase_seconds", {}))
+    phases.update(final_device_qualification_seconds=qualification_seconds,
+                  device_export_seconds=exported_at - export_started)
+    source.update(metrics, graph_integrity_counters=dict(d.graph.integrity_counters), phase_seconds=phases,
+                  numerical_completed_utc=datetime.now(timezone.utc).isoformat(),
+                  numerical_completion_scope="all CUDA work and device-to-host transfers complete")
+    if wall_started is not None:
+        source["through_device_export_seconds"] = exported_at - wall_started
     return FitResult(m.mutation_ids, pilots, raw, refitted, labels, centers,
-                     _host(raw_calls), _host(refit_calls), float(d.lambda_value),
-                     float(d.refit.score), float(d.raw.objective), None,
-                     d.raw.diagnostics, d.search_status, source, graph_sha,
-                     _host(m.lower), _host(m.upper), partition_labels, candidate)
+                     raw_multiplicity, refit_multiplicity, selected_lambda,
+                     score, raw_objective, None, d.raw.diagnostics, d.search_status,
+                     source, graph_sha, arrays["lower"], arrays["upper"], partition_labels, candidate)
 
 
 def _clonality(result):
@@ -373,7 +419,24 @@ def _validate_result(result, data, records):
     require(result.search_status == ('complete' if complete else 'incomplete'), "false search completeness")
 
 
-def _write_bundle(result, data, destination, records):
+def _prepared_result(result, preparation_started, wall_started, *, tables_written):
+    measured_at = perf_counter()
+    provenance = deepcopy(result.provenance)
+    phases = dict(provenance.get("phase_seconds", {}))
+    phases["output_preparation_seconds"] = measured_at - preparation_started
+    provenance.update(phase_seconds=phases,
+                      output_prepared_utc=datetime.now(timezone.utc).isoformat(),
+                      output_preparation_scope="host validation and prepared TSV tables" if tables_written
+                                               else "host validation of in-memory result",
+                      elapsed_scope="through output preparation; excludes receipt serialization, durable publication and return bookkeeping",
+                      publication_completion_scope="return-only operation_metrics; external caller receipt required for durable completion timing")
+    if wall_started is not None:
+        provenance["elapsed_seconds"] = measured_at - wall_started
+    return replace(result, provenance=provenance)
+
+
+def _write_bundle(result, data, destination, records, *, preparation_started=None, wall_started=None):
+    preparation_started = perf_counter() if preparation_started is None else preparation_started
     _validate_result(result, data, records)
     lookup = {mid: i for i, mid in enumerate(result.mutation_ids)}
     prefix = [data.tumor_id, data.sample_id]
@@ -404,7 +467,8 @@ def _write_bundle(result, data, destination, records):
             w.writerow(prefix + [mid, result.raw_phi[i], result.multiplicity_calls[i],
                                  result.refitted_phi[i], result.refitted_multiplicity_calls[i]])
     hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in destination.glob("*.tsv")}
-    _json(destination / "run.json", dict(schema=SCHEMA, status="success", search_status=result.search_status,
+    result = _prepared_result(result, preparation_started, wall_started, tables_written=True)
+    receipt_sha256 = _json(destination / "run.json", dict(schema=SCHEMA, status="success", search_status=result.search_status,
           selected_lambda=result.selected_lambda, raw_objective=result.raw_objective,
           selection_score=result.selection_score, raw_witness_mutation_id=result.raw_witness_mutation_id,
           raw_diagnostics=result.raw_diagnostics, graph_sha256=result.graph_sha256, provenance=result.provenance,
@@ -413,10 +477,12 @@ def _write_bundle(result, data, destination, records):
           partition_labels=result.partition_labels.tolist(),
           clonality=_clonality(result),
           qualification_scope="per-run numerical admission; not hardware/cohort qualification"))
+    return result, receipt_sha256
 
 
-def _publish(result, data, destination, records):
-    """Prepare and validate all files, then atomically publish one directory."""
+def _publish(result, data, destination, records, *, wall_started=None):
+    """Return post-publication timing separately from the self-excluding run receipt."""
+    publication_started = perf_counter()
     _validate_result(result, data, records)
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=True)
@@ -424,8 +490,12 @@ def _publish(result, data, destination, records):
         raise FileExistsError("Output directory must be empty and must not be a symlink")
     stage = Path(tempfile.mkdtemp(prefix=".clipp1d-publish-", dir=destination.parent))
     try:
-        _write_bundle(result, data, stage, records)
-        receipt = json.loads((stage / "run.json").read_text())
+        result, receipt_sha256 = _write_bundle(result, data, stage, records,
+                               preparation_started=publication_started, wall_started=wall_started)
+        receipt_bytes = (stage / "run.json").read_bytes()
+        if hashlib.sha256(receipt_bytes).hexdigest() != receipt_sha256:
+            raise QualificationError("Published receipt readback differs from the intended result")
+        receipt = json.loads(receipt_bytes)
         for name, expected in receipt['table_sha256'].items():
             path = stage / name
             if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
@@ -449,6 +519,13 @@ def _publish(result, data, destination, records):
     finally:
         if stage.exists():
             shutil.rmtree(stage)
+    completed = perf_counter()
+    metrics = dict(publication_completed_utc=datetime.now(timezone.utc).isoformat(),
+                   publication_seconds=completed - publication_started,
+                   scope="completed TSV/receipt readback, fsync, atomic directory publication and parent fsync; excludes return bookkeeping")
+    if wall_started is not None:
+        metrics["elapsed_seconds"] = completed - wall_started
+    return replace(result, operation_metrics=metrics)
 
 
 @torch.no_grad()
@@ -458,6 +535,8 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
     An unavailable CUDA device or compiler error is fatal. Numerical candidates
     retain separate qualification and search-completeness statuses.
     """
+    start = perf_counter()
+    started_utc = datetime.now(timezone.utc).isoformat()
     destination = None if outdir is None else Path(outdir)
     if destination is not None:
         if destination.is_symlink():
@@ -467,9 +546,8 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
             raise FileExistsError("Output directory must be empty; prior evidence is never overwritten")
     from .api import source_provenance
     source = source_provenance()
-    source.update(started_utc=datetime.now(timezone.utc).isoformat(), requested_device=str(device),
+    source.update(started_utc=started_utc, requested_device=str(device),
                   base_commit=BASE_COMMIT)
-    start = perf_counter()
     try:
         d = require_cuda(device)
         compiler = os.environ.get("CC")
@@ -500,19 +578,31 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
         source.update(gpu_name=props.name, capability=list(torch.cuda.get_device_capability(d)),
                       total_device_bytes=total, free_device_bytes_at_start=free,
                       estimated_workspace_bytes=estimated, cpu_numeric_fallback=False)
+        _synchronize(d)
+        phases = dict(input_preparation_seconds=perf_counter() - start)
         torch.cuda.reset_peak_memory_stats(d)
+        upload_started = perf_counter()
         model = TensorModel.from_host(canonical, d, compiled=True)
+        _synchronize(d)
+        phases["device_upload_and_compile_seconds"] = perf_counter() - upload_started
         result_device = fit_tensor_model(model, policy)
-        torch.cuda.synchronize(d)
-        source.update(numerical_stages=result_device.timings,
-                      compilation_statistics=model.kernels.compilation_diagnostics(),
-                      peak_allocated_bytes=torch.cuda.max_memory_allocated(d),
-                      peak_reserved_bytes=torch.cuda.max_memory_reserved(d),
-                      elapsed_seconds=perf_counter() - start, finished_utc=datetime.now(timezone.utc).isoformat())
-        result = _export(result_device, source)
-        _validate_result(result, data, result_device.records)
+        _synchronize(d)
+        for key in ("pilot_seconds", "graph_build_seconds", "path_seconds", "refit_seconds", "stage_integrity_seconds"):
+            phases[key] = result_device.timings[key]
+        source.update(numerical_stages=result_device.timings, phase_seconds=phases,
+                      compilation_timing_scope="initial compiler admission in upload phase; lazy specializations charged to the executing phase")
+        result = _export(result_device, source, wall_started=start)
+        source = deepcopy(result.provenance)
         if destination is not None:
-            _publish(result, data, destination, result_device.records)
+            result = _publish(result, data, destination, result_device.records, wall_started=start)
+        else:
+            preparation_started = perf_counter()
+            _validate_result(result, data, result_device.records)
+            result = _prepared_result(result, preparation_started, start, tables_written=False)
+            result = replace(result, operation_metrics=dict(
+                elapsed_seconds=perf_counter() - start,
+                completed_utc=datetime.now(timezone.utc).isoformat(),
+                scope="complete in-memory fit; no durable output requested"))
         if verbose:
             print(f"device={d} retained={len(result.mutation_ids)} edges={result_device.graph.edges} "
                   f"search_status={result.search_status}")

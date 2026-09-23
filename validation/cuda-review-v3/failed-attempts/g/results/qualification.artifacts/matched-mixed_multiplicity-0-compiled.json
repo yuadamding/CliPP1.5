@@ -1,0 +1,277 @@
+{
+  "clonal_constraint": false,
+  "cluster_centers": [
+    0.8282729732319339,
+    0.5714346800330465,
+    0.5603168103425415,
+    0.4598012284504956,
+    0.4286982687492306,
+    0.39999999999999997
+  ],
+  "cluster_labels": [
+    5,
+    2,
+    0,
+    3,
+    1,
+    4
+  ],
+  "compilation_banks": {
+    "boxed_rank_one": {
+      "active_families": 1,
+      "backend": "inductor",
+      "calls": 60224,
+      "dynamic_extents": true,
+      "eager_fallback": false,
+      "evictions": 0,
+      "families_created": 1,
+      "fullgraph": true,
+      "global_cache_limit_modified": false,
+      "max_families": 32,
+      "policy": "bounded_structural_families_v1"
+    },
+    "edge_update": {
+      "active_families": 1,
+      "backend": "inductor",
+      "calls": 60224,
+      "dynamic_extents": true,
+      "eager_fallback": false,
+      "evictions": 0,
+      "families_created": 1,
+      "fullgraph": true,
+      "global_cache_limit_modified": false,
+      "max_families": 32,
+      "policy": "bounded_structural_families_v1"
+    },
+    "gap_kkt": {
+      "active_families": 2,
+      "backend": "inductor",
+      "calls": 8206,
+      "dynamic_extents": true,
+      "eager_fallback": false,
+      "evictions": 0,
+      "families_created": 2,
+      "fullgraph": true,
+      "global_cache_limit_modified": false,
+      "max_families": 32,
+      "policy": "bounded_structural_families_v1"
+    },
+    "likelihood": {
+      "active_families": 2,
+      "backend": "inductor",
+      "calls": 1560,
+      "dynamic_extents": true,
+      "eager_fallback": false,
+      "evictions": 0,
+      "families_created": 2,
+      "fullgraph": true,
+      "global_cache_limit_modified": false,
+      "max_families": 32,
+      "policy": "bounded_structural_families_v1"
+    },
+    "loss_gradient": {
+      "active_families": 3,
+      "backend": "inductor",
+      "calls": 301,
+      "dynamic_extents": true,
+      "eager_fallback": false,
+      "evictions": 0,
+      "families_created": 3,
+      "fullgraph": true,
+      "global_cache_limit_modified": false,
+      "max_families": 32,
+      "policy": "bounded_structural_families_v1"
+    },
+    "loss_only": {
+      "active_families": 4,
+      "backend": "inductor",
+      "calls": 2675,
+      "dynamic_extents": true,
+      "eager_fallback": false,
+      "evictions": 0,
+      "families_created": 4,
+      "fullgraph": true,
+      "global_cache_limit_modified": false,
+      "max_families": 32,
+      "policy": "bounded_structural_families_v1"
+    }
+  },
+  "graph_edges": 15,
+  "literal_lambda": 0.0,
+  "path_records": [],
+  "pilot_and_graph": {
+    "gap_floor": 0.003110296107232286,
+    "independent_numpy_recipe_atol": 2.842170943040401e-14,
+    "independent_numpy_recipe_max_weight_error": 8.881784197001252e-16,
+    "independent_numpy_recipe_rtol": 2.842170943040401e-14,
+    "normalization": 15.628130411595134,
+    "pilot_gaps": [
+      1.2789769243681803e-12,
+      6.266039775937315e-08,
+      8.5891798562443e-08,
+      5.304227812530371e-08,
+      1.0517163673284813e-07,
+      7.307130545086693e-08
+    ],
+    "pilot_loss": [
+      43.966987940134295,
+      59.987133648336645,
+      66.96927654397568,
+      49.520127342063574,
+      67.99428535973068,
+      70.09175778894827
+    ],
+    "pilot_lower_bounds": [
+      43.966987940133016,
+      59.98713358567625,
+      66.96927645808388,
+      49.520127289021296,
+      67.99428525455905,
+      70.09175771587697
+    ],
+    "pilot_phi": [
+      0.39999999999999997,
+      0.5603168103425415,
+      0.8282729732547658,
+      0.4598012302392839,
+      0.571434676902536,
+      0.428698269166961
+    ],
+    "pilot_sha256": "50aa432172a55792031e90959a42381e713191cc5aeb68bf64cd065a63a1c389",
+    "pilot_subdivisions": 48,
+    "recipe_recomputed_exactly": true,
+    "selected_caps_sha256": "2d5565fb483d8ea4525a7a9229677d1038ad34b6e22c8d5152e1d7f7b9817597",
+    "weight_rule": "all_pairs_inverse_gap_mean_one_adjacent_floor_v1",
+    "weights": [
+      [
+        0.0,
+        0.3991295751565125,
+        0.14940746766292415,
+        1.0699977265757337,
+        0.3732452591189807,
+        2.2296529463223234
+      ],
+      [
+        0.3991295751565125,
+        0.0,
+        0.23879719617953482,
+        0.6365896743244484,
+        5.755347040475509,
+        0.4861562803458384
+      ],
+      [
+        0.14940746766292415,
+        0.23879719617953482,
+        0.0,
+        0.17365559670549088,
+        0.24913411010448908,
+        0.16013821632814101
+      ],
+      [
+        1.0699977265757337,
+        0.6365896743244484,
+        0.17365559670549088,
+        0.0,
+        0.5731900457708372,
+        2.057269732411592
+      ],
+      [
+        0.3732452591189807,
+        5.755347040475509,
+        0.24913411010448908,
+        0.5731900457708372,
+        0.0,
+        0.44828913251764513
+      ],
+      [
+        2.2296529463223234,
+        0.4861562803458384,
+        0.16013821632814101,
+        2.057269732411592,
+        0.44828913251764513,
+        0.0
+      ]
+    ],
+    "weights_sha256": "c73a2fe54114e032f7232cc6fbf12a2c209741b15737635afe25c206695cc90a"
+  },
+  "raw_ccf": [
+    0.39999999999999997,
+    0.5603168103425415,
+    0.8282729732547658,
+    0.4598012302392839,
+    0.571434676902536,
+    0.428698269166961
+  ],
+  "raw_objective": 358.52956862318916,
+  "raw_qualified": true,
+  "refitted_ccf": [
+    0.39999999999999997,
+    0.5603168103425415,
+    0.8282729732319339,
+    0.4598012284504956,
+    0.5714346800330465,
+    0.4286982687492306
+  ],
+  "score": 736.3994849092611,
+  "search_status": "complete",
+  "seconds": 0.1293465371709317,
+  "selected_lambda": 0.0,
+  "selected_raw_diagnostics": {
+    "audit_calls": 1,
+    "audit_diagnostics": {
+      "clonal_constraint": false,
+      "coverage": "all_feasible_signed_subsets_of_exact_fused_groups",
+      "negative": {
+        "attained_value": 0.0,
+        "iterations": 0,
+        "lower_bound": -1.4339865854782809e-06,
+        "objective_scale": 1.0,
+        "roundoff_margin": 1.421092758125067e-14,
+        "status": "qualified_lower_bound"
+      },
+      "positive": {
+        "attained_value": 0.0,
+        "iterations": 0,
+        "lower_bound": -3.6933580435767994e-06,
+        "objective_scale": 1.0,
+        "roundoff_margin": 1.421092757996634e-14,
+        "status": "qualified_lower_bound"
+      },
+      "proof": "device_dual_lower_bounds_of_complete_subset_cut_relaxation",
+      "tolerance_rule": "derivative_plus_tol_times_one_plus_absolute_node_and_cut_terms"
+    },
+    "audit_seconds": 0.002476383000612259,
+    "audit_signed_direction_count": 2,
+    "audit_status": "qualified",
+    "box_feasible": true,
+    "clonal_constraint": false,
+    "directional_qualified": true,
+    "directional_stationarity_qualified": true,
+    "global_optimality_proven": false,
+    "inner_gap": 0.0,
+    "inner_gap_qualified": true,
+    "inner_gap_scale": 0.0,
+    "inner_iterations": 0,
+    "inner_kkt_qualified": true,
+    "inner_kkt_residual": 0.0,
+    "inner_polish_iterations": 0,
+    "outer_iterations": 0,
+    "phase_timing_scope": "host wall through device-qualified QP/audit returns",
+    "qp_calls": 0,
+    "qp_dual_warm_starts": 0,
+    "qp_polish_iterations": 0,
+    "qp_seconds": 0.0,
+    "raw_branch_stationarity_qualified": true,
+    "raw_stationarity_qualified": true,
+    "search_complete": true,
+    "separable_global_gap": 3.798386956077593e-07,
+    "separable_scalar_gap_qualified": true,
+    "starts_attempted": 0,
+    "stationarity_residual": 1.4578531218027938e-06,
+    "status": "qualified_separable",
+    "surrogate_qp_calls": 0
+  },
+  "timings": {
+    "scope": "fixed shared pilot, graph and literal lambda; no prior continuation"
+  }
+}

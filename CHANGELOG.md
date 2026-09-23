@@ -1,5 +1,52 @@
 # Changelog
 
+## 0.5.1.dev0 — exact fusions, bounded reuse and complete measurement scopes
+
+Preserve exact-value groups inside overwide tolerance runs instead of splitting
+every node into a singleton. Apply the same rule to reporting, refit selection and
+QP polishing. This fixes a partition defect that can change K, score and the
+selected lambda. Advance the policy to `clipp1d_complete_cuda_unconstrained_v3`
+and receipt schema to `clipp1d.cuda.run.v3`.
+
+Move full model/graph/scalar snapshot reconciliation to owned stage boundaries
+with metadata/version checks inside. Retain full exceptional-exit and publication
+checks, and use the segment-reduction fast path only for validated immutable
+lengths. Add shared-arithmetic loss-only and loss–gradient kernels, detect
+analytical scalar groups before grid construction, and pack actual golden-search
+wells with bounded padding. Add one qualified last-partition refit cache,
+canonical singleton-pilot reuse and work counters. Initialize QPs with a qualified
+dual within one start/lambda; cross-lambda continuation remains primal-only and
+all new surrogates retain independent gap/KKT qualification.
+
+The expanded 256-node QP check exposed a convergence limit in equality polishing.
+Add bounded solver-only tighter fusion proposals and repeated affine-flow/cap
+repair, subject to the original objective, gap and KKT gates. Keep the public
+grouping rule and 20,000 ADMM iteration limit; report additional polishing work
+separately and preserve the original failed GPU receipt.
+The increasing-size test also exposed zero-step warm states that retained tiny
+nonexact fusions, and consensus underconditioning from `median(h)/N`. Offer
+certified equality polishing before warm admission, clear a stalled warm dual
+after failed raw auditing, and initialize numerical rho from `median(h)` while
+retaining residual balancing. Candidate flow repair need not start with an
+already qualified dual; final objective, gap and KKT admission stays unchanged.
+Preserve original-unit roundoff margins when normalizing directional cuts:
+scale the constant error unit with the coefficients and stationarity threshold.
+This removes an artificial high-penalty error floor while retaining cancellation
+protection and the original absolute stationarity gate.
+
+Measure synchronized numerical phases, final device qualification and export.
+Capture CUDA peaks and compilation/work statistics after the last required device
+operation. Receipts explicitly exclude their own serialization and durable
+publication from elapsed time; returned `operation_metrics` separately records
+post-publication completion. Check intended receipt bytes as well as table hashes
+before atomic publication. Keep the dense graph, original likelihood/bounds,
+unconstrained clonal fitting, raw-primary estimator and post-fit closest-to-one
+label-zero rule.
+
+The [archived `371003f` evidence](validation/371003f/README.md) is retrievable and
+retains its original policy-v2 scope. It does not qualify this revision; current
+acceptance and limitations belong in [VALIDATION_CUDA.md](VALIDATION_CUDA.md).
+
 ## 0.5.0.dev0 — complete graph on PyTorch CUDA
 
 Replace the public chain fitting path with float64 PyTorch CUDA complete-graph
@@ -13,8 +60,8 @@ and qualify publication under `clipp1d.cuda.run.v2`.
 There is no CPU inference fallback. Historical chain modules/tests remain
 reference-only, and historical CPU launchers reject this source. CPU numerical
 references and actual CUDA qualification are reported separately in
-[VALIDATION_CUDA.md](VALIDATION_CUDA.md); older GPU or chain receipts do not
-qualify this revision.
+[the archived validation evidence](validation/371003f/README.md); older GPU or
+chain receipts do not qualify this revision.
 
 
 ## 0.4.1 — 2026-09-22

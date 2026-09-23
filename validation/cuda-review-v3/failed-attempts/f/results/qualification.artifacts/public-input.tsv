@@ -1,0 +1,5 @@
+mutation_id	sample_id	alt_count	ref_count	count_observed	purity	normal_cn	segment_id	cn_state_id	cn_state_fraction	allele_a_cn	allele_b_cn
+m0002	sample1	38	62	1	1.0	2	seg2	cn1	1.0	2	0
+m0000	sample1	20	80	1	1.0	2	seg0	cn1	1.0	2	0
+m0003	sample1	39	61	1	1.0	2	seg3	cn1	1.0	2	0
+m0001	sample1	21	79	1	1.0	2	seg1	cn1	1.0	2	0

@@ -9,7 +9,7 @@ import math
 import torch
 from .graph import build_graph, penalty_reference
 from .scalar import pilot
-from .partition import refit
+from .partition import LastPartitionCache, QualifiedPilot, refit
 from .solver import PrimalWarmState, fit_lambda
 from .policy import CudaPolicy, QualificationError
 
@@ -31,12 +31,38 @@ class DeviceFit:
 @torch.no_grad()
 def fit_tensor_model(model, policy=CudaPolicy(), *, lambda_values=None):
     """Low-level CPU execution serves numerical tests, never public fallback."""
-    started = perf_counter()
+    boundary_started = _synchronized_time(model)
+    with model.validated_stage():
+        result = _fit_tensor_model(model, policy, lambda_values=lambda_values)
+    boundary_finished = _synchronized_time(model)
+    # Include entry/exit integrity reconciliation in the numerical wall scope.
+    # It is reported separately from the four inner numerical phases.
+    result.timings["stage_integrity_seconds"] = (
+        boundary_finished - boundary_started - result.timings["numerical_wall_seconds"])
+    result.timings["numerical_wall_seconds"] = boundary_finished - boundary_started
+    return result
+
+
+def _synchronized_time(model):
+    # Phase boundaries report completed device work, not asynchronous dispatch.
+    if model.device.type == "cuda":
+        torch.cuda.synchronize(model.device)
+    return perf_counter()
+
+
+def _fit_tensor_model(model, policy, *, lambda_values):
+    started = _synchronized_time(model)
     pilots = pilot(model, policy)
-    pilot_seconds = perf_counter() - started
+    pilot_reuse = QualifiedPilot(model, pilots, policy)
+    pilot_finished = _synchronized_time(model)
+    pilot_seconds = pilot_finished - started
     graph = build_graph(pilots.phi, mutation_ids=model.mutation_ids)
     curvature = model.terms(pilots.phi)[2]
     reference = penalty_reference(model, graph, pilots.phi, curvature)
+    graph_finished = _synchronized_time(model)
+    graph_build_seconds = graph_finished - pilot_finished
+    cache = LastPartitionCache(model, policy)
+    refit_seconds = 0.
     if lambda_values is None:
         path = [reference.new_tensor(0.)]
         if model.n > 1:
@@ -61,7 +87,17 @@ def fit_tensor_model(model, policy=CudaPolicy(), *, lambda_values=None):
             record.update(raw.diagnostics)
             record.update(raw_status="qualified", raw_objective=float(raw.objective))
             previous = PrimalWarmState(raw.x, graph.identity)
-            secondary = refit(model, raw.x, policy)
+            refit_started = _synchronized_time(model)
+            counters_before = cache.refits_computed, cache.refits_reused, cache.singleton_pilots_reused
+            try:
+                secondary = refit(model, raw.x, policy, pilot_reuse=pilot_reuse, cache=cache)
+            finally:
+                duration = _synchronized_time(model) - refit_started
+                refit_seconds += duration
+                record.update(refit_seconds=duration,
+                              refits_computed=cache.refits_computed - counters_before[0],
+                              refits_reused=cache.refits_reused - counters_before[1],
+                              singleton_pilots_reused=cache.singleton_pilots_reused - counters_before[2])
             score = float(secondary.score)
             refit_gap = float(secondary.gap)
             if not math.isfinite(score) or not math.isfinite(refit_gap) or refit_gap < 0:
@@ -79,7 +115,11 @@ def fit_tensor_model(model, policy=CudaPolicy(), *, lambda_values=None):
             else:
                 record["refit_status"] = "unresolved"
             record.update(error=str(error), failure_diagnostics=error.diagnostics, search_complete=False)
-        record["seconds"] = perf_counter() - begin
+            for name in ("qp_seconds", "audit_seconds", "qp_calls", "audit_calls", "qp_dual_warm_starts",
+                         "qp_dual_warm_resets", "qp_polish_iterations"):
+                if name in error.diagnostics:
+                    record[name] = error.diagnostics[name]
+        record["seconds"] = _synchronized_time(model) - begin
         records.append(record)
         index += 1
         if (lambda_values is None and index == len(path) and model.n > 1 and best is not None
@@ -96,9 +136,23 @@ def fit_tensor_model(model, policy=CudaPolicy(), *, lambda_values=None):
                                extensions >= policy.path_extensions)
     complete = all(r["raw_status"] == r["refit_status"] == "qualified" and r.get("search_complete", False)
                    for r in records)
+    finished = _synchronized_time(model)
     return DeviceFit(model, graph, pilots, best[1], best[2], best[0],
                      "complete" if complete else "incomplete", records,
-                     dict(pilot_seconds=pilot_seconds, numerical_wall_seconds=perf_counter() - started,
+                     dict(pilot_seconds=pilot_seconds, graph_build_seconds=graph_build_seconds,
+                          path_seconds=finished - graph_finished - refit_seconds,
+                          refit_seconds=refit_seconds, numerical_wall_seconds=finished - started,
+                          phase_timing_scope="nonoverlapping synchronized numerical stages; excludes final publication",
+                          refits_computed=cache.refits_computed, refits_reused=cache.refits_reused,
+                          singleton_pilots_reused=cache.singleton_pilots_reused,
+                          qp_seconds=sum(r.get("qp_seconds", 0.) for r in records),
+                          audit_seconds=sum(r.get("audit_seconds", 0.) for r in records),
+                          inner_timing_scope="QP and audit times are subsets of path_seconds",
+                          qp_calls=sum(r.get("qp_calls", 0) for r in records),
+                          audit_calls=sum(r.get("audit_calls", 0) for r in records),
+                          qp_dual_warm_starts=sum(r.get("qp_dual_warm_starts", 0) for r in records),
+                          qp_dual_warm_resets=sum(r.get("qp_dual_warm_resets", 0) for r in records),
+                          qp_polish_iterations=sum(r.get("qp_polish_iterations", 0) for r in records),
                           lambda_reference=float(reference), extensions=extensions,
                           candidate_family="qualified_complete_graph_path",
                           raw_unresolved_penalties=sum(r["raw_status"] != "qualified" for r in records),

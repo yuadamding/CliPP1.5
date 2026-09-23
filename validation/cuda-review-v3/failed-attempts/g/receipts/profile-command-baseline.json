@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13",
+    "-B",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922g/source/benchmarks/profile_scalar_cuda.py",
+    "--device",
+    "cuda:0",
+    "--out",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922g/results/scalar-profile-baseline.json",
+    "--timeout-seconds",
+    "180"
+  ],
+  "numerical_timeout_seconds": 180,
+  "source_directory": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_cuda_20260922g/baseline_source",
+  "subprocess_timeout_seconds": 210
+}

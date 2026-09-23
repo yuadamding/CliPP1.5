@@ -1,0 +1,2227 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 6c0a42b..b4bbc81 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,5 +1,36 @@
+ # Changelog
+ 
++## 0.5.1.dev0 — exact fusions, bounded reuse and complete measurement scopes
++
++Preserve exact-value groups inside overwide tolerance runs instead of splitting
++every node into a singleton. Apply the same rule to reporting, refit selection and
++QP polishing. This fixes a partition defect that can change K, score and the
++selected lambda. Advance the policy to `clipp1d_complete_cuda_unconstrained_v3`
++and receipt schema to `clipp1d.cuda.run.v3`.
++
++Move full model/graph/scalar snapshot reconciliation to owned stage boundaries
++with metadata/version checks inside. Retain full exceptional-exit and publication
++checks, and use the segment-reduction fast path only for validated immutable
++lengths. Add shared-arithmetic loss-only and loss–gradient kernels, detect
++analytical scalar groups before grid construction, and pack actual golden-search
++wells with bounded padding. Add one qualified last-partition refit cache,
++canonical singleton-pilot reuse and work counters. Initialize QPs with a qualified
++dual within one start/lambda; cross-lambda continuation remains primal-only and
++all new surrogates retain independent gap/KKT qualification.
++
++Measure synchronized numerical phases, final device qualification and export.
++Capture CUDA peaks and compilation/work statistics after the last required device
++operation. Receipts explicitly exclude their own serialization and durable
++publication from elapsed time; returned `operation_metrics` separately records
++post-publication completion. Check intended receipt bytes as well as table hashes
++before atomic publication. Keep the dense graph, original likelihood/bounds,
++unconstrained clonal fitting, raw-primary estimator and post-fit closest-to-one
++label-zero rule.
++
++The [archived `371003f` evidence](validation/371003f/README.md) is retrievable and
++retains its original policy-v2 scope. It does not qualify this revision; current
++acceptance and limitations belong in [VALIDATION_CUDA.md](VALIDATION_CUDA.md).
++
+ ## 0.5.0.dev0 — complete graph on PyTorch CUDA
+ 
+ Replace the public chain fitting path with float64 PyTorch CUDA complete-graph
+@@ -13,8 +44,8 @@ and qualify publication under `clipp1d.cuda.run.v2`.
+ There is no CPU inference fallback. Historical chain modules/tests remain
+ reference-only, and historical CPU launchers reject this source. CPU numerical
+ references and actual CUDA qualification are reported separately in
+-[VALIDATION_CUDA.md](VALIDATION_CUDA.md); older GPU or chain receipts do not
+-qualify this revision.
++[the archived validation evidence](validation/371003f/README.md); older GPU or
++chain receipts do not qualify this revision.
+ 
+ 
+ ## 0.4.1 — 2026-09-22
+diff --git a/README.md b/README.md
+index 12509b2..ea0c933 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+ # CliPP1.5: PyTorch CUDA complete-graph inference
+ 
+-This development revision implements single-region observed-count fusion on a
++Version **0.5.1.dev0** implements single-region observed-count fusion on a
+ complete graph using **PyTorch CUDA and float64 tensors**. There is one production
+ backend. CPU devices, unavailable CUDA and compiler failures produce explicit
+ errors; fitting never falls back to CPU.
+@@ -17,6 +17,12 @@ score. Raw and refitted multiplicity calls are reported separately. Only qualifi
+ complete-graph path candidates enter selection; unresolved starts, penalties or
+ refits remain visible through `search_status=incomplete`.
+ 
++Policy v3 preserves exactly equal raw CCFs in the same group, including inside
++overwide tolerance runs. It also reuses qualified membership refits and singleton
++pilots, limits full integrity checks to owned numerical stage boundaries, and
++reuses QP dual initializations within a lambda. The dense graph, likelihood,
++original bounds and qualification tolerances remain unchanged.
++
+ ## Installation and use
+ 
+ Use a CUDA-enabled PyTorch installation compatible with the allocated GPU. Set
+@@ -43,6 +49,14 @@ pilots. Dense edge storage is quadratic in mutation count; memory admission fail
+ explicitly when the estimated workspace exceeds the configured share of free GPU
+ memory. This preflight does not guarantee that later compiler allocations fit.
+ 
++The schema-v3 `run.json` receipt records separate numerical, final qualification,
++device export and output-preparation phases. GPU peaks are read after the last
++required CUDA work. Receipt `elapsed_seconds` ends before receipt serialization
++and durable publication; the returned `result.operation_metrics` separately
++reports completion after publication. See the
++[measurement scopes](docs/CUDA_FRAMEWORK.md#timing-and-memory-scopes) before using
++these fields for benchmarks.
++
+ ## Validation and evidence
+ 
+ ```bash
+@@ -64,7 +78,9 @@ their original contracts. Do not replace the source beneath running workers.
+ 
+ See [the CUDA framework](docs/CUDA_FRAMEWORK.md) for the model, certification and
+ output semantics. [Validation evidence](VALIDATION_CUDA.md) distinguishes local
+-reference tests from allocated GPU qualification. Historical chain documentation
+-and receipts describe their original revision and do not qualify this method.
++reference tests from allocated GPU qualification. The retrievable
++[prior CUDA evidence for `371003f`](validation/371003f/README.md) qualifies its
++policy-v2 source only. It does not qualify this revision. Historical chain
++documentation and receipts likewise retain their original scope.
+ 
+ The original scientific provenance and AGPL-3.0 license are retained.
+diff --git a/UPSTREAM.md b/UPSTREAM.md
+index 2decc55..07b12f8 100644
+--- a/UPSTREAM.md
++++ b/UPSTREAM.md
+@@ -11,7 +11,7 @@ preserved verbatim in `LICENSE`; adapted likelihood code carries an attribution
+ notice. No upstream runtime imports, submodule, or full repository copy is used.
+ 
+ The pinned source and fixtures below document the original port. The current
+-0.5.0.dev0 implementation uses a complete graph and PyTorch CUDA float64;
++0.5.1.dev0 implementation uses a complete graph and PyTorch CUDA float64;
+ the earlier chain implementation is historical reference code. See the
+ [current CUDA framework](docs/CUDA_FRAMEWORK.md) for the production contract.
+ 
+@@ -38,13 +38,23 @@ No external solver implementation was copied; the box handling, certificate and
+ common-surrogate profiling are qualified by the independent tests described in
+ [revision validation](VALIDATION_REVISION.md).
+ 
+-Version 0.5.0.dev0 replaces the production chain with a frozen adaptive complete
++Version 0.5.0.dev0 replaced the production chain with a frozen adaptive complete
+ graph, a CUDA bounded ADMM surrogate solver and membership-based likelihood
+ refits. It fits within the original boxes without an occupied CCF-one constraint;
+ the refitted cluster closest to one receives public label zero after fitting.
+ Historical chain solvers and their validation records do not establish CUDA
+ qualification.
+ 
++Version 0.5.1.dev0 corrects the overlay's exact-fusion partition fragmentation and
++adds local stage-integrity controls, reduced-output likelihood kernels,
++analytical-first scalar processing, packed scalar wells, bounded refit reuse and within-lambda
++dual initialization. These changes do not import another upstream solver or
++restore a clonal fitting constraint. Policy and receipt schema advance to v3;
++measurement now separates completed CUDA work, output preparation and returned
++durable-publication timing. The
++[retrievable prior CUDA evidence](validation/371003f/README.md) remains bound to
++`371003f` and policy v2, rather than qualifying these changes.
++
+ `tests/fixtures/upstream_reference.npz` contains loss, gradient, expected candidate
+ curvature, posterior, slopes and original upper bounds evaluated by the pinned
+ upstream on `mixed_cn.tsv`. The adjacent JSON binds its hash, input hash, exact
+diff --git a/benchmarks/qualify_cuda.py b/benchmarks/qualify_cuda.py
+index d4e133b..737fbb1 100644
+--- a/benchmarks/qualify_cuda.py
++++ b/benchmarks/qualify_cuda.py
+@@ -8,7 +8,7 @@ separate evidence. There is no CPU fitting fallback or skipped-success outcome.
+ 
+ import argparse
+ import csv
+-from dataclasses import asdict, replace
++from dataclasses import asdict
+ from datetime import datetime, timezone
+ import hashlib
+ import json
+@@ -34,14 +34,14 @@ from clipp1d.cuda.model import TensorModel
+ from clipp1d.cuda.policy import CudaPolicy
+ from clipp1d.cuda.qp import solve_qp
+ from clipp1d.cuda.solver import fit_lambda
+-from clipp1d.cuda.partition import refit
++from clipp1d.cuda.partition import refit, grouping
+ from clipp1d.cuda.selection import fit_tensor_model
+ from clipp1d.io import SCHEMA_COLUMNS
+ from clipp1d.model import evaluate, one_sided_derivatives
+ from clipp1d.types import CountModel
+ 
+ 
+-SCHEMA = "clipp1d.cuda.qualification.v2"
++SCHEMA = "clipp1d.cuda.qualification.v3"
+ 
+ 
+ def utc_now():
+@@ -134,6 +134,17 @@ def host_identity(model):
+     )
+ 
+ 
++def scaling_fixture(n):
++    """Deterministic separated, nonidentical single-support count observations."""
++    if n < 1:
++        raise ValueError("Scaling fixtures require positive node counts")
++    i = np.arange(n)
++    alt = np.asarray((100, 250, 400))[i % 3] + (i // 3) % 41
++    return CountModel(tuple(f"m{j:06}" for j in i), alt.astype(np.float64),
++                      (1000 - alt).astype(np.float64), np.full(n, 1e-6), np.ones(n),
++                      np.full((n, 1), 0.5), np.zeros((n, 1)), np.ones((n, 1), dtype=bool), 1e-6)
++
++
+ def upload(host, device, kernels):
+     arrays = {
+         key: torch.tensor(getattr(host, key).copy(), dtype=torch.float64, device=device)
+@@ -163,6 +174,14 @@ def closeness(actual, expected, *, atol, rtol):
+ 
+ def kernel_cases(device, eager, compiled, record):
+     """Compiled and eager CUDA each compared directly with independent NumPy."""
++    for values, expected in (([0.3, 0.3, 0.300015, 0.30003], [0, 0, 1, 2]),
++                             ([0.3, 0.3, 0.300015, 0.30003, 0.30003], [0, 0, 1, 2, 2])):
++        point = torch.tensor(values, dtype=torch.float64, device=device)
++        _, _, labels, _ = grouping(point, CudaPolicy().fusion_tol)
++        if not torch.equal(labels, torch.tensor(expected, dtype=labels.dtype, device=device)):
++            raise AssertionError("Exact fused groups fragmented in an overwide tolerance run")
++        record("exact_fusion_grouping", dict(raw_ccf=values, labels=labels.cpu().tolist(),
++                                             expected=expected, qualified=True))
+     host = host_fixture("mixed_multiplicity")
+     record("fixture", dict(name="kernel_mixed_multiplicity", **host_identity(host)))
+     n = len(host)
+@@ -225,6 +244,20 @@ def kernel_cases(device, eager, compiled, record):
+                 seconds=elapsed,
+                 timing_scope="first shape call may include compilation",
+             )
++            smaller, reduced_seconds = timed(
++                device, lambda: (model.loss(point), *model.loss_gradient(point))
++            )
++            assert_device(*smaller, device=device)
++            reduced_errors = {}
++            for label, value, full in zip(
++                ("loss_only", "loss_gradient_loss", "loss_gradient_gradient"),
++                smaller, (outputs[0], outputs[0], outputs[1]),
++            ):
++                reduced_errors[label] = closeness(
++                    value.cpu().numpy(), full.cpu().numpy(), atol=2e-9, rtol=5e-11
++                )
++            details[mode].update(reduced_output_errors=reduced_errors,
++                                 reduced_output_seconds=reduced_seconds)
+         record("likelihood_parity", dict(probe=name, **details))
+ 
+     for n in (1, 2, 7, 13):
+@@ -279,6 +312,47 @@ def kernel_cases(device, eager, compiled, record):
+             )
+ 
+ 
++def qp_certificate(result, h, target, lower, upper, caps, kernels):
++    """Recompute the full original-problem certificate independently of result flags."""
++    stats = kernels.gap_kkt(result.x, result.dual, h, target, lower, upper, caps)
++    p = CudaPolicy()
++    detail = dict(qualified=result.qualified, gap=float(stats[0]), gap_scale=float(stats[1]),
++                  kkt=float(stats[2]), iterations=result.iterations)
++    if not (result.qualified and bool(torch.isfinite(stats).all())
++            and detail["gap"] <= p.inner_atol + p.inner_rtol * detail["gap_scale"]
++            and detail["kkt"] <= p.inner_kkt_tol):
++        raise AssertionError(f"QP failed recomputed production gap/KKT gates: {detail}")
++    return detail
++
++
++def warm_qp_cases(device, eager, compiled, record):
++    n = 13
++    h = torch.linspace(1.0, 9.0, n, device=device, dtype=torch.float64)
++    target = torch.linspace(0.1, 0.9, n, device=device, dtype=torch.float64)
++    lower, upper = h * 0, h * 0 + 1
++    lower[0] = upper[0] = 0.3
++    caps = build_graph(target).weights * 0.15
++    for mode, kernels in (("eager", eager), ("compiled", compiled)):
++        original = solve_qp(h, target, lower, upper, caps, kernels)
++        qp_certificate(original, h, target, lower, upper, caps, kernels)
++        for changed in (False, True):
++            hh, tt, cc = (h * 7, target.flip(0) + 0.1, caps * 0.35) if changed else (h, target, caps)
++            outputs = {}
++            for warm in (False, True):
++                fitted, elapsed = timed(device, lambda: solve_qp(
++                    hh, tt, lower, upper, cc, kernels, start=original.x,
++                    dual=original.dual if warm else None))
++                detail = qp_certificate(fitted, hh, tt, lower, upper, cc, kernels)
++                record("qp_warm_attempt", dict(execution=mode, changed_problem=changed,
++                       warm=warm, seconds=elapsed, **detail))
++                outputs[warm] = fitted
++            difference = closeness(outputs[True].x.cpu().numpy(), outputs[False].x.cpu().numpy(),
++                                   atol=2e-6, rtol=1e-8)
++            record("qp_warm_parity", dict(execution=mode, changed_problem=changed,
++                   raw_max_absolute_error=difference, literal_problem_identical=True,
++                   cold_iterations=outputs[False].iterations, warm_iterations=outputs[True].iterations))
++
++
+ def canonical_labels(fit):
+     centers = fit.refit.centers
+     order = torch.argsort(centers, descending=True, stable=True)
+@@ -737,6 +811,46 @@ def validate_public_search(result, receipt, device):
+     return path_position(public_path, "default")
+ 
+ 
++def validate_public_measurements(result, receipt):
++    """A durable receipt ends before serializing itself; return metrics end later."""
++    source = receipt["provenance"]
++    phases = source.get("phase_seconds", {})
++    required = ("input_preparation_seconds", "device_upload_and_compile_seconds", "pilot_seconds",
++                "graph_build_seconds", "path_seconds", "refit_seconds",
++                "final_device_qualification_seconds", "device_export_seconds", "output_preparation_seconds")
++    if any(key not in phases or not math.isfinite(phases[key]) or phases[key] < 0 for key in required):
++        raise AssertionError("Public timing phases are missing, negative, or nonfinite")
++    metrics = result.operation_metrics
++    if not isinstance(metrics, dict) or any(
++            key not in metrics or not math.isfinite(metrics[key]) or metrics[key] < 0
++            for key in ("publication_seconds", "elapsed_seconds")):
++        raise AssertionError("Return-only publication completion metrics are missing or invalid")
++    numerical = datetime.fromisoformat(source["numerical_completed_utc"])
++    prepared = datetime.fromisoformat(source["output_prepared_utc"])
++    published = datetime.fromisoformat(metrics["publication_completed_utc"])
++    if any(value.tzinfo is None for value in (numerical, prepared, published)) or not numerical <= prepared <= published:
++        raise AssertionError("Numerical/preparation/publication timestamps are not ordered aware times")
++    if (source.get("device_measurement_scope") != "upload through final qualification and completed device export"
++            or "excludes receipt serialization" not in source.get("elapsed_scope", "")
++            or "return-only operation_metrics" not in source.get("publication_completion_scope", "")
++            or source["elapsed_seconds"] > metrics["elapsed_seconds"]
++            or source["through_device_export_seconds"] > source["elapsed_seconds"]
++            or "operation_metrics" in receipt):
++        raise AssertionError("Public measurement scope improperly claims self-timed durable completion")
++    if any(not isinstance(source.get(key), int) or source[key] < 0
++           for key in ("peak_allocated_bytes", "peak_reserved_bytes")):
++        raise AssertionError("Final CUDA memory peaks are missing or invalid")
++    return dict(phase_seconds=phases, numerical_completed_utc=source["numerical_completed_utc"],
++                output_prepared_utc=source["output_prepared_utc"],
++                return_only_operation_metrics=metrics,
++                device_measurement_scope=source["device_measurement_scope"],
++                receipt_elapsed_scope=source["elapsed_scope"],
++                peak_allocated_bytes=source["peak_allocated_bytes"],
++                peak_reserved_bytes=source["peak_reserved_bytes"],
++                scalar_work_counters=source.get("scalar_work_counters", {}),
++                integrity_counters=source.get("integrity_counters", {}))
++
++
+ def public_case(device, artifacts, record):
+     """Exercise the actual input/fit/default path/publication/readback contract."""
+     input_file = artifacts / "public-input.tsv"
+@@ -753,6 +867,7 @@ def public_case(device, artifacts, record):
+     result, elapsed = timed(device, lambda: public_fit(input_file, destination, device=str(device)))
+     receipt = json.loads((destination / "run.json").read_text())
+     public_path = validate_public_search(result, receipt, device)
++    measurements = validate_public_measurements(result, receipt)
+     if (
+         receipt["status"] != "success"
+         or result.raw_witness_mutation_id is not None
+@@ -823,15 +938,15 @@ def public_case(device, artifacts, record):
+             clonal_constraint=False,
+             every_original_upper_bound_below_one=True,
+             default_path_recipe=public_path,
++            measurements=measurements,
+         ),
+     )
+ 
+ 
+ def resource_probe(device, compiled, n, iterations, record):
+-    """Bounded QP resource measurement; this is not cohort/full-fit performance."""
+-    if n == 0:
+-        record("resource_probe", dict(status="disabled", scope="no scaling evidence"))
+-        return
++    """Both synthetic QP repetitions must qualify under the production budget."""
++    if iterations != CudaPolicy().inner_max_iterations or n < 1:
++        raise ValueError("Resource qualification requires positive N and the unchanged production QP budget")
+     dtype = torch.float64
+     i = torch.arange(n, device=device, dtype=dtype)
+     target = 0.15 + 0.35 * (i % 3) + 0.003 * torch.sin(i)
+@@ -839,7 +954,7 @@ def resource_probe(device, compiled, n, iterations, record):
+     lower, upper = torch.full_like(i, 1e-6), torch.ones_like(i)
+     graph, build_seconds = timed(device, lambda: build_graph(target))
+     caps = graph.weights * 0.002
+-    policy = replace(CudaPolicy(), inner_max_iterations=iterations)
++    policy = CudaPolicy()
+     baseline = torch.cuda.memory_allocated(device)
+     results = []
+     for repeat in range(2):
+@@ -860,10 +975,12 @@ def resource_probe(device, compiled, n, iterations, record):
+                 peak_reserved_bytes=torch.cuda.max_memory_reserved(device),
+             )
+         )
++        record("resource_qp_attempt", dict(nodes=n, **results[-1]))
++        qp_certificate(result, h, target, lower, upper, caps, compiled)
+     record(
+         "resource_probe",
+         dict(
+-            status="measurement_completed",
++            status="qualified",
+             nodes=n,
+             edges=n * (n - 1) // 2,
+             one_dense_float64_matrix_bytes=8 * n * n,
+@@ -877,6 +994,57 @@ def resource_probe(device, compiled, n, iterations, record):
+     )
+ 
+ 
++def scaling_cases(device, compiled, artifacts, record):
++    """Increasing complete default fits; require final device and host validation."""
++    from clipp1d.cuda_api import _export, _validate_result
++
++    for n in (16, 64, 256):
++        host = scaling_fixture(n)
++        record("scaling_started", dict(nodes=n, execution="compiled", path_grid="default",
++                                       fixture=host_identity(host)))
++        torch.cuda.reset_peak_memory_stats(device)
++        began = perf_counter()
++        model, upload_seconds = timed(device, lambda: upload(host, device, compiled))
++        fitted, fit_seconds = timed(device, lambda: fit_tensor_model(model))
++        before_export = artifacts / f"scaling-{n}-path.json"
++        summary = fit_summary(fitted)
++        summary.update(fit_seconds=fit_seconds, path_position=path_position(fitted, "default"))
++        write_json(before_export, summary)
++        record("scaling_path_complete", dict(nodes=n, search_status=fitted.search_status,
++               seconds=fit_seconds, artifact=str(before_export), artifact_sha256=sha(before_export)))
++        if fitted.search_status != "complete":
++            raise AssertionError(f"Scaling default path N={n} contains unresolved states")
++        source = source_provenance()
++        phases = dict(input_preparation_seconds=0.0, device_upload_and_compile_seconds=upload_seconds)
++        phases.update({key: fitted.timings[key] for key in
++                       ("pilot_seconds", "graph_build_seconds", "path_seconds", "refit_seconds")})
++        source.update(backend="cuda", clonal_constraint=False, policy=asdict(CudaPolicy()),
++                      numerical_stages=fitted.timings, phase_seconds=phases)
++        exported = _export(fitted, source, wall_started=began)
++        data = SimpleNamespace(mutations=[SimpleNamespace(mutation_id=mid, exclusion=None)
++                                          for mid in host.mutation_ids])
++        _validate_result(exported, data, fitted.records)
++        detail = dict(nodes=n, qualified=True, search_status=exported.search_status,
++                      selected_lambda=exported.selected_lambda, raw_objective=exported.raw_objective,
++                      score=exported.selection_score, raw_ccf=exported.raw_phi.tolist(),
++                      refitted_ccf=exported.refitted_phi.tolist(), labels=exported.cluster_labels.tolist(),
++                      cluster_centers=exported.cluster_centers.tolist(), provenance=exported.provenance,
++                      phase_seconds=exported.provenance["phase_seconds"], numerical_stages=fitted.timings,
++                      model_integrity_counters=dict(model.integrity_counters),
++                      graph_integrity_counters=dict(fitted.graph.integrity_counters),
++                      scalar_work_counters=dict(model.scalar_work_counters),
++                      peak_allocated_bytes=exported.provenance["peak_allocated_bytes"],
++                      peak_reserved_bytes=exported.provenance["peak_reserved_bytes"],
++                      final_device_qualification_and_export_complete=True,
++                      seconds=perf_counter() - began,
++                      scope="synthetic complete default path plus final qualification/export; no cohort accuracy claim")
++        detail_file = artifacts / f"scaling-{n}-qualified.json"
++        write_json(detail_file, detail)
++        record("scaling_qualified", {key: value for key, value in detail.items()
++               if key not in ("provenance", "raw_ccf", "refitted_ccf", "labels", "cluster_centers")}
++               | dict(artifact=str(detail_file), artifact_sha256=sha(detail_file)))
++
++
+ @torch.no_grad()
+ def run(args, receipt, record, artifacts):
+     device = require_cuda(args.device)
+@@ -911,6 +1079,7 @@ def run(args, receipt, record, artifacts):
+     )
+     record("stage_started", dict(stage="independent_likelihood_and_qp"))
+     kernel_cases(device, eager, compiled, record)
++    warm_qp_cases(device, eager, compiled, record)
+     record(
+         "compilation_banks",
+         dict(stage="after_kernel_cases", banks=compiled.compilation_diagnostics()),
+@@ -921,6 +1090,8 @@ def run(args, receipt, record, artifacts):
+     public_case(device, artifacts, record)
+     record("stage_started", dict(stage="bounded_resource_probe"))
+     resource_probe(device, compiled, args.resource_n, args.resource_iterations, record)
++    record("stage_started", dict(stage="increasing_complete_default_fits"))
++    scaling_cases(device, compiled, artifacts, record)
+     record("compilation_banks", dict(stage="final", banks=compiled.compilation_diagnostics()))
+     current = source_provenance()
+     if (
+@@ -931,7 +1102,7 @@ def run(args, receipt, record, artifacts):
+     receipt.update(
+         status="passed",
+         finished_utc=utc_now(),
+-        scope="actual CUDA eager/compiled kernels and complete small-fixture paths, public default-path publication, separate bounded QP resources; no cohort/scaling qualification",
++        scope="actual CUDA eager/compiled and warm-QP parity, complete small paths, public publication, qualified production-budget QPs and complete synthetic N16/64/256 paths; no cohort accuracy claim",
+     )
+ 
+ 
+@@ -949,19 +1120,20 @@ def main():
+         "--resource-n",
+         type=int,
+         default=256,
+-        help="Bounded synthetic QP nodes; 0 disables resource measurement",
++        help="Required qualified synthetic QP nodes",
+     )
+-    parser.add_argument("--resource-iterations", type=int, default=256)
++    parser.add_argument("--resource-iterations", type=int, default=CudaPolicy().inner_max_iterations,
++                        help="Must equal the unchanged production QP budget")
+     parser.add_argument("--timeout-seconds", type=int, default=2700)
+     args = parser.parse_args()
+     if (
+-        args.resource_n < 0
++        args.resource_n < 1
+         or args.resource_n > 4096
+-        or args.resource_iterations < 1
++        or args.resource_iterations != CudaPolicy().inner_max_iterations
+         or args.timeout_seconds < 1
+     ):
+         parser.error(
+-            "Require 0<=resource-n<=4096, positive resource-iterations and timeout-seconds"
++            "Require 1<=resource-n<=4096, production resource-iterations and positive timeout-seconds"
+         )
+     out = args.out.resolve()
+     events = out.with_suffix(".events.jsonl")
+diff --git a/docs/CUDA_FRAMEWORK.md b/docs/CUDA_FRAMEWORK.md
+index e32f450..e6e1c48 100644
+--- a/docs/CUDA_FRAMEWORK.md
++++ b/docs/CUDA_FRAMEWORK.md
+@@ -1,7 +1,7 @@
+ # PyTorch CUDA complete-graph framework
+ 
+-Package: `0.5.0.dev0`. Policy: `clipp1d_complete_cuda_unconstrained_v2`.
+-Output schema: `clipp1d.cuda.run.v2`.
++Package: `0.5.1.dev0`. Policy: `clipp1d_complete_cuda_unconstrained_v3`.
++Output schema: `clipp1d.cuda.run.v3`.
+ 
+ ## Statistical contract
+ 
+@@ -30,7 +30,7 @@ before uploading the numerical model.
+ PyTorch CUDA tensors hold the float64 likelihood, posteriors, one-sided
+ derivatives, curvature, pilots, grouped scalar refits, graph weights, ADMM states,
+ raw certificates, path scores and final multiplicity computations. Pure tensor
+-hot kernels use `torch.compile(fullgraph=True, dynamic=True)`. Each of the four
++hot kernels use `torch.compile(fullgraph=True, dynamic=True)`. Each of the six
+ compiled kernels has its own per-fit LRU bank of up to 32 structural families.
+ These separate singleton dimensions, dimension-equality patterns, layouts and
+ aliases using independent Python code objects; numeric extents remain dynamic
+@@ -43,6 +43,21 @@ this is not a claim that the entire dynamic fit is one captured CUDA Graph.
+ Low-level tensor functions accept CPU tensors for independent numerical tests.
+ Such evidence is explicitly recorded as CPU reference execution.
+ 
++Full snapshot reconciliation occurs at owned numerical stage entry and exit,
++including exceptional exits. Inside a stage, identity, metadata and tensor
++version checks avoid repeated full-array comparisons. Explicit
++`validate(full=True)` still forces full reconciliation. Scalar group reductions
++use `segment_reduce(..., unsafe=True)` only inside an owned validated stage whose
++immutable group lengths have already been checked; outside it, the reduction's
++independent length checks remain enabled. Gap, KKT, finite-value and publication
++gates are unchanged. Integrity-check counters distinguish these operations.
++
++The likelihood kernels share log-kernel arithmetic but expose loss-only,
++loss–gradient and full-term interfaces. Scalar search and objective comparisons
++request only the outputs they need. Full terms remain available for curvature,
++one-sided audits and final posteriors; the other compiled kernels implement the
++bounded node update, edge update and QP certificates.
++
+ ## Fixed graph and storage
+ 
+ The immutable graph uses every unordered pair:
+@@ -91,6 +106,14 @@ Frozen-coordinate constants do not inflate gap tolerances. Equality polishing
+ must pass an objective-nonincreasing check with a float64 roundoff margin and
+ fresh certificates for the original QP; it cannot create a reporting-only adjustment. Original tolerances remain unchanged.
+ 
++A qualified QP dual can initialize the next surrogate or backtrack within the
++same start and lambda. This state is bound to the frozen graph and literal
++lambda, projected onto the current edge caps, and rescaled using the new ADMM
++`rho`. Changed curvature and targets receive fresh solves and certificates;
++even a rejected likelihood trial supplies no inherited certificate. Storage is
++bounded to the current dual state. Across lambdas, continuation remains
++**primal-only**. Dual initialization can change the finite-iteration trajectory.
++
+ An independent raw audit uses observed one-sided derivatives, exact signed
+ contributions from nonfused edges and TV terms on fused edges. Both positive and
+ negative feasible-box directions are checked without witness restrictions. For
+@@ -111,16 +134,40 @@ separate claims.
+ ## Memberships, selection and labels
+ 
+ Partitions derive from raw fitted CCFs. Tolerance-connected runs whose total
+-diameter exceeds `fusion_tol` split conservatively into singletons. Exact-one
+-and near-one values remain separate. Canonical groups are ordered by their
+-smallest mutation ID, not by adjacency in a fixed chain.
++diameter exceeds `fusion_tol` split conservatively into **exact-value groups**.
++Exactly equal values always share a label, including duplicates inside such an
++overwide run. For example, `[.3, .3, .300015, .300030, .300030]` at tolerance
++`2e-5` gives `[0, 0, 1, 2, 2]`. This also governs QP equality-polishing proposals.
++Exact-one and near-one values remain separate. Canonical groups are ordered by
++their smallest mutation ID, not by adjacency in a fixed chain. The v2 singleton
++fallback could split exact fusions; this correction can change K, scores and the
++selected lambda.
+ 
+ Each arbitrary membership group is independently refitted inside the intersection
+ of its original bounds. No group is forced to one. Analytic or interval-search
+ scalar certificates qualify pilots and refits. Clipping-aware interval bounds
+ account for represented endpoints, midpoint rounding and likelihood sensitivity.
+ These are float64 numerical qualifications, not interval-arithmetic proofs. The
+-existing score is
++scalar engine identifies same-slope, single-candidate analytical groups before
++building search grids, separates them from general groups, and restores
++canonical group order. General groups refine only detected seed wells in a
++bounded padded batch, preserving seed order and tie behavior. Interval lower
++bounds, rather than golden-search initialization, qualify general scalar fits.
++
++A cache retains only the last qualified membership refit, alongside the selected
++best candidate. Reuse requires the same immutable model, policy and canonical
++membership vector; tensor snapshots guard cached values. Returned refits are
++independent copies. Qualified singleton pilots can supply the matching canonical
++mutation's scalar result, including when other groups are noncontiguous.
++Matching an array position in another model or policy is insufficient. Every
++raw lambda candidate still receives its own qualification, and final publication
++reconciles the selected raw memberships, refit loss, gaps and score.
++
++`refits_computed` counts attempted new membership refits, including unresolved
++ones; `refits_reused` counts cache hits. `singleton_pilots_reused` counts qualified
++singleton lanes reused in new refits. Scalar work counters separately record
++evaluated rows/proposals, kernel calls, analytical/general groups and packed-well
++work. These counters describe work, not a measured speedup. The existing score is
+ 
+     2*L_refit + K*log(M) - 1.4*log_partition_mass.
+ 
+@@ -174,7 +221,50 @@ that raw or refitted CCF is exactly one. `raw_witness_mutation_id` is null.
+ 
+ Output validation precedes successful publication. A failure or an unresolved
+ candidate cannot inherit another candidate's certificate. Old chain receipts
+-and old constrained CUDA schema-v1 receipts retain their original meaning.
++and CUDA schema-v1/v2 receipts retain their original meaning. Before atomic
++directory publication, the prepared receipt and TSVs are read back and checked
++against their expected hashes, then files and directories are synchronized.
++
++## Timing and memory scopes
++
++`provenance.phase_seconds` records the following scopes. Device phase boundaries
++synchronize CUDA so they measure completed work, not just queued operations.
++
++| Field | Scope |
++| --- | --- |
++| `input_preparation_seconds` | API entry, source/input validation, canonical compilation and device admission |
++| `device_upload_and_compile_seconds` | Model upload and initial compiler probe; later specializations are charged to the phase executing them |
++| `pilot_seconds` | Scalar pilots and qualification for singleton reuse |
++| `graph_build_seconds` | Frozen graph, pilot curvature and lambda reference |
++| `path_seconds` | Planned-path work excluding membership refit time |
++| `refit_seconds` | New refits, singleton reuse and cache validation/hits |
++| `stage_integrity_seconds` | Outer numerical-stage entry/exit reconciliation and boundary bookkeeping |
++| `final_device_qualification_seconds` | Independent selected-state reconciliation, including the nonzero-lambda raw audit |
++| `device_export_seconds` | Posterior calls, graph/model hashing, final transfers and final snapshot checks |
++| `output_preparation_seconds` | Host validation and prepared TSV tables, or in-memory result validation when no output directory is requested |
++
++`provenance.numerical_stages` also carries all-start `qp_seconds` and
++`audit_seconds`, their call counts and `qp_dual_warm_starts`. These are subsets of
++`path_seconds`, not additional nonoverlapping phases. `numerical_wall_seconds`
++covers the pilot/graph/path/refit stages and their boundary reconciliation; it
++excludes final publication work. Detailed directional-audit diagnostics are
++retained with the raw start records.
++
++Peak CUDA allocated/reserved bytes, compilation statistics and numerical work
++counters are captured **after** final device qualification, posterior evaluation,
++hashing and transfers. `numerical_completed_utc` and
++`through_device_export_seconds` mark that device-complete boundary. They do not
++claim durable output publication.
++
++The receipt's `elapsed_seconds` and `output_prepared_utc` end after host validation
++and TSV preparation but before serializing the receipt itself, readback, fsync and
++atomic publication. Their `elapsed_scope` states this exclusion. After successful
++publication, the returned `FitResult.operation_metrics` contains
++`publication_seconds`, `publication_completed_utc` and elapsed time through that
++boundary, excluding return bookkeeping. These metrics are **return-only**: the
++receipt cannot time its own durable completion. An external caller may preserve
++them in a separate receipt. With no output directory, the return-only metrics
++instead describe completed in-memory fitting.
+ 
+ ## Validation boundaries
+ 
+@@ -185,6 +275,12 @@ allocated device, with eager/compiled numerical comparison and public output
+ validation. Small synthetic qualification does not establish full-cohort
+ accuracy, large-input memory behavior or a GPU speedup.
+ 
++The [retrievable `371003f` evidence](../validation/371003f/README.md) contains the
++original source-bound policy-v2 GPU receipts and test log. It does not qualify
++this policy-v3 grouping and efficiency revision. Current CUDA acceptance must
++use the current source; no speedup or larger-cohort claim follows from reducing
++work in the implementation.
++
+ The retained historical chain files and their test-only API adapter support
+ regression comparisons. They are not a production backend. Legacy CPU launchers
+ must reject the CUDA revision before starting new work; old frozen workers and
+diff --git a/pyproject.toml b/pyproject.toml
+index 84a4a5d..3f67d7a 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
+ 
+ [project]
+ name = "clipp1d"
+-version = "0.5.0.dev0"
++version = "0.5.1.dev0"
+ description = "Single-sample observed-count fusion on a complete graph with CUDA"
+ readme = "README.md"
+ requires-python = ">=3.10"
+diff --git a/src/clipp1d/__init__.py b/src/clipp1d/__init__.py
+index 203be18..4965d24 100644
+--- a/src/clipp1d/__init__.py
++++ b/src/clipp1d/__init__.py
+@@ -1,5 +1,5 @@
+ """Single-sample complete-graph CUDA inference."""
+-__version__ = "0.5.0.dev0"
++__version__ = "0.5.1.dev0"
+ 
+ 
+ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:0"):
+diff --git a/src/clipp1d/cuda/audit.py b/src/clipp1d/cuda/audit.py
+index 804d99b..4eccbbb 100644
+--- a/src/clipp1d/cuda/audit.py
++++ b/src/clipp1d/cuda/audit.py
+@@ -106,7 +106,11 @@ def audit_raw(model, x, q, caps, witness=None, policy=CudaPolicy()):
+     """
+     if witness is not None:
+         raise ValueError("Unconstrained audit cannot fix or exempt a clonal witness")
+-    model.validate()
++    with model.validated_stage():
++        return _audit_raw(model, x, q, caps, policy)
++
++
++def _audit_raw(model, x, q, caps, policy):
+     _cut_inputs(x, caps, torch.ones_like(x), q)
+     losses, grad, _, _, left, right = model.terms(x)
+     valid = ((x >= model.lower).all() & (x <= model.upper).all()
+diff --git a/src/clipp1d/cuda/graph.py b/src/clipp1d/cuda/graph.py
+index e1de3c5..be331de 100644
+--- a/src/clipp1d/cuda/graph.py
++++ b/src/clipp1d/cuda/graph.py
+@@ -1,6 +1,7 @@
+ """Frozen complete graph in a symmetric-weight/skew-state matrix layout."""
+ 
+ from dataclasses import dataclass
++from contextlib import contextmanager
+ import torch
+ from .kernels import differences, adjoint
+ 
+@@ -60,6 +61,9 @@ class CompleteGraph:
+             ),
+         )
+         object.__setattr__(self, "identity", object())
++        object.__setattr__(self, "_metadata", self._metadata_signature())
++        object.__setattr__(self, "_stage_depth", 0)
++        object.__setattr__(self, "integrity_counters", dict(full_checks=0, metadata_checks=0))
+ 
+     @property
+     def n(self):
+@@ -69,13 +73,27 @@ class CompleteGraph:
+     def edges(self):
+         return self.n * (self.n - 1) // 2
+ 
+-    def validate(self):
++    def _metadata_signature(self):
++        return (self.mutation_ids, self.weight_rule, id(self.identity), tuple(
++            (value.shape, value.stride(), value.dtype, value.device, value.data_ptr())
++            for value in (self.weights, self.pilot, self.gap_floor, self.normalization)
++        ))
++
++    def validate_metadata(self):
++        """Host-only identities, tensor versions and layout checks in owned stages."""
++        self.integrity_counters["metadata_checks"] += 1
+         now = tuple(
+             (id(v), v._version)
+             for v in (self.weights, self.pilot, self.gap_floor, self.normalization)
+         )
+-        if now != self._versions:
++        if now != self._versions or self._metadata_signature() != self._metadata:
+             raise ValueError("Frozen graph or pilot was modified")
++
++    def validate(self, *, full=None):
++        self.validate_metadata()
++        if full is False or (full is None and self._stage_depth):
++            return
++        self.integrity_counters["full_checks"] += 1
+         values = (self.weights, self.pilot, self.gap_floor, self.normalization)
+         same = torch.stack(
+             [(value == frozen).all() for value, frozen in zip(values, self._snapshots)]
+@@ -83,6 +101,18 @@ class CompleteGraph:
+         if not bool(same):
+             raise ValueError("Frozen graph or pilot was modified")
+ 
++    @contextmanager
++    def validated_stage(self):
++        """Reconcile snapshots at both ends; keep hot checks on host metadata."""
++        outermost = self._stage_depth == 0
++        self.validate(full=outermost)
++        object.__setattr__(self, "_stage_depth", self._stage_depth + 1)
++        try:
++            yield self
++        finally:
++            object.__setattr__(self, "_stage_depth", self._stage_depth - 1)
++            self.validate(full=outermost)
++
+ 
+ def build_graph(pilot, mutation_ids=()):
+     n = pilot.numel()
+diff --git a/src/clipp1d/cuda/kernels.py b/src/clipp1d/cuda/kernels.py
+index 080ce9a..b9978ce 100644
+--- a/src/clipp1d/cuda/kernels.py
++++ b/src/clipp1d/cuda/kernels.py
+@@ -10,7 +10,7 @@ from types import FunctionType
+ import torch
+ 
+ 
+-def likelihood(alt, ref, slope, log_prior, phi, eps):
++def _log_kernel(alt, ref, slope, log_prior, phi, eps):
+     # phi is [rows, proposals]; the final dimension always means multiplicity.
+     mass = phi.unsqueeze(-1) * slope.unsqueeze(1)
+     p = mass.clamp(eps, 1 - eps)
+@@ -18,6 +18,26 @@ def likelihood(alt, ref, slope, log_prior, phi, eps):
+         alt[:, None, None] * p.log() + ref[:, None, None] * torch.log1p(-p) + log_prior[:, None, :]
+     )
+     norm = torch.logsumexp(joint, dim=-1)
++    return mass, p, joint, norm
++
++
++def loss_only(alt, ref, slope, log_prior, phi, eps):
++    """Observed loss with the same arithmetic as the full likelihood kernel."""
++    return -_log_kernel(alt, ref, slope, log_prior, phi, eps)[3]
++
++
++def loss_gradient(alt, ref, slope, log_prior, phi, eps):
++    """Observed loss and represented-mass gradient; no curvature/audit outputs."""
++    mass, p, joint, norm = _log_kernel(alt, ref, slope, log_prior, phi, eps)
++    post = torch.exp(joint - norm.unsqueeze(-1))
++    score = alt[:, None, None] / p - ref[:, None, None] / (1 - p)
++    moving = torch.where((mass > eps) & (mass < 1 - eps), slope[:, None, :], 0.0)
++    grad = -(post * moving * score).sum(-1)
++    return -norm, grad
++
++
++def likelihood(alt, ref, slope, log_prior, phi, eps):
++    mass, p, joint, norm = _log_kernel(alt, ref, slope, log_prior, phi, eps)
+     post = torch.exp(joint - norm.unsqueeze(-1))
+     score = alt[:, None, None] / p - ref[:, None, None] / (1 - p)
+     safe = torch.where(slope > 0, slope, torch.ones_like(slope))
+@@ -301,7 +321,7 @@ class Kernels:
+             probe = torch.compile(compiler_probe, backend="inductor", fullgraph=True)
+             if not bool(probe(torch.zeros((), device=device, dtype=torch.float64)) == 1.0):
+                 raise RuntimeError("CUDA compilation was disabled; compiled-path admission failed")
+-        for name in ("likelihood", "boxed_rank_one", "edge_update", "gap_kkt"):
++        for name in ("likelihood", "loss_only", "loss_gradient", "boxed_rank_one", "edge_update", "gap_kkt"):
+             fn = globals()[name]
+             if self.compiled:
+                 fn = StructuralCompileBank(fn)
+@@ -310,6 +330,6 @@ class Kernels:
+     def compilation_diagnostics(self):
+         return {
+             name: getattr(self, name).diagnostics()
+-            for name in ("likelihood", "boxed_rank_one", "edge_update", "gap_kkt")
++            for name in ("likelihood", "loss_only", "loss_gradient", "boxed_rank_one", "edge_update", "gap_kkt")
+             if isinstance(getattr(self, name), StructuralCompileBank)
+         }
+diff --git a/src/clipp1d/cuda/model.py b/src/clipp1d/cuda/model.py
+index c9700ab..ffe86b6 100644
+--- a/src/clipp1d/cuda/model.py
++++ b/src/clipp1d/cuda/model.py
+@@ -1,5 +1,6 @@
+ """A single upload of canonical float64 likelihood inputs; no fitted CPU state."""
+ from dataclasses import dataclass
++from contextlib import contextmanager
+ import math
+ import torch
+ from .kernels import Kernels
+@@ -43,16 +44,50 @@ class TensorModel:
+                   ((self.slope > 0) | ~valid).all())
+         if not bool(finite & domain):
+             raise ValueError("Invalid source counts, supports, or original feasibility bounds")
+-        object.__setattr__(self, "_versions", tuple((id(v), v._version) for v in arrays))
++        object.__setattr__(self, "_versions", self._metadata())
+         object.__setattr__(self, "_snapshots", tuple(v.detach().clone() for v in arrays))
++        object.__setattr__(self, "_stage_depth", 0)
++        object.__setattr__(self, "integrity_counters", dict(full_checks=0, metadata_checks=0))
++        object.__setattr__(self, "scalar_work_counters", dict(
++            scalar_rows_evaluated=0, scalar_proposals_evaluated=0, loss_only_calls=0,
++            loss_gradient_calls=0, full_terms_calls=0, analytical_groups=0,
++            general_groups=0, golden_wells=0, golden_padded_group_slots=0))
+ 
+-    def validate(self):
++    def _metadata(self):
+         arrays = (self.alt, self.ref, self.slope, self.log_prior, self.lower, self.upper)
+-        if tuple((id(v), v._version) for v in arrays) != self._versions:
+-            raise ValueError("Canonical likelihood tensors were modified")
+-        if not bool(torch.stack([(value == frozen).all()
+-                                 for value, frozen in zip(arrays, self._snapshots)]).all()):
++        return (self.mutation_ids, self.eps, id(self.kernels),
++                tuple((id(v), v._version, v.shape, v.stride(), v.dtype, v.device, v.data_ptr())
++                      for v in arrays))
++
++    def validate(self, *, full=None):
++        """Check metadata cheaply inside an owned stage, otherwise reconcile values.
++
++        ``full=True`` always checks immutable snapshots, including writes through
++        ``Tensor.data`` that bypass the version counter. Stage entry and exit do
++        this unconditionally; no fitted stage result escapes before reconciliation.
++        """
++        self.integrity_counters["metadata_checks"] += 1
++        if self._metadata() != self._versions:
+             raise ValueError("Canonical likelihood tensors were modified")
++        if full is None:
++            full = self._stage_depth == 0
++        if full:
++            self.integrity_counters["full_checks"] += 1
++            arrays = (self.alt, self.ref, self.slope, self.log_prior, self.lower, self.upper)
++            if not bool(torch.stack([(value == frozen).all()
++                                     for value, frozen in zip(arrays, self._snapshots)]).all()):
++                raise ValueError("Canonical likelihood tensors were modified")
++
++    @contextmanager
++    def validated_stage(self):
++        outermost = self._stage_depth == 0
++        self.validate(full=outermost)
++        object.__setattr__(self, "_stage_depth", self._stage_depth + 1)
++        try:
++            yield self
++        finally:
++            object.__setattr__(self, "_stage_depth", self._stage_depth - 1)
++            self.validate(full=outermost)
+ 
+     @classmethod
+     def from_host(cls, model, device="cuda:0", compiled=True):
+@@ -72,13 +107,33 @@ class TensorModel:
+     def subset(self, idx):
+         # IDs stay in host metadata. Numeric indexing remains entirely on device.
+         self.validate()
+-        return TensorModel((), self.alt[idx], self.ref[idx], self.slope[idx], self.log_prior[idx],
+-                           self.lower[idx], self.upper[idx], self.eps, self.kernels)
++        result = TensorModel((), self.alt[idx], self.ref[idx], self.slope[idx], self.log_prior[idx],
++                             self.lower[idx], self.upper[idx], self.eps, self.kernels)
++        object.__setattr__(result, "integrity_counters", self.integrity_counters)
++        object.__setattr__(result, "scalar_work_counters", self.scalar_work_counters)
++        return result
+ 
+-    def terms(self, x):
++    def _validate_point(self, x):
+         self.validate()
+         if x.shape != (self.n,) or x.dtype != torch.float64 or x.device != self.device:
+             raise ValueError("Likelihood values must be a float64 vector on the model device")
++
++    def loss(self, x):
++        self._validate_point(x)
++        self.scalar_work_counters["loss_only_calls"] += 1
++        return self.kernels.loss_only(self.alt, self.ref, self.slope, self.log_prior,
++                                      x[:, None], self.eps)[:, 0]
++
++    def loss_gradient(self, x):
++        self._validate_point(x)
++        self.scalar_work_counters["loss_gradient_calls"] += 1
++        out = self.kernels.loss_gradient(self.alt, self.ref, self.slope, self.log_prior,
++                                         x[:, None], self.eps)
++        return tuple(value[:, 0] for value in out)
++
++    def terms(self, x):
++        self._validate_point(x)
++        self.scalar_work_counters["full_terms_calls"] += 1
+         out = self.kernels.likelihood(self.alt, self.ref, self.slope, self.log_prior,
+                                       x[:, None], self.eps)
+         return tuple(v[:, 0] for v in out)
+diff --git a/src/clipp1d/cuda/partition.py b/src/clipp1d/cuda/partition.py
+index d29bc73..dd9120b 100644
+--- a/src/clipp1d/cuda/partition.py
++++ b/src/clipp1d/cuda/partition.py
+@@ -10,8 +10,9 @@ def grouping(x, tolerance, *, separate_clonal=True):
+     """Bounded-diameter groups, canonically labeled by their minimum node index.
+ 
+     Current-value order only determines tolerance runs. An overwide connected
+-    tolerance run becomes singletons, preserving the CUDA overlay's conservative
+-    parallel rule. Exact-one nodes never group with merely near-one nodes.
++    tolerance run keeps only its exact-value groups. This conservative parallel
++    rule bounds diameter without breaking exact fusions. Exact-one nodes never
++    group with merely near-one nodes.
+     """
+     if x.ndim != 1 or x.numel() == 0 or not 0 <= tolerance < float("inf"):
+         raise ValueError("Grouping requires a nonempty vector and finite nonnegative tolerance")
+@@ -29,7 +30,9 @@ def grouping(x, tolerance, *, separate_clonal=True):
+     stops = torch.ones_like(cuts)
+     stops[:-1] = cuts[1:]
+     end = torch.cummin(torch.where(stops, idx, n - 1).flip(0), 0).values.flip(0)
+-    cuts |= values[end] - values[start] > tolerance
++    exact_boundary = torch.ones_like(cuts)
++    exact_boundary[1:] = values[1:] != values[:-1]
++    cuts |= (values[end] - values[start] > tolerance) & exact_boundary
+     value_labels = cuts.long().cumsum(0) - 1
+     first_node = torch.full((n,), n, device=x.device, dtype=torch.long)
+     first_node.scatter_reduce_(0, value_labels, value_order, reduce="amin")
+@@ -76,6 +79,121 @@ class Refit:
+     scalar: ScalarBatch
+ 
+ 
++_SCALAR_FIELDS = ("phi", "loss", "lower_bound", "gap", "alternative", "qualified")
++
++
++def _clone_scalar(scalar):
++    return ScalarBatch(*(getattr(scalar, name).clone() for name in _SCALAR_FIELDS),
++                       subdivisions=scalar.subdivisions)
++
++
++def _clone_refit(result):
++    return Refit(*(getattr(result, name).clone() for name in
++                   ("labels", "centers", "phi", "sizes")), result.clonal,
++                 result.loss.clone(), result.gap.clone(), result.score.clone(),
++                 _clone_scalar(result.scalar))
++
++
++class _Snapshot:
++    """Small boundary-only guard, including mutations made through Tensor.data."""
++
++    def __init__(self, tensors):
++        self.versions = tuple((id(v), v._version) for v in tensors)
++        self.values = tuple(v.detach().clone() for v in tensors)
++
++    def validate(self, tensors, name):
++        if (tuple((id(v), v._version) for v in tensors) != self.versions or
++                not bool(torch.stack([(v == frozen).all()
++                                      for v, frozen in zip(tensors, self.values)]).all())):
++            raise ValueError(f"{name} tensors were modified")
++
++
++def _qualified_scalar(scalar, lower, upper, policy):
++    tensors = tuple(getattr(scalar, name) for name in _SCALAR_FIELDS)
++    if (any(v.shape != lower.shape or v.device != lower.device for v in tensors) or
++            any(v.dtype != torch.float64 for v in tensors[:-1]) or
++            scalar.qualified.dtype != torch.bool):
++        raise ValueError("Scalar refit fields must match canonical membership dimensions")
++    return (scalar.qualified.all() & torch.isfinite(scalar.phi).all() &
++            torch.isfinite(scalar.loss).all() & torch.isfinite(scalar.lower_bound).all() &
++            torch.isfinite(scalar.gap).all() & (scalar.gap >= 0).all() &
++            torch.isfinite(scalar.alternative).all() &
++            (scalar.phi >= lower).all() & (scalar.phi <= upper).all() &
++            (scalar.gap == (scalar.loss - scalar.lower_bound).clamp_min(0.)).all() &
++            (scalar.gap <= policy.scalar_atol + policy.scalar_rtol * scalar.loss.abs()).all())
++
++
++class QualifiedPilot:
++    """Private qualified copy tied to this model's canonical mutation identities.
++
++    Construct immediately after computing the model's pilot. Matching array
++    positions in another model, subset, or policy cannot authorize reuse.
++    """
++
++    def __init__(self, model, scalar, policy=CudaPolicy()):
++        model.validate(full=True)
++        if not bool(_qualified_scalar(scalar, model.lower, model.upper, policy)):
++            raise QualificationError("Singleton pilot reuse requires qualified scalar results")
++        loss = model.loss(scalar.phi)
++        margin = 128 * torch.finfo(torch.float64).eps * (1 + loss.abs())
++        if not bool(((loss - scalar.loss).abs() <= margin).all()):
++            raise QualificationError("Singleton pilot losses do not match the canonical model")
++        self.model, self.policy = model, policy
++        self.mutation_ids = tuple(model.mutation_ids)
++        self.scalar = _clone_scalar(scalar)
++        self._snapshot = _Snapshot(self._tensors())
++        self._subdivisions = self.scalar.subdivisions
++
++    def _tensors(self):
++        return tuple(getattr(self.scalar, name) for name in _SCALAR_FIELDS)
++
++    def validate(self, model, policy):
++        if (model is not self.model or policy != self.policy or
++                tuple(model.mutation_ids) != self.mutation_ids):
++            raise ValueError("Singleton pilot reuse is bound to its canonical model and policy")
++        model.validate(full=True)
++        self._snapshot.validate(self._tensors(), "Qualified pilot")
++        if self.scalar.subdivisions != self._subdivisions:
++            raise ValueError("Qualified pilot metadata was modified")
++
++
++class LastPartitionCache:
++    """One private qualified membership refit, never an unbounded path history."""
++
++    def __init__(self, model, policy=CudaPolicy()):
++        model.validate(full=True)
++        self.model, self.policy = model, policy
++        self.mutation_ids = tuple(model.mutation_ids)
++        self.result = None
++        self.refits_computed = self.refits_reused = self.singleton_pilots_reused = 0
++
++    def _tensors(self):
++        r = self.result
++        return tuple(getattr(r, name) for name in
++                     ("labels", "centers", "phi", "sizes", "loss", "gap", "score")) + tuple(
++                         getattr(r.scalar, name) for name in _SCALAR_FIELDS)
++
++    def get(self, model, labels, policy):
++        if (model is not self.model or policy != self.policy or
++                tuple(model.mutation_ids) != self.mutation_ids):
++            raise ValueError("Partition refit cache is bound to its canonical model and policy")
++        model.validate(full=True)
++        if self.result is None:
++            return None
++        self._snapshot.validate(self._tensors(), "Cached refit")
++        if (self.result.clonal, self.result.scalar.subdivisions) != self._metadata:
++            raise ValueError("Cached refit metadata was modified")
++        if not torch.equal(labels, self.result.labels):
++            return None
++        self.refits_reused += 1
++        return _clone_refit(self.result)
++
++    def _store_qualified(self, result):
++        self.result = _clone_refit(result)
++        self._snapshot = _Snapshot(self._tensors())
++        self._metadata = self.result.clonal, self.result.scalar.subdivisions
++
++
+ def partition_score(loss, sizes):
+     if (sizes.ndim != 1 or sizes.numel() == 0 or
+             not bool(torch.isfinite(sizes).all() & (sizes > 0).all() &
+@@ -92,22 +210,56 @@ def partition_score(loss, sizes):
+     return score
+ 
+ 
+-def refit(model, x, policy=CudaPolicy()):
++def refit(model, x, policy=CudaPolicy(), *, pilot_reuse=None, cache=None):
+     """Refit arbitrary memberships in original boxes; designate clonal post hoc."""
++    with model.validated_stage():
++        return _refit(model, x, policy, pilot_reuse=pilot_reuse, cache=cache)
++
++
++def _refit(model, x, policy, *, pilot_reuse, cache):
+     if x.shape != model.lower.shape or x.device != model.device:
+         raise ValueError("Refit CCF vector must match the model")
+-    model.validate()
++    model.validate(full=True)
+     order, _, labels, lengths = grouping(x, policy.fusion_tol)
++    if cache is not None:
++        cached = cache.get(model, labels, policy)
++        if cached is not None:
++            return cached
+     k = int((lengths > 0).sum())  # One output-shape/control decision per candidate.
+     lengths = lengths[:k]
+-    ordered = model.subset(order)
+-    problems = Problems(ordered, lengths)
+-    scalar = solve_scalar(problems, policy)
+-    valid = (scalar.qualified.all() & torch.isfinite(scalar.phi).all() &
+-             torch.isfinite(scalar.loss).all() & torch.isfinite(scalar.lower_bound).all() &
+-             torch.isfinite(scalar.gap).all() & (scalar.gap >= 0).all() &
+-             (scalar.phi >= problems.lower).all() & (scalar.phi <= problems.upper).all() &
+-             (scalar.gap <= policy.scalar_atol + policy.scalar_rtol * scalar.loss.abs()).all())
++    singleton = lengths == 1
++    reused = int(singleton.sum()) if pilot_reuse is not None else 0
++    if pilot_reuse is not None:
++        if not isinstance(pilot_reuse, QualifiedPilot):
++            raise ValueError("Singleton reuse requires a model-bound QualifiedPilot")
++        pilot_reuse.validate(model, policy)
++    if cache is not None:
++        # Count attempted new refits, including those later left unresolved.
++        # Only qualified results are eligible for the one retained cache entry.
++        cache.refits_computed += 1
++        cache.singleton_pilots_reused += reused
++    if reused:
++        # The first ordered node identifies each canonical membership, including
++        # noncontiguous groups. A group's label is not a pilot row index.
++        starts = lengths.cumsum(0) - lengths
++        nodes = order[starts[singleton]]
++        fields = [torch.empty(k, device=model.device, dtype=getattr(pilot_reuse.scalar, name).dtype)
++                  for name in _SCALAR_FIELDS]
++        for out, name in zip(fields, _SCALAR_FIELDS):
++            out[singleton] = getattr(pilot_reuse.scalar, name)[nodes]
++        subdivisions = 0
++        if reused < k:
++            unresolved_order = order[~singleton[labels[order]]]
++            remaining = solve_scalar(Problems(model.subset(unresolved_order), lengths[~singleton]), policy)
++            for out, name in zip(fields, _SCALAR_FIELDS):
++                out[~singleton] = getattr(remaining, name)
++            subdivisions = remaining.subdivisions
++        scalar = ScalarBatch(*fields, subdivisions=subdivisions)
++    else:
++        scalar = solve_scalar(Problems(model.subset(order), lengths), policy)
++    lower = torch.segment_reduce(model.lower[order], "max", lengths=lengths)
++    upper = torch.segment_reduce(model.upper[order], "min", lengths=lengths)
++    valid = _qualified_scalar(scalar, lower, upper, policy)
+     if not bool(valid):
+         raise QualificationError("Secondary membership refit unresolved", maximum_gap=float(scalar.gap.max()))
+     centers = scalar.phi.clone()
+@@ -115,5 +267,8 @@ def refit(model, x, policy=CudaPolicy()):
+     loss, gap = scalar.loss.sum(), scalar.gap.sum()
+     if not bool(torch.isfinite(loss) & torch.isfinite(gap)):
+         raise QualificationError("Aggregate membership loss or scalar gap is nonfinite")
+-    return Refit(labels, centers, centers[labels], lengths, clonal, loss, gap,
+-                 partition_score(loss, lengths), scalar)
++    result = Refit(labels, centers, centers[labels], lengths, clonal, loss, gap,
++                   partition_score(loss, lengths), scalar)
++    if cache is not None:
++        cache._store_qualified(result)
++    return result
+diff --git a/src/clipp1d/cuda/policy.py b/src/clipp1d/cuda/policy.py
+index 2c1a5cb..1b16b63 100644
+--- a/src/clipp1d/cuda/policy.py
++++ b/src/clipp1d/cuda/policy.py
+@@ -6,7 +6,7 @@ from ..types import NumericalQualificationError
+ 
+ @dataclass(frozen=True)
+ class CudaPolicy:
+-    policy_id: str = "clipp1d_complete_cuda_unconstrained_v2"
++    policy_id: str = "clipp1d_complete_cuda_unconstrained_v3"
+     weight_rule: str = "all_pairs_inverse_gap_mean_one_adjacent_floor_v1"
+     eps: float = 1e-6
+     scalar_atol: float = 1e-7
+diff --git a/src/clipp1d/cuda/qp.py b/src/clipp1d/cuda/qp.py
+index 03d075e..d2b806e 100644
+--- a/src/clipp1d/cuda/qp.py
++++ b/src/clipp1d/cuda/qp.py
+@@ -18,6 +18,41 @@ class QuadraticFit:
+     iterations: int
+ 
+ 
++@dataclass(frozen=True)
++class QualifiedDualWarmState:
++    """A single qualified surrogate dual, scoped to one frozen graph and lambda.
++
++    This carries an initialization only. No old gap, curvature, target or scaled
++    ADMM variable is admitted as a certificate for the next surrogate.
++    """
++    dual: torch.Tensor
++    graph_identity: object
++    lambda_value: float
++
++    def __post_init__(self):
++        # Own the state independently of a retained QP result. The additional
++        # snapshot is bounded to one dual and checked only when another QP starts,
++        # never within ADMM iterations. It catches .data writes that bypass _version.
++        object.__setattr__(self, "dual", self.dual.detach().clone())
++        object.__setattr__(self, "_version", (id(self.dual), self.dual._version))
++        object.__setattr__(self, "_snapshot", self.dual.detach().clone())
++
++    @classmethod
++    def from_fit(cls, fitted, graph, lambda_value):
++        if not fitted.qualified:
++            raise ValueError("Dual continuation requires a qualified QP result")
++        graph.validate()
++        return cls(fitted.dual, graph.identity, float(lambda_value))
++
++    def for_problem(self, graph, lambda_value):
++        graph.validate()
++        if (self.graph_identity is not graph.identity or float(lambda_value) != self.lambda_value
++                or (id(self.dual), self.dual._version) != self._version
++                or not torch.equal(self.dual, self._snapshot)):
++            raise ValueError("Qualified dual initialization must match its unchanged graph and lambda")
++        return self.dual
++
++
+ def quadratic_value(x, h, target, caps, reference=None):
+     # Subtract a common boxed reference before arithmetic; fixed constants vanish.
+     if reference is None:
+@@ -124,8 +159,19 @@ def solve_qp(
+         )
+         return QuadraticFit(x, q, *stats, bool(gate), 0)
+     base_rho = rho.clone()
++    # Every new surrogate rescales the physical dual with its new numerical rho.
++    # h/target and the full certificate are always recomputed for this problem.
+     v = q / rho
+     z = differences(x)
++    if dual is not None:
++        stats = kernels.gap_kkt(x, q, h, target, lower, upper, caps)
++        gate = (
++            torch.isfinite(stats).all()
++            & (stats[0] <= policy.inner_atol + policy.inner_rtol * stats[1])
++            & (stats[2] <= policy.inner_kkt_tol)
++        )
++        if bool(gate):
++            return QuadraticFit(x, q, *stats, True, 0)
+     stats = h.new_tensor([float("inf"), 0.0, float("inf")])
+     for iteration in range(1, policy.inner_max_iterations + 1):
+         # Do not even multiply irrelevant frozen targets by h: those products
+diff --git a/src/clipp1d/cuda/scalar.py b/src/clipp1d/cuda/scalar.py
+index b43990b..68c729d 100644
+--- a/src/clipp1d/cuda/scalar.py
++++ b/src/clipp1d/cuda/scalar.py
+@@ -5,6 +5,7 @@ arrays. Interval budgets and float64 admission tolerances match the source polic
+ Bounds are numerical float64 qualifications, not directed-rounding proofs.
+ """
+ from dataclasses import dataclass
++from contextlib import contextmanager
+ import torch
+ from .model import TensorModel
+ from .policy import CudaPolicy, QualificationError
+@@ -39,28 +40,77 @@ class Problems:
+         self.upper = self.reduce(model.upper, "min")
+         if not bool((self.lower <= self.upper).all()):
+             raise ValueError("Scalar group has no common feasible domain")
+-        self._versions = tuple((id(v), v._version) for v in
+-                               (self.lengths, self.group, self.lower, self.upper))
++        self._versions = self._metadata()
++        self._snapshots = tuple(value.clone() for value in
++                                (self.lengths, self.group, self.lower, self.upper))
++        self._stage_depth = 0
+ 
+-    def validate(self):
++    def _metadata(self):
++        return (id(self.model), tuple((id(value), value._version, value.shape, value.dtype,
++                                      value.device, value.data_ptr()) for value in
++                                     (self.lengths, self.group, self.lower, self.upper)))
++
++    def validate(self, *, full=None):
+         self.model.validate()
+-        if tuple((id(v), v._version) for v in
+-                 (self.lengths, self.group, self.lower, self.upper)) != self._versions:
++        if self._metadata() != self._versions:
+             raise ValueError("Scalar membership or domain tensors were modified")
++        if full is None:
++            full = self._stage_depth == 0
++        if full:
++            if not bool(torch.stack([(value == frozen).all() for value, frozen in zip(
++                    (self.lengths, self.group, self.lower, self.upper), self._snapshots)]).all()):
++                raise ValueError("Scalar membership or domain tensors were modified")
++
++    @contextmanager
++    def validated_stage(self):
++        with self.model.validated_stage():
++            outermost = self._stage_depth == 0
++            self.validate(full=outermost)
++            self._stage_depth += 1
++            try:
++                yield self
++            finally:
++                self._stage_depth -= 1
++                self.validate(full=outermost)
++
++    def subset(self, groups):
++        """Retain requested canonical groups and their rows entirely on device."""
++        self.validate()
++        selected = torch.zeros(self.count, dtype=torch.bool, device=self.model.device)
++        selected[groups] = True
++        rows = torch.nonzero(selected[self.group], as_tuple=True)[0]
++        return Problems(self.model.subset(rows), self.lengths[groups])
+ 
+     def reduce(self, x, reduction="sum"):
+-        return torch.segment_reduce(x, reduction, lengths=self.lengths)
++        if hasattr(self, "_versions"):
++            self.validate()
++        # ATen's default length checks perform scalar device reads on every
++        # reduction. An owned stage already proved these immutable lengths;
++        # metadata checks above and full entry/exit reconciliation retain that
++        # invariant. Calls outside the stage keep ATen's independent checks.
++        return torch.segment_reduce(x, reduction, lengths=self.lengths,
++                                    unsafe=getattr(self, "_stage_depth", 0) > 0)
+ 
+-    def evaluate(self, points):
++    def _proposal(self, points, kernel):
+         self.validate()
+         if (points.ndim != 2 or points.shape[0] != self.count or
+                 points.dtype != torch.float64 or points.device != self.model.device):
+             raise ValueError("Scalar proposal points must be a matching float64 device matrix")
+         row_phi = points[self.group]
+-        out = self.model.kernels.likelihood(self.model.alt, self.model.ref, self.model.slope,
+-                                            self.model.log_prior, row_phi, self.model.eps)
++        counters = self.model.scalar_work_counters
++        counters["scalar_rows_evaluated"] += self.model.n
++        counters["scalar_proposals_evaluated"] += row_phi.numel()
++        counters[kernel + "_calls"] += 1
++        return getattr(self.model.kernels, kernel)(self.model.alt, self.model.ref, self.model.slope,
++                                                   self.model.log_prior, row_phi, self.model.eps)
++
++    def evaluate(self, points):
++        out = self._proposal(points, "loss_gradient")
+         return self.reduce(out[0]), self.reduce(out[1])
+ 
++    def loss(self, points):
++        return self.reduce(self._proposal(points, "loss_only"))
++
+     def bounds(self, left, right):
+         self.validate()
+         m = self.model
+@@ -129,77 +179,133 @@ class Problems:
+         return torch.where(torch.isfinite(point), point, left + (right - left) * .5)
+ 
+ 
++def _join_batches(results):
++    return ScalarBatch(*(torch.cat([getattr(result, key) for result in results]) for key in
++                         ("phi", "loss", "lower_bound", "gap", "alternative", "qualified")),
++                       subdivisions=sum(result.subdivisions for result in results))
++
++
++def _analytical_points(p):
++    """Identify exact lanes before any grid or marginalized likelihood work."""
++    m = p.model
++    valid = torch.isfinite(m.log_prior)
++    single = p.reduce((valid.sum(-1) == 1).to(torch.float64), "min") == 1
++    slope = torch.where(valid, m.slope, 0.).sum(-1)
++    smin, smax = p.reduce(slope, "min"), p.reduce(slope, "max")
++    exact = single & (smin == smax)
++    alt, ref = p.reduce(m.alt), p.reduce(m.ref)
++    empirical = alt / (alt + ref)
++    plo, phi = (smin * p.lower).clamp(m.eps, 1 - m.eps), (smin * p.upper).clamp(m.eps, 1 - m.eps)
++    point = (empirical.clamp_max(1 - m.eps) / smin).clamp(p.lower, p.upper)
++    point = torch.where((empirical <= plo) | (plo == phi), p.lower, point)
++    return exact, point
++
++
++def _analytical(p, point, policy):
++    loss = p.loss(point[:, None])[:, 0]
++    lower = loss - 128 * torch.finfo(torch.float64).eps * (1 + loss.abs())
++    gap = (loss - lower).clamp_min(0.)
++    qualified = (torch.isfinite(point) & torch.isfinite(loss) & torch.isfinite(lower) &
++                 (point >= p.lower) & (point <= p.upper) &
++                 (gap <= policy.scalar_atol + policy.scalar_rtol * loss.abs()))
++    p.model.scalar_work_counters["analytical_groups"] += p.count
++    return ScalarBatch(point, loss, lower, gap, point.clone(), qualified, 0)
++
++
+ def solve_scalar(problems: Problems, policy=CudaPolicy()):
+-    p, m, b = problems, problems.model, problems.count
+-    p.validate()
++    """Qualify scalar groups with one integrity boundary around each owned stage."""
++    with problems.validated_stage():
++        return _solve_scalar(problems, policy)
++
++
++def _solve_scalar(p, policy):
++    m, b = p.model, p.count
+     if b > policy.scalar_batch_size:
+-        # Only batch-boundary counts enter host control; no likelihood, fitted
+-        # coordinate, or optimization array is transferred to or solved on CPU.
+         results = []
+         row_start = 0
+         for group_start in range(0, b, policy.scalar_batch_size):
+             lengths = p.lengths[group_start:group_start + policy.scalar_batch_size]
++            # Only a batch-boundary count enters host control; numerical arrays
++            # and all likelihood/optimization work remain on their input device.
+             row_stop = row_start + int(lengths.sum())
+             batch = Problems(m.subset(slice(row_start, row_stop)), lengths)
+             results.append(solve_scalar(batch, policy))
+             row_start = row_stop
+-        return ScalarBatch(*(torch.cat([getattr(result, key) for result in results]) for key in
+-                             ("phi", "loss", "lower_bound", "gap", "alternative", "qualified")),
+-                           subdivisions=sum(result.subdivisions for result in results))
+-    device = m.device
++        return _join_batches(results)
++    exact, point = _analytical_points(p)
++    if bool(exact.all()):
++        return _analytical(p, point, policy)
++    if not bool(exact.any()):
++        return _solve_general(p, policy)
++    analytical_ids = torch.nonzero(exact, as_tuple=True)[0]
++    general_ids = torch.nonzero(~exact, as_tuple=True)[0]
++    analytical = p.subset(analytical_ids)
++    general = p.subset(general_ids)
++    with analytical.validated_stage():
++        direct = _analytical(analytical, point[analytical_ids], policy)
++    with general.validated_stage():
++        searched = _solve_general(general, policy)
++    arrays = []
++    for key in ("phi", "loss", "lower_bound", "gap", "alternative", "qualified"):
++        value = getattr(direct, key).new_empty((b,))
++        value[analytical_ids] = getattr(direct, key)
++        value[general_ids] = getattr(searched, key)
++        arrays.append(value)
++    return ScalarBatch(*arrays, searched.subdivisions)
++
++
++def _golden_wells(p, seeds, values, best_x):
++    """Refine only actual initial local wells, with bounded per-group padding.
++
++    Packing keeps original seed-column order, so ties retain the same first well
++    as the prior full-grid search. Padded lanes are masked throughout selection.
++    Their count is bounded by the largest actual-well count in the scalar batch.
++    """
++    local = (values[:, 1:-1] <= values[:, :-2]) & (values[:, 1:-1] <= values[:, 2:])
++    counts = local.sum(-1)
++    width, total = torch.stack((counts.max(), counts.sum())).tolist()
++    width, total = int(width), int(total)
++    counters = p.model.scalar_work_counters
++    counters["golden_wells"] += total
++    counters["golden_padded_group_slots"] += p.count * width
++    if not width:
++        return best_x[:, None], torch.full_like(best_x[:, None], float("inf")), False
++    columns = torch.arange(local.shape[1], device=seeds.device).expand_as(local)
++    packed = torch.sort(torch.where(local, columns, local.shape[1]), dim=-1).values[:, :width]
++    occupied = packed < local.shape[1]
++    index = packed.clamp_max(local.shape[1] - 1)
++    a = torch.where(occupied, seeds[:, :-2].gather(1, index), best_x[:, None])
++    z = torch.where(occupied, seeds[:, 2:].gather(1, index), best_x[:, None])
++    ratio = (5. ** .5 - 1) / 2
++    for _ in range(48):
++        c, d = z - ratio * (z - a), a + ratio * (z - a)
++        fc, fd = p.loss(c), p.loss(d)
++        take = fc <= fd
++        a, z = torch.where(take, a, c), torch.where(take, d, z)
++    wells = (a + z) * .5
++    values = torch.where(occupied, p.loss(wells), float("inf"))
++    return wells, values, True
++
++
++def _solve_general(p, policy):
++    m, b, device = p.model, p.count, p.model.device
++    m.scalar_work_counters["general_groups"] += b
+     grid = torch.linspace(0., 1., 33, device=device, dtype=torch.float64)
+     seeds = p.lower[:, None] + (p.upper - p.lower)[:, None] * grid
+-    # Candidate-mode averages are attained seeds only; bounds still cover the full domain.
+     modes = ((m.alt / (m.alt + m.ref))[:, None]
+              / torch.where(m.slope > 0, m.slope, torch.ones_like(m.slope)))
+     valid = torch.isfinite(m.log_prior)
+     modes = p.reduce(torch.where(valid, modes, 0.)) / p.reduce(valid.to(torch.float64)).clamp_min(1.)
+     modes = torch.maximum(p.lower[:, None], torch.minimum(p.upper[:, None], modes))
+     seeds = torch.sort(torch.cat((seeds, modes), -1), dim=-1).values
+-    values, _ = p.evaluate(seeds)
++    values = p.loss(seeds)
+     best_loss, idx = values.min(-1)
+     best_x = seeds.gather(1, idx[:, None])[:, 0]
+-    # Exact same-slope single-candidate groups (including zero-alt clipping plateaus).
+-    single = p.reduce((valid.sum(-1) == 1).to(torch.float64), "min") == 1
+-    # The unique valid support need not occupy storage column zero.
+-    candidate_slope = torch.where(valid, m.slope, 0.).sum(-1)
+-    smin, smax = p.reduce(candidate_slope, "min"), p.reduce(candidate_slope, "max")
+-    exact = single & (smin == smax)
+-    alt, ref = p.reduce(m.alt), p.reduce(m.ref)
+-    empirical = alt / (alt + ref)
+-    plo, phi = (smin * p.lower).clamp(m.eps, 1 - m.eps), (smin * p.upper).clamp(m.eps, 1 - m.eps)
+-    direct_x = (empirical.clamp_max(1 - m.eps) / smin).clamp(p.lower, p.upper)
+-    direct_x = torch.where((empirical <= plo) | (plo == phi), p.lower, direct_x)
+-    direct_loss = p.evaluate(direct_x[:, None])[0][:, 0]
+-    exact_lb = direct_loss - 128 * torch.finfo(torch.float64).eps * (1 + direct_loss.abs())
+-    best_x = torch.where(exact, direct_x, best_x)
+-    best_loss = torch.where(exact, direct_loss, best_loss)
+-    if bool(exact.all()):
+-        gap = (best_loss - exact_lb).clamp_min(0.)
+-        qualified = (torch.isfinite(best_x) & torch.isfinite(best_loss) & torch.isfinite(exact_lb) &
+-                     (best_x >= p.lower) & (best_x <= p.upper) &
+-                     (gap <= policy.scalar_atol + policy.scalar_rtol * best_loss.abs()))
+-        return ScalarBatch(best_x, best_loss, exact_lb, gap, best_x.clone(), qualified, 0)
+-    # Local golden searches produce multistart proposals, never scalar certificates.
+-    if not bool(exact.all()):
+-        local = (values[:, 1:-1] <= values[:, :-2]) & (values[:, 1:-1] <= values[:, 2:])
+-        a, z = seeds[:, :-2].clone(), seeds[:, 2:].clone()
+-        ratio = (5. ** .5 - 1) / 2
+-        for _ in range(48):
+-            c, d = z - ratio * (z - a), a + ratio * (z - a)
+-            fc, _ = p.evaluate(c)
+-            fd, _ = p.evaluate(d)
+-            take = fc <= fd
+-            a, z = torch.where(take, a, c), torch.where(take, d, z)
+-        wells = (a + z) * .5
+-        well_loss, _ = p.evaluate(wells)
+-        well_loss = torch.where(local, well_loss, float("inf"))
+-        win, wi = well_loss.min(-1)
+-        wx = wells.gather(1, wi[:, None])[:, 0]
+-        improve = (~exact) & (win < best_loss)
+-        best_x, best_loss = torch.where(improve, wx, best_x), torch.where(improve, win, best_loss)
+-    else:
+-        wells, well_loss = seeds, values
++    wells, well_loss, have_wells = _golden_wells(p, seeds, values, best_x)
++    win, wi = well_loss.min(-1)
++    wx = wells.gather(1, wi[:, None])[:, 0]
++    improve = win < best_loss
++    best_x, best_loss = torch.where(improve, wx, best_x), torch.where(improve, win, best_loss)
+     initial = seeds.shape[1] - 1
+     capacity = initial + policy.scalar_max_intervals
+     left = torch.zeros((b, capacity), dtype=torch.float64, device=device)
+@@ -211,7 +317,7 @@ def solve_scalar(problems: Problems, policy=CudaPolicy()):
+     row = torch.arange(b, device=device)
+     for iteration in range(policy.scalar_max_intervals + 1):
+         smallest, at = bounds[:, :slots].min(-1)
+-        lb = torch.where(exact, exact_lb, torch.minimum(best_loss, smallest))
++        lb = torch.minimum(best_loss, smallest)
+         gap = (best_loss - lb).clamp_min(0.)
+         qualified = (torch.isfinite(best_x) & torch.isfinite(best_loss) & torch.isfinite(lb) &
+                      torch.isfinite(gap) & (best_x >= p.lower) & (best_x <= p.upper) &
+@@ -223,10 +329,9 @@ def solve_scalar(problems: Problems, policy=CudaPolicy()):
+         lo, r = left[row, at], right[row, at]
+         cut = p.nearest_kink(lo, r)
+         active = (~qualified) & (cut > lo) & (cut < r)
+-        # Inactive lanes retain their whole-interval lower bound; no false qualification.
+         lnew, rnew = torch.stack((lo, cut), -1), torch.stack((cut, r), -1)
+         lbnew, mid, midloss = p.bounds(lnew, rnew)
+-        cutloss = p.evaluate(cut[:, None])[0][:, 0]
++        cutloss = p.loss(cut[:, None])[:, 0]
+         props, prop_loss = torch.cat((cut[:, None], mid), -1), torch.cat((cutloss[:, None], midloss), -1)
+         v, atp = prop_loss.min(-1)
+         t = props.gather(1, atp[:, None])[:, 0]
+@@ -239,27 +344,28 @@ def solve_scalar(problems: Problems, policy=CudaPolicy()):
+         bounds[:, slots] = torch.where(active, lbnew[:, 1], float("inf"))
+         slots += 1
+         rounds += 1
+-    delta = ((p.upper - p.lower) * 1e-4).clamp_max(1e-5)
+-    wl, _ = p.evaluate(torch.maximum(p.lower[:, None], wells - delta[:, None]))
+-    wr, _ = p.evaluate(torch.minimum(p.upper[:, None], wells + delta[:, None]))
+-    admissible = ((wells - best_x[:, None]).abs() > 1e-3) & (well_loss <= best_loss[:, None] + 2.)
+-    admissible &= (well_loss <= wl) & (well_loss <= wr)
+-    alt_loss, ai = torch.where(admissible, well_loss, float("inf")).min(-1)
+-    alternative = torch.where(torch.isfinite(alt_loss), wells.gather(1, ai[:, None])[:, 0], best_x)
++    alternative = best_x
++    if have_wells:
++        delta = ((p.upper - p.lower) * 1e-4).clamp_max(1e-5)
++        wl = p.loss(torch.maximum(p.lower[:, None], wells - delta[:, None]))
++        wr = p.loss(torch.minimum(p.upper[:, None], wells + delta[:, None]))
++        admissible = ((wells - best_x[:, None]).abs() > 1e-3) & (well_loss <= best_loss[:, None] + 2.)
++        admissible &= (well_loss <= wl) & (well_loss <= wr)
++        alt_loss, ai = torch.where(admissible, well_loss, float("inf")).min(-1)
++        alternative = torch.where(torch.isfinite(alt_loss), wells.gather(1, ai[:, None])[:, 0], best_x)
+     return ScalarBatch(best_x, best_loss, lb, gap, alternative, qualified, rounds)
+ 
+ 
+ def pilot(model: TensorModel, policy=CudaPolicy()):
+     results = []
+-    for start in range(0, model.n, policy.scalar_batch_size):
+-        stop = min(model.n, start + policy.scalar_batch_size)
+-        sub = model.subset(slice(start, stop))
+-        lengths = torch.ones(stop - start, dtype=torch.long, device=model.device)
+-        result = solve_scalar(Problems(sub, lengths), policy)
+-        if not bool(result.qualified.all()):
+-            raise QualificationError("CUDA scalar pilot unresolved", batch_start=start,
+-                                      maximum_gap=float(result.gap.max()))
+-        results.append(result)
+-    return ScalarBatch(*(torch.cat([getattr(r, key) for r in results]) for key in
+-                         ("phi", "loss", "lower_bound", "gap", "alternative", "qualified")),
+-                        subdivisions=sum(r.subdivisions for r in results))
++    with model.validated_stage():
++        for start in range(0, model.n, policy.scalar_batch_size):
++            stop = min(model.n, start + policy.scalar_batch_size)
++            sub = model.subset(slice(start, stop))
++            lengths = torch.ones(stop - start, dtype=torch.long, device=model.device)
++            result = solve_scalar(Problems(sub, lengths), policy)
++            if not bool(result.qualified.all()):
++                raise QualificationError("CUDA scalar pilot unresolved", batch_start=start,
++                                          maximum_gap=float(result.gap.max()))
++            results.append(result)
++    return _join_batches(results)
+diff --git a/src/clipp1d/cuda/selection.py b/src/clipp1d/cuda/selection.py
+index 8327b8f..67822a6 100644
+--- a/src/clipp1d/cuda/selection.py
++++ b/src/clipp1d/cuda/selection.py
+@@ -9,7 +9,7 @@ import math
+ import torch
+ from .graph import build_graph, penalty_reference
+ from .scalar import pilot
+-from .partition import refit
++from .partition import LastPartitionCache, QualifiedPilot, refit
+ from .solver import PrimalWarmState, fit_lambda
+ from .policy import CudaPolicy, QualificationError
+ 
+@@ -31,12 +31,38 @@ class DeviceFit:
+ @torch.no_grad()
+ def fit_tensor_model(model, policy=CudaPolicy(), *, lambda_values=None):
+     """Low-level CPU execution serves numerical tests, never public fallback."""
+-    started = perf_counter()
++    boundary_started = _synchronized_time(model)
++    with model.validated_stage():
++        result = _fit_tensor_model(model, policy, lambda_values=lambda_values)
++    boundary_finished = _synchronized_time(model)
++    # Include entry/exit integrity reconciliation in the numerical wall scope.
++    # It is reported separately from the four inner numerical phases.
++    result.timings["stage_integrity_seconds"] = (
++        boundary_finished - boundary_started - result.timings["numerical_wall_seconds"])
++    result.timings["numerical_wall_seconds"] = boundary_finished - boundary_started
++    return result
++
++
++def _synchronized_time(model):
++    # Phase boundaries report completed device work, not asynchronous dispatch.
++    if model.device.type == "cuda":
++        torch.cuda.synchronize(model.device)
++    return perf_counter()
++
++
++def _fit_tensor_model(model, policy, *, lambda_values):
++    started = _synchronized_time(model)
+     pilots = pilot(model, policy)
+-    pilot_seconds = perf_counter() - started
++    pilot_reuse = QualifiedPilot(model, pilots, policy)
++    pilot_finished = _synchronized_time(model)
++    pilot_seconds = pilot_finished - started
+     graph = build_graph(pilots.phi, mutation_ids=model.mutation_ids)
+     curvature = model.terms(pilots.phi)[2]
+     reference = penalty_reference(model, graph, pilots.phi, curvature)
++    graph_finished = _synchronized_time(model)
++    graph_build_seconds = graph_finished - pilot_finished
++    cache = LastPartitionCache(model, policy)
++    refit_seconds = 0.
+     if lambda_values is None:
+         path = [reference.new_tensor(0.)]
+         if model.n > 1:
+@@ -61,7 +87,17 @@ def fit_tensor_model(model, policy=CudaPolicy(), *, lambda_values=None):
+             record.update(raw.diagnostics)
+             record.update(raw_status="qualified", raw_objective=float(raw.objective))
+             previous = PrimalWarmState(raw.x, graph.identity)
+-            secondary = refit(model, raw.x, policy)
++            refit_started = _synchronized_time(model)
++            counters_before = cache.refits_computed, cache.refits_reused, cache.singleton_pilots_reused
++            try:
++                secondary = refit(model, raw.x, policy, pilot_reuse=pilot_reuse, cache=cache)
++            finally:
++                duration = _synchronized_time(model) - refit_started
++                refit_seconds += duration
++                record.update(refit_seconds=duration,
++                              refits_computed=cache.refits_computed - counters_before[0],
++                              refits_reused=cache.refits_reused - counters_before[1],
++                              singleton_pilots_reused=cache.singleton_pilots_reused - counters_before[2])
+             score = float(secondary.score)
+             refit_gap = float(secondary.gap)
+             if not math.isfinite(score) or not math.isfinite(refit_gap) or refit_gap < 0:
+@@ -79,7 +115,10 @@ def fit_tensor_model(model, policy=CudaPolicy(), *, lambda_values=None):
+             else:
+                 record["refit_status"] = "unresolved"
+             record.update(error=str(error), failure_diagnostics=error.diagnostics, search_complete=False)
+-        record["seconds"] = perf_counter() - begin
++            for name in ("qp_seconds", "audit_seconds", "qp_calls", "audit_calls", "qp_dual_warm_starts"):
++                if name in error.diagnostics:
++                    record[name] = error.diagnostics[name]
++        record["seconds"] = _synchronized_time(model) - begin
+         records.append(record)
+         index += 1
+         if (lambda_values is None and index == len(path) and model.n > 1 and best is not None
+@@ -96,9 +135,21 @@ def fit_tensor_model(model, policy=CudaPolicy(), *, lambda_values=None):
+                                extensions >= policy.path_extensions)
+     complete = all(r["raw_status"] == r["refit_status"] == "qualified" and r.get("search_complete", False)
+                    for r in records)
++    finished = _synchronized_time(model)
+     return DeviceFit(model, graph, pilots, best[1], best[2], best[0],
+                      "complete" if complete else "incomplete", records,
+-                     dict(pilot_seconds=pilot_seconds, numerical_wall_seconds=perf_counter() - started,
++                     dict(pilot_seconds=pilot_seconds, graph_build_seconds=graph_build_seconds,
++                          path_seconds=finished - graph_finished - refit_seconds,
++                          refit_seconds=refit_seconds, numerical_wall_seconds=finished - started,
++                          phase_timing_scope="nonoverlapping synchronized numerical stages; excludes final publication",
++                          refits_computed=cache.refits_computed, refits_reused=cache.refits_reused,
++                          singleton_pilots_reused=cache.singleton_pilots_reused,
++                          qp_seconds=sum(r.get("qp_seconds", 0.) for r in records),
++                          audit_seconds=sum(r.get("audit_seconds", 0.) for r in records),
++                          inner_timing_scope="QP and audit times are subsets of path_seconds",
++                          qp_calls=sum(r.get("qp_calls", 0) for r in records),
++                          audit_calls=sum(r.get("audit_calls", 0) for r in records),
++                          qp_dual_warm_starts=sum(r.get("qp_dual_warm_starts", 0) for r in records),
+                           lambda_reference=float(reference), extensions=extensions,
+                           candidate_family="qualified_complete_graph_path",
+                           raw_unresolved_penalties=sum(r["raw_status"] != "qualified" for r in records),
+diff --git a/src/clipp1d/cuda/solver.py b/src/clipp1d/cuda/solver.py
+index e658ca0..7d4eac7 100644
+--- a/src/clipp1d/cuda/solver.py
++++ b/src/clipp1d/cuda/solver.py
+@@ -4,9 +4,10 @@ No mutation or cluster is required to attain one. Clonal designation occurs
+ only after independent membership refitting and never changes these solutions.
+ """
+ from dataclasses import dataclass
++from time import perf_counter
+ import torch
+ from .kernels import differences
+-from .qp import solve_qp
++from .qp import QualifiedDualWarmState, solve_qp
+ from .audit import audit_raw
+ from .policy import CudaPolicy, QualificationError
+ 
+@@ -43,7 +44,7 @@ class PrimalWarmState:
+ 
+ 
+ def objective(model, x, caps):
+-    return model.terms(x)[0].sum() + .5 * (caps * differences(x).abs()).sum()
++    return model.loss(x).sum() + .5 * (caps * differences(x).abs()).sum()
+ 
+ 
+ def direction_restart(model, x, direction, caps, current, policy):
+@@ -62,6 +63,11 @@ def direction_restart(model, x, direction, caps, current, policy):
+ 
+ 
+ def solve_start(model, graph, lam, start, policy=CudaPolicy()):
++    with model.validated_stage(), graph.validated_stage():
++        return _solve_start(model, graph, lam, start, policy)
++
++
++def _solve_start(model, graph, lam, start, policy):
+     x = start.clamp(model.lower, model.upper).clone()
+     caps = graph.weights * lam
+     q = torch.zeros_like(caps)
+@@ -70,6 +76,20 @@ def solve_start(model, graph, lam, start, policy=CudaPolicy()):
+     backtracks = surrogate_calls = inner = restarts = 0
+     tail = []
+     last_inner = None
++    warm_dual = None
++    lambda_literal = float(lam)
++    qp_seconds = audit_seconds = 0.0
++    audit_calls = dual_warm_starts = 0
++
++    def run_audit():
++        nonlocal audit_seconds, audit_calls
++        began = perf_counter()
++        audited = audit_raw(model, x, q, caps, None, policy)
++        # Audit and QP return through device-scalar qualification checkpoints;
++        # measuring that stage needs no additional per-iteration synchronization.
++        audit_seconds += perf_counter() - began
++        audit_calls += 1
++        return audited
+ 
+     def result(audit, qualified, status, iterations, **extra):
+         qualified = qualified and bool(torch.isfinite(current))
+@@ -81,9 +101,15 @@ def solve_start(model, graph, lam, start, policy=CudaPolicy()):
+                            clonal_constraint=False, global_optimality_proven=False,
+                            outer_iterations=iterations, inner_iterations=inner,
+                            surrogate_qp_calls=surrogate_calls, backtracks=backtracks,
++                           qp_calls=surrogate_calls, qp_dual_warm_starts=dual_warm_starts,
++                           qp_seconds=qp_seconds, audit_seconds=audit_seconds,
++                           audit_calls=audit_calls,
++                           phase_timing_scope="host wall through device-qualified QP/audit returns",
+                            direction_restarts=restarts, objective_tail=tail,
+                            stationarity_residual=None if audit is None else audit.residual,
+                            audit_status=None if audit is None else audit.status,
++                           audit_diagnostics={} if audit is None else audit.diagnostics,
++                           audit_signed_direction_count=0 if audit is None else audit.signed_direction_count,
+                            inner_gap_qualified=bool(last_inner and last_inner.qualified),
+                            inner_kkt_qualified=bool(last_inner and last_inner.qualified),
+                            inner_gap=None if last_inner is None else float(last_inner.gap),
+@@ -96,7 +122,7 @@ def solve_start(model, graph, lam, start, policy=CudaPolicy()):
+     if not bool(torch.isfinite(current) & torch.isfinite(caps).all()):
+         return result(None, False, "nonfinite_initial_objective", 0)
+     for iteration in range(policy.outer_max_iterations):
+-        graph.validate()
++        graph.validate_metadata()
+         losses, grad, curv, _, left, right = model.terms(x)
+         grad = torch.where(x == model.lower, right, grad)
+         grad = torch.where(x == model.upper, left, grad)
+@@ -109,15 +135,23 @@ def solve_start(model, graph, lam, start, policy=CudaPolicy()):
+             target = x - grad / h
+             if not bool(torch.isfinite(h).all() & torch.isfinite(target).all()):
+                 return result(None, False, "nonfinite_majorization_surrogate", iteration)
++            initial_dual = None if warm_dual is None else warm_dual.for_problem(graph, lambda_literal)
++            began = perf_counter()
+             last_inner = solve_qp(h, target, model.lower, model.upper, caps,
+-                                  model.kernels, policy, start=x)
++                                  model.kernels, policy, start=x, dual=initial_dual)
++            qp_seconds += perf_counter() - began
++            dual_warm_starts += initial_dual is not None
+             surrogate_calls += 1
+             inner += last_inner.iterations
+             if not last_inner.qualified:
+                 return result(None, False, "surrogate_unresolved", iteration)
++            # The QP can qualify even when the likelihood majorization trial is
++            # rejected. Its physical dual remains a valid initialization for the
++            # changed surrogate, whose certificate must be recomputed from scratch.
++            warm_dual = QualifiedDualWarmState.from_fit(last_inner, graph, lambda_literal)
+             trial = last_inner.x
+             d = trial - x
+-            trial_loss = model.terms(trial)[0].sum()
++            trial_loss = model.loss(trial).sum()
+             major = losses.sum() + (grad * d + .5 * h * d.square()).sum()
+             penalty_trial = .5 * (caps * differences(trial).abs()).sum()
+             trial_value = trial_loss + penalty_trial
+@@ -141,7 +175,7 @@ def solve_start(model, graph, lam, start, policy=CudaPolicy()):
+             backtracks += 1
+         if accepted and not bool(decrease.abs() <= 1e-10 * (1 + current.abs())):
+             continue
+-        audit = audit_raw(model, x, q, caps, None, policy)
++        audit = run_audit()
+         if audit.qualified:
+             return result(audit, True, "qualified", iteration + 1)
+         if audit.direction is not None:
+@@ -150,12 +184,13 @@ def solve_start(model, graph, lam, start, policy=CudaPolicy()):
+                 x = restart
+                 current = objective(model, x, caps)
+                 q = torch.zeros_like(caps)
++                warm_dual = None
+                 inflation = 1.
+                 restarts += 1
+                 continue
+         if not accepted:
+             break
+-    audit = audit_raw(model, x, q, caps, None, policy)
++    audit = run_audit()
+     return result(audit, audit.qualified, "qualified" if audit.qualified else "outer_unresolved", iteration + 1)
+ 
+ 
+@@ -166,7 +201,7 @@ def _validate_pilots(model, graph, pilots, policy):
+     if (pilots.qualified.shape != (model.n,) or pilots.qualified.dtype != torch.bool or
+             pilots.qualified.device != model.device):
+         raise ValueError("Pilot qualification mask must match the model")
+-    actual = model.terms(pilots.phi)[0]
++    actual = model.loss(pilots.phi)
+     margin = 256 * torch.finfo(actual.dtype).eps * (1 + actual.abs() + pilots.loss.abs())
+     valid = (torch.stack([torch.isfinite(v).all() for v in fields]).all() &
+              pilots.qualified.all() & (pilots.phi >= model.lower).all() &
+@@ -181,8 +216,11 @@ def _validate_pilots(model, graph, pilots, policy):
+ 
+ 
+ def fit_lambda(model, graph, pilots, lam, previous=None, policy=CudaPolicy()):
+-    model.validate()
+-    graph.validate()
++    with model.validated_stage(), graph.validated_stage():
++        return _fit_lambda(model, graph, pilots, lam, previous, policy)
++
++
++def _fit_lambda(model, graph, pilots, lam, previous, policy):
+     lam = torch.as_tensor(lam, dtype=torch.float64, device=model.device)
+     if lam.ndim != 0 or not bool(torch.isfinite(lam) & (lam >= 0)):
+         raise ValueError("Penalty must be a finite nonnegative scalar")
+@@ -198,10 +236,12 @@ def fit_lambda(model, graph, pilots, lam, previous=None, policy=CudaPolicy()):
+     if bool(lam == 0):
+         x = pilots.phi.clone()
+         caps = torch.zeros_like(graph.weights)
+-        value, gap = model.terms(x)[0].sum(), pilots.gap.sum()
++        value, gap = model.loss(x).sum(), pilots.gap.sum()
+         if not bool(torch.isfinite(value) & torch.isfinite(gap)):
+             raise QualificationError("Separable objective or aggregate scalar gap is nonfinite")
++        began = perf_counter()
+         audit = audit_raw(model, x, caps, caps, None, policy)
++        audit_seconds = perf_counter() - began
+         return RawFit(x, caps, value, None, True,
+                       dict(status="qualified_separable", separable_scalar_gap_qualified=True,
+                            separable_global_gap=float(gap), clonal_constraint=False,
+@@ -210,9 +250,14 @@ def fit_lambda(model, graph, pilots, lam, previous=None, policy=CudaPolicy()):
+                            raw_branch_stationarity_qualified=audit.qualified,
+                            directional_qualified=audit.qualified, box_feasible=True,
+                            stationarity_residual=audit.residual, audit_status=audit.status,
++                           audit_diagnostics=audit.diagnostics,
++                           audit_signed_direction_count=audit.signed_direction_count,
+                            inner_gap_qualified=True, inner_gap=0., inner_gap_scale=0.,
+                            inner_kkt_qualified=True, inner_kkt_residual=0.,
+                            inner_iterations=0, outer_iterations=0, surrogate_qp_calls=0,
++                           qp_calls=0, qp_dual_warm_starts=0, qp_seconds=0.0,
++                           audit_calls=1, audit_seconds=audit_seconds,
++                           phase_timing_scope="host wall through device-qualified QP/audit returns",
+                            starts_attempted=0, search_complete=True, global_optimality_proven=False))
+     curvature = model.terms(pilots.phi)[2].clamp_min(1.)
+     if not bool(torch.isfinite(curvature).all() & torch.isfinite(graph.weights * lam).all()):
+@@ -242,6 +287,9 @@ def fit_lambda(model, graph, pilots, lam, previous=None, policy=CudaPolicy()):
+                     starts_attempted=len(starts), starts_qualified=sum(d["qualified"] for d in diagnostics),
+                     starts_unresolved=sum(not d["qualified"] for d in diagnostics),
+                     search_policy="unconstrained_complete_graph_multistart_v1", clonal_constraint=False)
++    # Selected-start diagnostics remain in starts; phase totals cover all attempted starts.
++    for name in ("qp_calls", "qp_dual_warm_starts", "qp_seconds", "audit_calls", "audit_seconds"):
++        coverage[name] = sum(row[name] for row in diagnostics)
+     if best is None:
+         raise QualificationError("No qualified unconstrained complete-graph start", **coverage)
+     best.diagnostics.update(coverage)
+diff --git a/src/clipp1d/cuda_api.py b/src/clipp1d/cuda_api.py
+index e48b93f..5456381 100644
+--- a/src/clipp1d/cuda_api.py
++++ b/src/clipp1d/cuda_api.py
+@@ -4,7 +4,7 @@ Numerical likelihoods, pilots, graph weights, optimization, certificates, path
+ scores, secondary refits, and multiplicity posteriors remain on the CUDA device.
+ The existing canonical input/model compiler is reused once before the upload.
+ """
+-from dataclasses import asdict, dataclass
++from dataclasses import asdict, dataclass, replace
+ from copy import deepcopy
+ from datetime import datetime, timezone
+ import csv
+@@ -22,8 +22,8 @@ from .cuda.model import TensorModel
+ from .cuda.policy import CudaPolicy, QualificationError
+ from .cuda.selection import fit_tensor_model
+ 
+-SCHEMA = "clipp1d.cuda.run.v2"
+-BASE_COMMIT = "f90ac33e34f37a87ee498046cefa98c791df05dd"
++SCHEMA = "clipp1d.cuda.run.v3"
++BASE_COMMIT = "371003ffcadcc57e23c62df5901d9463085cceea"
+ 
+ 
+ @dataclass(frozen=True)
+@@ -48,6 +48,7 @@ class FitResult:
+     original_upper_bounds: np.ndarray
+     partition_labels: np.ndarray
+     candidate_provenance: dict
++    operation_metrics: dict | None = None  # Return-only completion; never a self-timed receipt.
+ 
+     def __post_init__(self):
+         for name in ("pilot_phi", "raw_phi", "refitted_phi", "cluster_labels", "cluster_centers",
+@@ -56,12 +57,13 @@ class FitResult:
+             value = np.ascontiguousarray(getattr(self, name))
+             immutable = np.frombuffer(value.tobytes(), dtype=value.dtype).reshape(value.shape)
+             object.__setattr__(self, name, immutable)
+-        for name in ("raw_diagnostics", "provenance", "candidate_provenance"):
++        for name in ("raw_diagnostics", "provenance", "candidate_provenance", "operation_metrics"):
+             object.__setattr__(self, name, deepcopy(getattr(self, name)))
+         object.__setattr__(self, "_metadata_sha256", self._metadata_hash())
+ 
+     def _metadata_hash(self):
+-        payload = dict(raw=self.raw_diagnostics, source=self.provenance, candidate=self.candidate_provenance)
++        payload = dict(raw=self.raw_diagnostics, source=self.provenance, candidate=self.candidate_provenance,
++                       operation=self.operation_metrics)
+         return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
+ 
+ 
+@@ -102,6 +104,7 @@ def _json(path, value):
+     finally:
+         if temporary is not None:
+             temporary.unlink(missing_ok=True)
++    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+ 
+ 
+ def _host(tensor):
+@@ -127,7 +130,31 @@ def _model_hash(mutation_ids, eps, arrays):
+     return digest.hexdigest()
+ 
+ 
++def _synchronize(device):
++    if device.type == "cuda":
++        torch.cuda.synchronize(device)
++
++
++def _device_metrics(model):
++    """Read after ALL final CUDA qualification, posterior and export work."""
++    _synchronize(model.device)
++    metrics = dict(compilation_statistics=model.kernels.compilation_diagnostics(),
++                   integrity_counters=dict(getattr(model, "integrity_counters", {})),
++                   scalar_work_counters=dict(getattr(model, "scalar_work_counters", {})),
++                   device_measurement_scope="upload through final qualification and completed device export")
++    if model.device.type == "cuda":
++        metrics.update(peak_allocated_bytes=torch.cuda.max_memory_allocated(model.device),
++                       peak_reserved_bytes=torch.cuda.max_memory_reserved(model.device))
++    return metrics
++
++
+ def _validate_device_fit(d):
++    # Contexts own full snapshot checks at entry and exit, including exceptions.
++    with d.model.validated_stage(), d.graph.validated_stage():
++        _validate_device_fit_owned(d)
++
++
++def _validate_device_fit_owned(d):
+     """Reconcile the selected device states before the final host boundary."""
+     from .cuda.audit import audit_raw
+     from .cuda.kernels import differences
+@@ -157,12 +184,12 @@ def _validate_device_fit(d):
+             torch.equal(d.pilot.gap, (d.pilot.loss - d.pilot.lower_bound).clamp_min(0.)) &
+             (d.pilot.gap <= p.scalar_atol + p.scalar_rtol * d.pilot.loss.abs()).all(),
+             "unqualified scalar pilot")
+-    pilot_loss = m.terms(d.pilot.phi)[0]
++    pilot_loss = m.loss(d.pilot.phi)
+     require(((pilot_loss - d.pilot.loss).abs() <=
+              128 * torch.finfo(torch.float64).eps * (1 + pilot_loss.abs())).all(),
+             "pilot loss inconsistent with the model")
+     caps = d.graph.weights * d.lambda_value
+-    observed_objective = m.terms(d.raw.x)[0].sum() + .5 * (caps * differences(d.raw.x).abs()).sum()
++    observed_objective = m.loss(d.raw.x).sum() + .5 * (caps * differences(d.raw.x).abs()).sum()
+     objective_margin = 128 * torch.finfo(torch.float64).eps * (1 + observed_objective.abs())
+     require(torch.isfinite(d.raw.objective) & ((d.raw.objective - observed_objective).abs() <= objective_margin),
+             "raw objective inconsistent with the exact model/graph state")
+@@ -186,7 +213,7 @@ def _validate_device_fit(d):
+     require(torch.equal(d.refit.sizes, torch.bincount(d.refit.labels, minlength=k)) and
+             torch.equal(d.refit.gap, scalar.gap.sum()) and torch.equal(d.refit.loss, scalar.loss.sum()),
+             "inconsistent refit membership sizes or scalar arithmetic")
+-    refit_loss = m.terms(d.refit.phi)[0].sum()
++    refit_loss = m.loss(d.refit.phi).sum()
+     require((refit_loss - d.refit.loss).abs() <= 128 * torch.finfo(torch.float64).eps * (1 + refit_loss.abs()),
+             "secondary refit loss inconsistent with the model")
+     require(torch.equal(d.refit.score, partition_score(d.refit.loss, d.refit.sizes)),
+@@ -195,9 +222,14 @@ def _validate_device_fit(d):
+             "secondary clonal designation inconsistent with closest-to-one rule")
+ 
+ 
+-def _export(device_fit, source):
++def _export(device_fit, source, *, wall_started=None):
+     d, m = device_fit, device_fit.model
++    _synchronize(m.device)
++    qualification_started = perf_counter()
+     _validate_device_fit(d)
++    _synchronize(m.device)
++    qualification_seconds = perf_counter() - qualification_started
++    export_started = perf_counter()
+     source = deepcopy(source)
+     arrays = {name: _host(getattr(m, name)) for name in ("alt", "ref", "lower", "upper", "slope", "log_prior")}
+     arrays["valid"] = _host(torch.isfinite(m.log_prior))
+@@ -251,11 +283,25 @@ def _export(device_fit, source):
+                      raw_qualified=bool(d.raw.qualified), refit_qualified=True,
+                      refit_gap=float(d.refit.gap), raw_certificate=dict(d.raw.diagnostics),
+                      global_optimality_proven=False)
++    # Materialize every remaining device scalar/array BEFORE the measurement.
++    raw_multiplicity, refit_multiplicity = _host(raw_calls), _host(refit_calls)
++    selected_lambda, score, raw_objective = float(d.lambda_value), float(d.refit.score), float(d.raw.objective)
++    m.validate(full=True)
++    d.graph.validate(full=True)
++    metrics = _device_metrics(m)
++    exported_at = perf_counter()
++    phases = dict(source.get("phase_seconds", {}))
++    phases.update(final_device_qualification_seconds=qualification_seconds,
++                  device_export_seconds=exported_at - export_started)
++    source.update(metrics, graph_integrity_counters=dict(d.graph.integrity_counters), phase_seconds=phases,
++                  numerical_completed_utc=datetime.now(timezone.utc).isoformat(),
++                  numerical_completion_scope="all CUDA work and device-to-host transfers complete")
++    if wall_started is not None:
++        source["through_device_export_seconds"] = exported_at - wall_started
+     return FitResult(m.mutation_ids, pilots, raw, refitted, labels, centers,
+-                     _host(raw_calls), _host(refit_calls), float(d.lambda_value),
+-                     float(d.refit.score), float(d.raw.objective), None,
+-                     d.raw.diagnostics, d.search_status, source, graph_sha,
+-                     _host(m.lower), _host(m.upper), partition_labels, candidate)
++                     raw_multiplicity, refit_multiplicity, selected_lambda,
++                     score, raw_objective, None, d.raw.diagnostics, d.search_status,
++                     source, graph_sha, arrays["lower"], arrays["upper"], partition_labels, candidate)
+ 
+ 
+ def _clonality(result):
+@@ -373,7 +419,24 @@ def _validate_result(result, data, records):
+     require(result.search_status == ('complete' if complete else 'incomplete'), "false search completeness")
+ 
+ 
+-def _write_bundle(result, data, destination, records):
++def _prepared_result(result, preparation_started, wall_started, *, tables_written):
++    measured_at = perf_counter()
++    provenance = deepcopy(result.provenance)
++    phases = dict(provenance.get("phase_seconds", {}))
++    phases["output_preparation_seconds"] = measured_at - preparation_started
++    provenance.update(phase_seconds=phases,
++                      output_prepared_utc=datetime.now(timezone.utc).isoformat(),
++                      output_preparation_scope="host validation and prepared TSV tables" if tables_written
++                                               else "host validation of in-memory result",
++                      elapsed_scope="through output preparation; excludes receipt serialization, durable publication and return bookkeeping",
++                      publication_completion_scope="return-only operation_metrics; external caller receipt required for durable completion timing")
++    if wall_started is not None:
++        provenance["elapsed_seconds"] = measured_at - wall_started
++    return replace(result, provenance=provenance)
++
++
++def _write_bundle(result, data, destination, records, *, preparation_started=None, wall_started=None):
++    preparation_started = perf_counter() if preparation_started is None else preparation_started
+     _validate_result(result, data, records)
+     lookup = {mid: i for i, mid in enumerate(result.mutation_ids)}
+     prefix = [data.tumor_id, data.sample_id]
+@@ -404,7 +467,8 @@ def _write_bundle(result, data, destination, records):
+             w.writerow(prefix + [mid, result.raw_phi[i], result.multiplicity_calls[i],
+                                  result.refitted_phi[i], result.refitted_multiplicity_calls[i]])
+     hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in destination.glob("*.tsv")}
+-    _json(destination / "run.json", dict(schema=SCHEMA, status="success", search_status=result.search_status,
++    result = _prepared_result(result, preparation_started, wall_started, tables_written=True)
++    receipt_sha256 = _json(destination / "run.json", dict(schema=SCHEMA, status="success", search_status=result.search_status,
+           selected_lambda=result.selected_lambda, raw_objective=result.raw_objective,
+           selection_score=result.selection_score, raw_witness_mutation_id=result.raw_witness_mutation_id,
+           raw_diagnostics=result.raw_diagnostics, graph_sha256=result.graph_sha256, provenance=result.provenance,
+@@ -413,10 +477,12 @@ def _write_bundle(result, data, destination, records):
+           partition_labels=result.partition_labels.tolist(),
+           clonality=_clonality(result),
+           qualification_scope="per-run numerical admission; not hardware/cohort qualification"))
++    return result, receipt_sha256
+ 
+ 
+-def _publish(result, data, destination, records):
+-    """Prepare and validate all files, then atomically publish one directory."""
++def _publish(result, data, destination, records, *, wall_started=None):
++    """Return post-publication timing separately from the self-excluding run receipt."""
++    publication_started = perf_counter()
+     _validate_result(result, data, records)
+     destination = Path(destination)
+     destination.mkdir(parents=True, exist_ok=True)
+@@ -424,8 +490,12 @@ def _publish(result, data, destination, records):
+         raise FileExistsError("Output directory must be empty and must not be a symlink")
+     stage = Path(tempfile.mkdtemp(prefix=".clipp1d-publish-", dir=destination.parent))
+     try:
+-        _write_bundle(result, data, stage, records)
+-        receipt = json.loads((stage / "run.json").read_text())
++        result, receipt_sha256 = _write_bundle(result, data, stage, records,
++                               preparation_started=publication_started, wall_started=wall_started)
++        receipt_bytes = (stage / "run.json").read_bytes()
++        if hashlib.sha256(receipt_bytes).hexdigest() != receipt_sha256:
++            raise QualificationError("Published receipt readback differs from the intended result")
++        receipt = json.loads(receipt_bytes)
+         for name, expected in receipt['table_sha256'].items():
+             path = stage / name
+             if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+@@ -449,6 +519,13 @@ def _publish(result, data, destination, records):
+     finally:
+         if stage.exists():
+             shutil.rmtree(stage)
++    completed = perf_counter()
++    metrics = dict(publication_completed_utc=datetime.now(timezone.utc).isoformat(),
++                   publication_seconds=completed - publication_started,
++                   scope="completed TSV/receipt readback, fsync, atomic directory publication and parent fsync; excludes return bookkeeping")
++    if wall_started is not None:
++        metrics["elapsed_seconds"] = completed - wall_started
++    return replace(result, operation_metrics=metrics)
+ 
+ 
+ @torch.no_grad()
+@@ -458,6 +535,8 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
+     An unavailable CUDA device or compiler error is fatal. Numerical candidates
+     retain separate qualification and search-completeness statuses.
+     """
++    start = perf_counter()
++    started_utc = datetime.now(timezone.utc).isoformat()
+     destination = None if outdir is None else Path(outdir)
+     if destination is not None:
+         if destination.is_symlink():
+@@ -467,9 +546,8 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
+             raise FileExistsError("Output directory must be empty; prior evidence is never overwritten")
+     from .api import source_provenance
+     source = source_provenance()
+-    source.update(started_utc=datetime.now(timezone.utc).isoformat(), requested_device=str(device),
++    source.update(started_utc=started_utc, requested_device=str(device),
+                   base_commit=BASE_COMMIT)
+-    start = perf_counter()
+     try:
+         d = require_cuda(device)
+         compiler = os.environ.get("CC")
+@@ -500,19 +578,31 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
+         source.update(gpu_name=props.name, capability=list(torch.cuda.get_device_capability(d)),
+                       total_device_bytes=total, free_device_bytes_at_start=free,
+                       estimated_workspace_bytes=estimated, cpu_numeric_fallback=False)
++        _synchronize(d)
++        phases = dict(input_preparation_seconds=perf_counter() - start)
+         torch.cuda.reset_peak_memory_stats(d)
++        upload_started = perf_counter()
+         model = TensorModel.from_host(canonical, d, compiled=True)
++        _synchronize(d)
++        phases["device_upload_and_compile_seconds"] = perf_counter() - upload_started
+         result_device = fit_tensor_model(model, policy)
+-        torch.cuda.synchronize(d)
+-        source.update(numerical_stages=result_device.timings,
+-                      compilation_statistics=model.kernels.compilation_diagnostics(),
+-                      peak_allocated_bytes=torch.cuda.max_memory_allocated(d),
+-                      peak_reserved_bytes=torch.cuda.max_memory_reserved(d),
+-                      elapsed_seconds=perf_counter() - start, finished_utc=datetime.now(timezone.utc).isoformat())
+-        result = _export(result_device, source)
+-        _validate_result(result, data, result_device.records)
++        _synchronize(d)
++        for key in ("pilot_seconds", "graph_build_seconds", "path_seconds", "refit_seconds", "stage_integrity_seconds"):
++            phases[key] = result_device.timings[key]
++        source.update(numerical_stages=result_device.timings, phase_seconds=phases,
++                      compilation_timing_scope="initial compiler admission in upload phase; lazy specializations charged to the executing phase")
++        result = _export(result_device, source, wall_started=start)
++        source = deepcopy(result.provenance)
+         if destination is not None:
+-            _publish(result, data, destination, result_device.records)
++            result = _publish(result, data, destination, result_device.records, wall_started=start)
++        else:
++            preparation_started = perf_counter()
++            _validate_result(result, data, result_device.records)
++            result = _prepared_result(result, preparation_started, start, tables_written=False)
++            result = replace(result, operation_metrics=dict(
++                elapsed_seconds=perf_counter() - start,
++                completed_utc=datetime.now(timezone.utc).isoformat(),
++                scope="complete in-memory fit; no durable output requested"))
+         if verbose:
+             print(f"device={d} retained={len(result.mutation_ids)} edges={result_device.graph.edges} "
+                   f"search_status={result.search_status}")
+diff --git a/tests/cuda/test_qp_regressions.py b/tests/cuda/test_qp_regressions.py
+index 2922abd..bc6b8d4 100644
+--- a/tests/cuda/test_qp_regressions.py
++++ b/tests/cuda/test_qp_regressions.py
+@@ -433,14 +433,16 @@ def test_structural_compile_family_lru_is_bounded_without_fallback():
+ 
+ 
+ def test_structural_compile_bank_replays_real_scalar_refit_pipeline_shapes():
+-    from clipp1d.cuda.kernels import StructuralCompileBank, likelihood
++    from clipp1d.cuda.kernels import StructuralCompileBank, likelihood, loss_only, loss_gradient
+     from clipp1d.cuda.model import TensorModel
+     from clipp1d.cuda.selection import fit_tensor_model
+     from clipp1d.types import CountModel
+ 
+-    bank = StructuralCompileBank(likelihood, backend="eager")
+     kernels = Kernels("cpu")
+-    kernels.likelihood = bank
++    banks = {name: StructuralCompileBank(function, backend="eager") for name, function in
++             (("likelihood", likelihood), ("loss_only", loss_only), ("loss_gradient", loss_gradient))}
++    for name, bank in banks.items():
++        setattr(kernels, name, bank)
+     fixtures = [
+         (np.array([20.0, 21.0, 48.0]), np.ones(3, dtype=int), np.full(3, 0.5)),
+         (
+@@ -467,11 +469,12 @@ def test_structural_compile_bank_replays_real_scalar_refit_pipeline_shapes():
+             1e-6,
+         )
+         model = TensorModel.from_host(host, "cpu", compiled=False)
+-        object.__setattr__(model, "kernels", kernels)
++        model = replace(model, kernels=kernels)
+         actual = fit_tensor_model(model, lambda_values=[0.0, 0.1])
+         assert actual.raw.qualified and actual.search_status == "complete"
+-    assert bank.calls > 100
+-    assert bank.families_created <= bank.max_families
++    assert sum(bank.calls for bank in banks.values()) > 100
++    assert all(bank.calls > 0 for bank in banks.values())
++    assert all(bank.families_created <= bank.max_families for bank in banks.values())
+ 
+ 
+ def test_qualifier_path_coordinate_preserves_observed_independent_reference_difference():

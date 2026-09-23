@@ -16,6 +16,42 @@ class QuadraticFit:
     kkt: torch.Tensor
     qualified: bool
     iterations: int
+    polish_iterations: int = 0
+
+
+@dataclass(frozen=True)
+class QualifiedDualWarmState:
+    """A single qualified surrogate dual, scoped to one frozen graph and lambda.
+
+    This carries an initialization only. No old gap, curvature, target or scaled
+    ADMM variable is admitted as a certificate for the next surrogate.
+    """
+    dual: torch.Tensor
+    graph_identity: object
+    lambda_value: float
+
+    def __post_init__(self):
+        # Own the state independently of a retained QP result. The additional
+        # snapshot is bounded to one dual and checked only when another QP starts,
+        # never within ADMM iterations. It catches .data writes that bypass _version.
+        object.__setattr__(self, "dual", self.dual.detach().clone())
+        object.__setattr__(self, "_version", (id(self.dual), self.dual._version))
+        object.__setattr__(self, "_snapshot", self.dual.detach().clone())
+
+    @classmethod
+    def from_fit(cls, fitted, graph, lambda_value):
+        if not fitted.qualified:
+            raise ValueError("Dual continuation requires a qualified QP result")
+        graph.validate()
+        return cls(fitted.dual, graph.identity, float(lambda_value))
+
+    def for_problem(self, graph, lambda_value):
+        graph.validate()
+        if (self.graph_identity is not graph.identity or float(lambda_value) != self.lambda_value
+                or (id(self.dual), self.dual._version) != self._version
+                or not torch.equal(self.dual, self._snapshot)):
+            raise ValueError("Qualified dual initialization must match its unchanged graph and lambda")
+        return self.dual
 
 
 def quadratic_value(x, h, target, caps, reference=None):
@@ -61,6 +97,57 @@ def _polish_dual(x, q, h, target, lower, upper, caps):
     delta = -differences(correction) / sizes[:, None]
     proposal = q + torch.where(same, delta, 0.0)
     return torch.maximum(-caps, torch.minimum(caps, proposal))
+
+
+def _refine_polish(x, q, h, target, lower, upper, caps, kernels, policy):
+    """Bounded candidate-only refinement for edge-complementarity-limited ADMM.
+
+    Public membership tolerance is unchanged. The original and two finer numerical
+    active-set proposals can preserve near-fusions hidden in an overwide run.
+    A proposal must pass the original objective gate before extra flow work, but
+    it need not already have a qualified dual. Affine correction plus cap projection is
+    repeated at most 1024 times per proposal; a fresh full gap/KKT certificate is
+    the sole admission rule. Infeasible active sets or normal allocations fail.
+    """
+    safe_target = torch.where(lower < upper, target, lower)
+    reference = torch.maximum(lower, torch.minimum(upper, safe_target))
+    old_value = quadratic_value(x, h, safe_target, caps, reference)
+    steps = 0
+    for divisor in (1.0, 16.0, 256.0):
+        candidate = polish_quadratic(x, q, h, target, lower, upper, caps,
+                                     policy.fusion_tol / divisor)
+        new_value = quadratic_value(candidate, h, safe_target, caps, reference)
+        roundoff = 32 * torch.finfo(h.dtype).eps * (1 + old_value.abs() + new_value.abs())
+        if not bool(torch.isfinite(new_value) & (new_value <= old_value + roundoff)):
+            continue
+        candidate_q = _polish_dual(candidate, q, h, target, lower, upper, caps)
+        steps += 1
+        stats = kernels.gap_kkt(candidate, candidate_q, h, target, lower, upper, caps)
+        if not bool(torch.isfinite(stats).all()):
+            continue
+        if bool((stats[0] <= policy.inner_atol + policy.inner_rtol * stats[1])
+                & (stats[2] <= policy.inner_kkt_tol)):
+            return (candidate, candidate_q, stats), steps
+        # A singleton partition has no internal flow degrees of freedom. More
+        # projections cannot repair its residual. Likewise stop any later exact
+        # fixed point whose unchanged certificate still fails.
+        if not bool(((candidate[:, None] == candidate[None, :]).sum(1) > 1).any()):
+            continue
+        checkpoint_q = candidate_q
+        for repair in range(2, 1025):
+            candidate_q = _polish_dual(candidate, candidate_q, h, target, lower, upper, caps)
+            steps += 1
+            if repair % policy.check_every == 0 or repair == 1024:
+                stats = kernels.gap_kkt(candidate, candidate_q, h, target, lower, upper, caps)
+                gate = (torch.isfinite(stats).all()
+                        & (stats[0] <= policy.inner_atol + policy.inner_rtol * stats[1])
+                        & (stats[2] <= policy.inner_kkt_tol))
+                if bool(gate):
+                    return (candidate, candidate_q, stats), steps
+                if torch.equal(candidate_q, checkpoint_q):
+                    break
+                checkpoint_q = candidate_q
+    return None, steps
 
 
 def solve_qp(
@@ -110,9 +197,11 @@ def solve_qp(
     )
     q = q * 0.5 - q.T * 0.5
     q = torch.maximum(-caps, torch.minimum(caps, q))
-    # Complete-graph nonzero Laplacian eigenvalues are N. Balance H against
-    # rho*N; rho is numerical conditioning, never the statistical lambda.
-    rho = h.median().clamp_min(torch.finfo(h.dtype).tiny) / n
+    # Consensus is controlled by the active fused components, which can be much
+    # smaller than N. Dividing curvature by the full node count underconditions
+    # those components and can stall edge complementarity despite small node KKT.
+    # This initial rho and residual balancing affect conditioning, never lambda.
+    rho = h.median().clamp_min(torch.finfo(h.dtype).tiny)
     if n == 1 or not bool((caps > 0).any()) or not bool((lower < upper).any()):
         x = torch.maximum(lower, torch.minimum(upper, target))
         q = caps * differences(x).sign()
@@ -124,8 +213,28 @@ def solve_qp(
         )
         return QuadraticFit(x, q, *stats, bool(gate), 0)
     base_rho = rho.clone()
+    # Every new surrogate rescales the physical dual with its new numerical rho.
+    # h/target and the full certificate are always recomputed for this problem.
     v = q / rho
     z = differences(x)
+    polish_iterations = 0
+    if dual is not None:
+        stats = kernels.gap_kkt(x, q, h, target, lower, upper, caps)
+        gate = (
+            torch.isfinite(stats).all()
+            & (stats[0] <= policy.inner_atol + policy.inner_rtol * stats[1])
+            & (stats[2] <= policy.inner_kkt_tol)
+        )
+        if bool(gate):
+            # A gap-qualified near-fusion can still fail the outer exact-kink
+            # audit. Warm admission must offer the same numerical equality
+            # recovery as an ADMM checkpoint before returning an unchanged state.
+            refined, steps = _refine_polish(x, q, h, target, lower, upper, caps, kernels, policy)
+            polish_iterations += steps
+            if refined is not None:
+                candidate, candidate_q, stats = refined
+                return QuadraticFit(candidate, candidate_q, *stats, True, 0, polish_iterations)
+            return QuadraticFit(x, q, *stats, True, 0, polish_iterations)
     stats = h.new_tensor([float("inf"), 0.0, float("inf")])
     for iteration in range(1, policy.inner_max_iterations + 1):
         # Do not even multiply irrelevant frozen targets by h: those products
@@ -140,6 +249,7 @@ def solve_qp(
             # Projection only corrects edge-dual rounding; the independent gap audits it.
             candidate = polish_quadratic(x, q, h, target, lower, upper, caps, policy.fusion_tol)
             candidate_q = _polish_dual(candidate, q, h, target, lower, upper, caps)
+            polish_iterations += 1
             stats = kernels.gap_kkt(candidate, candidate_q, h, target, lower, upper, caps)
             candidate_gate = (
                 torch.isfinite(stats).all()
@@ -154,7 +264,7 @@ def solve_qp(
             roundoff = 32 * torch.finfo(h.dtype).eps * (1 + old_value.abs() + new_value.abs())
             candidate_gate &= torch.isfinite(new_value) & (new_value <= old_value + roundoff)
             if bool(candidate_gate):
-                return QuadraticFit(candidate, candidate_q, *stats, True, iteration)
+                return QuadraticFit(candidate, candidate_q, *stats, True, iteration, polish_iterations)
             stats = kernels.gap_kkt(x, q, h, target, lower, upper, caps)
             gate = (
                 torch.isfinite(stats).all()
@@ -162,7 +272,19 @@ def solve_qp(
                 & (stats[2] <= policy.inner_kkt_tol)
             )
             if bool(gate):
-                return QuadraticFit(x, q, *stats, True, iteration)
+                refined, steps = _refine_polish(x, q, h, target, lower, upper, caps, kernels, policy)
+                polish_iterations += steps
+                if refined is not None:
+                    candidate, candidate_q, stats = refined
+                    return QuadraticFit(candidate, candidate_q, *stats, True, iteration, polish_iterations)
+                return QuadraticFit(x, q, *stats, True, iteration, polish_iterations)
+            if ((iteration % (64 * policy.check_every) == 0 or iteration == policy.inner_max_iterations)
+                    and bool(torch.isfinite(stats).all())):
+                refined, steps = _refine_polish(x, q, h, target, lower, upper, caps, kernels, policy)
+                polish_iterations += steps
+                if refined is not None:
+                    candidate, candidate_q, stats = refined
+                    return QuadraticFit(candidate, candidate_q, *stats, True, iteration, polish_iterations)
         if iteration % (4 * policy.check_every) == 0:
             # Residual balancing changes only numerical conditioning. Admission
             # above still depends exclusively on the original gap/KKT gates.
@@ -176,4 +298,4 @@ def solve_qp(
             next_rho = next_rho.clamp(base_rho * 1e-8, base_rho * 1e8)
             v = v * (rho / next_rho)
             rho = next_rho
-    return QuadraticFit(x, q, *stats, False, policy.inner_max_iterations)
+    return QuadraticFit(x, q, *stats, False, policy.inner_max_iterations, polish_iterations)

@@ -1,5 +1,5 @@
 """Single-sample complete-graph CUDA inference."""
-__version__ = "0.5.0.dev0"
+__version__ = "0.5.1.dev0"
 
 
 def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:0"):

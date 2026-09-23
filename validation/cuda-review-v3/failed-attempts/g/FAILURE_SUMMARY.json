@@ -1,0 +1,326 @@
+{
+  "compilation_scope": "Initial compiler-admission time only; later lazy specializations remain charged to their executing phases.",
+  "compiler_admission": {
+    "backend": "inductor",
+    "compiled": true,
+    "dtype": "float64",
+    "dynamic_tensor_shapes": true,
+    "elapsed_seconds": 2.324745161924511,
+    "fullgraph": true,
+    "kind": "compiler_admission",
+    "seconds": 2.177261252887547,
+    "utc": "2026-09-22T23:32:29.950226+00:00"
+  },
+  "created_utc": "2026-09-22T23:54:45.837550+00:00",
+  "diagnosis": "N64 selected raw and refit candidates qualified, but five unresolved starts at three planned lambdas kept complete-path search incomplete; N64 final export and N256 full inference were not reached.",
+  "error": "Scaling default path N=64 contains unresolved states",
+  "error_type": "AssertionError",
+  "evidence": {
+    "receipts/accepted.json": {
+      "bytes": 178,
+      "sha256": "4e0bf3f1f692d71bf540a9ea4367d63aad39e90341db74c3ed49ac582d8c1ef5"
+    },
+    "receipts/terminal.json": {
+      "bytes": 835,
+      "sha256": "f5d1ded025148a19273688fb4b57291a9eedf497c5b31d003e807764f0be9bcb"
+    },
+    "results/qualification.artifacts/scaling-16-qualified.json": {
+      "bytes": 14911,
+      "sha256": "24a884ae7a3728d9be5b8e26bfd9b5d45332b6c1679a477ab8b8a40b587bbe52"
+    },
+    "results/qualification.artifacts/scaling-64-path.json": {
+      "bytes": 396717,
+      "sha256": "faf303dc010a6f02216ca2fe8b4b52e57e485b43abc8364c36074dee0a09cf8f"
+    },
+    "results/qualification.events.jsonl": {
+      "bytes": 81079,
+      "sha256": "01dcb335548271d88beb2fe0b82802d577aef583355847a20e29dc7b04da24f8"
+    },
+    "results/qualification.json": {
+      "bytes": 116065,
+      "sha256": "76927a952535402f1c5fecebe9e2ef5277f53d2c7767d1e90abca1b11f95ad5c"
+    }
+  },
+  "failure": {
+    "fit_seconds": 89.92964546801522,
+    "incomplete_penalties": 3,
+    "incomplete_records": [
+      {
+        "lambda_value": 0.45048373334138886,
+        "path_index": 3,
+        "raw_status": "qualified",
+        "refit_status": "qualified",
+        "starts_attempted": 3,
+        "starts_qualified": 1,
+        "starts_unresolved": 2,
+        "unresolved_starts": [
+          {
+            "audit_status": "positive_descent",
+            "inner_gap": 2.8177207333133226e-10,
+            "inner_gap_qualified": true,
+            "inner_gap_scale": 18.925004108984766,
+            "inner_iterations": 4576,
+            "inner_kkt_qualified": true,
+            "inner_kkt_residual": 1.0085475760864276e-11,
+            "inner_polish_iterations": 0,
+            "outer_iterations": 150,
+            "qp_calls": 150,
+            "qp_polish_iterations": 414,
+            "qualified": false,
+            "start_index": 0,
+            "stationarity_residual": 1.5920277250525838,
+            "status": "outer_unresolved"
+          },
+          {
+            "audit_status": "positive_descent",
+            "inner_gap": 2.805154836388441e-10,
+            "inner_gap_qualified": true,
+            "inner_gap_scale": 18.925004108983757,
+            "inner_iterations": 5744,
+            "inner_kkt_qualified": true,
+            "inner_kkt_residual": 1.3406864210386797e-11,
+            "inner_polish_iterations": 0,
+            "outer_iterations": 150,
+            "qp_calls": 150,
+            "qp_polish_iterations": 456,
+            "qualified": false,
+            "start_index": 1,
+            "stationarity_residual": 0.4834813862417485,
+            "status": "outer_unresolved"
+          }
+        ]
+      },
+      {
+        "lambda_value": 0.9009674666827776,
+        "path_index": 4,
+        "raw_status": "qualified",
+        "refit_status": "qualified",
+        "starts_attempted": 3,
+        "starts_qualified": 2,
+        "starts_unresolved": 1,
+        "unresolved_starts": [
+          {
+            "audit_status": null,
+            "inner_gap": 5.3894654069123206e-05,
+            "inner_gap_qualified": false,
+            "inner_gap_scale": 35.22864956501894,
+            "inner_iterations": 20000,
+            "inner_kkt_qualified": false,
+            "inner_kkt_residual": 1.1547257430982904e-07,
+            "inner_polish_iterations": 1250,
+            "outer_iterations": 0,
+            "qp_calls": 1,
+            "qp_polish_iterations": 1250,
+            "qualified": false,
+            "start_index": 2,
+            "stationarity_residual": null,
+            "status": "surrogate_unresolved"
+          }
+        ]
+      },
+      {
+        "lambda_value": 1.8019349333655554,
+        "path_index": 5,
+        "raw_status": "qualified",
+        "refit_status": "qualified",
+        "starts_attempted": 3,
+        "starts_qualified": 1,
+        "starts_unresolved": 2,
+        "unresolved_starts": [
+          {
+            "audit_status": null,
+            "inner_gap": 6.150991443379358e-05,
+            "inner_gap_qualified": false,
+            "inner_gap_scale": 63.72915877106695,
+            "inner_iterations": 20000,
+            "inner_kkt_qualified": false,
+            "inner_kkt_residual": 1.760568040272303e-07,
+            "inner_polish_iterations": 1250,
+            "outer_iterations": 0,
+            "qp_calls": 1,
+            "qp_polish_iterations": 1250,
+            "qualified": false,
+            "start_index": 0,
+            "stationarity_residual": null,
+            "status": "surrogate_unresolved"
+          },
+          {
+            "audit_status": null,
+            "inner_gap": 1.2014659466610664e-05,
+            "inner_gap_qualified": false,
+            "inner_gap_scale": 63.77522920211646,
+            "inner_iterations": 20000,
+            "inner_kkt_qualified": false,
+            "inner_kkt_residual": 7.757772506359146e-08,
+            "inner_polish_iterations": 1251,
+            "outer_iterations": 0,
+            "qp_calls": 1,
+            "qp_polish_iterations": 1251,
+            "qualified": false,
+            "start_index": 1,
+            "stationarity_residual": null,
+            "status": "surrogate_unresolved"
+          }
+        ]
+      }
+    ],
+    "kind": "scaling_path_coverage",
+    "nodes": 64,
+    "planned_penalties": 26,
+    "search_status": "incomplete",
+    "selected_lambda": 3.603869866731111,
+    "selected_raw_qualified": true,
+    "unresolved_starts": 5
+  },
+  "inventory_sha256": "2f47f5ac9f819d686421044e00f2db6b5936e8f8d2d1534d8339e905ed682412",
+  "job_id": "77334114",
+  "not_reached": [
+    "N64 final independent device qualification and export",
+    "N256 complete nonlinear default path"
+  ],
+  "plan_sha256": "347f32e5dc0dcc50674c053fb6b8a1be10f65040efa313adda6550aa9247fb69",
+  "prior_checks": {
+    "case_counts": {
+      "compilation_banks": 1,
+      "compiler_admission": 1,
+      "exact_fusion_grouping": 2,
+      "failure": 1,
+      "fixture": 4,
+      "independent_graph_comparison": 3,
+      "likelihood_parity": 7,
+      "matched_graph_attempt": 24,
+      "matched_graph_parity": 12,
+      "matched_graph_started": 24,
+      "pipeline_attempt": 6,
+      "pipeline_parity": 3,
+      "pipeline_started": 6,
+      "public_publication": 1,
+      "qp_attempt": 16,
+      "qp_parity": 8,
+      "qp_warm_attempt": 8,
+      "qp_warm_parity": 4,
+      "resource_probe": 1,
+      "resource_qp_attempt": 2,
+      "scaling_path_complete": 2,
+      "scaling_qualified": 1,
+      "scaling_started": 2,
+      "stage_started": 5
+    },
+    "resource_n256": {
+      "baseline_allocated_bytes": 1592320,
+      "bounded_qp_iteration_budget": 20000,
+      "edges": 32640,
+      "elapsed_seconds": 137.30293868505396,
+      "graph_build_seconds": 0.0008960249833762646,
+      "kind": "resource_probe",
+      "nodes": 256,
+      "one_dense_float64_matrix_bytes": 524288,
+      "repeats": [
+        {
+          "gap": 7.536231482008026e-17,
+          "gap_scale": 0.08206629040518686,
+          "iterations": 16384,
+          "kkt": 9.38888904881479e-08,
+          "peak_allocated_bytes": 8518656,
+          "peak_reserved_bytes": 10485760,
+          "polish_iterations": 8160,
+          "qp_qualified": true,
+          "repeat": 0,
+          "seconds": 62.047050090972334
+        },
+        {
+          "gap": 7.536231482008026e-17,
+          "gap_scale": 0.08206629040518686,
+          "iterations": 16384,
+          "kkt": 9.38888904881479e-08,
+          "peak_allocated_bytes": 9045504,
+          "peak_reserved_bytes": 10485760,
+          "polish_iterations": 8160,
+          "qp_qualified": true,
+          "repeat": 1,
+          "seconds": 62.03257347410545
+        }
+      ],
+      "scope": "synthetic complete-graph QP only; no cohort accuracy or full-fit speed claim",
+      "status": "qualified",
+      "timing_scope": "repeat0 may include compilation; repeat1 uses warmed kernel shapes",
+      "utc": "2026-09-22T23:34:44.928433+00:00"
+    },
+    "scaling_n16": {
+      "final_device_qualification_and_export_complete": true,
+      "numerical_stages": {
+        "audit_calls": 75,
+        "audit_seconds": 0.1831894563511014,
+        "candidate_family": "qualified_complete_graph_path",
+        "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+        "extension_limit_reached": false,
+        "extensions": 0,
+        "graph_build_seconds": 0.0014149839989840984,
+        "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+        "lambda_reference": 3326.760649621097,
+        "numerical_wall_seconds": 5.42619629111141,
+        "path_seconds": 5.384613213595003,
+        "path_truncated": false,
+        "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+        "pilot_seconds": 0.002997885923832655,
+        "planned_path_complete": true,
+        "qp_calls": 285,
+        "qp_dual_warm_starts": 211,
+        "qp_polish_iterations": 754,
+        "qp_seconds": 4.8313998833764344,
+        "raw_unresolved_penalties": 0,
+        "refit_seconds": 0.03680819645524025,
+        "refit_unresolved_penalties": 0,
+        "refits_computed": 4,
+        "refits_reused": 22,
+        "selected_at_upper_boundary": false,
+        "singleton_pilots_reused": 22,
+        "stage_integrity_seconds": 0.0003620111383497715
+      },
+      "peak_allocated_bytes": 141824,
+      "peak_reserved_bytes": 10485760,
+      "phase_seconds": {
+        "device_export_seconds": 0.0019758129492402077,
+        "device_upload_and_compile_seconds": 0.0007590909954160452,
+        "final_device_qualification_seconds": 0.0056367379147559404,
+        "graph_build_seconds": 0.0014149839989840984,
+        "input_preparation_seconds": 0.0,
+        "path_seconds": 5.384613213595003,
+        "pilot_seconds": 0.002997885923832655,
+        "refit_seconds": 0.03680819645524025
+      },
+      "qualified": true,
+      "search_status": "complete",
+      "seconds": 5.463558105984703
+    }
+  },
+  "qualification_sha256": "76927a952535402f1c5fecebe9e2ef5277f53d2c7767d1e90abca1b11f95ad5c",
+  "retained_gates": {
+    "check_every": 16,
+    "eps": 1e-06,
+    "fusion_tol": 2e-05,
+    "inner_atol": 1e-10,
+    "inner_kkt_tol": 1e-07,
+    "inner_max_iterations": 20000,
+    "inner_rtol": 1e-11,
+    "max_backtracks": 24,
+    "memory_fraction": 0.7,
+    "outer_max_iterations": 150,
+    "path_extensions": 3,
+    "path_max_exponent": 12,
+    "path_min_exponent": -12,
+    "policy_id": "clipp1d_complete_cuda_unconstrained_v3",
+    "scalar_atol": 1e-07,
+    "scalar_batch_size": 64,
+    "scalar_max_intervals": 4096,
+    "scalar_rtol": 1e-10,
+    "stationarity_tol": 2e-05,
+    "weight_rule": "all_pairs_inverse_gap_mean_one_adjacent_floor_v1"
+  },
+  "run_id": "clipp2_clipp1d_cuda_20260922g",
+  "schema": "clipp1d.cuda.qualification.failure_summary.v1",
+  "scope": "Preserved failed source-bound allocated-CUDA attempt; earlier passed checks do not establish overall qualification or cohort accuracy.",
+  "source_sha256": "6a683ded06cbb4f79d9b9b08a34482c0c949511c393cdc0fd8731296e272fe78",
+  "status": "failed",
+  "transport_receipt_sha256": "9d88ee6877909c7b1bda9530d8f63d096c9153cf99a0bff52d9c657c31367b94"
+}

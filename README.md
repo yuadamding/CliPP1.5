@@ -1,6 +1,6 @@
 # CliPP1.5: PyTorch CUDA complete-graph inference
 
-This development revision implements single-region observed-count fusion on a
+Version **0.5.1.dev0** implements single-region observed-count fusion on a
 complete graph using **PyTorch CUDA and float64 tensors**. There is one production
 backend. CPU devices, unavailable CUDA and compiler failures produce explicit
 errors; fitting never falls back to CPU.
@@ -16,6 +16,12 @@ unpenalized refits are secondary summaries and supply the existing partition
 score. Raw and refitted multiplicity calls are reported separately. Only qualified
 complete-graph path candidates enter selection; unresolved starts, penalties or
 refits remain visible through `search_status=incomplete`.
+
+Policy v3 preserves exactly equal raw CCFs in the same group, including inside
+overwide tolerance runs. It also reuses qualified membership refits and singleton
+pilots, limits full integrity checks to owned numerical stage boundaries, and
+reuses QP dual initializations within a lambda. The dense graph, likelihood,
+original bounds and qualification tolerances remain unchanged.
 
 ## Installation and use
 
@@ -43,6 +49,14 @@ pilots. Dense edge storage is quadratic in mutation count; memory admission fail
 explicitly when the estimated workspace exceeds the configured share of free GPU
 memory. This preflight does not guarantee that later compiler allocations fit.
 
+The schema-v3 `run.json` receipt records separate numerical, final qualification,
+device export and output-preparation phases. GPU peaks are read after the last
+required CUDA work. Receipt `elapsed_seconds` ends before receipt serialization
+and durable publication; the returned `result.operation_metrics` separately
+reports completion after publication. See the
+[measurement scopes](docs/CUDA_FRAMEWORK.md#timing-and-memory-scopes) before using
+these fields for benchmarks.
+
 ## Validation and evidence
 
 ```bash
@@ -64,7 +78,11 @@ their original contracts. Do not replace the source beneath running workers.
 
 See [the CUDA framework](docs/CUDA_FRAMEWORK.md) for the model, certification and
 output semantics. [Validation evidence](VALIDATION_CUDA.md) distinguishes local
-reference tests from allocated GPU qualification. Historical chain documentation
-and receipts describe their original revision and do not qualify this method.
+reference tests from allocated GPU qualification; its
+[source-bound receipts](validation/cuda-review-v3/README.md) include the final
+acceptance and preserved failed attempts. The retrievable
+[prior CUDA evidence for `371003f`](validation/371003f/README.md) qualifies its
+policy-v2 source only. It does not qualify this revision. Historical chain
+documentation and receipts likewise retain their original scope.
 
 The original scientific provenance and AGPL-3.0 license are retained.

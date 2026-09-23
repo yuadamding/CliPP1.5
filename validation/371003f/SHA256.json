@@ -1,0 +1,18 @@
+{
+  "FINAL_VALIDATION.json": {
+    "bytes": 17449,
+    "sha256": "372f07df00676b4ec4594e712186372cc37479ae800ff1c4d171dadd57b189c7"
+  },
+  "VALIDATION_CUDA.md": {
+    "bytes": 5477,
+    "sha256": "02ce69207922f1e30d94d9ad53d9d2efb57c9a835374da92bf1336fc4813233b"
+  },
+  "qualification.json": {
+    "bytes": 91917,
+    "sha256": "7ce9c964e4318a189b2741591813d7fbc155d82e2ec93b59d91648c15525d602"
+  },
+  "whole-suite.log": {
+    "bytes": 1242,
+    "sha256": "7d06464a3c60b05f9e34dd9a79d2aae73954383e46e4b8a2ee8a25faa2e26709"
+  }
+}

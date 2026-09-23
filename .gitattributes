@@ -1,0 +1,5 @@
+# Preserve byte-exact validation patches, including blank diff context lines.
+validation/cuda-review-v3/failed-attempts/f/sealed/tracked-dirty.patch -whitespace -text
+validation/cuda-review-v3/failed-attempts/g/sealed/tracked-dirty.patch -whitespace -text
+validation/cuda-review-v3/failed-attempts/h/sealed/tracked-dirty.patch -whitespace -text
+validation/cuda-review-v3/operational/tracked-dirty.patch -whitespace -text

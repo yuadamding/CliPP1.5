@@ -1,6 +1,7 @@
 """Frozen complete graph in a symmetric-weight/skew-state matrix layout."""
 
 from dataclasses import dataclass
+from contextlib import contextmanager
 import torch
 from .kernels import differences, adjoint
 
@@ -60,6 +61,9 @@ class CompleteGraph:
             ),
         )
         object.__setattr__(self, "identity", object())
+        object.__setattr__(self, "_metadata", self._metadata_signature())
+        object.__setattr__(self, "_stage_depth", 0)
+        object.__setattr__(self, "integrity_counters", dict(full_checks=0, metadata_checks=0))
 
     @property
     def n(self):
@@ -69,19 +73,45 @@ class CompleteGraph:
     def edges(self):
         return self.n * (self.n - 1) // 2
 
-    def validate(self):
+    def _metadata_signature(self):
+        return (self.mutation_ids, self.weight_rule, id(self.identity), tuple(
+            (value.shape, value.stride(), value.dtype, value.device, value.data_ptr())
+            for value in (self.weights, self.pilot, self.gap_floor, self.normalization)
+        ))
+
+    def validate_metadata(self):
+        """Host-only identities, tensor versions and layout checks in owned stages."""
+        self.integrity_counters["metadata_checks"] += 1
         now = tuple(
             (id(v), v._version)
             for v in (self.weights, self.pilot, self.gap_floor, self.normalization)
         )
-        if now != self._versions:
+        if now != self._versions or self._metadata_signature() != self._metadata:
             raise ValueError("Frozen graph or pilot was modified")
+
+    def validate(self, *, full=None):
+        self.validate_metadata()
+        if full is False or (full is None and self._stage_depth):
+            return
+        self.integrity_counters["full_checks"] += 1
         values = (self.weights, self.pilot, self.gap_floor, self.normalization)
         same = torch.stack(
             [(value == frozen).all() for value, frozen in zip(values, self._snapshots)]
         ).all()
         if not bool(same):
             raise ValueError("Frozen graph or pilot was modified")
+
+    @contextmanager
+    def validated_stage(self):
+        """Reconcile snapshots at both ends; keep hot checks on host metadata."""
+        outermost = self._stage_depth == 0
+        self.validate(full=outermost)
+        object.__setattr__(self, "_stage_depth", self._stage_depth + 1)
+        try:
+            yield self
+        finally:
+            object.__setattr__(self, "_stage_depth", self._stage_depth - 1)
+            self.validate(full=outermost)
 
 
 def build_graph(pilot, mutation_ids=()):

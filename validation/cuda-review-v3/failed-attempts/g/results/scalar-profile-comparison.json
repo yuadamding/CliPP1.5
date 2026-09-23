@@ -1,0 +1,54 @@
+{
+  "cases": {
+    "analytical32": {
+      "baseline_scalar_reads": 40,
+      "current_scalar_reads": 17,
+      "current_work_counters": {
+        "integrity_counters": {
+          "full_checks": 5,
+          "metadata_checks": 15
+        },
+        "scalar_work_counters": {
+          "analytical_groups": 32,
+          "full_terms_calls": 0,
+          "general_groups": 0,
+          "golden_padded_group_slots": 0,
+          "golden_wells": 0,
+          "loss_gradient_calls": 0,
+          "loss_only_calls": 1,
+          "scalar_proposals_evaluated": 32,
+          "scalar_rows_evaluated": 32
+        }
+      },
+      "fixture_sha256": "cacb2c6915539af876e875008b2a9d57261662d90c91be8ad1e964cf703db81b",
+      "max_loss_difference": 0.0,
+      "reduction_fraction": 0.575
+    },
+    "mixed6": {
+      "baseline_scalar_reads": 2098,
+      "current_scalar_reads": 243,
+      "current_work_counters": {
+        "integrity_counters": {
+          "full_checks": 11,
+          "metadata_checks": 863
+        },
+        "scalar_work_counters": {
+          "analytical_groups": 1,
+          "full_terms_calls": 0,
+          "general_groups": 5,
+          "golden_padded_group_slots": 15,
+          "golden_wells": 11,
+          "loss_gradient_calls": 49,
+          "loss_only_calls": 149,
+          "scalar_proposals_evaluated": 2571,
+          "scalar_rows_evaluated": 986
+        }
+      },
+      "fixture_sha256": "dab0802646b46140fb5c8dc562646c026484f2aee374610d3ef3e201548be548",
+      "max_loss_difference": 0.0,
+      "reduction_fraction": 0.8841754051477597
+    }
+  },
+  "scope": "Matched CUDA scalar fits; CPU profiler scalar-read counts are synchronization proxies, not measured GPU synchronization duration or end-to-end speedup",
+  "status": "passed"
+}
