@@ -144,7 +144,9 @@ outer counts, QP calls and backtracking counts match exactly. Every per-penalty
 winner objective, score, cluster count and completion flag also matches exactly;
 selected pilots/graph/raw/refitted CCFs/labels are unchanged. Total ADMM work is
 127,440 on each source, spread across multiple QPs; total polish work decreases
-from 73,680 to 71,490. The incomplete result was not finalized or published.
+from 73,680 to 71,490. The qualifier's complete-search prerequisite blocked the
+final `_export()`, `_validate_result()` and `_publish()` sequence. Those final
+checks were not attempted; this is not a final-audit rejection of the winner.
 
 This reproduces an existing convergence limitation. Failed surrogate tensors were
 not exported, so the receipts do not establish a precise final-gap decomposition.
@@ -153,8 +155,9 @@ The `below_one` 256/512-node stages remain blocked by their 64-node prerequisite
 and [D/F comparison](validation/cuda-qp-v3/attempts/below64-f/operational/FDIAGNOSIS.json).
 
 The 256-node `mixed_support` runs E (current, job **77334585**) and G (baseline,
-job **77334594**) also returned incomplete paths and failed final
-export/publication admission. Both have the same 11 unresolved starts among 99,
+job **77334594**) also returned incomplete paths. The qualifier blocked the
+final audit/export/publication sequence before attempting it. Both have the
+same 11 unresolved starts among 99,
 across the same ten penalties. All 26 winners and refits qualify, but this does
 not resolve the failed starts. Selected pilots, graph, raw/refitted CCFs, labels,
 centers, objective, score and lambda match exactly. This reproduces a baseline

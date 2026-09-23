@@ -1,0 +1,117 @@
+{
+  "files": {
+    "case-logs/mixed512-full.err": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "receipts/accepted.json": {
+      "bytes": 180,
+      "sha256": "2f8e2bcb55198b500fd3e97a5a60273ad5ed9200f9d9cf2f336d4b2f41c9faf2"
+    },
+    "receipts/admission-observations.json": {
+      "bytes": 3138,
+      "sha256": "0b57c4773cde440679db23601b98187b0ab416645e035708f76f6a278f53607b"
+    },
+    "receipts/admitted.json": {
+      "bytes": 1692,
+      "sha256": "b04a3acec7a91eaa6ee86155f4a8640c5d592b03918a46cac4848ea2cbc7a165"
+    },
+    "receipts/command-mixed512-full.json": {
+      "bytes": 836,
+      "sha256": "f0e7ef40f4dee442b8698e1269d445dca49bd983df12dd4408e99b468cc3d947"
+    },
+    "receipts/execution.json": {
+      "bytes": 104,
+      "sha256": "80193cf8384d9090f645b38db537a0f582090be2864a4fc8b0162d61ce595b21"
+    },
+    "receipts/release-intent.json": {
+      "bytes": 50,
+      "sha256": "3da7e684ec24b2ab34fb856a343b3e3dc0d56e0c13e67bc81b9dfa47f3ab7958"
+    },
+    "receipts/release-response.json": {
+      "bytes": 81,
+      "sha256": "8f349d3fc4b77320609ae1be1df57e57341162b7e94817c48f7c95a215086823"
+    },
+    "receipts/resource-contract.json": {
+      "bytes": 3228,
+      "sha256": "cc30700168f643e8b638c5ec11d0f39281b30fa4a5644ddc3c7dbf2f809dcf75"
+    },
+    "receipts/startup.json": {
+      "bytes": 5180,
+      "sha256": "c49eae46d4bfbf4f56d88748a2dfab5d8d4732dd04f58a017d7b87ae132edec4"
+    },
+    "receipts/submit-intent.json": {
+      "bytes": 847,
+      "sha256": "948e88a42a3fac8899c30563e00e5edfa215f8d288a30ca76f369d8b17e8e2f3"
+    },
+    "receipts/submit-response.json": {
+      "bytes": 94,
+      "sha256": "60f5956dc5be7d2c94c8779754ebd7b58abae1423ac79a9729731f28b76694b9"
+    },
+    "receipts/terminal.json": {
+      "bytes": 512,
+      "sha256": "f7b7fa46b1849aaa18a1ab01bc6f423ce7a67e4f77d0f0cda7c4bcfd1d62cf74"
+    },
+    "results/mixed512-full.artifacts/full-path.json": {
+      "bytes": 7962128,
+      "sha256": "8707d74d3bdc9680c52f49469ed62efe00ccab77b81d016ba261be5390c4e3ea"
+    },
+    "results/mixed512-full.artifacts/full-result.json": {
+      "bytes": 50045,
+      "sha256": "912fb9271e532a5783936fcf652625a572ef47caa5b8b9fa86c530ff2c7f784a"
+    },
+    "results/mixed512-full.artifacts/initial-path-plan.json": {
+      "bytes": 3028,
+      "sha256": "635a6200b41ec6ee50e59648958c542b0673cf67f5745c85c56b9cd9d4b6d11c"
+    },
+    "results/mixed512-full.artifacts/input-identity.json": {
+      "bytes": 33770,
+      "sha256": "f785373a5b23e5914b5c29eb046cb10a51cb5f10a8a68b90a74a0e4bb1dd5508"
+    },
+    "results/mixed512-full.artifacts/input.tsv": {
+      "bytes": 76757,
+      "sha256": "ead7535e967328882857b9afee13ca48dc1af991cee011c75e75c50f86886432"
+    },
+    "results/mixed512-full.artifacts/public-output/cluster_centers.tsv": {
+      "bytes": 19759,
+      "sha256": "51ca8be0b8963154844828c8ad162dbb048b0c4c731379c147db47190691f745"
+    },
+    "results/mixed512-full.artifacts/public-output/mutation_clusters.tsv": {
+      "bytes": 50012,
+      "sha256": "97fe69f19faabe6fe66de1dd32ec743985749f5b38483fb36de868dfa89745fe"
+    },
+    "results/mixed512-full.artifacts/public-output/mutation_multiplicity.tsv": {
+      "bytes": 32840,
+      "sha256": "85c0bc1301ff2a1c8f3059ebb9d613f691b97d2c5149881e35d8643cbd95996c"
+    },
+    "results/mixed512-full.artifacts/public-output/run.json": {
+      "bytes": 387510,
+      "sha256": "bbfde75b23c4094d741a109fa7c01c1c8097a55824394c2290fe6d941bcd0c40"
+    },
+    "results/mixed512-full.events.jsonl": {
+      "bytes": 563309,
+      "sha256": "d0c70a99036b14550085795a5bbe5446bc8d35be21d14f1c4d7dbd6b4df16b1c"
+    },
+    "results/mixed512-full.json": {
+      "bytes": 22513,
+      "sha256": "54da72b1e7a75a3050161c22218a97e848adbed5203ba2b9fe564a9ec78ab16b"
+    }
+  },
+  "scheduler": "\nJob <77336044>, Job Name <clipp1d_bound_20260923ab>, User <yding4>, Project <default>, Status <DONE>, Queue <egpu>, Command </rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13 -B /rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923ab/worker.py /rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923ab>, Share group charged </yding4>, Esub <minrunlimit jobinfo gpulimit>\nTue Sep 22 23:29:15: Submitted from host <ldragon4> with hold, CWD </rsrch8/home/bcb/yding4>, Specified CWD </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923ab>, Output File (overwrite) </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923ab/lsf-logs/qualification.77336044.out>, Error File (overwrite) </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923ab/lsf-logs/qualification.77336044.err>, 2 Task(s), Requested Resources <rusage[mem=8] span[hosts=1]>, Requested GPU <num=1:mode=exclusive_process:gmodel=NVIDIAL40>;\nTue Sep 22 23:29:25: Started 2 Task(s) on Host(s) <2*gdragon005>, Allocated 2 Slot(s) on Host(s) <2*gdragon005>, Execution Home </home/yding4>, Execution CWD </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923ab>;\nTue Sep 22 23:30:35: Done successfully. The CPU time used is 67.0 seconds. HOST: gdragon005; CPU_TIME: 67 seconds; \n RUNLIMIT                \n 30.0 min\n\n MEMLIMIT\n      8 G \n\n MEMORY USAGE:\n MAX MEM: 1 Gbytes; MEM Efficiency: 12.50%\n\n CPU USAGE:\n CPU PEAK: 1.50 ;  CPU PEAK DURATION: 4 second(s)\n CPU AVERAGE EFFICIENCY: 60.61% ;  CPU PEAK EFFICIENCY: 75.00%\n\n SCHEDULING PARAMETERS:\n           r15s   r1m  r15m   ut      pg    io   ls    it    tmp    swp    mem\n loadSched   -    1.2    -     -    10.0     -    -     -     -      -      -  \n loadStop    -     -     -     -       -     -    -     -     -      -      -  \n\n EXTERNAL MESSAGES:\n MSG_ID FROM       POST_TIME      MESSAGE                             ATTACHMENT \n 0      yding4     Sep 22 23:29   gdragon005:gpus=1;                      N     \n\n RESOURCE REQUIREMENT DETAILS:\n Combined: select[((hi==0) && (ngpus>0)) && (type == local)] order[r15s:pg] rusage[mem=8.00:ngpus_physical=1.00:gmodel=NVIDIAL40] span[hosts=1]\n Effective: select[(((hi==0)) && (ngpus>0)) && (type == local)] order[r15s:pg] rusage[mem=8.00,ngpus_physical=1.00:gmodel=NVIDIAL40] span[hosts=1] \n\n GPU REQUIREMENT DETAILS:\n Combined: num=1:mode=exclusive_process:mps=no:j_exclusive=yes:gmodel=NVIDIAL40:gvendor=nvidia\n Effective: num=1:mode=exclusive_process:mps=no:j_exclusive=yes:gmodel=NVIDIAL40:gvendor=nvidia\n\n",
+  "terminal": {
+    "elapsed_seconds": 67.19480061531067,
+    "job_id": "77336044",
+    "passed": true,
+    "plan_sha256": "0d5f6362b991b059262dcd0e87edf317d6e0c2fa872e8e5c1eed43d4c9de5fe0",
+    "scope": "source-bound synthetic CUDA task; diagnostic capture success is not complete-fit qualification",
+    "tasks": [
+      {
+        "name": "mixed512-full",
+        "receipt_sha256": "54da72b1e7a75a3050161c22218a97e848adbed5203ba2b9fe564a9ec78ab16b",
+        "returncode": 0,
+        "source_role": "current",
+        "status": "passed"
+      }
+    ]
+  }
+}

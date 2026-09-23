@@ -1,0 +1,27 @@
+{
+  "baseline_commit": "430db26cf07466e88e53c6e1a8fbe2be7b7b25e9",
+  "baseline_source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+  "created_utc": "2026-09-23T02:35:50.940093+00:00",
+  "failure_policy": "Retain failures; diagnose exact tensors; never infer complete-fit acceptance from capture success",
+  "invariants": [
+    "likelihood",
+    "all-pairs graph and adaptive weights",
+    "bounds",
+    "primary raw estimate",
+    "score",
+    "tolerances",
+    "iteration budgets",
+    "start coverage",
+    "unconstrained clonal fitting",
+    "closest-to-one label0"
+  ],
+  "max_nonterminal_jobs": 2,
+  "phases": [
+    "baseline below64 and mixed256 failed-QP capture",
+    "tiny counterexample and exact saved-QP replay",
+    "source-bound existing qualifier and heterogeneous64/256;512 only after same-family256 passes"
+  ],
+  "schema": "clipp1d.bound.recovery.study.v1",
+  "scope": "Exact failed-QP capture, unchanged-problem replay, bound-normal recovery and complete heterogeneous-path qualification; no cohorts",
+  "unit": "one fixture family/size per scalar exclusive L40; source phases serial if matched"
+}

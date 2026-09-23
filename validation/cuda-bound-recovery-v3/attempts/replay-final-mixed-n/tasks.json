@@ -1,0 +1,19 @@
+[
+  {
+    "name": "replay-original-mixed256",
+    "source_role": "current",
+    "script": "replay_failed_qp.py",
+    "args": [
+      "--capture",
+      "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923b/results/capture-mixed_support-256.json",
+      "--capture-sha256",
+      "d457d0be06291349cefcce142aff8b8beeeb4f1cb88ab77e4da0acd69347cd26",
+      "--expected-source-sha256",
+      "8627daf96b3b72be689a756445dfb60a7798a03d8bdd8d896f837eb1f11184c2",
+      "--require-all-qualified",
+      "--timeout-seconds",
+      "1500"
+    ],
+    "timeout_seconds": 1620
+  }
+]

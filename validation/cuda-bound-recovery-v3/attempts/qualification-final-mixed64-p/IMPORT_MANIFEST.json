@@ -1,0 +1,161 @@
+{
+  "files": {
+    "case-logs/mixed64-paired.err": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "receipts/accepted.json": {
+      "bytes": 179,
+      "sha256": "58cc2f2aa6e531585cc7c6544c7f33d1572d83f6b0273e368f9f4659fafc21db"
+    },
+    "receipts/admission-observations.json": {
+      "bytes": 3126,
+      "sha256": "b4bfd289b80feaa448220b64c47674f994a9e30ff9f1f3c33abf0f234209eed1"
+    },
+    "receipts/admitted.json": {
+      "bytes": 1686,
+      "sha256": "686905525177d331fd932c73f592c79ad01f41688745d687ef51ce194cb3dc30"
+    },
+    "receipts/command-mixed64-paired.json": {
+      "bytes": 834,
+      "sha256": "6e4d2d03a59b5f73ad8371d314a79afaa3b6a08096fc2af4a3107bcc17ae4714"
+    },
+    "receipts/execution.json": {
+      "bytes": 107,
+      "sha256": "06512280f33cbbfb84bbb5ab7936920e59898b5bd40cb9bdcab9f9a360cfc4e9"
+    },
+    "receipts/release-intent.json": {
+      "bytes": 50,
+      "sha256": "d878d66d88ad0b3844ad3fdf6453a3f7e0f1464783b7d718852984f926a4d459"
+    },
+    "receipts/release-response.json": {
+      "bytes": 81,
+      "sha256": "b1e72828cee45badf518eb7456b25268951184d027009aada6bb5fe2f48a0aab"
+    },
+    "receipts/resource-contract.json": {
+      "bytes": 3228,
+      "sha256": "5b072071a581ffcf7868d490da645cb46b2134d813b116c845c5fe688f177625"
+    },
+    "receipts/startup.json": {
+      "bytes": 5180,
+      "sha256": "3c93e6b010cec985edbe651157ee8e554fc891782f748995f6ea855be4a61679"
+    },
+    "receipts/submit-intent.json": {
+      "bytes": 841,
+      "sha256": "6481b22f979fd12ed326c9ff3525cff529c225ecfb06a4a734d6eb2972d2a999"
+    },
+    "receipts/submit-response.json": {
+      "bytes": 94,
+      "sha256": "55e5244468ab34e529e6dfa439b89e4be1e3d59b36acda97595b695ced5b1323"
+    },
+    "receipts/terminal.json": {
+      "bytes": 514,
+      "sha256": "6299d64a3124dcc42bbcc799899c5af79778494df5ed899ae1bd976806dc3d85"
+    },
+    "results/mixed64-paired.artifacts/comparison.json": {
+      "bytes": 3416,
+      "sha256": "0d134dc812cc43778c8a603487ebcbff77d70e85fa67757387aeab673a01f88c"
+    },
+    "results/mixed64-paired.artifacts/fixed-0-attempt.json": {
+      "bytes": 8100,
+      "sha256": "05c12329e008c2a63793d9111cbc569fc0b535872e8e4ec0658f0be3f34b66cb"
+    },
+    "results/mixed64-paired.artifacts/fixed-0-qualified.json": {
+      "bytes": 8196,
+      "sha256": "005c50e8f78460d906b1f62fc3e920fa14d3ff1080e7e9cf3c81a3bad33c4c1f"
+    },
+    "results/mixed64-paired.artifacts/fixed-1-attempt.json": {
+      "bytes": 16715,
+      "sha256": "4bb9bba43c5e760ea4b9562ec8d06ebebe33a1fa5690677c58c422982e09b7c1"
+    },
+    "results/mixed64-paired.artifacts/fixed-1-qualified.json": {
+      "bytes": 16825,
+      "sha256": "633e5d44f3342bd09c234b705481636b62e1bad5d8f96dd5ed642e9185d59c24"
+    },
+    "results/mixed64-paired.artifacts/fixed-2-attempt.json": {
+      "bytes": 16130,
+      "sha256": "1ddc2d2b40c003a627e7b0afe45349f0b34e471e175e0f949ff683d930eb8589"
+    },
+    "results/mixed64-paired.artifacts/fixed-2-qualified.json": {
+      "bytes": 16240,
+      "sha256": "ae276ec7dfad29fa14c711bed24c0b9a099b3b4e2fb26f5674ecc2aca2f700e7"
+    },
+    "results/mixed64-paired.artifacts/fixed-3-attempt.json": {
+      "bytes": 15955,
+      "sha256": "0b7711e7ae67c25c1903d02bec7b2c8b833e41f6087f6e2a71c3f3672fed14cf"
+    },
+    "results/mixed64-paired.artifacts/fixed-3-qualified.json": {
+      "bytes": 16065,
+      "sha256": "344fb1c1cf87dfa666a9593e1d3aaa532b8c2c6fea2b1ef1f89a155345998cb5"
+    },
+    "results/mixed64-paired.artifacts/fixed-results.json": {
+      "bytes": 62161,
+      "sha256": "9ef01ef3fa525bf387858623dcea0ec7f792fcc8f38d7900f9b6fdcc83061e81"
+    },
+    "results/mixed64-paired.artifacts/full-path.json": {
+      "bytes": 514268,
+      "sha256": "89b632648bd1800772f8994c0b325a3d2289b5edfeec7bf85db9585bac414698"
+    },
+    "results/mixed64-paired.artifacts/full-result.json": {
+      "bytes": 18924,
+      "sha256": "b332a49a7a1b6e2be96b1280c44efec4240a39fd8e071c026368bc36aa9b7a18"
+    },
+    "results/mixed64-paired.artifacts/initial-path-plan.json": {
+      "bytes": 3032,
+      "sha256": "78cbe010afc980fb1b7dcca4eb516a09178e2f76b7b261ae513c442403415857"
+    },
+    "results/mixed64-paired.artifacts/input-identity.json": {
+      "bytes": 6452,
+      "sha256": "764193c2c7b71f507f166e2c973a532d8722df37bc5e57912dacc3d7150cd426"
+    },
+    "results/mixed64-paired.artifacts/input.tsv": {
+      "bytes": 9727,
+      "sha256": "f3607ea0f5cbab41896d46b358d1aec828ce56783b7768e45ee7cc37b0c28b8f"
+    },
+    "results/mixed64-paired.artifacts/public-output/cluster_centers.tsv": {
+      "bytes": 685,
+      "sha256": "66c33517422f4247b6f84a9fc0a8e81e7cb90eefd4a231220cc83d9e689ebb7a"
+    },
+    "results/mixed64-paired.artifacts/public-output/mutation_clusters.tsv": {
+      "bytes": 6214,
+      "sha256": "fd2f0b89ac6b06eb92069de07d53f9c29cb7fd949141264fb2e38aa70a3b64b2"
+    },
+    "results/mixed64-paired.artifacts/public-output/mutation_multiplicity.tsv": {
+      "bytes": 4195,
+      "sha256": "a94030fc7ba93d58d541ea831586cc0290fff2fb7a1985eb4989a2a55b005a9c"
+    },
+    "results/mixed64-paired.artifacts/public-output/run.json": {
+      "bytes": 415075,
+      "sha256": "b0cb887a4359775d3a3c60565d48003691c29eb447188febb432b0fa0e9f03e6"
+    },
+    "results/mixed64-paired.artifacts/shared-problem.json": {
+      "bytes": 127459,
+      "sha256": "cf808eedaafcc3e64ffbdad738aa5a911e98f0235c080e45bd026411f4a7eebb"
+    },
+    "results/mixed64-paired.events.jsonl": {
+      "bytes": 323855,
+      "sha256": "67fdb3a2fbf8a10068e24d6cd6350b0a27a33c1e1e42f62fd1bc7d622d6d7545"
+    },
+    "results/mixed64-paired.json": {
+      "bytes": 17110,
+      "sha256": "f32ec1d5042eecfd7becba349272ed02beb039883f86e386f26e0f5df4841a36"
+    }
+  },
+  "scheduler": "\nJob <77335301>, Job Name <clipp1d_bound_20260923p>, User <yding4>, Project <default>, Status <DONE>, Queue <egpu>, Command </rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13 -B /rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923p/worker.py /rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923p>, Share group charged </yding4>, Esub <minrunlimit jobinfo gpulimit>\nTue Sep 22 22:51:31: Submitted from host <ldragon4> with hold, CWD </rsrch8/home/bcb/yding4>, Specified CWD </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923p>, Output File (overwrite) </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923p/lsf-logs/qualification.77335301.out>, Error File (overwrite) </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923p/lsf-logs/qualification.77335301.err>, 2 Task(s), Requested Resources <rusage[mem=8] span[hosts=1]>, Requested GPU <num=1:mode=exclusive_process:gmodel=NVIDIAL40>;\nTue Sep 22 22:51:40: Started 2 Task(s) on Host(s) <2*gdragon005>, Allocated 2 Slot(s) on Host(s) <2*gdragon005>, Execution Home </home/yding4>, Execution CWD </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923p>;\nTue Sep 22 22:53:44: Done successfully. The CPU time used is 121.5 seconds. HOST: gdragon005; CPU_TIME: 120 seconds; \n RUNLIMIT                \n 30.0 min\n\n MEMLIMIT\n      8 G \n\n MEMORY USAGE:\n MAX MEM: 1 Gbytes; MEM Efficiency: 12.50%\n\n CPU USAGE:\n CPU PEAK: 0.48 ;  CPU PEAK DURATION: 64 second(s)\n CPU AVERAGE EFFICIENCY: 12.11% ;  CPU PEAK EFFICIENCY: 24.22%\n\n SCHEDULING PARAMETERS:\n           r15s   r1m  r15m   ut      pg    io   ls    it    tmp    swp    mem\n loadSched   -    1.2    -     -    10.0     -    -     -     -      -      -  \n loadStop    -     -     -     -       -     -    -     -     -      -      -  \n\n EXTERNAL MESSAGES:\n MSG_ID FROM       POST_TIME      MESSAGE                             ATTACHMENT \n 0      yding4     Sep 22 22:51   gdragon005:gpus=3;                      N     \n\n RESOURCE REQUIREMENT DETAILS:\n Combined: select[((hi==0) && (ngpus>0)) && (type == local)] order[r15s:pg] rusage[mem=8.00:ngpus_physical=1.00:gmodel=NVIDIAL40] span[hosts=1]\n Effective: select[(((hi==0)) && (ngpus>0)) && (type == local)] order[r15s:pg] rusage[mem=8.00,ngpus_physical=1.00:gmodel=NVIDIAL40] span[hosts=1] \n\n GPU REQUIREMENT DETAILS:\n Combined: num=1:mode=exclusive_process:mps=no:j_exclusive=yes:gmodel=NVIDIAL40:gvendor=nvidia\n Effective: num=1:mode=exclusive_process:mps=no:j_exclusive=yes:gmodel=NVIDIAL40:gvendor=nvidia\n\n",
+  "terminal": {
+    "elapsed_seconds": 123.34194087982178,
+    "job_id": "77335301",
+    "passed": true,
+    "plan_sha256": "8a6dc0104d0828cb0c8f4e2101430493c8f2c3c226980d7e9bdd3ed02a9f8332",
+    "scope": "source-bound synthetic CUDA task; diagnostic capture success is not complete-fit qualification",
+    "tasks": [
+      {
+        "name": "mixed64-paired",
+        "receipt_sha256": "f32ec1d5042eecfd7becba349272ed02beb039883f86e386f26e0f5df4841a36",
+        "returncode": 0,
+        "source_role": "current",
+        "status": "passed"
+      }
+    ]
+  }
+}

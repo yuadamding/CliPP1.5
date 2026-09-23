@@ -1,0 +1,281 @@
+{
+  "attempts": [
+    {
+      "attempt": "qualification-mixed64-h",
+      "attempted_starts": 99,
+      "baseline_evidence": [
+        {
+          "path": "results/cuda-bound-recovery-20260923-v1/qualification-mixed64-h/imported/results/mixed64-reference.json",
+          "sha256": "435e07681830396ce2cdc8a0523b643340a43c1317eee86846e2b7adc3de5602"
+        },
+        {
+          "path": "results/cuda-bound-recovery-20260923-v1/qualification-mixed64-h/imported/results/mixed64-reference.artifacts/full-path.json",
+          "sha256": "d1794d7da3d975da935cbabeafce9d21b5827e020e16a904e5a1aefb10c31333"
+        }
+      ],
+      "baseline_selected_estimate_comparison": {
+        "baseline_search_status": "complete",
+        "baseline_source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+        "equal": {
+          "cluster_centers": true,
+          "cluster_labels": true,
+          "raw_ccf": true,
+          "raw_objective": true,
+          "refitted_ccf": true,
+          "score": true,
+          "selected_lambda": true
+        },
+        "graph_identity": {
+          "pilot_sha256": true,
+          "weights_sha256": true
+        },
+        "max_absolute_errors": {
+          "cluster_centers": 0.0,
+          "raw_ccf": 0.0,
+          "raw_objective": 0.0,
+          "refitted_ccf": 0.0,
+          "score": 0.0,
+          "selected_lambda": 0.0
+        },
+        "scope": "Read-only comparison of saved numerical candidates; incomplete searches were not exported or published"
+      },
+      "complete_penalties": 26,
+      "evidence": [
+        {
+          "path": "results/cuda-bound-recovery-20260923-v1/qualification-mixed64-h/imported/results/mixed64-paired.json",
+          "sha256": "b540150bf3833147e9e1c12878f28a968b98a583b6884fbbe2f0e2c7ff9017c6"
+        },
+        {
+          "path": "results/cuda-bound-recovery-20260923-v1/qualification-mixed64-h/imported/results/mixed64-paired.artifacts/full-path.json",
+          "sha256": "732e7c3ef9a53264ee035b1679d0de7bb409db80d7d63b48c2bcbbc5a85c2839"
+        }
+      ],
+      "final_export_and_publication_qualified": true,
+      "fit_seconds": 96.36350951390341,
+      "input_sha256": "f3607ea0f5cbab41896d46b358d1aec828ce56783b7768e45ee7cc37b0c28b8f",
+      "job_id": "77335002",
+      "planned_penalties": 26,
+      "qualified_comparison": {
+        "all_fixed_problems_within_existing_gates": true,
+        "fixed_problems": 4,
+        "independent_adaptive_graphs": {
+          "current_lambda_scale": 2560.795160326577,
+          "graph_weights_identical": true,
+          "pilot_phi_max_absolute_difference": 0.0,
+          "reference_lambda_scale": 2560.795160326577,
+          "scope": "Independent pilot/adaptive graph differences; not the identical fixed-problem comparison",
+          "selected_caps_max_absolute_difference": 0.0,
+          "selected_objective_perturbation_envelope": 0.0,
+          "weights_max_absolute_difference": 0.0
+        },
+        "independent_full_fit": {
+          "current_lambda": 10.003106095025691,
+          "differing_fields": [],
+          "equal": {
+            "labels": true,
+            "raw_multiplicity": true,
+            "refitted_multiplicity": true
+          },
+          "fixed_problem": false,
+          "literal_lambda_equal": true,
+          "max_absolute_errors": {
+            "centers": 0.0,
+            "raw_ccf": 0.0,
+            "raw_objective": 0.0,
+            "refitted_ccf": 0.0,
+            "score": 0.0
+          },
+          "reference_lambda": 10.003106095025691,
+          "scope": "independent adaptive full fits",
+          "within_existing_parity_gates": true
+        }
+      },
+      "qualified_refits": 26,
+      "qualified_starts": 99,
+      "qualified_winners": 26,
+      "receipt_status": "passed",
+      "search_status": "complete",
+      "source_sha256": "276da27b9a8718f3f06182108ccb0a6b7f04f3937a67f050f9721e031554aea5",
+      "unresolved_starts": []
+    },
+    {
+      "attempt": "qualification-below64-i",
+      "attempted_starts": 99,
+      "baseline_evidence": [
+        {
+          "path": "results/cuda-qp-daaf50a-20260922-v1/below64-f/imported/results/below64-current.json",
+          "sha256": "d35b9386f667a0f0e79de45d68fcc182680daed00d94c36116719d57d91da202"
+        },
+        {
+          "path": "results/cuda-qp-daaf50a-20260922-v1/below64-f/imported/results/below64-current.artifacts/full-path.json",
+          "sha256": "111e9fdde0404d4932929861f5ff03f68bdb651db6e98d1372b50f3fa9038dad"
+        }
+      ],
+      "baseline_selected_estimate_comparison": {
+        "baseline_search_status": "incomplete",
+        "baseline_source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+        "equal": {
+          "cluster_centers": true,
+          "cluster_labels": true,
+          "raw_ccf": true,
+          "raw_objective": true,
+          "refitted_ccf": true,
+          "score": true,
+          "selected_lambda": true
+        },
+        "graph_identity": {
+          "pilot_sha256": true,
+          "weights_sha256": true
+        },
+        "max_absolute_errors": {
+          "cluster_centers": 0.0,
+          "raw_ccf": 0.0,
+          "raw_objective": 0.0,
+          "refitted_ccf": 0.0,
+          "score": 0.0,
+          "selected_lambda": 0.0
+        },
+        "scope": "Read-only comparison of saved numerical candidates; incomplete searches were not exported or published"
+      },
+      "complete_penalties": 25,
+      "evidence": [
+        {
+          "path": "results/cuda-bound-recovery-20260923-v1/qualification-below64-i/imported/results/below64-full.json",
+          "sha256": "74f0ceb65a84b4ea05bb0f6276650c99e6387c6061f69cca659b29f6b1d91836"
+        },
+        {
+          "path": "results/cuda-bound-recovery-20260923-v1/qualification-below64-i/imported/results/below64-full.artifacts/full-path.json",
+          "sha256": "b07df689d1f257bb6a3c1723f0e7b077cd8e5b7a35060df5dbde56c6dd2c8e5e"
+        }
+      ],
+      "final_export_and_publication_qualified": false,
+      "fit_seconds": 57.770741909975186,
+      "input_sha256": "ae53764990bc252cb7f6a2a14a8eb21a57e3ec46fef28423c08354575ef8a5db",
+      "job_id": "77335008",
+      "planned_penalties": 26,
+      "qualified_refits": 26,
+      "qualified_starts": 98,
+      "qualified_winners": 26,
+      "receipt_status": "failed",
+      "search_status": "incomplete",
+      "source_sha256": "276da27b9a8718f3f06182108ccb0a6b7f04f3937a67f050f9721e031554aea5",
+      "unresolved_starts": [
+        {
+          "audit_status": null,
+          "backtracks": 20,
+          "direction_restarts": 0,
+          "inner_gap": 1.1158743160746958e-07,
+          "inner_kkt_residual": 3.2292155544673715e-07,
+          "lambda_value": 553.4678435191591,
+          "outer_iterations": 1,
+          "path_index": 2,
+          "qp_admm_iterations": 30128,
+          "qp_calls": 22,
+          "qp_polish_iterations": 7534,
+          "qp_seconds": 9.158610537881032,
+          "start_index": 2,
+          "status": "surrogate_unresolved"
+        }
+      ]
+    },
+    {
+      "attempt": "qualification-mixed256-j",
+      "attempted_starts": 99,
+      "baseline_evidence": [
+        {
+          "path": "results/cuda-qp-daaf50a-20260922-v1/mixed256-e/imported/results/mixed256-current.json",
+          "sha256": "84bed1f088782c9d9478e8e8d2cc9c6f066e18d51e316614723b04e8b3496b9c"
+        },
+        {
+          "path": "results/cuda-qp-daaf50a-20260922-v1/mixed256-e/imported/results/mixed256-current.artifacts/full-path.json",
+          "sha256": "5e829d7932a2e691b27989b2345bbafdf2dad80b845053bb6c236e9ffca4a3e8"
+        }
+      ],
+      "baseline_selected_estimate_comparison": {
+        "baseline_search_status": "incomplete",
+        "baseline_source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+        "equal": {
+          "cluster_centers": true,
+          "cluster_labels": true,
+          "raw_ccf": true,
+          "raw_objective": true,
+          "refitted_ccf": true,
+          "score": true,
+          "selected_lambda": true
+        },
+        "graph_identity": {
+          "pilot_sha256": true,
+          "weights_sha256": true
+        },
+        "max_absolute_errors": {
+          "cluster_centers": 0.0,
+          "raw_ccf": 0.0,
+          "raw_objective": 0.0,
+          "refitted_ccf": 0.0,
+          "score": 0.0,
+          "selected_lambda": 0.0
+        },
+        "scope": "Read-only comparison of saved numerical candidates; incomplete searches were not exported or published"
+      },
+      "complete_penalties": 24,
+      "evidence": [
+        {
+          "path": "results/cuda-bound-recovery-20260923-v1/qualification-mixed256-j/imported/results/mixed256-full.json",
+          "sha256": "d6b174ba4fb6b194f0a6595b4c1e3d29908c37e5010bccc2bac8bc795f7a4477"
+        },
+        {
+          "path": "results/cuda-bound-recovery-20260923-v1/qualification-mixed256-j/imported/results/mixed256-full.artifacts/full-path.json",
+          "sha256": "a910183f847f0ce715b7a476b1d244796f6d94736b4ad3975229c91b78a745ca"
+        }
+      ],
+      "final_export_and_publication_qualified": false,
+      "fit_seconds": 532.9326180908829,
+      "input_sha256": "6b5cb4f2cfce4cb6fbd81eff8a6ab8dca4e3c810dcfdf4e1ec75fa76fa6b2428",
+      "job_id": "77335012",
+      "planned_penalties": 26,
+      "qualified_refits": 26,
+      "qualified_starts": 97,
+      "qualified_winners": 26,
+      "receipt_status": "failed",
+      "search_status": "incomplete",
+      "source_sha256": "276da27b9a8718f3f06182108ccb0a6b7f04f3937a67f050f9721e031554aea5",
+      "unresolved_starts": [
+        {
+          "audit_status": "positive_descent",
+          "backtracks": 504,
+          "direction_restarts": 20,
+          "inner_gap": 2.108719693839992e-08,
+          "inner_kkt_residual": 9.818748728213448e-08,
+          "lambda_value": 216.445835082151,
+          "outer_iterations": 21,
+          "path_index": 1,
+          "qp_admm_iterations": 1150592,
+          "qp_calls": 504,
+          "qp_polish_iterations": 501313,
+          "qp_seconds": 380.0011608065106,
+          "start_index": 1,
+          "status": "outer_unresolved"
+        },
+        {
+          "audit_status": "positive_unresolved",
+          "backtracks": 24,
+          "direction_restarts": 0,
+          "inner_gap": 1.2594838424461731e-06,
+          "inner_kkt_residual": 9.806592002865768e-08,
+          "lambda_value": 13852.533445257666,
+          "outer_iterations": 1,
+          "path_index": 7,
+          "qp_admm_iterations": 42944,
+          "qp_calls": 24,
+          "qp_polish_iterations": 29261,
+          "qp_seconds": 15.119396917521954,
+          "start_index": 2,
+          "status": "outer_unresolved"
+        }
+      ]
+    }
+  ],
+  "schema": "clipp1d.cuda.bound.full_path_status.v1",
+  "scope": "Read-only reconciliation of imported H/I/J receipts; no new fits, no overall promotion",
+  "source_sha256": "276da27b9a8718f3f06182108ccb0a6b7f04f3937a67f050f9721e031554aea5"
+}

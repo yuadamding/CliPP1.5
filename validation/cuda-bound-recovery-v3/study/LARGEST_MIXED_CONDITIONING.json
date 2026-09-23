@@ -1,0 +1,712 @@
+{
+  "capture_sha256": "c090549f5c9955d01f054255c965022dbdd31f021f22e08b480db31dbaa9163b",
+  "captured_source_sha256": "8627daf96b3b72be689a756445dfb60a7798a03d8bdd8d896f837eb1f11184c2",
+  "records": [
+    {
+      "all_fused": {
+        "aggregate_flow_demand": 0.0,
+        "aggregate_gradient": -539243729504.45087,
+        "center": 0.4037177606589526,
+        "center_longdouble": "0.40371776065895259578",
+        "common_interval_nonempty": true,
+        "decomposition": {
+          "bounds": {
+            "fixed": 0,
+            "interior": 255,
+            "lower_active": 0,
+            "upper_active": 1
+          },
+          "box_normal": 0.0,
+          "certificate": {
+            "gap": "inf",
+            "kkt": "inf",
+            "scale": 0.0
+          },
+          "curvature": {
+            "maximum": 2834615472020.1875,
+            "minimum": 34.833379659410085
+          },
+          "dual": {
+            "exact_skew": true,
+            "max_capacity_violation": 4073967157.6778765
+          },
+          "edge": 0.0,
+          "group_sizes": [
+            256
+          ],
+          "literal_normal_formula_sum": 6.805086149017031e-23,
+          "node_quadratic": 1.879078141221658e-14,
+          "raw_box_normal": 0.0,
+          "raw_edge": 0.0,
+          "scope": "Three stable nonnegative gap components use the original safe-target/fixed-coordinate convention. Raw signed terms are separate; this is not a new admission gate.",
+          "top_edges": [
+            {
+              "left": 0,
+              "right": 1,
+              "value": 0.0
+            },
+            {
+              "left": 0,
+              "right": 2,
+              "value": 0.0
+            },
+            {
+              "left": 0,
+              "right": 3,
+              "value": 0.0
+            },
+            {
+              "left": 0,
+              "right": 4,
+              "value": 0.0
+            },
+            {
+              "left": 0,
+              "right": 5,
+              "value": 0.0
+            },
+            {
+              "left": 0,
+              "right": 6,
+              "value": 0.0
+            },
+            {
+              "left": 0,
+              "right": 7,
+              "value": 0.0
+            },
+            {
+              "left": 0,
+              "right": 8,
+              "value": 0.0
+            }
+          ],
+          "top_nodes": [
+            {
+              "index": 131,
+              "value": 1.9487639639675706e-15
+            },
+            {
+              "index": 213,
+              "value": 1.771836271943075e-15
+            },
+            {
+              "index": 161,
+              "value": 8.352809595148273e-16
+            },
+            {
+              "index": 158,
+              "value": 7.723565114139037e-16
+            },
+            {
+              "index": 238,
+              "value": 5.007827091923494e-16
+            },
+            {
+              "index": 181,
+              "value": 4.480457659193205e-16
+            },
+            {
+              "index": 33,
+              "value": 4.3047844159631386e-16
+            },
+            {
+              "index": 236,
+              "value": 3.584647882832583e-16
+            }
+          ],
+          "total": 1.879078141221658e-14
+        },
+        "direct_dual_capacity_feasible": false,
+        "direct_dual_maximum_capacity_excess": 4073967157.6778765,
+        "lower": 1e-06,
+        "normal_node_indices": [
+          209
+        ],
+        "objective": -9245260774503.54,
+        "objective_change": 38912075042.36719,
+        "upper": 0.4037177606589526
+      },
+      "context": {
+        "backtrack_index": 0,
+        "backtracks": 0,
+        "graph_mutation_ids": [
+          "m000000",
+          "m000001",
+          "m000002",
+          "m000003",
+          "m000004",
+          "m000005",
+          "m000006",
+          "m000007",
+          "m000008",
+          "m000009",
+          "m000010",
+          "m000011",
+          "m000012",
+          "m000013",
+          "m000014",
+          "m000015",
+          "m000016",
+          "m000017",
+          "m000018",
+          "m000019",
+          "m000020",
+          "m000021",
+          "m000022",
+          "m000023",
+          "m000024",
+          "m000025",
+          "m000026",
+          "m000027",
+          "m000028",
+          "m000029",
+          "m000030",
+          "m000031",
+          "m000032",
+          "m000033",
+          "m000034",
+          "m000035",
+          "m000036",
+          "m000037",
+          "m000038",
+          "m000039",
+          "m000040",
+          "m000041",
+          "m000042",
+          "m000043",
+          "m000044",
+          "m000045",
+          "m000046",
+          "m000047",
+          "m000048",
+          "m000049",
+          "m000050",
+          "m000051",
+          "m000052",
+          "m000053",
+          "m000054",
+          "m000055",
+          "m000056",
+          "m000057",
+          "m000058",
+          "m000059",
+          "m000060",
+          "m000061",
+          "m000062",
+          "m000063",
+          "m000064",
+          "m000065",
+          "m000066",
+          "m000067",
+          "m000068",
+          "m000069",
+          "m000070",
+          "m000071",
+          "m000072",
+          "m000073",
+          "m000074",
+          "m000075",
+          "m000076",
+          "m000077",
+          "m000078",
+          "m000079",
+          "m000080",
+          "m000081",
+          "m000082",
+          "m000083",
+          "m000084",
+          "m000085",
+          "m000086",
+          "m000087",
+          "m000088",
+          "m000089",
+          "m000090",
+          "m000091",
+          "m000092",
+          "m000093",
+          "m000094",
+          "m000095",
+          "m000096",
+          "m000097",
+          "m000098",
+          "m000099",
+          "m000100",
+          "m000101",
+          "m000102",
+          "m000103",
+          "m000104",
+          "m000105",
+          "m000106",
+          "m000107",
+          "m000108",
+          "m000109",
+          "m000110",
+          "m000111",
+          "m000112",
+          "m000113",
+          "m000114",
+          "m000115",
+          "m000116",
+          "m000117",
+          "m000118",
+          "m000119",
+          "m000120",
+          "m000121",
+          "m000122",
+          "m000123",
+          "m000124",
+          "m000125",
+          "m000126",
+          "m000127",
+          "m000128",
+          "m000129",
+          "m000130",
+          "m000131",
+          "m000132",
+          "m000133",
+          "m000134",
+          "m000135",
+          "m000136",
+          "m000137",
+          "m000138",
+          "m000139",
+          "m000140",
+          "m000141",
+          "m000142",
+          "m000143",
+          "m000144",
+          "m000145",
+          "m000146",
+          "m000147",
+          "m000148",
+          "m000149",
+          "m000150",
+          "m000151",
+          "m000152",
+          "m000153",
+          "m000154",
+          "m000155",
+          "m000156",
+          "m000157",
+          "m000158",
+          "m000159",
+          "m000160",
+          "m000161",
+          "m000162",
+          "m000163",
+          "m000164",
+          "m000165",
+          "m000166",
+          "m000167",
+          "m000168",
+          "m000169",
+          "m000170",
+          "m000171",
+          "m000172",
+          "m000173",
+          "m000174",
+          "m000175",
+          "m000176",
+          "m000177",
+          "m000178",
+          "m000179",
+          "m000180",
+          "m000181",
+          "m000182",
+          "m000183",
+          "m000184",
+          "m000185",
+          "m000186",
+          "m000187",
+          "m000188",
+          "m000189",
+          "m000190",
+          "m000191",
+          "m000192",
+          "m000193",
+          "m000194",
+          "m000195",
+          "m000196",
+          "m000197",
+          "m000198",
+          "m000199",
+          "m000200",
+          "m000201",
+          "m000202",
+          "m000203",
+          "m000204",
+          "m000205",
+          "m000206",
+          "m000207",
+          "m000208",
+          "m000209",
+          "m000210",
+          "m000211",
+          "m000212",
+          "m000213",
+          "m000214",
+          "m000215",
+          "m000216",
+          "m000217",
+          "m000218",
+          "m000219",
+          "m000220",
+          "m000221",
+          "m000222",
+          "m000223",
+          "m000224",
+          "m000225",
+          "m000226",
+          "m000227",
+          "m000228",
+          "m000229",
+          "m000230",
+          "m000231",
+          "m000232",
+          "m000233",
+          "m000234",
+          "m000235",
+          "m000236",
+          "m000237",
+          "m000238",
+          "m000239",
+          "m000240",
+          "m000241",
+          "m000242",
+          "m000243",
+          "m000244",
+          "m000245",
+          "m000246",
+          "m000247",
+          "m000248",
+          "m000249",
+          "m000250",
+          "m000251",
+          "m000252",
+          "m000253",
+          "m000254",
+          "m000255"
+        ],
+        "inflation": 1.0,
+        "input_sha256": "6b5cb4f2cfce4cb6fbd81eff8a6ab8dca4e3c810dcfdf4e1ec75fa76fa6b2428",
+        "lambda_value": 3631358527.4736257,
+        "outer_iteration": 0,
+        "path_index": 25,
+        "policy": {
+          "check_every": 16,
+          "eps": 1e-06,
+          "fusion_tol": 2e-05,
+          "inner_atol": 1e-10,
+          "inner_kkt_tol": 1e-07,
+          "inner_max_iterations": 20000,
+          "inner_rtol": 1e-11,
+          "max_backtracks": 24,
+          "memory_fraction": 0.7,
+          "outer_max_iterations": 150,
+          "path_extensions": 3,
+          "path_max_exponent": 12,
+          "path_min_exponent": -12,
+          "policy_id": "clipp1d_complete_cuda_unconstrained_v3",
+          "scalar_atol": 1e-07,
+          "scalar_batch_size": 64,
+          "scalar_max_intervals": 4096,
+          "scalar_rtol": 1e-10,
+          "stationarity_tol": 2e-05,
+          "weight_rule": "all_pairs_inverse_gap_mean_one_adjacent_floor_v1"
+        },
+        "qp_ordinal_within_start": 1,
+        "source_sha256": "8627daf96b3b72be689a756445dfb60a7798a03d8bdd8d896f837eb1f11184c2",
+        "start_index": 2
+      },
+      "curvature": {
+        "maximum": 2834615472020.1875,
+        "median": 869.7183546906296,
+        "minimum": 34.833379659410085
+      },
+      "curvature_ratio": 81376412502.49539,
+      "equality_proposals": [
+        {
+          "divisor": 1.0,
+          "exact_group_sizes": [
+            254,
+            1,
+            1
+          ],
+          "objective": -9186616490933.156,
+          "objective_admitted": false,
+          "objective_change": 97556358612.75,
+          "objective_roundoff": 0.131242851896332
+        },
+        {
+          "divisor": 16.0,
+          "exact_group_sizes": [
+            65,
+            1,
+            189,
+            1
+          ],
+          "objective": -7077584420150.115,
+          "objective_admitted": false,
+          "objective_change": 2206588429395.791,
+          "objective_roundoff": 0.11625727772253229
+        },
+        {
+          "divisor": 256.0,
+          "exact_group_sizes": [
+            65,
+            1,
+            189,
+            1
+          ],
+          "objective": -7077584420150.115,
+          "objective_admitted": false,
+          "objective_change": 2206588429395.791,
+          "objective_roundoff": 0.11625727772253229
+        }
+      ],
+      "n_rho_over_h_max": 0.00016086234667274594,
+      "record_sha256": "25a9ddb3f37a41f6fae7e5a8cae485beeb1c6829f239ebc9ac58a3b26cec55bb",
+      "single_boxed_update": {
+        "eager": {
+          "maximum_absolute": 4.46452759206295e-08,
+          "maximum_componentwise_backward": 1.2080639242361886e-16,
+          "worst_node": 255
+        },
+        "maximum_ccf_difference": 5.542143350148465e-15,
+        "residual_balance_comparison": {
+          "componentwise_curvature_dual_l2": 0.009155546273756017,
+          "componentwise_next_rho_ratio": 2.0,
+          "current_global_curvature_dual_l2": 0.05365971359347746,
+          "current_next_rho_ratio": 1.0,
+          "maximum_raw_dual_residual_node": 243,
+          "maximum_scaled_dual_residual_node": 213,
+          "primal_edge_l2": 0.16545948347585274,
+          "scope": "One next CPU eager update from literal terminal state; not a captured past controller decision."
+        },
+        "rounded_longdouble": {
+          "maximum_absolute": 4.0745362639427185e-08,
+          "maximum_componentwise_backward": 1.1025355240747633e-16,
+          "worst_node": 200
+        },
+        "scalar_reference": {
+          "bracket_width": "0.0",
+          "conservative_node_roundoff": "9.3288368430029721955e-14",
+          "conservative_scalar_root_roundoff": "2.3881824142464333703e-11",
+          "iterations": 57,
+          "scalar_root": "103.740183346366608",
+          "stable_scalar_derivative": "0.0078140758704174291486"
+        },
+        "scope": "One CPU eager boxed node subproblem from terminal tensors; not the historical CUDA update or a QP trajectory."
+      },
+      "terminal_certificate": {
+        "bounds": {
+          "fixed": 0,
+          "interior": 255,
+          "lower_active": 0,
+          "upper_active": 1
+        },
+        "box_normal": 0.0,
+        "certificate": {
+          "gap": 248249951.44482505,
+          "kkt": 0.06060610573054483,
+          "scale": 12379506203.56171
+        },
+        "curvature": {
+          "maximum": 2834615472020.1875,
+          "minimum": 34.833379659410085
+        },
+        "dual": {
+          "exact_skew": true,
+          "max_capacity_violation": 0.0
+        },
+        "edge": 248249951.43653202,
+        "group_sizes": [
+          1,
+          1,
+          2,
+          2,
+          1,
+          2,
+          1,
+          6,
+          7,
+          10,
+          7,
+          3,
+          6,
+          9,
+          10,
+          8,
+          6,
+          4,
+          6,
+          9,
+          5,
+          9,
+          8,
+          7,
+          6,
+          4,
+          5,
+          5,
+          5,
+          2,
+          6,
+          4,
+          2,
+          2,
+          4,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          1,
+          1,
+          2,
+          1,
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          2,
+          1,
+          2,
+          2,
+          4,
+          2,
+          3,
+          1,
+          3,
+          2,
+          1,
+          1,
+          3,
+          1,
+          3,
+          2,
+          2,
+          1,
+          2,
+          4,
+          1,
+          1,
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "literal_normal_formula_sum": -1.6629477592262723e-15,
+        "node_quadratic": 0.008293040853087333,
+        "raw_box_normal": 0.0,
+        "raw_edge": 248249951.43653202,
+        "scope": "Three stable nonnegative gap components use the original safe-target/fixed-coordinate convention. Raw signed terms are separate; this is not a new admission gate.",
+        "top_edges": [
+          {
+            "left": 42,
+            "right": 243,
+            "value": 100535668.28564698
+          },
+          {
+            "left": 150,
+            "right": 209,
+            "value": 5926470.692093473
+          },
+          {
+            "left": 42,
+            "right": 245,
+            "value": 4860477.745472957
+          },
+          {
+            "left": 209,
+            "right": 210,
+            "value": 2792175.582256431
+          },
+          {
+            "left": 16,
+            "right": 209,
+            "value": 2513889.249994108
+          },
+          {
+            "left": 43,
+            "right": 209,
+            "value": 2379101.9511484844
+          },
+          {
+            "left": 62,
+            "right": 209,
+            "value": 2123995.6110651935
+          },
+          {
+            "left": 36,
+            "right": 209,
+            "value": 1973658.1227083704
+          }
+        ],
+        "top_nodes": [
+          {
+            "index": 213,
+            "value": 0.00048265937366742353
+          },
+          {
+            "index": 6,
+            "value": 0.00021053853402416356
+          },
+          {
+            "index": 172,
+            "value": 0.00015613758057377722
+          },
+          {
+            "index": 131,
+            "value": 0.00014670563993635397
+          },
+          {
+            "index": 57,
+            "value": 0.00013035070604193536
+          },
+          {
+            "index": 122,
+            "value": 0.0001251770368055662
+          },
+          {
+            "index": 106,
+            "value": 0.00012219464931776194
+          },
+          {
+            "index": 225,
+            "value": 0.00012157125050006861
+          }
+        ],
+        "total": 248249951.44482505
+      },
+      "terminal_primal_l2": 0.1654595864926011,
+      "terminal_q_rho_v_max_difference": 5.960464477539063e-08,
+      "terminal_rho": 1781183.1904064093,
+      "terminal_rho_over_h_median": 2048.0,
+      "terminal_x": {
+        "maximum": 0.5699407410295942,
+        "median": 0.40458918763600576,
+        "minimum": 0.4037177606589526
+      },
+      "terminal_z_absolute_max": 0.1662229803706481
+    }
+  ],
+  "scope": "CPU read-only literal-array arithmetic and one boxed node-update reference; no full QP fit or CUDA qualification.",
+  "script_sha256": "aecc937957ce613ae9724d6928ca51c92f59c6f2e7db8f14ecb948e963b22f4d"
+}

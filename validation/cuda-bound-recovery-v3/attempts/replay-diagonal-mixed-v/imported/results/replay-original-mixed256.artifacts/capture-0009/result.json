@@ -1,0 +1,1787 @@
+{
+  "admm_iterations": 10048,
+  "candidate_coverage": {
+    "last_equality_attempt": "both repair maps from identical captured input",
+    "last_refined_state": "no captured primal/input dual; no substitute generated"
+  },
+  "candidate_repairs": [
+    {
+      "after": {
+        "bounds": {
+          "fixed": 0,
+          "interior": 93,
+          "lower_active": 161,
+          "upper_active": 2
+        },
+        "box_normal": 474658619.7049207,
+        "certificate": {
+          "gap": 475350095.1681392,
+          "kkt": 0.9999998601576925,
+          "scale": 157160653.77090913
+        },
+        "curvature": {
+          "maximum": 9570815.506559754,
+          "minimum": 1.0
+        },
+        "dual": {
+          "exact_skew": true,
+          "max_capacity_violation": 0.0
+        },
+        "edge": 0.0,
+        "group_sizes": [
+          161,
+          1,
+          1,
+          1,
+          91,
+          1
+        ],
+        "literal_normal_formula_sum": 474658619.7049207,
+        "node_quadratic": 691475.4632185007,
+        "raw_box_normal": 474658619.7049207,
+        "raw_edge": 0.0,
+        "scope": "Three stable nonnegative gap components use the original safe-target/fixed-coordinate convention. Raw signed terms are separate; this is not a new admission gate.",
+        "top_edges": [
+          {
+            "left": 0,
+            "right": 1,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 2,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 3,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 4,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 5,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 6,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 7,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 8,
+            "value": 0.0
+          }
+        ],
+        "top_nodes": [
+          {
+            "index": 226,
+            "value": 6794683.657057893
+          },
+          {
+            "index": 87,
+            "value": 6756648.720961551
+          },
+          {
+            "index": 170,
+            "value": 6057945.404737845
+          },
+          {
+            "index": 249,
+            "value": 2127066.407365771
+          },
+          {
+            "index": 97,
+            "value": 2126478.299408004
+          },
+          {
+            "index": 109,
+            "value": 2126457.9060570225
+          },
+          {
+            "index": 57,
+            "value": 2047677.4813324912
+          },
+          {
+            "index": 6,
+            "value": 2047661.5462377216
+          }
+        ],
+        "total": 475350095.1681392
+      },
+      "after_certificate": {
+        "allowed_gap": 0.001571606637709091,
+        "gap": 475350095.16813916,
+        "independently_qualified": false,
+        "kkt": 0.9999998601576925,
+        "scale": 157160653.7709091
+      },
+      "before": {
+        "bounds": {
+          "fixed": 0,
+          "interior": 93,
+          "lower_active": 161,
+          "upper_active": 2
+        },
+        "box_normal": 0.0,
+        "certificate": {
+          "gap": 156355286.15339583,
+          "kkt": 0.9998710337702018,
+          "scale": 157160653.77090913
+        },
+        "curvature": {
+          "maximum": 9570815.506559754,
+          "minimum": 1.0
+        },
+        "dual": {
+          "exact_skew": true,
+          "max_capacity_violation": 0.0
+        },
+        "edge": 156257362.10173222,
+        "group_sizes": [
+          161,
+          1,
+          1,
+          1,
+          91,
+          1
+        ],
+        "literal_normal_formula_sum": 4.732710516753562e-13,
+        "node_quadratic": 97924.05166361106,
+        "raw_box_normal": 0.0,
+        "raw_edge": 156257362.10173222,
+        "scope": "Three stable nonnegative gap components use the original safe-target/fixed-coordinate convention. Raw signed terms are separate; this is not a new admission gate.",
+        "top_edges": [
+          {
+            "left": 109,
+            "right": 226,
+            "value": 1325329.1951515824
+          },
+          {
+            "left": 109,
+            "right": 170,
+            "value": 1176381.7341058208
+          },
+          {
+            "left": 226,
+            "right": 249,
+            "value": 1156258.4504283206
+          },
+          {
+            "left": 87,
+            "right": 109,
+            "value": 1125628.9512584368
+          },
+          {
+            "left": 170,
+            "right": 249,
+            "value": 1041239.291632378
+          },
+          {
+            "left": 87,
+            "right": 249,
+            "value": 1001279.4984542782
+          },
+          {
+            "left": 97,
+            "right": 226,
+            "value": 899425.6372800315
+          },
+          {
+            "left": 97,
+            "right": 170,
+            "value": 828255.5425971806
+          }
+        ],
+        "top_nodes": [
+          {
+            "index": 64,
+            "value": 17155.21002570642
+          },
+          {
+            "index": 135,
+            "value": 7362.240560787487
+          },
+          {
+            "index": 243,
+            "value": 3647.4583259809788
+          },
+          {
+            "index": 248,
+            "value": 1565.1762865540913
+          },
+          {
+            "index": 48,
+            "value": 1153.5775933074465
+          },
+          {
+            "index": 230,
+            "value": 1113.3959410639516
+          },
+          {
+            "index": 41,
+            "value": 1090.2187171071935
+          },
+          {
+            "index": 149,
+            "value": 1083.2937621377193
+          }
+        ],
+        "total": 156355286.15339583
+      },
+      "before_certificate": {
+        "allowed_gap": 0.001571606637709091,
+        "gap": 156355286.15339574,
+        "independently_qualified": false,
+        "kkt": 0.9998710337702018,
+        "scale": 157160653.7709091
+      },
+      "candidate_origin": "last_equality_attempt",
+      "captured_objective_admitted": false,
+      "first_step_certificate": {
+        "allowed_gap": 0.001571606637709091,
+        "gap": 473299218.16916645,
+        "independently_qualified": false,
+        "kkt": 0.9999999072478436,
+        "scale": 157160653.7709091
+      },
+      "mode": "legacy_uniform",
+      "original_shifted_objective": 84969781.7543805,
+      "result": {
+        "q": {
+          "dtype": "float64",
+          "path": "replay-original-mixed256.artifacts/capture-0009/last_equality_attempt-legacy_uniform-q.json",
+          "sha256": "adc04fc7282c817e9757557402c0f0a57b300a907d0a0f75a2d1b8e042a2b2a6",
+          "shape": [
+            256,
+            256
+          ],
+          "tensor_sha256": "921fa2fa4d28fe83b2a58040fcabbdfb3d01120c816a6ebacc2839a19e788f39"
+        },
+        "x": {
+          "dtype": "float64",
+          "path": "replay-original-mixed256.artifacts/capture-0009/last_equality_attempt-legacy_uniform-x.json",
+          "sha256": "da1642dad1d9af17d80ff1e8efd97f7d3a3ed5749f5eb443fb8e776ce64c1422",
+          "shape": [
+            256
+          ],
+          "tensor_sha256": "6a37e2138cb0451e5334693118d0861dc28f9391fc5b3925587a2c59d230b31e"
+        }
+      },
+      "scope": "Fixed captured candidate/primal and original QP; no initialization, grouping, boxes or capacities changed",
+      "steps": 1024,
+      "stop": "bounded_limit_unresolved"
+    },
+    {
+      "after": {
+        "bounds": {
+          "fixed": 0,
+          "interior": 93,
+          "lower_active": 161,
+          "upper_active": 2
+        },
+        "box_normal": 474658619.7049207,
+        "certificate": {
+          "gap": 475350095.1681392,
+          "kkt": 0.9999998601576925,
+          "scale": 157160653.77090913
+        },
+        "curvature": {
+          "maximum": 9570815.506559754,
+          "minimum": 1.0
+        },
+        "dual": {
+          "exact_skew": true,
+          "max_capacity_violation": 0.0
+        },
+        "edge": 0.0,
+        "group_sizes": [
+          161,
+          1,
+          1,
+          1,
+          91,
+          1
+        ],
+        "literal_normal_formula_sum": 474658619.7049207,
+        "node_quadratic": 691475.4632185007,
+        "raw_box_normal": 474658619.7049207,
+        "raw_edge": 0.0,
+        "scope": "Three stable nonnegative gap components use the original safe-target/fixed-coordinate convention. Raw signed terms are separate; this is not a new admission gate.",
+        "top_edges": [
+          {
+            "left": 0,
+            "right": 1,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 2,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 3,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 4,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 5,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 6,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 7,
+            "value": 0.0
+          },
+          {
+            "left": 0,
+            "right": 8,
+            "value": 0.0
+          }
+        ],
+        "top_nodes": [
+          {
+            "index": 226,
+            "value": 6794683.657057893
+          },
+          {
+            "index": 87,
+            "value": 6756648.720961552
+          },
+          {
+            "index": 170,
+            "value": 6057945.404737842
+          },
+          {
+            "index": 249,
+            "value": 2127066.407365771
+          },
+          {
+            "index": 97,
+            "value": 2126478.299408004
+          },
+          {
+            "index": 109,
+            "value": 2126457.9060570234
+          },
+          {
+            "index": 57,
+            "value": 2047677.4813324916
+          },
+          {
+            "index": 6,
+            "value": 2047661.5462377218
+          }
+        ],
+        "total": 475350095.1681392
+      },
+      "after_certificate": {
+        "allowed_gap": 0.001571606637709091,
+        "gap": 475350095.16813916,
+        "independently_qualified": false,
+        "kkt": 0.9999998601576925,
+        "scale": 157160653.7709091
+      },
+      "before": {
+        "bounds": {
+          "fixed": 0,
+          "interior": 93,
+          "lower_active": 161,
+          "upper_active": 2
+        },
+        "box_normal": 0.0,
+        "certificate": {
+          "gap": 156355286.15339583,
+          "kkt": 0.9998710337702018,
+          "scale": 157160653.77090913
+        },
+        "curvature": {
+          "maximum": 9570815.506559754,
+          "minimum": 1.0
+        },
+        "dual": {
+          "exact_skew": true,
+          "max_capacity_violation": 0.0
+        },
+        "edge": 156257362.10173222,
+        "group_sizes": [
+          161,
+          1,
+          1,
+          1,
+          91,
+          1
+        ],
+        "literal_normal_formula_sum": 4.732710516753562e-13,
+        "node_quadratic": 97924.05166361106,
+        "raw_box_normal": 0.0,
+        "raw_edge": 156257362.10173222,
+        "scope": "Three stable nonnegative gap components use the original safe-target/fixed-coordinate convention. Raw signed terms are separate; this is not a new admission gate.",
+        "top_edges": [
+          {
+            "left": 109,
+            "right": 226,
+            "value": 1325329.1951515824
+          },
+          {
+            "left": 109,
+            "right": 170,
+            "value": 1176381.7341058208
+          },
+          {
+            "left": 226,
+            "right": 249,
+            "value": 1156258.4504283206
+          },
+          {
+            "left": 87,
+            "right": 109,
+            "value": 1125628.9512584368
+          },
+          {
+            "left": 170,
+            "right": 249,
+            "value": 1041239.291632378
+          },
+          {
+            "left": 87,
+            "right": 249,
+            "value": 1001279.4984542782
+          },
+          {
+            "left": 97,
+            "right": 226,
+            "value": 899425.6372800315
+          },
+          {
+            "left": 97,
+            "right": 170,
+            "value": 828255.5425971806
+          }
+        ],
+        "top_nodes": [
+          {
+            "index": 64,
+            "value": 17155.21002570642
+          },
+          {
+            "index": 135,
+            "value": 7362.240560787487
+          },
+          {
+            "index": 243,
+            "value": 3647.4583259809788
+          },
+          {
+            "index": 248,
+            "value": 1565.1762865540913
+          },
+          {
+            "index": 48,
+            "value": 1153.5775933074465
+          },
+          {
+            "index": 230,
+            "value": 1113.3959410639516
+          },
+          {
+            "index": 41,
+            "value": 1090.2187171071935
+          },
+          {
+            "index": 149,
+            "value": 1083.2937621377193
+          }
+        ],
+        "total": 156355286.15339583
+      },
+      "before_certificate": {
+        "allowed_gap": 0.001571606637709091,
+        "gap": 156355286.15339574,
+        "independently_qualified": false,
+        "kkt": 0.9998710337702018,
+        "scale": 157160653.7709091
+      },
+      "candidate_origin": "last_equality_attempt",
+      "captured_objective_admitted": false,
+      "first_step_certificate": {
+        "allowed_gap": 0.001571606637709091,
+        "gap": 473299218.16916656,
+        "independently_qualified": false,
+        "kkt": 0.9999999072478436,
+        "scale": 157160653.7709091
+      },
+      "mode": "production_cone",
+      "original_shifted_objective": 84969781.7543805,
+      "result": {
+        "q": {
+          "dtype": "float64",
+          "path": "replay-original-mixed256.artifacts/capture-0009/last_equality_attempt-production_cone-q.json",
+          "sha256": "1c11b101d6dd98ada5b8f455572c319fcdb6f38c25ce620955df338048676f68",
+          "shape": [
+            256,
+            256
+          ],
+          "tensor_sha256": "a5876993d976a194aa64616ad551ad6a72796df97633fef8adb443335d1092ee"
+        },
+        "x": {
+          "dtype": "float64",
+          "path": "replay-original-mixed256.artifacts/capture-0009/last_equality_attempt-production_cone-x.json",
+          "sha256": "da1642dad1d9af17d80ff1e8efd97f7d3a3ed5749f5eb443fb8e776ce64c1422",
+          "shape": [
+            256
+          ],
+          "tensor_sha256": "6a37e2138cb0451e5334693118d0861dc28f9391fc5b3925587a2c59d230b31e"
+        }
+      },
+      "scope": "Fixed captured candidate/primal and original QP; no initialization, grouping, boxes or capacities changed",
+      "steps": 1024,
+      "stop": "bounded_limit_unresolved"
+    }
+  ],
+  "capture_index": 9,
+  "capture_record_sha256": "7590c4a187dcca090bdb732d7fe8d8c202d3e8e0984c1853225e0b632fa67753",
+  "compiled_original_certificate": {
+    "allowed_gap": 8.053810622858334e-06,
+    "gap": 1.444034436792909e-11,
+    "independently_qualified": true,
+    "kkt": 9.998788250848512e-08,
+    "scale": 805371.0622858334
+  },
+  "context": {
+    "backtrack_index": 0,
+    "backtracks": 0,
+    "graph_mutation_ids": [
+      "m000000",
+      "m000001",
+      "m000002",
+      "m000003",
+      "m000004",
+      "m000005",
+      "m000006",
+      "m000007",
+      "m000008",
+      "m000009",
+      "m000010",
+      "m000011",
+      "m000012",
+      "m000013",
+      "m000014",
+      "m000015",
+      "m000016",
+      "m000017",
+      "m000018",
+      "m000019",
+      "m000020",
+      "m000021",
+      "m000022",
+      "m000023",
+      "m000024",
+      "m000025",
+      "m000026",
+      "m000027",
+      "m000028",
+      "m000029",
+      "m000030",
+      "m000031",
+      "m000032",
+      "m000033",
+      "m000034",
+      "m000035",
+      "m000036",
+      "m000037",
+      "m000038",
+      "m000039",
+      "m000040",
+      "m000041",
+      "m000042",
+      "m000043",
+      "m000044",
+      "m000045",
+      "m000046",
+      "m000047",
+      "m000048",
+      "m000049",
+      "m000050",
+      "m000051",
+      "m000052",
+      "m000053",
+      "m000054",
+      "m000055",
+      "m000056",
+      "m000057",
+      "m000058",
+      "m000059",
+      "m000060",
+      "m000061",
+      "m000062",
+      "m000063",
+      "m000064",
+      "m000065",
+      "m000066",
+      "m000067",
+      "m000068",
+      "m000069",
+      "m000070",
+      "m000071",
+      "m000072",
+      "m000073",
+      "m000074",
+      "m000075",
+      "m000076",
+      "m000077",
+      "m000078",
+      "m000079",
+      "m000080",
+      "m000081",
+      "m000082",
+      "m000083",
+      "m000084",
+      "m000085",
+      "m000086",
+      "m000087",
+      "m000088",
+      "m000089",
+      "m000090",
+      "m000091",
+      "m000092",
+      "m000093",
+      "m000094",
+      "m000095",
+      "m000096",
+      "m000097",
+      "m000098",
+      "m000099",
+      "m000100",
+      "m000101",
+      "m000102",
+      "m000103",
+      "m000104",
+      "m000105",
+      "m000106",
+      "m000107",
+      "m000108",
+      "m000109",
+      "m000110",
+      "m000111",
+      "m000112",
+      "m000113",
+      "m000114",
+      "m000115",
+      "m000116",
+      "m000117",
+      "m000118",
+      "m000119",
+      "m000120",
+      "m000121",
+      "m000122",
+      "m000123",
+      "m000124",
+      "m000125",
+      "m000126",
+      "m000127",
+      "m000128",
+      "m000129",
+      "m000130",
+      "m000131",
+      "m000132",
+      "m000133",
+      "m000134",
+      "m000135",
+      "m000136",
+      "m000137",
+      "m000138",
+      "m000139",
+      "m000140",
+      "m000141",
+      "m000142",
+      "m000143",
+      "m000144",
+      "m000145",
+      "m000146",
+      "m000147",
+      "m000148",
+      "m000149",
+      "m000150",
+      "m000151",
+      "m000152",
+      "m000153",
+      "m000154",
+      "m000155",
+      "m000156",
+      "m000157",
+      "m000158",
+      "m000159",
+      "m000160",
+      "m000161",
+      "m000162",
+      "m000163",
+      "m000164",
+      "m000165",
+      "m000166",
+      "m000167",
+      "m000168",
+      "m000169",
+      "m000170",
+      "m000171",
+      "m000172",
+      "m000173",
+      "m000174",
+      "m000175",
+      "m000176",
+      "m000177",
+      "m000178",
+      "m000179",
+      "m000180",
+      "m000181",
+      "m000182",
+      "m000183",
+      "m000184",
+      "m000185",
+      "m000186",
+      "m000187",
+      "m000188",
+      "m000189",
+      "m000190",
+      "m000191",
+      "m000192",
+      "m000193",
+      "m000194",
+      "m000195",
+      "m000196",
+      "m000197",
+      "m000198",
+      "m000199",
+      "m000200",
+      "m000201",
+      "m000202",
+      "m000203",
+      "m000204",
+      "m000205",
+      "m000206",
+      "m000207",
+      "m000208",
+      "m000209",
+      "m000210",
+      "m000211",
+      "m000212",
+      "m000213",
+      "m000214",
+      "m000215",
+      "m000216",
+      "m000217",
+      "m000218",
+      "m000219",
+      "m000220",
+      "m000221",
+      "m000222",
+      "m000223",
+      "m000224",
+      "m000225",
+      "m000226",
+      "m000227",
+      "m000228",
+      "m000229",
+      "m000230",
+      "m000231",
+      "m000232",
+      "m000233",
+      "m000234",
+      "m000235",
+      "m000236",
+      "m000237",
+      "m000238",
+      "m000239",
+      "m000240",
+      "m000241",
+      "m000242",
+      "m000243",
+      "m000244",
+      "m000245",
+      "m000246",
+      "m000247",
+      "m000248",
+      "m000249",
+      "m000250",
+      "m000251",
+      "m000252",
+      "m000253",
+      "m000254",
+      "m000255"
+    ],
+    "inflation": 1.0,
+    "input_sha256": "6b5cb4f2cfce4cb6fbd81eff8a6ab8dca4e3c810dcfdf4e1ec75fa76fa6b2428",
+    "lambda_value": 110820.26756206133,
+    "outer_iteration": 0,
+    "path_index": 10,
+    "policy": {
+      "check_every": 16,
+      "eps": 1e-06,
+      "fusion_tol": 2e-05,
+      "inner_atol": 1e-10,
+      "inner_kkt_tol": 1e-07,
+      "inner_max_iterations": 20000,
+      "inner_rtol": 1e-11,
+      "max_backtracks": 24,
+      "memory_fraction": 0.7,
+      "outer_max_iterations": 150,
+      "path_extensions": 3,
+      "path_max_exponent": 12,
+      "path_min_exponent": -12,
+      "policy_id": "clipp1d_complete_cuda_unconstrained_v3",
+      "scalar_atol": 1e-07,
+      "scalar_batch_size": 64,
+      "scalar_max_intervals": 4096,
+      "scalar_rtol": 1e-10,
+      "stationarity_tol": 2e-05,
+      "weight_rule": "all_pairs_inverse_gap_mean_one_adjacent_floor_v1"
+    },
+    "qp_ordinal_within_start": 1,
+    "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+    "start_index": 1
+  },
+  "decomposition": {
+    "bounds": {
+      "fixed": 0,
+      "interior": 255,
+      "lower_active": 0,
+      "upper_active": 1
+    },
+    "box_normal": 0.0,
+    "certificate": {
+      "gap": 1.1448327849770831e-11,
+      "kkt": 9.998905641368732e-08,
+      "scale": 805371.0622858335
+    },
+    "curvature": {
+      "maximum": 9570815.506559754,
+      "minimum": 1.0
+    },
+    "dual": {
+      "exact_skew": true,
+      "max_capacity_violation": 0.0
+    },
+    "edge": 2.7284841053187847e-12,
+    "group_sizes": [
+      255,
+      1
+    ],
+    "literal_normal_formula_sum": 3.240003871937685e-19,
+    "node_quadratic": 8.719843744452047e-12,
+    "raw_box_normal": 0.0,
+    "raw_edge": 2.7284841053187847e-12,
+    "scope": "Three stable nonnegative gap components use the original safe-target/fixed-coordinate convention. Raw signed terms are separate; this is not a new admission gate.",
+    "top_edges": [
+      {
+        "left": 64,
+        "right": 145,
+        "value": 4.547473508864641e-13
+      },
+      {
+        "left": 19,
+        "right": 145,
+        "value": 1.1368683772161603e-13
+      },
+      {
+        "left": 26,
+        "right": 145,
+        "value": 1.1368683772161603e-13
+      },
+      {
+        "left": 34,
+        "right": 145,
+        "value": 1.1368683772161603e-13
+      },
+      {
+        "left": 40,
+        "right": 145,
+        "value": 1.1368683772161603e-13
+      },
+      {
+        "left": 55,
+        "right": 145,
+        "value": 1.1368683772161603e-13
+      },
+      {
+        "left": 60,
+        "right": 145,
+        "value": 1.1368683772161603e-13
+      },
+      {
+        "left": 77,
+        "right": 145,
+        "value": 1.1368683772161603e-13
+      }
+    ],
+    "top_nodes": [
+      {
+        "index": 243,
+        "value": 8.708587581494174e-12
+      },
+      {
+        "index": 135,
+        "value": 4.991391461262474e-15
+      },
+      {
+        "index": 64,
+        "value": 5.788182641662745e-16
+      },
+      {
+        "index": 210,
+        "value": 1.2775993106148198e-16
+      },
+      {
+        "index": 16,
+        "value": 1.127879654738253e-16
+      },
+      {
+        "index": 43,
+        "value": 1.0943967038612954e-16
+      },
+      {
+        "index": 177,
+        "value": 1.0499029593343055e-16
+      },
+      {
+        "index": 117,
+        "value": 1.0447330230489909e-16
+      }
+    ],
+    "total": 1.1448327849770831e-11
+  },
+  "dual_capacity_feasible": true,
+  "dual_exact_skew": true,
+  "eager_original_certificate": {
+    "allowed_gap": 8.053810622858335e-06,
+    "gap": 1.1448327849770831e-11,
+    "independently_qualified": true,
+    "kkt": 9.998905641368732e-08,
+    "scale": 805371.0622858335
+  },
+  "original_baseline": {
+    "compiled_comparison": {
+      "fresh_bits": [
+        "4077bafd15327ef3",
+        "412896e69bcd59e8",
+        "3ee046ab222c64ec"
+      ],
+      "gate_classifications": {
+        "finite_nonnegative": true,
+        "gap": false,
+        "independently_qualified": false,
+        "kkt": false
+      },
+      "signed_deltas": [
+        3.410605131648481e-13,
+        3.4924596548080444e-10,
+        5.031639494773176e-12
+      ],
+      "stored_bits": [
+        "4077bafd15327eed",
+        "412896e69bcd59e5",
+        "3ee046aa71236a2b"
+      ]
+    },
+    "compiled_gate_classifications_unchanged": true,
+    "eager_certificate_exactly_reconstructed": true,
+    "eager_returned_certificate": {
+      "allowed_gap": 8.0575730430108e-06,
+      "gap": 379.6867877933931,
+      "independently_qualified": false,
+      "kkt": 7.761020826403465e-06,
+      "scale": 805747.3043010801
+    },
+    "fresh_compiled_bits_equal": false,
+    "fresh_compiled_certificate": {
+      "allowed_gap": 8.057573043010803e-06,
+      "gap": 379.6867877933975,
+      "independently_qualified": false,
+      "kkt": 7.761024851715062e-06,
+      "scale": 805747.3043010803
+    },
+    "original_capture_compiled_proof_exact": true,
+    "original_shifted_objective": -71385124.71222754,
+    "reconstruction_scope": "Exact saved tensor identity and capture-context compiled proof; bit-exact saved eager reconstruction. Fresh compiled reduction-context differences are reported and cannot change the original gates.",
+    "returned": {
+      "bounds": {
+        "fixed": 0,
+        "interior": 255,
+        "lower_active": 0,
+        "upper_active": 1
+      },
+      "box_normal": 0.0,
+      "certificate": {
+        "gap": 379.6867877933931,
+        "kkt": 7.761020826403465e-06,
+        "scale": 805747.3043010801
+      },
+      "curvature": {
+        "maximum": 9570815.506559754,
+        "minimum": 1.0
+      },
+      "dual": {
+        "exact_skew": true,
+        "max_capacity_violation": 0.0
+      },
+      "edge": 379.68678779309073,
+      "group_sizes": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        3,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "literal_normal_formula_sum": 1.517743533358714e-21,
+      "node_quadratic": 3.0235353678436933e-10,
+      "raw_box_normal": 0.0,
+      "raw_edge": 379.68678779309073,
+      "scope": "Three stable nonnegative gap components use the original safe-target/fixed-coordinate convention. Raw signed terms are separate; this is not a new admission gate.",
+      "top_edges": [
+        {
+          "left": 42,
+          "right": 243,
+          "value": 68.69812712339417
+        },
+        {
+          "left": 112,
+          "right": 243,
+          "value": 50.865715576557314
+        },
+        {
+          "left": 243,
+          "right": 245,
+          "value": 41.018144560560984
+        },
+        {
+          "left": 1,
+          "right": 243,
+          "value": 33.65425112286196
+        },
+        {
+          "left": 178,
+          "right": 243,
+          "value": 17.0652352213719
+        },
+        {
+          "left": 150,
+          "right": 209,
+          "value": 8.828074057593389
+        },
+        {
+          "left": 209,
+          "right": 210,
+          "value": 3.902263985725469
+        },
+        {
+          "left": 16,
+          "right": 209,
+          "value": 3.4630585481964693
+        }
+      ],
+      "top_nodes": [
+        {
+          "index": 61,
+          "value": 9.83970941269998e-11
+        },
+        {
+          "index": 129,
+          "value": 9.83970941269998e-11
+        },
+        {
+          "index": 213,
+          "value": 9.83970941269998e-11
+        },
+        {
+          "index": 243,
+          "value": 7.213888405001803e-13
+        },
+        {
+          "index": 106,
+          "value": 3.8374651440633265e-13
+        },
+        {
+          "index": 57,
+          "value": 2.0252935674316116e-13
+        },
+        {
+          "index": 6,
+          "value": 1.8863676122682817e-13
+        },
+        {
+          "index": 238,
+          "value": 1.7450952794582592e-13
+        }
+      ],
+      "total": 379.6867877933931
+    },
+    "returned_certificate": {
+      "allowed_gap": 8.0575730430108e-06,
+      "gap": 379.6867877933972,
+      "independently_qualified": false,
+      "kkt": 7.761019820075567e-06,
+      "scale": 805747.30430108
+    },
+    "terminal_admm": {
+      "bounds": {
+        "fixed": 0,
+        "interior": 255,
+        "lower_active": 0,
+        "upper_active": 1
+      },
+      "box_normal": 0.0,
+      "certificate": {
+        "gap": 379.6867877933931,
+        "kkt": 7.761020826403465e-06,
+        "scale": 805747.3043010801
+      },
+      "curvature": {
+        "maximum": 9570815.506559754,
+        "minimum": 1.0
+      },
+      "dual": {
+        "exact_skew": true,
+        "max_capacity_violation": 0.0
+      },
+      "edge": 379.68678779309073,
+      "group_sizes": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        3,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "literal_normal_formula_sum": 1.517743533358714e-21,
+      "node_quadratic": 3.0235353678436933e-10,
+      "raw_box_normal": 0.0,
+      "raw_edge": 379.68678779309073,
+      "scope": "Three stable nonnegative gap components use the original safe-target/fixed-coordinate convention. Raw signed terms are separate; this is not a new admission gate.",
+      "top_edges": [
+        {
+          "left": 42,
+          "right": 243,
+          "value": 68.69812712339417
+        },
+        {
+          "left": 112,
+          "right": 243,
+          "value": 50.865715576557314
+        },
+        {
+          "left": 243,
+          "right": 245,
+          "value": 41.018144560560984
+        },
+        {
+          "left": 1,
+          "right": 243,
+          "value": 33.65425112286196
+        },
+        {
+          "left": 178,
+          "right": 243,
+          "value": 17.0652352213719
+        },
+        {
+          "left": 150,
+          "right": 209,
+          "value": 8.828074057593389
+        },
+        {
+          "left": 209,
+          "right": 210,
+          "value": 3.902263985725469
+        },
+        {
+          "left": 16,
+          "right": 209,
+          "value": 3.4630585481964693
+        }
+      ],
+      "top_nodes": [
+        {
+          "index": 61,
+          "value": 9.83970941269998e-11
+        },
+        {
+          "index": 129,
+          "value": 9.83970941269998e-11
+        },
+        {
+          "index": 213,
+          "value": 9.83970941269998e-11
+        },
+        {
+          "index": 243,
+          "value": 7.213888405001803e-13
+        },
+        {
+          "index": 106,
+          "value": 3.8374651440633265e-13
+        },
+        {
+          "index": 57,
+          "value": 2.0252935674316116e-13
+        },
+        {
+          "index": 6,
+          "value": 1.8863676122682817e-13
+        },
+        {
+          "index": 238,
+          "value": 1.7450952794582592e-13
+        }
+      ],
+      "total": 379.6867877933931
+    },
+    "terminal_admm_equals_returned": true
+  },
+  "original_shifted_objective": -71385500.9542428,
+  "peak_allocated_bytes": 10293760,
+  "peak_reserved_bytes": 113246208,
+  "polish_iterations": 12675,
+  "primal_box_feasible": true,
+  "production_qualified": true,
+  "qualified": true,
+  "result": {
+    "q": {
+      "dtype": "float64",
+      "path": "replay-original-mixed256.artifacts/capture-0009/replay-q.json",
+      "sha256": "9170454d4609db5e11fdb5d9729b4ff7376d417341e57bb6d71042054b77d626",
+      "shape": [
+        256,
+        256
+      ],
+      "tensor_sha256": "f695bcc5568d697896538c0f727968cf3455f64e0792d47d8a185a8f0b823d82"
+    },
+    "x": {
+      "dtype": "float64",
+      "path": "replay-original-mixed256.artifacts/capture-0009/replay-x.json",
+      "sha256": "ca6e3c77798a8dc4a3ccf7777c5d3bd222765215d59f169962a77ae6bbf3c55d",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "2ba43b7caebf580f66b9b2a9a17a65367824d1be472609eb619a1f4c7a57a565"
+    }
+  },
+  "seconds": 13.361904010176659,
+  "timing_scope": "synchronized original-start production solve only; may include lazy compilation, no repeated latency claim"
+}

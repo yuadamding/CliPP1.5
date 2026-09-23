@@ -79,6 +79,48 @@ def test_attribution_covers_updates_without_changing_the_qualified_problem():
     assert all(row['device_kernel_seconds'] == 0 for row in detail['stages'].values())
 
 
+def zero_repair_cpu_profile():
+    """Run a real tiny CPU solve; this never invents CUDA measurements."""
+    problem = tiny_problem()
+    problem['arrays']['target'][:] = .5
+    problem['arrays']['start'][:] = .5
+    device, kernels = torch.device('cpu'), Kernels('cpu')
+    arrays = benchmark.upload(problem, device)
+    snapshots = {key: value.clone() for key, value in arrays.items()}
+    with benchmark.attribution(kernels) as (solver, stages):
+        fitted, detail = benchmark.measured_profile(
+            lambda: benchmark.solve(solver, arrays, kernels), device, stage_counts=stages.counts)
+    detail['certificate'] = benchmark.qualify(fitted, arrays, snapshots, kernels)
+    assert fitted.polish_iterations == 0
+    return fitted, detail
+
+
+def test_zero_actual_flow_repair_is_qualified_without_fake_cuda_work():
+    fitted, detail = zero_repair_cpu_profile()
+    coverage = benchmark.qualify_stage_coverage(detail, fitted)
+    assert coverage['qualified'] and coverage['zero_flow_repair']
+    assert coverage['flow_repair_steps'] == 0
+    assert detail['numerical_execution'] == 'CPU reference test only'
+    assert detail['kernel_dispatches'] == detail['device_events'] == 0
+    assert detail['stages']['dual_flow_repair'] == {
+        'calls': 0, 'host_range_seconds': 0., 'device_kernel_seconds': 0.}
+
+
+@pytest.mark.parametrize('corruption', ['operation_count', 'flow_count', 'certificate', 'duration'])
+def test_zero_flow_does_not_hide_missing_operation_or_certificate_coverage(corruption):
+    fitted, detail = zero_repair_cpu_profile()
+    if corruption == 'operation_count':
+        detail['stage_operation_counts']['flow_polish_step'] = 1
+    elif corruption == 'flow_count':
+        fitted = replace(fitted, polish_iterations=1)
+    elif corruption == 'certificate':
+        detail['certificate']['qualified'] = False
+    else:
+        detail['stages']['dual_flow_repair']['device_kernel_seconds'] = .001
+    with pytest.raises(AssertionError, match='coverage|cover|work'):
+        benchmark.qualify_stage_coverage(detail, fitted)
+
+
 def test_hooks_restore_after_numerical_exception():
     kernels = Kernels('cpu')
     originals = qp.polish_quadratic, qp.quadratic_value, kernels.gap_kkt

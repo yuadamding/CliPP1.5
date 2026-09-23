@@ -1,0 +1,100 @@
+{
+  "files": {
+    "case-logs/below256-full.err": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "receipts/accepted.json": {
+      "bytes": 179,
+      "sha256": "3b839a511732c49ba06201bbad35c0997eb3bb572ccc305e838b6d8b1e7fe538"
+    },
+    "receipts/admission-observations.json": {
+      "bytes": 3126,
+      "sha256": "f6ed4b5718ecbae522f1585adfa13b0a4f91e17bb59b75ec6c65389bf94112d8"
+    },
+    "receipts/admitted.json": {
+      "bytes": 1686,
+      "sha256": "f2fcaa4f0efb4bdae7d394cbd57cbda304bd3ab0a55884793bac93b3f730d28a"
+    },
+    "receipts/command-below256-full.json": {
+      "bytes": 829,
+      "sha256": "b29fc99d8931ab0544ee7675c63eb5595fbd40b95c37e1940b8aba2ec6f53f11"
+    },
+    "receipts/execution.json": {
+      "bytes": 107,
+      "sha256": "af7d1d700da1bd8f24d79ed9b1c320db6fe51e92f265ae1cbbbe15afa7d6a40c"
+    },
+    "receipts/release-intent.json": {
+      "bytes": 50,
+      "sha256": "fcc8f646c3457f847d0afeaeed332919642eba679ed7f5c9ae6a6a4339dc2e73"
+    },
+    "receipts/release-response.json": {
+      "bytes": 81,
+      "sha256": "6d9e61da4e4441ffd8a08e12b48a693b7057081bf44856e816f29a29ef0c1f38"
+    },
+    "receipts/resource-contract.json": {
+      "bytes": 3228,
+      "sha256": "61114860aa003917104654b84062e9e1cb2d5e2f58820300b8479f2f541f39cc"
+    },
+    "receipts/startup.json": {
+      "bytes": 5180,
+      "sha256": "98b01299a32a99a339c4ee2effc43b2a8bfda4c29bfc6d48ddeb05d0c40fdcf5"
+    },
+    "receipts/submit-intent.json": {
+      "bytes": 841,
+      "sha256": "489db58625dd937959e83b72d16b661d5794d360bfe5b6e9f5e868db9e8d9f4c"
+    },
+    "receipts/submit-response.json": {
+      "bytes": 94,
+      "sha256": "4be4bbae3ebc9ed9028446f242b2465f4f46f7521c1023b0726589df4c66031c"
+    },
+    "receipts/terminal.json": {
+      "bytes": 1241,
+      "sha256": "304cf0a44d68733427156291e98d77db24d862c979faa6e49212a58ecf4f3bdd"
+    },
+    "results/below256-full.artifacts/full-path.json": {
+      "bytes": 2280183,
+      "sha256": "67474df865252280a1bf274278944d14d45cf543dc6e3a8a208a35e76554aa5a"
+    },
+    "results/below256-full.artifacts/initial-path-plan.json": {
+      "bytes": 3027,
+      "sha256": "b13becae8380942c8dd4b2a9d738e1a0891cd3fc4495523afe83f6131c8fb5c6"
+    },
+    "results/below256-full.artifacts/input-identity.json": {
+      "bytes": 19917,
+      "sha256": "ba38056ca4b7176e86ed1e4ebb5243a5a224880206658b1bbea88fc462fb9286"
+    },
+    "results/below256-full.artifacts/input.tsv": {
+      "bytes": 38506,
+      "sha256": "e40d233273f308283ee71ab67e4c240688a48b39254419d3f6e3eb2497ab2fb7"
+    },
+    "results/below256-full.events.jsonl": {
+      "bytes": 416486,
+      "sha256": "4d7c1868bbde85254ab312226429948148f3865cb6cfbf81955547b70ae6e75e"
+    },
+    "results/below256-full.json": {
+      "bytes": 15004,
+      "sha256": "0f7dd9609d1c2fbc9467b79830152b989c07724bfcf6bc9eb56f4d7c081fe25e"
+    }
+  },
+  "scheduler": "\nJob <77335394>, Job Name <clipp1d_bound_20260923s>, User <yding4>, Project <default>, Status <EXIT>, Queue <egpu>, Command </rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13 -B /rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923s/worker.py /rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923s>, Share group charged </yding4>, Esub <minrunlimit jobinfo gpulimit>\nTue Sep 22 23:01:20: Submitted from host <ldragon4> with hold, CWD </rsrch8/home/bcb/yding4>, Specified CWD </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923s>, Output File (overwrite) </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923s/lsf-logs/qualification.77335394.out>, Error File (overwrite) </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923s/lsf-logs/qualification.77335394.err>, 2 Task(s), Requested Resources <rusage[mem=8] span[hosts=1]>, Requested GPU <num=1:mode=exclusive_process:gmodel=NVIDIAL40>;\nTue Sep 22 23:01:32: Started 2 Task(s) on Host(s) <2*gdragon005>, Allocated 2 Slot(s) on Host(s) <2*gdragon005>, Execution Home </home/yding4>, Execution CWD </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923s>;\nTue Sep 22 23:02:41: Exited with exit code 1. The CPU time used is 64.3 seconds. HOST: gdragon005; CPU_TIME: 63 seconds; Tue Sep 22 23:02:41: Completed <exit>.\n\n RUNLIMIT                \n 30.0 min\n\n MEMLIMIT\n      8 G \n\n MEMORY USAGE:\n MAX MEM: 1 Gbytes; MEM Efficiency: 12.50%\n\n CPU USAGE:\n CPU PEAK: 3.71 ;  CPU PEAK DURATION: 7 second(s)\n CPU AVERAGE EFFICIENCY: 107.78% ;  CPU PEAK EFFICIENCY: 185.71%\n\n SCHEDULING PARAMETERS:\n           r15s   r1m  r15m   ut      pg    io   ls    it    tmp    swp    mem\n loadSched   -    1.2    -     -    10.0     -    -     -     -      -      -  \n loadStop    -     -     -     -       -     -    -     -     -      -      -  \n\n EXTERNAL MESSAGES:\n MSG_ID FROM       POST_TIME      MESSAGE                             ATTACHMENT \n 0      yding4     Sep 22 23:01   gdragon005:gpus=3;                      N     \n\n RESOURCE REQUIREMENT DETAILS:\n Combined: select[((hi==0) && (ngpus>0)) && (type == local)] order[r15s:pg] rusage[mem=8.00:ngpus_physical=1.00:gmodel=NVIDIAL40] span[hosts=1]\n Effective: select[(((hi==0)) && (ngpus>0)) && (type == local)] order[r15s:pg] rusage[mem=8.00,ngpus_physical=1.00:gmodel=NVIDIAL40] span[hosts=1] \n\n GPU REQUIREMENT DETAILS:\n Combined: num=1:mode=exclusive_process:mps=no:j_exclusive=yes:gmodel=NVIDIAL40:gvendor=nvidia\n Effective: num=1:mode=exclusive_process:mps=no:j_exclusive=yes:gmodel=NVIDIAL40:gvendor=nvidia\n\n",
+  "terminal": {
+    "elapsed_seconds": 65.99442911148071,
+    "error": "{'name': 'below256-full', 'source_role': 'current', 'returncode': 1, 'receipt_sha256': '0f7dd9609d1c2fbc9467b79830152b989c07724bfcf6bc9eb56f4d7c081fe25e', 'status': 'failed'}",
+    "error_type": "AssertionError",
+    "job_id": "77335394",
+    "passed": false,
+    "plan_sha256": "ac835eed5925b5fc99d80830dfc20b032c84676d2abdf39516d36253a32ef6a3",
+    "scope": "source-bound synthetic CUDA task; diagnostic capture success is not complete-fit qualification",
+    "tasks": [
+      {
+        "name": "below256-full",
+        "receipt_sha256": "0f7dd9609d1c2fbc9467b79830152b989c07724bfcf6bc9eb56f4d7c081fe25e",
+        "returncode": 1,
+        "source_role": "current",
+        "status": "failed"
+      }
+    ],
+    "traceback": "Traceback (most recent call last):\n  File \"/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923s/worker.py\", line 112, in main\n    assert completed.returncode == 0 and entry.get(\"status\") == \"passed\", entry\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'name': 'below256-full', 'source_role': 'current', 'returncode': 1, 'receipt_sha256': '0f7dd9609d1c2fbc9467b79830152b989c07724bfcf6bc9eb56f4d7c081fe25e', 'status': 'failed'}\n"
+  }
+}

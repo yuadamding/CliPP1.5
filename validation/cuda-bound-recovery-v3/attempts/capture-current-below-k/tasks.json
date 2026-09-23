@@ -1,0 +1,23 @@
+[
+  {
+    "name": "capture-current-below64",
+    "source_role": "current",
+    "script": "capture_failed_qp.py",
+    "subcommand": "capture",
+    "args": [
+      "--source-profile",
+      "normalized276da",
+      "--fixture",
+      "below_one",
+      "--nodes",
+      "64",
+      "--expected-failures",
+      "1",
+      "--expected-source-sha256",
+      "276da27b9a8718f3f06182108ccb0a6b7f04f3937a67f050f9721e031554aea5",
+      "--timeout-seconds",
+      "1500"
+    ],
+    "timeout_seconds": 1620
+  }
+]

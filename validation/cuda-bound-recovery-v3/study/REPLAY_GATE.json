@@ -1,0 +1,35 @@
+{
+  "source_sha256": "276da27b9a8718f3f06182108ccb0a6b7f04f3937a67f050f9721e031554aea5",
+  "passed": true,
+  "utc": "2026-09-23T03:17:19.622185+00:00",
+  "receipts": [
+    {
+      "path": "replay-scaled-below-e/imported/results/replay-below_one-64.json",
+      "sha256": "74c4ee0847e7a0c86e29943bb7a6350aa81636db120b8ae5f4b22fa0a25dfdcc",
+      "resolved": 2,
+      "admm_iterations": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "path": "replay-scaled-mixed-f/imported/results/replay-mixed_support-256.json",
+      "sha256": "b21c59624ad26b7dacb0cb36fbcf6d90e207694bb07869ab3b508887eec220c8",
+      "resolved": 11,
+      "admm_iterations": [
+        1024,
+        2048,
+        1392,
+        2048,
+        2048,
+        2048,
+        2048,
+        2048,
+        2048,
+        5152,
+        11040
+      ]
+    }
+  ],
+  "scope": "All13 original-start saved-QP replays pass unchanged independent eager/compiled certificates; admits complete-path qualification, not cohort inference"
+}

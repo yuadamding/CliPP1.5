@@ -1,0 +1,164 @@
+{
+  "clonal_constraint": false,
+  "cluster_centers": [
+    0.24358717722232223,
+    0.2327629204344933,
+    0.18730935430835244,
+    0.1688542100130595
+  ],
+  "cluster_labels": [
+    3,
+    2,
+    1,
+    0
+  ],
+  "compilation_banks": {},
+  "graph_edges": 6,
+  "literal_lambda": 0.0,
+  "path_records": [],
+  "pilot_and_graph": {
+    "gap_floor": 0.0018455144295292936,
+    "independent_numpy_recipe_atol": 2.842170943040401e-14,
+    "independent_numpy_recipe_max_weight_error": 0.0,
+    "independent_numpy_recipe_rtol": 2.842170943040401e-14,
+    "normalization": 35.894714517076515,
+    "pilot_gaps": [
+      4.354105698212152e-08,
+      8.092764858247392e-08,
+      8.249681116012653e-08,
+      1.05896262425631e-07
+    ],
+    "pilot_loss": [
+      46.39740182595517,
+      56.06821748437835,
+      66.41162232110246,
+      69.42032546152281
+    ],
+    "pilot_lower_bounds": [
+      46.397401782414114,
+      56.0682174034507,
+      66.41162223860564,
+      69.42032535562655
+    ],
+    "pilot_phi": [
+      0.1688542100130595,
+      0.18730935430835244,
+      0.2327629204344933,
+      0.24358717722232223
+    ],
+    "pilot_sha256": "dd6fdd974d2e8115e905c4acb9cf75a97a29547bf81fb8d318e2b3f4127f3979",
+    "pilot_subdivisions": 48,
+    "recipe_recomputed_exactly": true,
+    "selected_caps_sha256": "38723a2e5e8a17aa7950dc008209944e898f69a7bd10a23c839d341e935fd5ca",
+    "weight_rule": "all_pairs_inverse_gap_mean_one_adjacent_floor_v1",
+    "weights": [
+      [
+        0.0,
+        1.5095658109298404,
+        0.4359226571814478,
+        0.3727840055639876
+      ],
+      [
+        1.5095658109298404,
+        0.0,
+        0.612916812437494,
+        0.49503078515561444
+      ],
+      [
+        0.4359226571814478,
+        0.612916812437494,
+        0.0,
+        2.573779928731616
+      ],
+      [
+        0.3727840055639876,
+        0.49503078515561444,
+        2.573779928731616,
+        0.0
+      ]
+    ],
+    "weights_sha256": "fba6182e560305218f2fe80fba94ee0fbcb36cedb09e1ad53faa4d42bd0df518"
+  },
+  "raw_ccf": [
+    0.1688542100130595,
+    0.18730935430835244,
+    0.2327629204344933,
+    0.24358717722232223
+  ],
+  "raw_objective": 238.2975670929588,
+  "raw_qualified": true,
+  "refitted_ccf": [
+    0.1688542100130595,
+    0.18730935430835244,
+    0.2327629204344933,
+    0.24358717722232223
+  ],
+  "score": 487.11779891648234,
+  "search_status": "complete",
+  "seconds": 0.09979928005486727,
+  "selected_lambda": 0.0,
+  "selected_raw_diagnostics": {
+    "audit_calls": 1,
+    "audit_diagnostics": {
+      "clonal_constraint": false,
+      "coverage": "all_feasible_signed_subsets_of_exact_fused_groups",
+      "negative": {
+        "attained_value": 0.0,
+        "iterations": 0,
+        "lower_bound": -1.172836085650023e-08,
+        "objective_scale": 1.0,
+        "roundoff_margin": 1.0658141291173131e-14,
+        "roundoff_unit": 1.0,
+        "status": "qualified_lower_bound",
+        "tolerance": 2e-05
+      },
+      "positive": {
+        "attained_value": 0.0,
+        "iterations": 0,
+        "lower_bound": -6.796194994092804e-06,
+        "objective_scale": 1.0,
+        "roundoff_margin": 1.0658287573101378e-14,
+        "roundoff_unit": 1.0,
+        "status": "qualified_lower_bound",
+        "tolerance": 2e-05
+      },
+      "proof": "device_dual_lower_bounds_of_complete_subset_cut_relaxation",
+      "tolerance_rule": "derivative_plus_tol_times_one_plus_absolute_node_and_cut_terms"
+    },
+    "audit_seconds": 0.0025328099727630615,
+    "audit_signed_direction_count": 2,
+    "audit_status": "qualified",
+    "box_feasible": true,
+    "clonal_constraint": false,
+    "directional_qualified": true,
+    "directional_stationarity_qualified": true,
+    "global_optimality_proven": false,
+    "inner_gap": 0.0,
+    "inner_gap_qualified": true,
+    "inner_gap_scale": 0.0,
+    "inner_iterations": 0,
+    "inner_kkt_qualified": true,
+    "inner_kkt_residual": 0.0,
+    "inner_polish_iterations": 0,
+    "outer_iterations": 0,
+    "phase_timing_scope": "host wall through device-qualified QP/audit returns",
+    "qp_admm_iterations": 0,
+    "qp_calls": 0,
+    "qp_dual_warm_resets": 0,
+    "qp_dual_warm_starts": 0,
+    "qp_polish_iterations": 0,
+    "qp_seconds": 0.0,
+    "raw_branch_stationarity_qualified": true,
+    "raw_stationarity_qualified": true,
+    "search_complete": true,
+    "separable_global_gap": 3.1286177915035296e-07,
+    "separable_scalar_gap_qualified": true,
+    "starts_attempted": 0,
+    "stationarity_residual": 4.537834712372212e-06,
+    "status": "qualified_separable",
+    "surrogate_qp_calls": 0
+  },
+  "timings": {
+    "scope": "fixed shared pilot, graph and literal lambda; no prior continuation"
+  }
+}

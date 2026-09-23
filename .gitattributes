@@ -12,3 +12,4 @@ validation/cuda-qp-v3/attempts/below64-f/sealed/tracked-dirty.patch -whitespace 
 validation/cuda-qp-v3/attempts/mixed256-e/sealed/tracked-dirty.patch -whitespace -text
 validation/cuda-qp-v3/attempts/mixed64-c/sealed/tracked-dirty.patch -whitespace -text
 validation/cuda-qp-v3/attempts/qualification-a/sealed/tracked-dirty.patch -whitespace -text
+validation/cuda-bound-recovery-v3/attempts/*/sealed/tracked-dirty.patch -whitespace -text

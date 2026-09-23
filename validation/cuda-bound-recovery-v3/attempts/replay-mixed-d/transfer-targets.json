@@ -1,0 +1,25 @@
+{
+  "mac": {
+    "bytes_free": 304867270656,
+    "stage": "/Users/yding4/clipp2_clipp1d_bound_transfer_20260923-eq7k7y75",
+    "uid": 1896174575
+  },
+  "remote": {
+    "bytes_free": 15804359770112,
+    "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+    "fileset": "s_bcb-yding4",
+    "host": "ldragon4",
+    "inodes_free": 3541514,
+    "memory_unit": "GB",
+    "queue": "\nQUEUE: egpu\n  -- MDA queue for access to Liqid GPU nodes with one, two, or four GPUs each\n\nPARAMETERS/STATISTICS\nPRIO NICE STATUS          MAX JL/U JL/P JL/H NJOBS  PEND   RUN SSUSP USUSP  RSV PJOBS \n 30    0  Open:Active    1248  312    -    -  2412  2187   225     0     0    0   547\nInterval for a host to accept two jobs is 0 seconds\n\nDEFAULT LIMITS: RUNLIMIT                \n 1.0 min\n\n MEMLIMIT\n      1 G \n\nMAXIMUM LIMITS: RUNLIMIT                \n 30240.0 min\n\n MEMLIMIT\n    950 G \n\nSCHEDULING PARAMETERS\n           r15s   r1m  r15m   ut      pg    io   ls    it    tmp    swp    mem\n loadSched   -     -     -     -       -     -    -     -     -      -      -  \n loadStop    -     -     -     -       -     -    -     -     -      -      -  \n\nSCHEDULING POLICIES:  BACKFILL\n\nUSERS: all  \nHOSTS:  liqid_gpu1/+2 liqid_gpu2/+1 liqid_gpu4/ \nRES_REQ:  \"select[hi == 0] rusage[mem=1] span[hosts=1]\"\nRESRSV_LIMIT:  [mem=1,950]\nGPU_REQ:  \"num=1:mode=exclusive_process\"\n\n",
+    "quota": "                         Block Limits                                    |     File Limits\nFilesystem type         blocks      quota      limit   in_doubt    grace |    files   quota    limit in_doubt    grace  Remarks\nrsrch8     FILESET        641G        14T        15T          0     none |   858235       0        0        0     none research8.mdanderson.edu\n",
+    "reservation_configuration_lines": [
+      "        RESOURCE_RESERVE_PER_TASK = N",
+      "        ENABLE_EXIT_RATE_PER_SLOT = N",
+      "        SCHED_PER_JOB_SORT = N"
+    ],
+    "stage": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_transfer_20260923-d",
+    "uid": 307469,
+    "writer_create_remove_passed": true
+  }
+}

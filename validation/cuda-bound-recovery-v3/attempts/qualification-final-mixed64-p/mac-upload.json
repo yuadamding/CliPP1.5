@@ -1,0 +1,6 @@
+{
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "RECEIPT={\"path\": \"/Users/yding4/clipp2_clipp1d_bound_transfer_20260923-44p84y6s/payload.tar.gz\", \"sha256\": \"cfe748b63bcad51b88432a1bb129ccd23e0c77ec68570be3fd6d37e54133d632\", \"bytes\": 228094}\n",
+  "utc": "2026-09-23T03:51:27.800569+00:00"
+}

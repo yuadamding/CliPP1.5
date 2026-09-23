@@ -1,0 +1,13 @@
+{
+  "dtype": "float64",
+  "encoding": "json_numbers",
+  "shape": [
+    3
+  ],
+  "tensor_sha256": "561bb90e3636dcd9384e0cbeacf9627e1515799b6a7321247e3a188928ef7b1e",
+  "values": [
+    1.1158743160746958e-07,
+    384.7580904888496,
+    3.2292155544673715e-07
+  ]
+}

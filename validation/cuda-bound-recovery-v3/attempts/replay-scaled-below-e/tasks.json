@@ -1,0 +1,18 @@
+[
+  {
+    "name": "replay-below_one-64",
+    "source_role": "current",
+    "script": "replay_failed_qp.py",
+    "args": [
+      "--capture",
+      "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923a/results/capture-below_one-64.json",
+      "--capture-sha256",
+      "4958d20fdaf3f7d047ccd14a75dfb4a5ffadebd2f94c1ee8514a33fecda1b0af",
+      "--expected-source-sha256",
+      "276da27b9a8718f3f06182108ccb0a6b7f04f3937a67f050f9721e031554aea5",
+      "--timeout-seconds",
+      "1500"
+    ],
+    "timeout_seconds": 1620
+  }
+]

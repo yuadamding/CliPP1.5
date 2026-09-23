@@ -1,0 +1,76 @@
+[
+  {
+    "name": "replay-original-below64",
+    "source_role": "current",
+    "script": "replay_failed_qp.py",
+    "args": [
+      "--capture",
+      "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923a/results/capture-below_one-64.json",
+      "--capture-sha256",
+      "4958d20fdaf3f7d047ccd14a75dfb4a5ffadebd2f94c1ee8514a33fecda1b0af",
+      "--expected-source-sha256",
+      "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+      "--require-all-qualified",
+      "--timeout-seconds",
+      "1500"
+    ],
+    "timeout_seconds": 1620
+  },
+  {
+    "name": "replay-later-below64",
+    "source_role": "current",
+    "script": "replay_failed_qp.py",
+    "args": [
+      "--capture",
+      "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923k/results/capture-current-below64.json",
+      "--capture-sha256",
+      "0c63526d7e324f3d00125208165237df40800f49e2f919ef06f78711e752a4b6",
+      "--expected-source-sha256",
+      "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+      "--require-all-qualified",
+      "--timeout-seconds",
+      "1500"
+    ],
+    "timeout_seconds": 1620
+  },
+  {
+    "name": "mixed64-paired",
+    "source_role": "current",
+    "script": "qualify_mixed_cuda.py",
+    "args": [
+      "--fixture",
+      "mixed_support",
+      "--nodes",
+      "64",
+      "--mode",
+      "paired",
+      "--expected-source-sha256",
+      "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+      "--baseline",
+      "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923h/results/mixed64-reference.json",
+      "--baseline-sha256",
+      "435e07681830396ce2cdc8a0523b643340a43c1317eee86846e2b7adc3de5602",
+      "--timeout-seconds",
+      "1500"
+    ],
+    "timeout_seconds": 1620
+  },
+  {
+    "name": "below64-full",
+    "source_role": "current",
+    "script": "qualify_mixed_cuda.py",
+    "args": [
+      "--fixture",
+      "below_one",
+      "--nodes",
+      "64",
+      "--mode",
+      "full",
+      "--expected-source-sha256",
+      "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+      "--timeout-seconds",
+      "1500"
+    ],
+    "timeout_seconds": 1620
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "elapsed_seconds": 65.99442911148071,
+  "error": "{'name': 'below256-full', 'source_role': 'current', 'returncode': 1, 'receipt_sha256': '0f7dd9609d1c2fbc9467b79830152b989c07724bfcf6bc9eb56f4d7c081fe25e', 'status': 'failed'}",
+  "error_type": "AssertionError",
+  "job_id": "77335394",
+  "passed": false,
+  "plan_sha256": "ac835eed5925b5fc99d80830dfc20b032c84676d2abdf39516d36253a32ef6a3",
+  "scope": "source-bound synthetic CUDA task; diagnostic capture success is not complete-fit qualification",
+  "tasks": [
+    {
+      "name": "below256-full",
+      "receipt_sha256": "0f7dd9609d1c2fbc9467b79830152b989c07724bfcf6bc9eb56f4d7c081fe25e",
+      "returncode": 1,
+      "source_role": "current",
+      "status": "failed"
+    }
+  ],
+  "traceback": "Traceback (most recent call last):\n  File \"/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923s/worker.py\", line 112, in main\n    assert completed.returncode == 0 and entry.get(\"status\") == \"passed\", entry\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'name': 'below256-full', 'source_role': 'current', 'returncode': 1, 'receipt_sha256': '0f7dd9609d1c2fbc9467b79830152b989c07724bfcf6bc9eb56f4d7c081fe25e', 'status': 'failed'}\n"
+}

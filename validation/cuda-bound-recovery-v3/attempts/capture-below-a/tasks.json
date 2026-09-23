@@ -1,0 +1,21 @@
+[
+  {
+    "name": "capture-below_one-64",
+    "source_role": "baseline",
+    "script": "capture_failed_qp.py",
+    "subcommand": "capture",
+    "args": [
+      "--fixture",
+      "below_one",
+      "--nodes",
+      "64",
+      "--expected-failures",
+      "2",
+      "--expected-source-sha256",
+      "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+      "--timeout-seconds",
+      "1500"
+    ],
+    "timeout_seconds": 1620
+  }
+]

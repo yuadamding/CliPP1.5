@@ -22,7 +22,9 @@ overwide tolerance runs. It also reuses qualified membership refits and singleto
 pilots, limits full integrity checks to owned numerical stage boundaries, and
 reuses QP dual initializations within a lambda. QP polishing prepares fixed group
 geometry once per proposal; combined ADMM and flow-repair steps use strict
-compilation with independent admission checks. The dense graph, likelihood,
+compilation with independent admission checks. Bound-aware repair preserves a
+valid incoming certificate and lets permitted box-normal residuals adapt to
+edge capacities. The dense graph, likelihood,
 original bounds and qualification tolerances remain unchanged.
 
 ## Installation and use
@@ -84,8 +86,11 @@ reject this CUDA source; existing frozen runs and their result evaluators keep
 their original contracts. Do not replace the source beneath running workers.
 
 See [the CUDA framework](docs/CUDA_FRAMEWORK.md) for the model, certification and
-output semantics. The [QP optimization report](VALIDATION_QP.md) records current
-matched timing, numerical parity and the failed heterogeneous stress cases;
+output semantics. The [bound-recovery study](VALIDATION_BOUND_RECOVERY.md) records
+exact failed-surrogate diagnoses and the current qualification status; its
+[diagnostic contract](docs/BOUND_RECOVERY.md) explains capture and replay.
+The historical [QP optimization report](VALIDATION_QP.md) records `430db26`'s
+matched timing, numerical parity and failed heterogeneous stress cases;
 its [evidence archive](validation/cuda-qp-v3/README.md) retains every attempt.
 The earlier [validation report](VALIDATION_CUDA.md) distinguishes local
 reference tests from allocated GPU qualification for the `daaf50a` baseline; its

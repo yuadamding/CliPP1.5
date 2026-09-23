@@ -1,0 +1,120 @@
+{
+  "fixed_problems": [
+    {
+      "current_lambda": 0.0,
+      "differing_fields": [],
+      "equal": {
+        "labels": true,
+        "raw_multiplicity": true,
+        "refitted_multiplicity": true
+      },
+      "fixed_problem": true,
+      "literal_lambda_equal": true,
+      "max_absolute_errors": {
+        "centers": 0.0,
+        "raw_ccf": 0.0,
+        "raw_objective": 0.0,
+        "refitted_ccf": 0.0,
+        "score": 0.0
+      },
+      "reference_lambda": 0.0,
+      "scope": "identical fixed problem",
+      "within_existing_parity_gates": true
+    },
+    {
+      "current_lambda": 0.6251941309391056,
+      "differing_fields": [],
+      "equal": {
+        "labels": true,
+        "raw_multiplicity": true,
+        "refitted_multiplicity": true
+      },
+      "fixed_problem": true,
+      "literal_lambda_equal": true,
+      "max_absolute_errors": {
+        "centers": 0.0,
+        "raw_ccf": 0.0,
+        "raw_objective": 0.0,
+        "refitted_ccf": 0.0,
+        "score": 0.0
+      },
+      "reference_lambda": 0.6251941309391056,
+      "scope": "identical fixed problem",
+      "within_existing_parity_gates": true
+    },
+    {
+      "current_lambda": 10.003106095025691,
+      "differing_fields": [],
+      "equal": {
+        "labels": true,
+        "raw_multiplicity": true,
+        "refitted_multiplicity": true
+      },
+      "fixed_problem": true,
+      "literal_lambda_equal": true,
+      "max_absolute_errors": {
+        "centers": 0.0,
+        "raw_ccf": 0.0,
+        "raw_objective": 0.0,
+        "refitted_ccf": 0.0,
+        "score": 0.0
+      },
+      "reference_lambda": 10.003106095025691,
+      "scope": "identical fixed problem",
+      "within_existing_parity_gates": true
+    },
+    {
+      "current_lambda": 160.04969752041106,
+      "differing_fields": [],
+      "equal": {
+        "labels": true,
+        "raw_multiplicity": true,
+        "refitted_multiplicity": true
+      },
+      "fixed_problem": true,
+      "literal_lambda_equal": true,
+      "max_absolute_errors": {
+        "centers": 0.0,
+        "raw_ccf": 0.0,
+        "raw_objective": 0.0,
+        "refitted_ccf": 0.0,
+        "score": 0.0
+      },
+      "reference_lambda": 160.04969752041106,
+      "scope": "identical fixed problem",
+      "within_existing_parity_gates": true
+    }
+  ],
+  "independent_adaptive_graphs": {
+    "current_lambda_scale": 2560.795160326577,
+    "graph_weights_identical": true,
+    "pilot_phi_max_absolute_difference": 0.0,
+    "reference_lambda_scale": 2560.795160326577,
+    "scope": "Independent pilot/adaptive graph differences; not the identical fixed-problem comparison",
+    "selected_caps_max_absolute_difference": 0.0,
+    "selected_objective_perturbation_envelope": 0.0,
+    "weights_max_absolute_difference": 0.0
+  },
+  "independent_full_fit": {
+    "current_lambda": 10.003106095025691,
+    "differing_fields": [],
+    "equal": {
+      "labels": true,
+      "raw_multiplicity": true,
+      "refitted_multiplicity": true
+    },
+    "fixed_problem": false,
+    "literal_lambda_equal": true,
+    "max_absolute_errors": {
+      "centers": 0.0,
+      "raw_ccf": 0.0,
+      "raw_objective": 0.0,
+      "refitted_ccf": 0.0,
+      "score": 0.0
+    },
+    "reference_lambda": 10.003106095025691,
+    "scope": "independent adaptive full fits",
+    "within_existing_parity_gates": true
+  },
+  "scope": "Fixed problem parity and independent full-fit differences are separate claims"
+}

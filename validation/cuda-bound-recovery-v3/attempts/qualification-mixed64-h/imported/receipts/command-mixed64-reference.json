@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13",
+    "-B",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923h/source/benchmarks/qualify_mixed_cuda.py",
+    "--device",
+    "cuda:0",
+    "--out",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923h/results/mixed64-reference.json",
+    "--fixture",
+    "mixed_support",
+    "--nodes",
+    "64",
+    "--mode",
+    "reference",
+    "--expected-source-sha256",
+    "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+    "--timeout-seconds",
+    "1500"
+  ],
+  "source_role": "baseline",
+  "timeout_seconds": 1620
+}

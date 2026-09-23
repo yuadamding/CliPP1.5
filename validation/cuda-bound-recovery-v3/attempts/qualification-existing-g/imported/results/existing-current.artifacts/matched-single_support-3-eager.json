@@ -1,0 +1,292 @@
+{
+  "clonal_constraint": false,
+  "cluster_centers": [
+    0.96,
+    0.41
+  ],
+  "cluster_labels": [
+    1,
+    1,
+    0
+  ],
+  "compilation_banks": {},
+  "graph_edges": 3,
+  "literal_lambda": 9.829880211738761,
+  "path_records": [],
+  "pilot_and_graph": {
+    "gap_floor": 0.028000000000000004,
+    "independent_numpy_recipe_atol": 2.842170943040401e-14,
+    "independent_numpy_recipe_max_weight_error": 8.881784197001252e-16,
+    "independent_numpy_recipe_rtol": 2.842170943040401e-14,
+    "normalization": 13.11728395061728,
+    "pilot_gaps": [
+      1.4495071809506044e-12,
+      1.4921397450962104e-12,
+      1.9895196601282805e-12
+    ],
+    "pilot_loss": [
+      50.04024235381878,
+      51.39566706172255,
+      69.23469670899615
+    ],
+    "pilot_lower_bounds": [
+      50.040242353817334,
+      51.395667061721056,
+      69.23469670899416
+    ],
+    "pilot_phi": [
+      0.4,
+      0.42,
+      0.96
+    ],
+    "pilot_sha256": "92be688d50ad9bd7cd46f749bb1e7eaf7a8594d2ffecd2ead34b0a5ee32726da",
+    "pilot_subdivisions": 0,
+    "recipe_recomputed_exactly": true,
+    "selected_caps_sha256": "e03134d886288d4e34fa1558101845e3708b6f097c811e1ab8ab461738a95b88",
+    "weight_rule": "all_pairs_inverse_gap_mean_one_adjacent_floor_v1",
+    "weights": [
+      [
+        0.0,
+        2.7226890756302526,
+        0.13613445378151265
+      ],
+      [
+        2.7226890756302526,
+        0.0,
+        0.14117647058823532
+      ],
+      [
+        0.13613445378151265,
+        0.14117647058823532,
+        0.0
+      ]
+    ],
+    "weights_sha256": "ec453fbf72a24daa9a8c4f89f86776e7475e793bf37c6ad935ca354e7cbc87ab"
+  },
+  "raw_ccf": [
+    0.4190292860198725,
+    0.4190292860198725,
+    0.9328635344425702
+  ],
+  "raw_objective": 172.1359429032922,
+  "raw_qualified": true,
+  "refitted_ccf": [
+    0.41,
+    0.41,
+    0.96
+  ],
+  "score": 346.07758209567567,
+  "search_status": "complete",
+  "seconds": 0.18662096001207829,
+  "selected_lambda": 9.829880211738761,
+  "selected_raw_diagnostics": {
+    "audit_calls": 2,
+    "audit_diagnostics": {
+      "clonal_constraint": false,
+      "coverage": "all_feasible_signed_subsets_of_exact_fused_groups",
+      "negative": {
+        "attained_value": 0.0,
+        "iterations": 0,
+        "lower_bound": -2.3684859466079804e-15,
+        "objective_scale": 26.764242741404463,
+        "roundoff_margin": 2.3684859466079804e-15,
+        "roundoff_unit": 0.03736328390315312,
+        "status": "qualified_lower_bound",
+        "tolerance": 7.472656780630625e-07
+      },
+      "positive": {
+        "attained_value": 0.0,
+        "iterations": 0,
+        "lower_bound": -2.368521473034242e-15,
+        "objective_scale": 26.764242741404463,
+        "roundoff_margin": 2.368521473034242e-15,
+        "roundoff_unit": 0.03736328390315312,
+        "status": "qualified_lower_bound",
+        "tolerance": 7.472656780630625e-07
+      },
+      "proof": "device_dual_lower_bounds_of_complete_subset_cut_relaxation",
+      "tolerance_rule": "derivative_plus_tol_times_one_plus_absolute_node_and_cut_terms"
+    },
+    "audit_seconds": 0.00561020290479064,
+    "audit_signed_direction_count": 2,
+    "audit_status": "qualified",
+    "backtracks": 0,
+    "box_feasible": true,
+    "clonal_constraint": false,
+    "direction_restarts": 0,
+    "directional_qualified": true,
+    "directional_stationarity_qualified": true,
+    "global_optimality_proven": false,
+    "inner_certificate_scope": "last_solved_surrogate_not_raw_likelihood",
+    "inner_gap": 3.6638209755158396e-15,
+    "inner_gap_qualified": true,
+    "inner_gap_scale": 1.4658741506413022,
+    "inner_iterations": 48,
+    "inner_kkt_qualified": true,
+    "inner_kkt_residual": 2.7476218356541535e-09,
+    "inner_polish_iterations": 0,
+    "objective_tail": [
+      172.13595934718785,
+      172.13594290329752,
+      172.1359429032922
+    ],
+    "outer_iterations": 3,
+    "phase_timing_scope": "host wall through device-qualified QP/audit returns",
+    "qp_admm_iterations": 112,
+    "qp_calls": 7,
+    "qp_dual_warm_resets": 0,
+    "qp_dual_warm_starts": 5,
+    "qp_polish_iterations": 5,
+    "qp_seconds": 0.16589999035932124,
+    "raw_branch_stationarity_qualified": true,
+    "raw_stationarity_qualified": true,
+    "search_complete": true,
+    "search_policy": "unconstrained_complete_graph_multistart_v1",
+    "starts": [
+      {
+        "audit_calls": 1,
+        "audit_diagnostics": {
+          "clonal_constraint": false,
+          "coverage": "all_feasible_signed_subsets_of_exact_fused_groups",
+          "negative": {
+            "attained_value": 0.0,
+            "iterations": 0,
+            "lower_bound": -2.3684859466079804e-15,
+            "objective_scale": 26.764242741404463,
+            "roundoff_margin": 2.3684859466079804e-15,
+            "roundoff_unit": 0.03736328390315312,
+            "status": "qualified_lower_bound",
+            "tolerance": 7.472656780630625e-07
+          },
+          "positive": {
+            "attained_value": 0.0,
+            "iterations": 0,
+            "lower_bound": -2.368521473034242e-15,
+            "objective_scale": 26.764242741404463,
+            "roundoff_margin": 2.368521473034242e-15,
+            "roundoff_unit": 0.03736328390315312,
+            "status": "qualified_lower_bound",
+            "tolerance": 7.472656780630625e-07
+          },
+          "proof": "device_dual_lower_bounds_of_complete_subset_cut_relaxation",
+          "tolerance_rule": "derivative_plus_tol_times_one_plus_absolute_node_and_cut_terms"
+        },
+        "audit_seconds": 0.0028174230828881264,
+        "audit_signed_direction_count": 2,
+        "audit_status": "qualified",
+        "backtracks": 0,
+        "box_feasible": true,
+        "clonal_constraint": false,
+        "direction_restarts": 0,
+        "directional_qualified": true,
+        "directional_stationarity_qualified": true,
+        "global_optimality_proven": false,
+        "inner_certificate_scope": "last_solved_surrogate_not_raw_likelihood",
+        "inner_gap": 3.6638209755158396e-15,
+        "inner_gap_qualified": true,
+        "inner_gap_scale": 1.4658741506413022,
+        "inner_iterations": 48,
+        "inner_kkt_qualified": true,
+        "inner_kkt_residual": 2.7476218356541535e-09,
+        "inner_polish_iterations": 0,
+        "objective": 172.1359429032922,
+        "objective_tail": [
+          172.13595934718785,
+          172.13594290329752,
+          172.1359429032922
+        ],
+        "outer_iterations": 3,
+        "phase_timing_scope": "host wall through device-qualified QP/audit returns",
+        "qp_admm_iterations": 48,
+        "qp_calls": 3,
+        "qp_dual_warm_resets": 0,
+        "qp_dual_warm_starts": 2,
+        "qp_polish_iterations": 2,
+        "qp_seconds": 0.0716212831903249,
+        "qualified": true,
+        "raw_branch_stationarity_qualified": true,
+        "raw_stationarity_qualified": true,
+        "stationarity_residual": 2.7402954631822442e-09,
+        "status": "qualified",
+        "surrogate_qp_calls": 3
+      },
+      {
+        "audit_calls": 1,
+        "audit_diagnostics": {
+          "clonal_constraint": false,
+          "coverage": "all_feasible_signed_subsets_of_exact_fused_groups",
+          "negative": {
+            "attained_value": 0.0,
+            "iterations": 0,
+            "lower_bound": -2.3684858839183975e-15,
+            "objective_scale": 26.764242741404463,
+            "roundoff_margin": 2.3684858839183975e-15,
+            "roundoff_unit": 0.03736328390315312,
+            "status": "qualified_lower_bound",
+            "tolerance": 7.472656780630625e-07
+          },
+          "positive": {
+            "attained_value": 0.0,
+            "iterations": 0,
+            "lower_bound": -2.3685214099629494e-15,
+            "objective_scale": 26.764242741404463,
+            "roundoff_margin": 2.3685214099629494e-15,
+            "roundoff_unit": 0.03736328390315312,
+            "status": "qualified_lower_bound",
+            "tolerance": 7.472656780630625e-07
+          },
+          "proof": "device_dual_lower_bounds_of_complete_subset_cut_relaxation",
+          "tolerance_rule": "derivative_plus_tol_times_one_plus_absolute_node_and_cut_terms"
+        },
+        "audit_seconds": 0.0027927798219025135,
+        "audit_signed_direction_count": 2,
+        "audit_status": "qualified",
+        "backtracks": 0,
+        "box_feasible": true,
+        "clonal_constraint": false,
+        "direction_restarts": 0,
+        "directional_qualified": true,
+        "directional_stationarity_qualified": true,
+        "global_optimality_proven": false,
+        "inner_certificate_scope": "last_solved_surrogate_not_raw_likelihood",
+        "inner_gap": 2.609507458980416e-15,
+        "inner_gap_qualified": true,
+        "inner_gap_scale": 1.4658739897084325,
+        "inner_iterations": 64,
+        "inner_kkt_qualified": true,
+        "inner_kkt_residual": 7.052387067212564e-08,
+        "inner_polish_iterations": 0,
+        "objective": 172.1359429032922,
+        "objective_tail": [
+          172.9599090163518,
+          172.13776040714563,
+          172.13594290524986,
+          172.1359429032922
+        ],
+        "outer_iterations": 4,
+        "phase_timing_scope": "host wall through device-qualified QP/audit returns",
+        "qp_admm_iterations": 64,
+        "qp_calls": 4,
+        "qp_dual_warm_resets": 0,
+        "qp_dual_warm_starts": 3,
+        "qp_polish_iterations": 3,
+        "qp_seconds": 0.09427870716899633,
+        "qualified": true,
+        "raw_branch_stationarity_qualified": true,
+        "raw_stationarity_qualified": true,
+        "stationarity_residual": 7.077697072226954e-08,
+        "status": "qualified",
+        "surrogate_qp_calls": 4
+      }
+    ],
+    "starts_attempted": 2,
+    "starts_qualified": 2,
+    "starts_unresolved": 0,
+    "stationarity_residual": 2.7402954631822442e-09,
+    "status": "qualified",
+    "surrogate_qp_calls": 3
+  },
+  "timings": {
+    "scope": "fixed shared pilot, graph and literal lambda; no prior continuation"
+  }
+}

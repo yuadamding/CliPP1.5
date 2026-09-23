@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "bsub",
+    "-H",
+    "-q",
+    "egpu",
+    "-J",
+    "clipp1d_bound_20260923i",
+    "-n",
+    "2",
+    "-M",
+    "8",
+    "-R",
+    "rusage[mem=8] span[hosts=1]",
+    "-gpu",
+    "num=1:mode=exclusive_process:gmodel=NVIDIAL40",
+    "-W",
+    "30",
+    "-cwd",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923i",
+    "-oo",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923i/lsf-logs/qualification.%J.out",
+    "-eo",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923i/lsf-logs/qualification.%J.err",
+    "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13 -B /rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923i/worker.py /rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923i"
+  ],
+  "plan_sha256": "d9c5d8d8bde36634bdb5c2aedebc50621b9f758ee58d19ca65efe5d44a72ac01"
+}

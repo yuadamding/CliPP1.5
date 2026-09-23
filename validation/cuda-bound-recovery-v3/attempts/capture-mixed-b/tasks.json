@@ -1,0 +1,21 @@
+[
+  {
+    "name": "capture-mixed_support-256",
+    "source_role": "baseline",
+    "script": "capture_failed_qp.py",
+    "subcommand": "capture",
+    "args": [
+      "--fixture",
+      "mixed_support",
+      "--nodes",
+      "256",
+      "--expected-failures",
+      "11",
+      "--expected-source-sha256",
+      "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+      "--timeout-seconds",
+      "1500"
+    ],
+    "timeout_seconds": 1620
+  }
+]

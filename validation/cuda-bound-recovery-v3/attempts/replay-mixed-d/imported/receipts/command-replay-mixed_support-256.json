@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13",
+    "-B",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923d/source/benchmarks/replay_failed_qp.py",
+    "--device",
+    "cuda:0",
+    "--out",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923d/results/replay-mixed_support-256.json",
+    "--capture",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923b/results/capture-mixed_support-256.json",
+    "--capture-sha256",
+    "d457d0be06291349cefcce142aff8b8beeeb4f1cb88ab77e4da0acd69347cd26",
+    "--expected-source-sha256",
+    "3d374f47e25067352250a2f29da35c83a99bbca68fa9aca84e64a8de828d762d",
+    "--timeout-seconds",
+    "1500"
+  ],
+  "source_role": "current",
+  "timeout_seconds": 1620
+}

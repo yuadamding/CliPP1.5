@@ -1,0 +1,169 @@
+{
+  "files": {
+    "case-logs/replay-below_one-64.err": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "receipts/accepted.json": {
+      "bytes": 179,
+      "sha256": "7b9d78e3bb32d799e3fc812137a2a37ea85844a1b14a57941b027fc8db699bd9"
+    },
+    "receipts/admission-observations.json": {
+      "bytes": 3126,
+      "sha256": "db168c41b2c2b74c153f2d754ccffdea7e2440c964451dc59d52b139b2365e22"
+    },
+    "receipts/admitted.json": {
+      "bytes": 1686,
+      "sha256": "d5c00a58366914c96b8a2f50eb430e3f0179a3e23c95e4064382f2b3b67150df"
+    },
+    "receipts/command-replay-below_one-64.json": {
+      "bytes": 747,
+      "sha256": "5a6cd776cbc1fbd7ef61beceb54acbbe139411c16f6e552dda37a034d81b0597"
+    },
+    "receipts/execution.json": {
+      "bytes": 107,
+      "sha256": "1e0763406c358d5c37f1f4e40087ea2d868f35dbc6ee4df426bfec884872dbbf"
+    },
+    "receipts/release-intent.json": {
+      "bytes": 50,
+      "sha256": "b8e1b722a630380704978823fd2634ddc0334cd30e1dd5d5448e0212f28937f5"
+    },
+    "receipts/release-response.json": {
+      "bytes": 81,
+      "sha256": "14aa8cbc1cc3fa615694db7f1b377b3cc761f9385ae1524b71694a24c6d90ab2"
+    },
+    "receipts/resource-contract.json": {
+      "bytes": 3228,
+      "sha256": "7c7c949f8ae8787c67cf3c8f85854f6a1e275bcd6df433a6a8f5b231464b06d9"
+    },
+    "receipts/startup.json": {
+      "bytes": 5180,
+      "sha256": "6340c6acba5040c95a633f1c942ef8fda6ebafa1eed1700189d5bd837721795e"
+    },
+    "receipts/submit-intent.json": {
+      "bytes": 841,
+      "sha256": "0168a5ba1fbba66723dc8b5d883a9eb280df4402e0d57451f7bf631a6e948424"
+    },
+    "receipts/submit-response.json": {
+      "bytes": 94,
+      "sha256": "ba6e05626c51179ccece7ddc043150ca6c919daf3e785a081f99ae01ae4db23f"
+    },
+    "receipts/terminal.json": {
+      "bytes": 519,
+      "sha256": "cd8aa2b3f2adb06622ba372bb3c64a875aec8c94f86f780b5aa033c7392f6d10"
+    },
+    "results/replay-below_one-64.artifacts/capture-0000/last_equality_attempt-legacy_uniform-q.json": {
+      "bytes": 106047,
+      "sha256": "23ee1b576d8e9e1d6821c7127065226b461feae84a614f807bdf4afb432d70e9"
+    },
+    "results/replay-below_one-64.artifacts/capture-0000/last_equality_attempt-legacy_uniform-x.json": {
+      "bytes": 1765,
+      "sha256": "9201a2b904986e661a911ee59def7011954d69668e25a0f7fec85fcd31b4036d"
+    },
+    "results/replay-below_one-64.artifacts/capture-0000/last_equality_attempt-production_cone-q.json": {
+      "bytes": 106129,
+      "sha256": "5ecd314646e0ce991f29135223d1f52fee9e662d7fde898b07edcbe0a7d38d5f"
+    },
+    "results/replay-below_one-64.artifacts/capture-0000/last_equality_attempt-production_cone-x.json": {
+      "bytes": 1765,
+      "sha256": "9201a2b904986e661a911ee59def7011954d69668e25a0f7fec85fcd31b4036d"
+    },
+    "results/replay-below_one-64.artifacts/capture-0000/last_refined_state-legacy_uniform-q.json": {
+      "bytes": 106101,
+      "sha256": "46b170edc3afb077dfc29ef3b7aca3bfdbbfaca212f667d80192c71fd19e2f11"
+    },
+    "results/replay-below_one-64.artifacts/capture-0000/last_refined_state-legacy_uniform-x.json": {
+      "bytes": 1769,
+      "sha256": "995d8276856d4cb199d303dfd89e6b6ad946cb0d53b036106b294bb4e029396a"
+    },
+    "results/replay-below_one-64.artifacts/capture-0000/last_refined_state-production_cone-q.json": {
+      "bytes": 106009,
+      "sha256": "699fb3cb75611b5e086f9a0f65db7da3d08cc799cafc175beed17651616169cc"
+    },
+    "results/replay-below_one-64.artifacts/capture-0000/last_refined_state-production_cone-x.json": {
+      "bytes": 1769,
+      "sha256": "995d8276856d4cb199d303dfd89e6b6ad946cb0d53b036106b294bb4e029396a"
+    },
+    "results/replay-below_one-64.artifacts/capture-0000/replay-q.json": {
+      "bytes": 106191,
+      "sha256": "0efea75882d56c0926c80be282a7b405d595b4f09923819dd2444adfe282f465"
+    },
+    "results/replay-below_one-64.artifacts/capture-0000/replay-x.json": {
+      "bytes": 1769,
+      "sha256": "995d8276856d4cb199d303dfd89e6b6ad946cb0d53b036106b294bb4e029396a"
+    },
+    "results/replay-below_one-64.artifacts/capture-0000/result.json": {
+      "bytes": 44182,
+      "sha256": "63fb09d815934404dc3eda5e0b80226e774b64376e3d6563240371c8e8ccec6b"
+    },
+    "results/replay-below_one-64.artifacts/capture-0001/last_equality_attempt-legacy_uniform-q.json": {
+      "bytes": 105875,
+      "sha256": "34ec8ece4ac659b053f8ef79a9dbddd751e4b2c0f21596c1e26094b2c781ae65"
+    },
+    "results/replay-below_one-64.artifacts/capture-0001/last_equality_attempt-legacy_uniform-x.json": {
+      "bytes": 1711,
+      "sha256": "5815eee8e2ab3ddf42487d30ac06885c9ae38501b84a7333766d1c13b326bf0e"
+    },
+    "results/replay-below_one-64.artifacts/capture-0001/last_equality_attempt-production_cone-q.json": {
+      "bytes": 105945,
+      "sha256": "312c4e20b7650d9b340bd5dc68183966f093aec42e15562770b6feb8b87b1d51"
+    },
+    "results/replay-below_one-64.artifacts/capture-0001/last_equality_attempt-production_cone-x.json": {
+      "bytes": 1711,
+      "sha256": "5815eee8e2ab3ddf42487d30ac06885c9ae38501b84a7333766d1c13b326bf0e"
+    },
+    "results/replay-below_one-64.artifacts/capture-0001/last_refined_state-legacy_uniform-q.json": {
+      "bytes": 106077,
+      "sha256": "baacfa2932f5bd6a371bafaa04b53439d73e95c80fa9438a0eeaf90f0ea92a26"
+    },
+    "results/replay-below_one-64.artifacts/capture-0001/last_refined_state-legacy_uniform-x.json": {
+      "bytes": 1771,
+      "sha256": "0fae2d4e8e7e3dd00b1bf4a8bf4cf4e9abc71e371e2f4630e127d8fa89ad52bb"
+    },
+    "results/replay-below_one-64.artifacts/capture-0001/last_refined_state-production_cone-q.json": {
+      "bytes": 106103,
+      "sha256": "4edc855943692da99f70483263087c303752a412ad7a686f842bd7ace0f61e31"
+    },
+    "results/replay-below_one-64.artifacts/capture-0001/last_refined_state-production_cone-x.json": {
+      "bytes": 1771,
+      "sha256": "0fae2d4e8e7e3dd00b1bf4a8bf4cf4e9abc71e371e2f4630e127d8fa89ad52bb"
+    },
+    "results/replay-below_one-64.artifacts/capture-0001/replay-q.json": {
+      "bytes": 106107,
+      "sha256": "d72b9594b548de34bd7923f2d4f97e7bfcea2026dcc78680fae82c074fb6eddb"
+    },
+    "results/replay-below_one-64.artifacts/capture-0001/replay-x.json": {
+      "bytes": 1771,
+      "sha256": "9e0937243927dc4471e6c72fff9fdb320bb6b3e6022f78eed6706315fda3d534"
+    },
+    "results/replay-below_one-64.artifacts/capture-0001/result.json": {
+      "bytes": 44109,
+      "sha256": "069cd5de0ee6af34d8dadf87ec2e2bdae34a75d3ce8841a85170cfdb85cffbcc"
+    },
+    "results/replay-below_one-64.events.jsonl": {
+      "bytes": 9850,
+      "sha256": "cccd890bcb8fbfcfa58542b93c64c5738d9de94e406016760073020f189e3395"
+    },
+    "results/replay-below_one-64.json": {
+      "bytes": 131731,
+      "sha256": "74c4ee0847e7a0c86e29943bb7a6350aa81636db120b8ae5f4b22fa0a25dfdcc"
+    }
+  },
+  "scheduler": "\nJob <77334997>, Job Name <clipp1d_bound_20260923e>, User <yding4>, Project <default>, Status <DONE>, Queue <egpu>, Command </rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13 -B /rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923e/worker.py /rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923e>, Share group charged </yding4>, Esub <minrunlimit jobinfo gpulimit>\nTue Sep 22 22:12:16: Submitted from host <ldragon4> with hold, CWD </rsrch8/home/bcb/yding4>, Specified CWD </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923e>, Output File (overwrite) </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923e/lsf-logs/qualification.77334997.out>, Error File (overwrite) </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923e/lsf-logs/qualification.77334997.err>, 2 Task(s), Requested Resources <rusage[mem=8] span[hosts=1]>, Requested GPU <num=1:mode=exclusive_process:gmodel=NVIDIAL40>;\nTue Sep 22 22:12:25: Started 2 Task(s) on Host(s) <2*gdragon005>, Allocated 2 Slot(s) on Host(s) <2*gdragon005>, Execution Home </home/yding4>, Execution CWD </rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923e>;\nTue Sep 22 22:12:44: Done successfully. The CPU time used is 17.0 seconds. HOST: gdragon005; CPU_TIME: 17 seconds; \n RUNLIMIT                \n 30.0 min\n\n MEMLIMIT\n      8 G \n\n MEMORY USAGE:\n MAX MEM: 1 Gbytes; MEM Efficiency: 12.50%\n\n CPU USAGE:\n CPU PEAK: 0.89 ;  CPU PEAK DURATION: 19 second(s)\n CPU AVERAGE EFFICIENCY: 44.74% ;  CPU PEAK EFFICIENCY: 44.74%\n\n SCHEDULING PARAMETERS:\n           r15s   r1m  r15m   ut      pg    io   ls    it    tmp    swp    mem\n loadSched   -    1.2    -     -    10.0     -    -     -     -      -      -  \n loadStop    -     -     -     -       -     -    -     -     -      -      -  \n\n EXTERNAL MESSAGES:\n MSG_ID FROM       POST_TIME      MESSAGE                             ATTACHMENT \n 0      yding4     Sep 22 22:12   gdragon005:gpus=3;                      N     \n\n RESOURCE REQUIREMENT DETAILS:\n Combined: select[((hi==0) && (ngpus>0)) && (type == local)] order[r15s:pg] rusage[mem=8.00:ngpus_physical=1.00:gmodel=NVIDIAL40] span[hosts=1]\n Effective: select[(((hi==0)) && (ngpus>0)) && (type == local)] order[r15s:pg] rusage[mem=8.00,ngpus_physical=1.00:gmodel=NVIDIAL40] span[hosts=1] \n\n GPU REQUIREMENT DETAILS:\n Combined: num=1:mode=exclusive_process:mps=no:j_exclusive=yes:gmodel=NVIDIAL40:gvendor=nvidia\n Effective: num=1:mode=exclusive_process:mps=no:j_exclusive=yes:gmodel=NVIDIAL40:gvendor=nvidia\n\n",
+  "terminal": {
+    "elapsed_seconds": 16.194507837295532,
+    "job_id": "77334997",
+    "passed": true,
+    "plan_sha256": "7c1511c75d003ee16dc94d5e7107d7d31bcac871b41af3d261c1587474674efa",
+    "scope": "source-bound synthetic CUDA task; diagnostic capture success is not complete-fit qualification",
+    "tasks": [
+      {
+        "name": "replay-below_one-64",
+        "receipt_sha256": "74c4ee0847e7a0c86e29943bb7a6350aa81636db120b8ae5f4b22fa0a25dfdcc",
+        "returncode": 0,
+        "source_role": "current",
+        "status": "passed"
+      }
+    ]
+  }
+}

@@ -57,14 +57,20 @@ def problem(n, seed=42):
 
 
 @pytest.mark.parametrize('n', [1, 2, 7, 16])
-def test_prepared_flow_matches_original_arithmetic_through_repeated_cap_projections(n):
+def test_interior_prepared_flow_matches_legacy_projection_through_repeated_caps(n):
     x, q, h, target, lower, upper, caps = problem(n)
+    # Bound normals now adapt to the feasible cone rather than a uniform target.
+    # Interior blocks retain the original affine projection mathematically;
+    # subtracting its constant group mean can change final rounding by an ULP.
+    x = .25 + .5 * x
+    lower, upper = torch.zeros_like(x), torch.ones_like(x)
+    target = target.clamp(0., 1.)
     context = qp.prepare_flow_polish(x, h, target, lower, upper, caps)
     old = q.clone()
     for _ in range(20):
         q = qp.flow_polish_step(q, context, Kernels('cpu'))
         old = legacy_flow(x, old, h, target, lower, upper, caps)
-        torch.testing.assert_close(q, old, atol=0, rtol=0)
+        torch.testing.assert_close(q, old, atol=2e-15, rtol=2e-15)
         assert bool(torch.isfinite(q).all() & (q.abs() <= caps).all() & (q == -q.T).all())
 
 

@@ -1,0 +1,7 @@
+{
+  "returncode": 0,
+  "script_sha256": "5f35f96f78dcf2dadd2b4347ddd35080d6f0ac282c1ecec8871c1bd87ad52aa2",
+  "stderr": "",
+  "stdout": "RECEIPT={\"stage\": \"/Users/yding4/clipp2_clipp1d_bound_transfer_20260923-b55q2hpg\", \"uid\": 1896174575, \"bytes_free\": 304864178176}\n",
+  "utc": "2026-09-23T03:07:09.894870+00:00"
+}

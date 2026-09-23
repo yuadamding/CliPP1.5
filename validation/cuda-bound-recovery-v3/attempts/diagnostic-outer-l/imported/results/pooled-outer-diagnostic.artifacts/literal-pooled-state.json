@@ -1,0 +1,312 @@
+{
+  "compiled": {
+    "curvature": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/32cb17529f4698cdce433bd8955c112d8e70dc6f705eb92cc27b2f03491a19c0.json",
+      "sha256": "3e57becb4678b2a9b9abddf44c5b638dc1fca51aed07d26d961d85bf6ce97b38",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "68434c90c2f89183c33a33e04d642838196ca7d797674fc59341abfbbb2fcfc6"
+    },
+    "left": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/8f4efa9af9f43250f6c081df2b1bd3da21e03c25c94d14f9cf46d02cd3c29895.json",
+      "sha256": "84ec6c91e402437651d1fae1a10ee36510f1d36d32de0512d9ffee74c954d860",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "0b2bb906d0f401893a91344c23bceabe0fa9851ca8ede9b1e7303c567c2713a4"
+    },
+    "left_curvature": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/1941f19d5190a35a0cfb360ded287a33088875c2239eb17bc5365a22a0eaaa41.json",
+      "sha256": "a5332fadee36177f9e2aca28576169043a0e88da713fa64bc0a253ef28b3909d",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "cd554b8f984cd41932aff1806c27d2b50901783e4532bfde0c2b5dbf83c46ae6"
+    },
+    "losses": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/4e925398e6309b4ba8601b7038a89342cceee18369265983a0d08930cb0dfef3.json",
+      "sha256": "651b676a0d287d1282b646a0b045cbd6d1f640f1ca4f780098370369a0ac5378",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "4fb387cefc7a249ab393b7e4000cb47453b307c1c00d0c2116693d1444d69f92"
+    },
+    "missing_left_at_box": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/bd0a103b1268b6f08f42b1982d20b040493cd5ce6c9aa4b75074b7415b54e429.json",
+      "sha256": "f7ed5a271e5ce87a43b6bd9e59a1970129c377f80ea34e632b16246a3c883458",
+      "shape": [
+        256,
+        4
+      ],
+      "tensor_sha256": "3e9d277a115cf8c92da0fbbdbac8dbe8ec484c7ecffc50c21d1566379f98a05a"
+    },
+    "missing_right_at_box": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/2ea6315479c372fd6dedb0d62a853d4dc7dadcc53aaba8e25a66848da6c1defa.json",
+      "sha256": "0ddbd986a56701a4d149a1feea55931f86be7efa661d8cad2b708a73dc94a97f",
+      "shape": [
+        256,
+        4
+      ],
+      "tensor_sha256": "9f1dcbc35c350d6027f98be0f5c8b43b42ca52b7604459c0c42be3aa88913d47"
+    },
+    "posterior": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/4378da0fc6afbd9bccfbb4abc27f1eec9fe9472ea282fedf8279ba5891793da2.json",
+      "sha256": "cdc601de6a01173306b8cbab9c3d66b7b0337cda67df9f96ee07ffa837ec97a2",
+      "shape": [
+        256,
+        4
+      ],
+      "tensor_sha256": "809d2601244d8a7a5c651440aae60dd144244adde83c512f46d25988b78cf46a"
+    },
+    "represented_gradient": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/8653d0a555b5b16e4788e805b34db320b8825962c2ec76b84b86726540c98fc9.json",
+      "sha256": "2da4c9696e551a0337ac9ace59368338e5c032b8e1030f198d32cddb99a71d99",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "273155cfde4871044a48ecf857a5c5d4d0ed4a6d2c99f7dc73376a0ebe08d015"
+    },
+    "right": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/8653d0a555b5b16e4788e805b34db320b8825962c2ec76b84b86726540c98fc9.json",
+      "sha256": "2da4c9696e551a0337ac9ace59368338e5c032b8e1030f198d32cddb99a71d99",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "273155cfde4871044a48ecf857a5c5d4d0ed4a6d2c99f7dc73376a0ebe08d015"
+    },
+    "right_curvature": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/2b69b98cafa172fd7804cb62b622ff124cc39b21a19a71a60ae772257259308d.json",
+      "sha256": "174cafe72ce57581bd72c4c8d74fe221707b0cb6c24b09fc45c8dc0228f2f617",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "8c7bdb31a0be9a1f0632d811259c9b8765da0d19c637065ecfa564843e1a06eb"
+    },
+    "selected_gradient": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/8f4efa9af9f43250f6c081df2b1bd3da21e03c25c94d14f9cf46d02cd3c29895.json",
+      "sha256": "84ec6c91e402437651d1fae1a10ee36510f1d36d32de0512d9ffee74c954d860",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "0b2bb906d0f401893a91344c23bceabe0fa9851ca8ede9b1e7303c567c2713a4"
+    }
+  },
+  "eager": {
+    "curvature": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/58eda4fd83c607f47017b424b6803bf403fe59ff3cb1b1afbd3d7798fb7738f9.json",
+      "sha256": "a780ed4e80dd7342002cf014bfc201b26dfa126eb2c3774a42945272b0b423eb",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "052776fa51c3041aa752c618b5de427cd53b98296420b8963e0d1eb2896362e8"
+    },
+    "left": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/fdc4a16372eabe3b84eb712b82069cb1c99ba63fd7d1a1e7a1792f758fd0b615.json",
+      "sha256": "eb2feeaa9ba8092ff8b983cc30a091381b8d6754a04ae112907255213727449e",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "85ae365e04a31b82462c131429a887d8b9415c173950f6ff19b76e41b7d3ebf0"
+    },
+    "left_curvature": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/bffd078313f4dc754fd8b983291134a51b4015c30559c554a1df68983660a5cf.json",
+      "sha256": "0d2997445b7cbf7a8c20c5478eb8d7d7d50d5e13ab94a544cc8d03b0a8f85911",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "a58f7cfcaa1e78e818f1a8493fd812769ed5b22e2e1cff456ad863b219b0dfcd"
+    },
+    "losses": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/212414ec4a13e37f095fbc6fddf0feed4fac9ca7f283ed97295e8bb3592c2d61.json",
+      "sha256": "8858756f2f477b726585f4bc823f612af7851b826c1d055cb4b512ea25f323dc",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "3deca72a8bae6271ce0c0edf70f0a85f3a437d9450686b5c777bc7887828490f"
+    },
+    "missing_left_at_box": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/bd0a103b1268b6f08f42b1982d20b040493cd5ce6c9aa4b75074b7415b54e429.json",
+      "sha256": "f7ed5a271e5ce87a43b6bd9e59a1970129c377f80ea34e632b16246a3c883458",
+      "shape": [
+        256,
+        4
+      ],
+      "tensor_sha256": "3e9d277a115cf8c92da0fbbdbac8dbe8ec484c7ecffc50c21d1566379f98a05a"
+    },
+    "missing_right_at_box": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/2ea6315479c372fd6dedb0d62a853d4dc7dadcc53aaba8e25a66848da6c1defa.json",
+      "sha256": "0ddbd986a56701a4d149a1feea55931f86be7efa661d8cad2b708a73dc94a97f",
+      "shape": [
+        256,
+        4
+      ],
+      "tensor_sha256": "9f1dcbc35c350d6027f98be0f5c8b43b42ca52b7604459c0c42be3aa88913d47"
+    },
+    "posterior": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/b9052f7e9df7289f996eb7c1e39c8ff447ccf049471a55513e9c6540bf4d42b5.json",
+      "sha256": "8f722870bd5b0a724b45a2c77287c5af42bdcc069fa032bceebf02a6b731e6ef",
+      "shape": [
+        256,
+        4
+      ],
+      "tensor_sha256": "5b142dca50f89ccbd5b60954e27b09199c2d8cb6863180af02b5e1a17ce0b8bd"
+    },
+    "represented_gradient": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/61c6448fb588c18f81709910992e9221fb1171009aef20b341aa80c82d1c15a5.json",
+      "sha256": "d2ee37ff49a7d934b00718d62515e862b09a8740a4707212558afc9bd56f961a",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "6fdb86b2378d685ca2e6d89675bf39a3d8467687ad76ee52b6c4a9724dad1dfb"
+    },
+    "right": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/61c6448fb588c18f81709910992e9221fb1171009aef20b341aa80c82d1c15a5.json",
+      "sha256": "d2ee37ff49a7d934b00718d62515e862b09a8740a4707212558afc9bd56f961a",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "6fdb86b2378d685ca2e6d89675bf39a3d8467687ad76ee52b6c4a9724dad1dfb"
+    },
+    "right_curvature": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/7107a221424d857543735172ce43d124a07b1b234457c191302fc973a3f95cf4.json",
+      "sha256": "41c5724b449619550fdb9f0209106b140b7f42a1899ae12f2c72c7836fb5d59b",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "ed890b086ee9881fc675449ec9ebfb05fa6b14820c0264a3115112be681647d9"
+    },
+    "selected_gradient": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/fdc4a16372eabe3b84eb712b82069cb1c99ba63fd7d1a1e7a1792f758fd0b615.json",
+      "sha256": "eb2feeaa9ba8092ff8b983cc30a091381b8d6754a04ae112907255213727449e",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "85ae365e04a31b82462c131429a887d8b9415c173950f6ff19b76e41b7d3ebf0"
+    }
+  },
+  "initial_pooled": {
+    "dtype": "float64",
+    "path": "pooled-outer-diagnostic.artifacts/arrays/310c426297ce836f99e7bc2d98ebe60125566922b130eb6cd89eeb41511fea9a.json",
+    "sha256": "30117b46d584c0936c2110752a72b24daca49e883963bc548be0b500593224ca",
+    "shape": [
+      256
+    ],
+    "tensor_sha256": "fe070c58c04d8a848a2666ea9a9dc8c6c8317d02bfaa6b13dcb0484764d9af90"
+  },
+  "model": {
+    "alt": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/633272cb85b5862256c0bd66f6c2f84a64f2e323d42cdfd29763379794c25372.json",
+      "sha256": "7a764a0ae9d23f01567aa89da1c1655b14148fcc725140024b86443a014b7fd6",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "17fdf60c3ef250f2609653c6e15d701c576883a0b5807e26587a06523c752845"
+    },
+    "log_prior": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/6020ed5104ee31889e25ea5b0375ac21ee423fd2a3e25cc92be53acbb9b544c1.json",
+      "sha256": "aa971f3134bd94230c0fd3f0e7f9824bd0bbf87240e7f62d95fbaa05b33af589",
+      "shape": [
+        256,
+        4
+      ],
+      "tensor_sha256": "30a87451794e44ceabafdc00fd3b3959ee4a43f4d7f00b3aafd19d9e36b1cdae"
+    },
+    "lower": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/b56b6eb7f240e8913b9c9c3aa9b554fc4f3d1948e80f3f0004a88508e6cb4676.json",
+      "sha256": "37b312b124c8360fc6dbcc8f704d199bb2e48a280beb84251f11d2c877311409",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "9da73d45db4be867b3e2a8e0d2504c5b73617048eb3b66bbf2a37cc7a73c7c43"
+    },
+    "ref": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/35b6e4e564e452a7fec38106240b939b39a5706c3e36ea952cb37be3bd84bea9.json",
+      "sha256": "31ee8a94fac0131de0be66bdae49b4c492544fdf24910c209b9b2af774b86571",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "e21190ec6b616742a86b0f6da5798af244aae6b0bf7bef71b7c95c959021d916"
+    },
+    "slope": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/1c09084a9480c4372454828cdb0dd15a56da63b48d1539e90a1e3cde8a68ec30.json",
+      "sha256": "cef079498b1140d9cc373a1c522b81ccb28ec24ff4f2d78ecb38b5fdb4100fd6",
+      "shape": [
+        256,
+        4
+      ],
+      "tensor_sha256": "747f55fa2fb0138a22c86207031187ac1dc16789956729725712c0cd273b1f53"
+    },
+    "upper": {
+      "dtype": "float64",
+      "path": "pooled-outer-diagnostic.artifacts/arrays/b654d2c77e093ac183529a531b08504fefd1aff953181dbbf0e9b6e558e55475.json",
+      "sha256": "dce294a64ff759ac5219daa42c393d55763a16e4704e71912009b1ab59102814",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "b5aaaa20c8e3dfe7683c41bae3e66eff13aece2c0c5a1efddad4c5fc259c8d21"
+    }
+  },
+  "original_pilot_curvature": {
+    "dtype": "float64",
+    "path": "pooled-outer-diagnostic.artifacts/arrays/eddba751447eb388c73dcda99cb5165ab6613b4e6049476e69085dd89c9402c7.json",
+    "sha256": "1f0c912adef29ff1f92749d3f3a7b0c063bd6e1ba76ab1361548e402d6f0aec2",
+    "shape": [
+      256
+    ],
+    "tensor_sha256": "9d5585b31fe989ef4eee3a63ec42c8bacd736b259dcba98ca54871fb5963ce29"
+  },
+  "pilot": {
+    "dtype": "float64",
+    "path": "pooled-outer-diagnostic.artifacts/arrays/0636fb8db4f04c8860e1d91889192a85d3af8f2d6b42bfbf770bf26cbc30abc8.json",
+    "sha256": "30aa6ce7bd846886250ddc8c0a759f4e94c187ca6a46c832aaf642265d96faea",
+    "shape": [
+      256
+    ],
+    "tensor_sha256": "93578a222506d128765d6458b63236eeaaa28ff453249b255127da7d74780ed6"
+  },
+  "pooled_value": {
+    "dtype": "float64",
+    "path": "pooled-outer-diagnostic.artifacts/arrays/d2780c05fdd3c5759a71eb71d3cf96e2d6c6e0d56bb25bb16410f0b571ba0b64.json",
+    "sha256": "82c383e12d3dd9a55cd87ad73e3dc983a5b26fba849e0bb5371a5090a66a89e3",
+    "shape": [],
+    "tensor_sha256": "7a5a67f3465f8bb9af0516009ea730ac6f1da0858a603791b1c78d175f3fc469"
+  },
+  "weights": {
+    "dtype": "float64",
+    "path": "pooled-outer-diagnostic.artifacts/arrays/29621fde434593de9b3b2311ec54c5dfe1d9cf59c1183784c21a918535b1de4f.json",
+    "sha256": "4e0a4e98ea39d6b06879f9b3953c3b1f0abdbbe8fbc73b24f2fb980f633d14e4",
+    "shape": [
+      256,
+      256
+    ],
+    "tensor_sha256": "88b90d271284a5196140b156d46593e44fa8eb784db4454b5f6f53b4e42f43db"
+  }
+}

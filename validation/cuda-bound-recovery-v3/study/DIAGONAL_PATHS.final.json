@@ -1,0 +1,2549 @@
+{
+  "attempt_allowlist": [
+    "qualification-diagonal-below256-aa",
+    "qualification-diagonal-existing-y",
+    "qualification-diagonal-mixed256-z",
+    "qualification-diagonal-mixed512-ab",
+    "qualification-diagonal-small-x",
+    "replay-diagonal-below256-w",
+    "replay-diagonal-mixed-v"
+  ],
+  "existing_qualification": [
+    {
+      "baseline_task": {
+        "attempt": "qualification-existing-g",
+        "elapsed_seconds": 606.7923430930823,
+        "evidence": {
+          "receipts/startup.json": "0a76d177ae921254a94609becfac4001ac84e25c1da2d9beb27ed76f4f7739ea",
+          "receipts/terminal.json": "0fb856206b6048c65b708627c5d19e241fb98d57b9a0a3989d40644535b547a6",
+          "results/existing-baseline.artifacts/pipeline-all_bounds_below_one-compiled.json": "d8b665971d4b6e706cca144e9a6219b6735f6af0ad20a856f3c1037f6d73c821",
+          "results/existing-baseline.artifacts/pipeline-all_bounds_below_one-eager.json": "75f03b201bb6af28b8b885744a22aeb4acc9fb3b7cf6e81a16c23adf5c988529",
+          "results/existing-baseline.artifacts/pipeline-mixed_multiplicity-compiled.json": "b9fe198f514a6a4edaa51dc2b040f2aa648bb1afad73ed8611d7d5c975ec9eba",
+          "results/existing-baseline.artifacts/pipeline-mixed_multiplicity-eager.json": "caa642935f68ddc38e2466428275e0b6a3e0ac1a4b23b349aec58f7368caa8ae",
+          "results/existing-baseline.artifacts/pipeline-single_support-compiled.json": "e803d52a58fddc61e0fde9498dbb640f312ec832ba8baa11db5c6ab9a739e79a",
+          "results/existing-baseline.artifacts/pipeline-single_support-eager.json": "10cc1cb42fe03f2b767a706cf3939783a36cfbc2e53d926eea86d978a8ee91d2",
+          "results/existing-baseline.artifacts/scaling-16-path.json": "319019ecc2b1d0defaaa190ea1831d942f39fc06af049d6661f59d715eab13d0",
+          "results/existing-baseline.artifacts/scaling-16-qualified.json": "3fcae9697456ec5c3d3c8b56b69bb2f194be1f8528d25c75830807d267c541eb",
+          "results/existing-baseline.artifacts/scaling-256-path.json": "521615e7e8b4d617cf58745e1b2c049ec119e66e33743ed6967b66633d7c5cbc",
+          "results/existing-baseline.artifacts/scaling-256-qualified.json": "209f04daf5e6b7e3b247db1440688eb3943923eaa5877cfbc5736049d8b61b19",
+          "results/existing-baseline.artifacts/scaling-64-path.json": "e0394aed0a3b41f3793990ed6a0e67a5ee452914990bcde95f977a9735aec1e8",
+          "results/existing-baseline.artifacts/scaling-64-qualified.json": "55376bcbe217bd94cbef01e927ba8ae422139724047f4d2d0d626c6d587da69c",
+          "results/existing-baseline.json": "c04f535b93d1716fd25b443916f363fa7c20854269ae81c0dd9969e29c4cee7f"
+        },
+        "gpu": "NVIDIA L40",
+        "job_id": "77335003",
+        "receipt_status": "passed",
+        "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+        "task": "existing-baseline"
+      },
+      "overall_timing": {
+        "baseline_seconds": 606.7923430930823,
+        "current_over_baseline": 1.0528675758227104,
+        "current_seconds": 638.871983300196,
+        "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+        "scope": "Whole heterogeneous qualifier including compilation, kernels, QPs, paths and publication"
+      },
+      "pipelines": [
+        {
+          "comparison": {
+            "all_selected_fields_exact": true,
+            "baseline_counts": {
+              "complete_penalties": 26,
+              "planned_penalties": 26,
+              "qualified_refits": 26,
+              "qualified_winners": 26,
+              "search_status": "complete",
+              "starts_attempted": 74,
+              "starts_qualified": 74,
+              "unresolved_starts": []
+            },
+            "baseline_search_status": "complete",
+            "equal": {
+              "cluster_centers": true,
+              "cluster_labels": true,
+              "raw_ccf": true,
+              "raw_objective": true,
+              "refitted_ccf": true,
+              "score": true,
+              "selected_lambda": true
+            },
+            "graph_identity": {
+              "pilot_sha256": true,
+              "weights_sha256": true
+            },
+            "maximum_absolute_errors": {
+              "cluster_centers": 0.0,
+              "raw_ccf": 0.0,
+              "raw_objective": 0.0,
+              "refitted_ccf": 0.0,
+              "score": 0.0,
+              "selected_lambda": 0.0
+            }
+          },
+          "counts": {
+            "complete_penalties": 26,
+            "planned_penalties": 26,
+            "qualified_refits": 26,
+            "qualified_winners": 26,
+            "search_status": "complete",
+            "starts_attempted": 74,
+            "starts_qualified": 74,
+            "unresolved_starts": []
+          },
+          "execution": "eager",
+          "fixture": "single_support",
+          "timing": {
+            "baseline_seconds": 6.181221571052447,
+            "current_over_baseline": 1.0546977169407863,
+            "current_seconds": 6.519320278894156,
+            "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+            "scope": "Instrumented toy numerical path"
+          }
+        },
+        {
+          "comparison": {
+            "all_selected_fields_exact": true,
+            "baseline_counts": {
+              "complete_penalties": 26,
+              "planned_penalties": 26,
+              "qualified_refits": 26,
+              "qualified_winners": 26,
+              "search_status": "complete",
+              "starts_attempted": 74,
+              "starts_qualified": 74,
+              "unresolved_starts": []
+            },
+            "baseline_search_status": "complete",
+            "equal": {
+              "cluster_centers": true,
+              "cluster_labels": true,
+              "raw_ccf": true,
+              "raw_objective": true,
+              "refitted_ccf": true,
+              "score": true,
+              "selected_lambda": true
+            },
+            "graph_identity": {
+              "pilot_sha256": true,
+              "weights_sha256": true
+            },
+            "maximum_absolute_errors": {
+              "cluster_centers": 0.0,
+              "raw_ccf": 0.0,
+              "raw_objective": 0.0,
+              "refitted_ccf": 0.0,
+              "score": 0.0,
+              "selected_lambda": 0.0
+            }
+          },
+          "counts": {
+            "complete_penalties": 26,
+            "planned_penalties": 26,
+            "qualified_refits": 26,
+            "qualified_winners": 26,
+            "search_status": "complete",
+            "starts_attempted": 74,
+            "starts_qualified": 74,
+            "unresolved_starts": []
+          },
+          "execution": "compiled",
+          "fixture": "single_support",
+          "timing": {
+            "baseline_seconds": 2.0731850781012326,
+            "current_over_baseline": 1.1017674732512752,
+            "current_seconds": 2.2841678850818425,
+            "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+            "scope": "Instrumented toy numerical path"
+          }
+        },
+        {
+          "comparison": {
+            "all_selected_fields_exact": true,
+            "baseline_counts": {
+              "complete_penalties": 26,
+              "planned_penalties": 26,
+              "qualified_refits": 26,
+              "qualified_winners": 26,
+              "search_status": "complete",
+              "starts_attempted": 99,
+              "starts_qualified": 99,
+              "unresolved_starts": []
+            },
+            "baseline_search_status": "complete",
+            "equal": {
+              "cluster_centers": true,
+              "cluster_labels": true,
+              "raw_ccf": true,
+              "raw_objective": true,
+              "refitted_ccf": true,
+              "score": true,
+              "selected_lambda": true
+            },
+            "graph_identity": {
+              "pilot_sha256": true,
+              "weights_sha256": true
+            },
+            "maximum_absolute_errors": {
+              "cluster_centers": 0.0,
+              "raw_ccf": 0.0,
+              "raw_objective": 0.0,
+              "refitted_ccf": 0.0,
+              "score": 0.0,
+              "selected_lambda": 0.0
+            }
+          },
+          "counts": {
+            "complete_penalties": 26,
+            "planned_penalties": 26,
+            "qualified_refits": 26,
+            "qualified_winners": 26,
+            "search_status": "complete",
+            "starts_attempted": 99,
+            "starts_qualified": 99,
+            "unresolved_starts": []
+          },
+          "execution": "eager",
+          "fixture": "mixed_multiplicity",
+          "timing": {
+            "baseline_seconds": 40.61296909907833,
+            "current_over_baseline": 1.0526588629755518,
+            "current_seconds": 42.751601873897016,
+            "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+            "scope": "Instrumented toy numerical path"
+          }
+        },
+        {
+          "comparison": {
+            "all_selected_fields_exact": true,
+            "baseline_counts": {
+              "complete_penalties": 26,
+              "planned_penalties": 26,
+              "qualified_refits": 26,
+              "qualified_winners": 26,
+              "search_status": "complete",
+              "starts_attempted": 99,
+              "starts_qualified": 99,
+              "unresolved_starts": []
+            },
+            "baseline_search_status": "complete",
+            "equal": {
+              "cluster_centers": true,
+              "cluster_labels": true,
+              "raw_ccf": true,
+              "raw_objective": true,
+              "refitted_ccf": true,
+              "score": true,
+              "selected_lambda": true
+            },
+            "graph_identity": {
+              "pilot_sha256": true,
+              "weights_sha256": true
+            },
+            "maximum_absolute_errors": {
+              "cluster_centers": 0.0,
+              "raw_ccf": 0.0,
+              "raw_objective": 0.0,
+              "refitted_ccf": 0.0,
+              "score": 0.0,
+              "selected_lambda": 0.0
+            }
+          },
+          "counts": {
+            "complete_penalties": 26,
+            "planned_penalties": 26,
+            "qualified_refits": 26,
+            "qualified_winners": 26,
+            "search_status": "complete",
+            "starts_attempted": 99,
+            "starts_qualified": 99,
+            "unresolved_starts": []
+          },
+          "execution": "compiled",
+          "fixture": "mixed_multiplicity",
+          "timing": {
+            "baseline_seconds": 30.36747886892408,
+            "current_over_baseline": 1.0615231697366367,
+            "current_seconds": 32.23578242585063,
+            "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+            "scope": "Instrumented toy numerical path"
+          }
+        },
+        {
+          "comparison": {
+            "all_selected_fields_exact": false,
+            "baseline_counts": {
+              "complete_penalties": 26,
+              "planned_penalties": 26,
+              "qualified_refits": 26,
+              "qualified_winners": 26,
+              "search_status": "complete",
+              "starts_attempted": 99,
+              "starts_qualified": 99,
+              "unresolved_starts": []
+            },
+            "baseline_search_status": "complete",
+            "equal": {
+              "cluster_centers": true,
+              "cluster_labels": true,
+              "raw_ccf": false,
+              "raw_objective": false,
+              "refitted_ccf": true,
+              "score": true,
+              "selected_lambda": true
+            },
+            "graph_identity": {
+              "pilot_sha256": true,
+              "weights_sha256": true
+            },
+            "maximum_absolute_errors": {
+              "cluster_centers": 0.0,
+              "raw_ccf": 8.326672684688674e-17,
+              "raw_objective": 2.842170943040401e-14,
+              "refitted_ccf": 0.0,
+              "score": 0.0,
+              "selected_lambda": 0.0
+            }
+          },
+          "counts": {
+            "complete_penalties": 26,
+            "planned_penalties": 26,
+            "qualified_refits": 26,
+            "qualified_winners": 26,
+            "search_status": "complete",
+            "starts_attempted": 99,
+            "starts_qualified": 99,
+            "unresolved_starts": []
+          },
+          "execution": "eager",
+          "fixture": "all_bounds_below_one",
+          "timing": {
+            "baseline_seconds": 197.09993236907758,
+            "current_over_baseline": 1.0438251966404757,
+            "current_seconds": 205.73787566297688,
+            "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+            "scope": "Instrumented toy numerical path"
+          }
+        },
+        {
+          "comparison": {
+            "all_selected_fields_exact": true,
+            "baseline_counts": {
+              "complete_penalties": 26,
+              "planned_penalties": 26,
+              "qualified_refits": 26,
+              "qualified_winners": 26,
+              "search_status": "complete",
+              "starts_attempted": 99,
+              "starts_qualified": 99,
+              "unresolved_starts": []
+            },
+            "baseline_search_status": "complete",
+            "equal": {
+              "cluster_centers": true,
+              "cluster_labels": true,
+              "raw_ccf": true,
+              "raw_objective": true,
+              "refitted_ccf": true,
+              "score": true,
+              "selected_lambda": true
+            },
+            "graph_identity": {
+              "pilot_sha256": true,
+              "weights_sha256": true
+            },
+            "maximum_absolute_errors": {
+              "cluster_centers": 0.0,
+              "raw_ccf": 0.0,
+              "raw_objective": 0.0,
+              "refitted_ccf": 0.0,
+              "score": 0.0,
+              "selected_lambda": 0.0
+            }
+          },
+          "counts": {
+            "complete_penalties": 26,
+            "planned_penalties": 26,
+            "qualified_refits": 26,
+            "qualified_winners": 26,
+            "search_status": "complete",
+            "starts_attempted": 99,
+            "starts_qualified": 99,
+            "unresolved_starts": []
+          },
+          "execution": "compiled",
+          "fixture": "all_bounds_below_one",
+          "timing": {
+            "baseline_seconds": 178.05113843781874,
+            "current_over_baseline": 1.0535178008115915,
+            "current_seconds": 187.58004379901104,
+            "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+            "scope": "Instrumented toy numerical path"
+          }
+        }
+      ],
+      "public_publication_qualified": true,
+      "public_table_hashes_equal": {
+        "cluster_centers.tsv": true,
+        "mutation_clusters.tsv": true,
+        "mutation_multiplicity.tsv": true
+      },
+      "public_tables": {
+        "cluster_centers.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "cluster_label",
+            "cluster_size",
+            "refitted_ccf",
+            "designated_clonal"
+          ],
+          "rows": 1,
+          "sha256": "e449264bcc0071e1b0337cf4828c92b3ff79db244a983af74683da0a66d0aed3"
+        },
+        "mutation_clusters.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "mutation_id",
+            "status",
+            "node_index",
+            "pilot_ccf",
+            "raw_ccf",
+            "refitted_ccf",
+            "cluster_label",
+            "designated_clonal"
+          ],
+          "rows": 4,
+          "sha256": "02852bdc21e12f119c675682a4abbc2a028670eb1673797e1a10f3f171e48c3e"
+        },
+        "mutation_multiplicity.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "mutation_id",
+            "raw_ccf",
+            "raw_multiplicity_call",
+            "refitted_ccf",
+            "refitted_multiplicity_call"
+          ],
+          "rows": 4,
+          "sha256": "ac2c0ccd88951ef128002d5118883c26a9b12d7e7f7a71fb6d31b9634033e4a8"
+        }
+      },
+      "public_timing": {
+        "baseline_seconds": 24.331974467029795,
+        "current_over_baseline": 1.0374770364952073,
+        "current_seconds": 25.243864762131125,
+        "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+        "scope": "Public fit through durable publication"
+      },
+      "scaling": [
+        {
+          "baseline_numerical_stages": {
+            "audit_calls": 75,
+            "audit_seconds": 0.16907623130828142,
+            "candidate_family": "qualified_complete_graph_path",
+            "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+            "extension_limit_reached": false,
+            "extensions": 0,
+            "graph_build_seconds": 1.1664933690335602,
+            "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+            "lambda_reference": 3326.760649621097,
+            "numerical_wall_seconds": 4.480610790895298,
+            "path_seconds": 2.303225937532261,
+            "path_truncated": false,
+            "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+            "pilot_seconds": 0.6701597128994763,
+            "planned_path_complete": true,
+            "qp_admm_iterations": 6048,
+            "qp_calls": 285,
+            "qp_dual_warm_resets": 0,
+            "qp_dual_warm_starts": 211,
+            "qp_polish_iterations": 353,
+            "qp_seconds": 1.8037690215278417,
+            "qp_work_scope": "all attempted QPs across all starts and planned penalties, including unresolved attempts",
+            "raw_unresolved_penalties": 0,
+            "refit_seconds": 0.3403643504716456,
+            "refit_unresolved_penalties": 0,
+            "refits_computed": 4,
+            "refits_reused": 22,
+            "selected_at_upper_boundary": false,
+            "singleton_pilots_reused": 22,
+            "stage_integrity_seconds": 0.00036742095835506916
+          },
+          "comparison": {
+            "all_selected_fields_exact": false,
+            "baseline_counts": {
+              "complete_penalties": 26,
+              "planned_penalties": 26,
+              "qualified_refits": 26,
+              "qualified_winners": 26,
+              "search_status": "complete",
+              "starts_attempted": 74,
+              "starts_qualified": 74,
+              "unresolved_starts": []
+            },
+            "baseline_search_status": "complete",
+            "equal": {
+              "cluster_centers": true,
+              "cluster_labels": true,
+              "raw_ccf": false,
+              "raw_objective": true,
+              "refitted_ccf": true,
+              "score": true,
+              "selected_lambda": true
+            },
+            "graph_identity": {
+              "pilot_sha256": true,
+              "weights_sha256": true
+            },
+            "maximum_absolute_errors": {
+              "cluster_centers": 0.0,
+              "raw_ccf": 2.7755575615628914e-17,
+              "raw_objective": 0.0,
+              "refitted_ccf": 0.0,
+              "score": 0.0,
+              "selected_lambda": 0.0
+            }
+          },
+          "counts": {
+            "complete_penalties": 26,
+            "planned_penalties": 26,
+            "qualified_refits": 26,
+            "qualified_winners": 26,
+            "search_status": "complete",
+            "starts_attempted": 74,
+            "starts_qualified": 74,
+            "unresolved_starts": []
+          },
+          "export_timing": {
+            "baseline_seconds": 4.522293139947578,
+            "current_over_baseline": 1.030367825085133,
+            "current_seconds": 4.659625347005203,
+            "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+            "scope": "Path through final qualification/device export"
+          },
+          "final_device_qualification_and_export_complete": true,
+          "nodes": 16,
+          "numerical_stages": {
+            "audit_calls": 75,
+            "audit_seconds": 0.1846389991696924,
+            "candidate_family": "qualified_complete_graph_path",
+            "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+            "extension_limit_reached": false,
+            "extensions": 0,
+            "graph_build_seconds": 1.1477067028172314,
+            "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+            "lambda_reference": 3326.760649621097,
+            "numerical_wall_seconds": 4.619224763009697,
+            "path_seconds": 2.4661773398984224,
+            "path_truncated": false,
+            "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+            "pilot_seconds": 0.6602448031771928,
+            "planned_path_complete": true,
+            "qp_admm_iterations": 6016,
+            "qp_calls": 285,
+            "qp_dual_warm_resets": 0,
+            "qp_dual_warm_starts": 211,
+            "qp_polish_iterations": 178,
+            "qp_seconds": 1.895546323619783,
+            "qp_work_scope": "all attempted QPs across all starts and planned penalties, including unresolved attempts",
+            "raw_unresolved_penalties": 0,
+            "refit_seconds": 0.34477461921051145,
+            "refit_unresolved_penalties": 0,
+            "refits_computed": 4,
+            "refits_reused": 22,
+            "selected_at_upper_boundary": false,
+            "singleton_pilots_reused": 22,
+            "stage_integrity_seconds": 0.00032129790633916855
+          },
+          "path_timing": {
+            "baseline_seconds": 4.4806720309425145,
+            "current_over_baseline": 1.0309303921590272,
+            "current_seconds": 4.6192609739955515,
+            "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+            "scope": "Complete synthetic numerical path"
+          },
+          "publication_scope": "Numerical export only; these scaling probes do not publish tumor TSVs"
+        },
+        {
+          "baseline_numerical_stages": {
+            "audit_calls": 75,
+            "audit_seconds": 0.17238370911218226,
+            "candidate_family": "qualified_complete_graph_path",
+            "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+            "extension_limit_reached": false,
+            "extensions": 0,
+            "graph_build_seconds": 0.0012661160435527563,
+            "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+            "lambda_reference": 461.2953429415822,
+            "numerical_wall_seconds": 9.975144549040124,
+            "path_seconds": 9.928270308766514,
+            "path_truncated": false,
+            "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+            "pilot_seconds": 0.0024746509734541178,
+            "planned_path_complete": true,
+            "qp_admm_iterations": 20128,
+            "qp_calls": 287,
+            "qp_dual_warm_resets": 0,
+            "qp_dual_warm_starts": 213,
+            "qp_polish_iterations": 4354,
+            "qp_seconds": 9.41937807528302,
+            "qp_work_scope": "all attempted QPs across all starts and planned penalties, including unresolved attempts",
+            "raw_unresolved_penalties": 0,
+            "refit_seconds": 0.042752092238515615,
+            "refit_unresolved_penalties": 0,
+            "refits_computed": 7,
+            "refits_reused": 19,
+            "selected_at_upper_boundary": false,
+            "singleton_pilots_reused": 177,
+            "stage_integrity_seconds": 0.0003813810180872679
+          },
+          "comparison": {
+            "all_selected_fields_exact": true,
+            "baseline_counts": {
+              "complete_penalties": 26,
+              "planned_penalties": 26,
+              "qualified_refits": 26,
+              "qualified_winners": 26,
+              "search_status": "complete",
+              "starts_attempted": 74,
+              "starts_qualified": 74,
+              "unresolved_starts": []
+            },
+            "baseline_search_status": "complete",
+            "equal": {
+              "cluster_centers": true,
+              "cluster_labels": true,
+              "raw_ccf": true,
+              "raw_objective": true,
+              "refitted_ccf": true,
+              "score": true,
+              "selected_lambda": true
+            },
+            "graph_identity": {
+              "pilot_sha256": true,
+              "weights_sha256": true
+            },
+            "maximum_absolute_errors": {
+              "cluster_centers": 0.0,
+              "raw_ccf": 0.0,
+              "raw_objective": 0.0,
+              "refitted_ccf": 0.0,
+              "score": 0.0,
+              "selected_lambda": 0.0
+            }
+          },
+          "counts": {
+            "complete_penalties": 26,
+            "planned_penalties": 26,
+            "qualified_refits": 26,
+            "qualified_winners": 26,
+            "search_status": "complete",
+            "starts_attempted": 74,
+            "starts_qualified": 74,
+            "unresolved_starts": []
+          },
+          "export_timing": {
+            "baseline_seconds": 10.027098475024104,
+            "current_over_baseline": 0.7489340290016218,
+            "current_seconds": 7.50963526009582,
+            "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+            "scope": "Path through final qualification/device export"
+          },
+          "final_device_qualification_and_export_complete": true,
+          "nodes": 64,
+          "numerical_stages": {
+            "audit_calls": 75,
+            "audit_seconds": 0.1752959203440696,
+            "candidate_family": "qualified_complete_graph_path",
+            "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+            "extension_limit_reached": false,
+            "extensions": 0,
+            "graph_build_seconds": 0.0012656149920076132,
+            "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+            "lambda_reference": 461.2953429415822,
+            "numerical_wall_seconds": 7.46411442803219,
+            "path_seconds": 7.419735219096765,
+            "path_truncated": false,
+            "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+            "pilot_seconds": 0.0024205211084336042,
+            "planned_path_complete": true,
+            "qp_admm_iterations": 12992,
+            "qp_calls": 287,
+            "qp_dual_warm_resets": 0,
+            "qp_dual_warm_starts": 213,
+            "qp_polish_iterations": 498,
+            "qp_seconds": 6.858444574289024,
+            "qp_work_scope": "all attempted QPs across all starts and planned penalties, including unresolved attempts",
+            "raw_unresolved_penalties": 0,
+            "refit_seconds": 0.040393952978774905,
+            "refit_unresolved_penalties": 0,
+            "refits_computed": 7,
+            "refits_reused": 19,
+            "selected_at_upper_boundary": false,
+            "singleton_pilots_reused": 177,
+            "stage_integrity_seconds": 0.00029911985620856285
+          },
+          "path_timing": {
+            "baseline_seconds": 9.975195494946092,
+            "current_over_baseline": 0.7482706039933351,
+            "current_seconds": 7.464145557954907,
+            "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+            "scope": "Complete synthetic numerical path"
+          },
+          "publication_scope": "Numerical export only; these scaling probes do not publish tumor TSVs"
+        },
+        {
+          "baseline_numerical_stages": {
+            "audit_calls": 75,
+            "audit_seconds": 0.18079916504211724,
+            "candidate_family": "qualified_complete_graph_path",
+            "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+            "extension_limit_reached": false,
+            "extensions": 0,
+            "graph_build_seconds": 0.0012784870341420174,
+            "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+            "lambda_reference": 150.9333156057854,
+            "numerical_wall_seconds": 76.38791800220497,
+            "path_seconds": 76.31937970384024,
+            "path_truncated": false,
+            "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+            "pilot_seconds": 0.007601217832416296,
+            "planned_path_complete": true,
+            "qp_admm_iterations": 25904,
+            "qp_calls": 273,
+            "qp_dual_warm_resets": 0,
+            "qp_dual_warm_starts": 199,
+            "qp_polish_iterations": 3860,
+            "qp_seconds": 75.80438923300244,
+            "qp_work_scope": "all attempted QPs across all starts and planned penalties, including unresolved attempts",
+            "raw_unresolved_penalties": 0,
+            "refit_seconds": 0.05929565127007663,
+            "refit_unresolved_penalties": 0,
+            "refits_computed": 8,
+            "refits_reused": 18,
+            "selected_at_upper_boundary": false,
+            "singleton_pilots_reused": 0,
+            "stage_integrity_seconds": 0.0003629422280937433
+          },
+          "comparison": {
+            "all_selected_fields_exact": true,
+            "baseline_counts": {
+              "complete_penalties": 26,
+              "planned_penalties": 26,
+              "qualified_refits": 26,
+              "qualified_winners": 26,
+              "search_status": "complete",
+              "starts_attempted": 74,
+              "starts_qualified": 74,
+              "unresolved_starts": []
+            },
+            "baseline_search_status": "complete",
+            "equal": {
+              "cluster_centers": true,
+              "cluster_labels": true,
+              "raw_ccf": true,
+              "raw_objective": true,
+              "refitted_ccf": true,
+              "score": true,
+              "selected_lambda": true
+            },
+            "graph_identity": {
+              "pilot_sha256": true,
+              "weights_sha256": true
+            },
+            "maximum_absolute_errors": {
+              "cluster_centers": 0.0,
+              "raw_ccf": 0.0,
+              "raw_objective": 0.0,
+              "refitted_ccf": 0.0,
+              "score": 0.0,
+              "selected_lambda": 0.0
+            }
+          },
+          "counts": {
+            "complete_penalties": 26,
+            "planned_penalties": 26,
+            "qualified_refits": 26,
+            "qualified_winners": 26,
+            "search_status": "complete",
+            "starts_attempted": 74,
+            "starts_qualified": 74,
+            "unresolved_starts": []
+          },
+          "export_timing": {
+            "baseline_seconds": 76.53210264607333,
+            "current_over_baseline": 1.090683985765765,
+            "current_seconds": 83.47233875305392,
+            "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+            "scope": "Path through final qualification/device export"
+          },
+          "final_device_qualification_and_export_complete": true,
+          "nodes": 256,
+          "numerical_stages": {
+            "audit_calls": 75,
+            "audit_seconds": 0.18531137774698436,
+            "candidate_family": "qualified_complete_graph_path",
+            "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+            "extension_limit_reached": false,
+            "extensions": 0,
+            "graph_build_seconds": 0.0012013670057058334,
+            "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+            "lambda_reference": 150.9333156057854,
+            "numerical_wall_seconds": 83.33268108894117,
+            "path_seconds": 83.26450254279189,
+            "path_truncated": false,
+            "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+            "pilot_seconds": 0.007386012002825737,
+            "planned_path_complete": true,
+            "qp_admm_iterations": 21616,
+            "qp_calls": 273,
+            "qp_dual_warm_resets": 0,
+            "qp_dual_warm_starts": 199,
+            "qp_polish_iterations": 1410,
+            "qp_seconds": 82.68055543466471,
+            "qp_work_scope": "all attempted QPs across all starts and planned penalties, including unresolved attempts",
+            "raw_unresolved_penalties": 0,
+            "refit_seconds": 0.05924491910263896,
+            "refit_unresolved_penalties": 0,
+            "refits_computed": 8,
+            "refits_reused": 18,
+            "selected_at_upper_boundary": false,
+            "singleton_pilots_reused": 0,
+            "stage_integrity_seconds": 0.0003462480381131172
+          },
+          "path_timing": {
+            "baseline_seconds": 76.38797713397071,
+            "current_over_baseline": 1.09091429382686,
+            "current_seconds": 83.33273613196798,
+            "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+            "scope": "Complete synthetic numerical path"
+          },
+          "publication_scope": "Numerical export only; these scaling probes do not publish tumor TSVs"
+        }
+      ],
+      "task": {
+        "attempt": "qualification-diagonal-existing-y",
+        "elapsed_seconds": 638.871983300196,
+        "evidence": {
+          "receipts/startup.json": "73b3ae8e1eb7f20460c2163802b1147e1cdcbfab2315b16e9cc9b1d81a8bd6a8",
+          "receipts/terminal.json": "2ce31e51d0204d41ce2386418e24918e21a0fc92914821c6af21b6871ff3ca10",
+          "results/existing-current.artifacts/pipeline-all_bounds_below_one-compiled.json": "c81e2000745ac055b41a730afe74e3c398e2e4989534f112c75e1b8f9d26be1c",
+          "results/existing-current.artifacts/pipeline-all_bounds_below_one-eager.json": "3eb38337f3cc567646a9c3ac9954c5215027a0f8ce4dc30876697e0dccf784a9",
+          "results/existing-current.artifacts/pipeline-mixed_multiplicity-compiled.json": "d8a5e5638ec5952575f79ac7a694f04426e4a8759bc09148efa270e6725d3d4c",
+          "results/existing-current.artifacts/pipeline-mixed_multiplicity-eager.json": "22bbdafb3bc238b892bf80b45ca0b9bf8bd5f7432d2caae2bcb9d3adc2011392",
+          "results/existing-current.artifacts/pipeline-single_support-compiled.json": "c7df5c7d773df4c649d7bf4034e858e2335164acd2a1d418aa9b2d833540f452",
+          "results/existing-current.artifacts/pipeline-single_support-eager.json": "0c3bb136b7ec1e837ff1c688f6e858e90d7128b824a06b7b998b61028e3cbc08",
+          "results/existing-current.artifacts/public-output/cluster_centers.tsv": "e449264bcc0071e1b0337cf4828c92b3ff79db244a983af74683da0a66d0aed3",
+          "results/existing-current.artifacts/public-output/mutation_clusters.tsv": "02852bdc21e12f119c675682a4abbc2a028670eb1673797e1a10f3f171e48c3e",
+          "results/existing-current.artifacts/public-output/mutation_multiplicity.tsv": "ac2c0ccd88951ef128002d5118883c26a9b12d7e7f7a71fb6d31b9634033e4a8",
+          "results/existing-current.artifacts/scaling-16-path.json": "ef1780fd3278d83c177ae42671601b1a09920ad3af0ae7cdd93b8e773fda87b4",
+          "results/existing-current.artifacts/scaling-16-qualified.json": "4ed286498f566a226a0f681cb6a26c74609ee6ab7d0f472b46328113e5aababc",
+          "results/existing-current.artifacts/scaling-256-path.json": "4ef83a1a280f8d8e8218a882c66319b9b61ef72d503cb3b5cd3000fef8a11910",
+          "results/existing-current.artifacts/scaling-256-qualified.json": "9cb6798bbd67ca790e9d3b22c63601d0ce7e0845711eadcaa1469c59be8ad8d1",
+          "results/existing-current.artifacts/scaling-64-path.json": "c3c07e5ea31215afe54d7998935010781b9ff5c70e9cbd4e94fedcecddb8c3bd",
+          "results/existing-current.artifacts/scaling-64-qualified.json": "5b5493bf6e4104edd06350d9d62f710fe16be1c503bdb43ca41fcb7aa469e2d2",
+          "results/existing-current.json": "f64272c38f3d5f8c72fd88ba51676b80c42b08f438cb303da580d2c476ed3ea9"
+        },
+        "gpu": "NVIDIA L40",
+        "job_id": "77335501",
+        "receipt_status": "passed",
+        "source_sha256": "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+        "task": "existing-current"
+      }
+    }
+  ],
+  "heterogeneous_paths": [
+    {
+      "baseline_absence": "No source-bound same-input baseline in this study; no performance or parity comparison inferred",
+      "baseline_comparison": null,
+      "counts": {
+        "complete_penalties": 25,
+        "planned_penalties": 26,
+        "qualified_refits": 26,
+        "qualified_winners": 26,
+        "search_status": "incomplete",
+        "starts_attempted": 99,
+        "starts_qualified": 98,
+        "unresolved_starts": [
+          {
+            "audit_status": null,
+            "path_index": 1,
+            "start_index": 1,
+            "status": "surrogate_unresolved"
+          }
+        ]
+      },
+      "family": "below_one",
+      "final_export_and_publication_qualified": false,
+      "fit_timing": {
+        "baseline_seconds": null,
+        "current_over_baseline": null,
+        "current_seconds": 56.759941147174686,
+        "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+        "scope": "Instrumented complete numerical path, excluding final export/publication"
+      },
+      "nodes": 256,
+      "numerical_stages": {
+        "audit_calls": 104,
+        "audit_seconds": 2.2230926416814327,
+        "candidate_family": "qualified_complete_graph_path",
+        "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+        "extension_limit_reached": false,
+        "extensions": 0,
+        "graph_build_seconds": 1.5200239080004394,
+        "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+        "lambda_reference": 563982.8490935478,
+        "numerical_wall_seconds": 56.759872521972284,
+        "path_seconds": 41.174828313756734,
+        "path_truncated": false,
+        "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+        "pilot_seconds": 4.51979823410511,
+        "planned_path_complete": false,
+        "qp_admm_iterations": 75120,
+        "qp_calls": 405,
+        "qp_dual_warm_resets": 5,
+        "qp_dual_warm_starts": 301,
+        "qp_polish_iterations": 69578,
+        "qp_seconds": 38.226643945556134,
+        "qp_work_scope": "all attempted QPs across all starts and planned penalties, including unresolved attempts",
+        "raw_unresolved_penalties": 0,
+        "refit_seconds": 9.540517330169678,
+        "refit_unresolved_penalties": 0,
+        "refits_computed": 4,
+        "refits_reused": 22,
+        "selected_at_upper_boundary": false,
+        "singleton_pilots_reused": 253,
+        "stage_integrity_seconds": 0.00470473594032228
+      },
+      "public_tables": {},
+      "qualification_scope": "Synthetic CUDA qualification, not cohort accuracy or GPU speedup; observed timings include journaling",
+      "score": 301725.47323896753,
+      "selected_clusters": 250,
+      "selected_lambda": 0.0,
+      "source_qualified": false,
+      "task": {
+        "attempt": "qualification-diagonal-below256-aa",
+        "elapsed_seconds": 60.326413654955104,
+        "evidence": {
+          "receipts/startup.json": "7fe9a5833bda678809ac630c8d93882e6ed23235f0c8df6ede7b2699bdd29a9c",
+          "receipts/terminal.json": "1c9ecdbe1b228f525d14e08b44e1c6d4a5c42aae139d9db7fead1192458755da",
+          "results/below256-full.artifacts/full-path.json": "f646fd9ca159684af2d648bfac941fc9e438a0c8032cf92401225fc01d532f9c",
+          "results/below256-full.json": "f18b0e74d7cca440add062fbe5d71f24b883d56564941bfc955094f18d5cd5be"
+        },
+        "gpu": "NVIDIA L40",
+        "job_id": "77336027",
+        "receipt_status": "failed",
+        "source_sha256": "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+        "task": "below256-full"
+      }
+    },
+    {
+      "baseline_comparison": {
+        "all_selected_fields_exact": true,
+        "baseline_counts": {
+          "complete_penalties": 16,
+          "planned_penalties": 26,
+          "qualified_refits": 26,
+          "qualified_winners": 26,
+          "search_status": "incomplete",
+          "starts_attempted": 99,
+          "starts_qualified": 88,
+          "unresolved_starts": [
+            {
+              "audit_status": null,
+              "path_index": 1,
+              "start_index": 1,
+              "status": "surrogate_unresolved"
+            },
+            {
+              "audit_status": null,
+              "path_index": 2,
+              "start_index": 2,
+              "status": "surrogate_unresolved"
+            },
+            {
+              "audit_status": null,
+              "path_index": 3,
+              "start_index": 2,
+              "status": "surrogate_unresolved"
+            },
+            {
+              "audit_status": null,
+              "path_index": 4,
+              "start_index": 2,
+              "status": "surrogate_unresolved"
+            },
+            {
+              "audit_status": null,
+              "path_index": 5,
+              "start_index": 2,
+              "status": "surrogate_unresolved"
+            },
+            {
+              "audit_status": null,
+              "path_index": 6,
+              "start_index": 2,
+              "status": "surrogate_unresolved"
+            },
+            {
+              "audit_status": null,
+              "path_index": 7,
+              "start_index": 2,
+              "status": "surrogate_unresolved"
+            },
+            {
+              "audit_status": null,
+              "path_index": 8,
+              "start_index": 2,
+              "status": "surrogate_unresolved"
+            },
+            {
+              "audit_status": null,
+              "path_index": 9,
+              "start_index": 2,
+              "status": "surrogate_unresolved"
+            },
+            {
+              "audit_status": null,
+              "path_index": 10,
+              "start_index": 1,
+              "status": "surrogate_unresolved"
+            },
+            {
+              "audit_status": null,
+              "path_index": 10,
+              "start_index": 3,
+              "status": "surrogate_unresolved"
+            }
+          ]
+        },
+        "baseline_search_status": "incomplete",
+        "baseline_task": {
+          "attempt": "mixed256-e",
+          "elapsed_seconds": 173.23668193584308,
+          "evidence": {
+            "receipts/startup.json": "7e1602bc6eaaee57d5c1c22d8d5c61f07cb660c2baadc737688d42e4662137b0",
+            "receipts/terminal.json": "e87866ae0ae2f8a795123c7546d13c773603c23a0636adc97c760d47ba0c9b25",
+            "results/mixed256-current.artifacts/full-path.json": "5e829d7932a2e691b27989b2345bbafdf2dad80b845053bb6c236e9ffca4a3e8",
+            "results/mixed256-current.json": "84bed1f088782c9d9478e8e8d2cc9c6f066e18d51e316614723b04e8b3496b9c"
+          },
+          "gpu": "NVIDIA L40",
+          "job_id": "77334585",
+          "receipt_status": "failed",
+          "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+          "task": "mixed256-current"
+        },
+        "equal": {
+          "cluster_centers": true,
+          "cluster_labels": true,
+          "raw_ccf": true,
+          "raw_objective": true,
+          "refitted_ccf": true,
+          "score": true,
+          "selected_lambda": true
+        },
+        "graph_identity": {
+          "pilot_sha256": true,
+          "weights_sha256": true
+        },
+        "maximum_absolute_errors": {
+          "cluster_centers": 0.0,
+          "raw_ccf": 0.0,
+          "raw_objective": 0.0,
+          "refitted_ccf": 0.0,
+          "score": 0.0,
+          "selected_lambda": 0.0
+        },
+        "scope": "Saved numerical selection; full-path and publication status remain separate"
+      },
+      "counts": {
+        "complete_penalties": 26,
+        "planned_penalties": 26,
+        "qualified_refits": 26,
+        "qualified_winners": 26,
+        "search_status": "complete",
+        "starts_attempted": 99,
+        "starts_qualified": 99,
+        "unresolved_starts": []
+      },
+      "family": "mixed_support",
+      "final_export_and_publication_qualified": true,
+      "fit_timing": {
+        "baseline_seconds": 169.7822801710572,
+        "current_over_baseline": 0.3928205150904459,
+        "current_seconds": 66.6939627500251,
+        "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+        "scope": "Instrumented complete numerical path, excluding final export/publication"
+      },
+      "nodes": 256,
+      "numerical_stages": {
+        "audit_calls": 103,
+        "audit_seconds": 7.161369527922943,
+        "candidate_family": "qualified_complete_graph_path",
+        "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+        "extension_limit_reached": false,
+        "extensions": 0,
+        "graph_build_seconds": 1.565058880019933,
+        "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+        "lambda_reference": 886562.1404964906,
+        "numerical_wall_seconds": 66.69390561897308,
+        "path_seconds": 57.05787983769551,
+        "path_truncated": false,
+        "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+        "pilot_seconds": 4.547182376962155,
+        "planned_path_complete": true,
+        "qp_admm_iterations": 124704,
+        "qp_calls": 384,
+        "qp_dual_warm_resets": 3,
+        "qp_dual_warm_starts": 282,
+        "qp_polish_iterations": 50239,
+        "qp_seconds": 49.219647442689165,
+        "qp_work_scope": "all attempted QPs across all starts and planned penalties, including unresolved attempts",
+        "raw_unresolved_penalties": 0,
+        "refit_seconds": 3.5191459881607443,
+        "refit_unresolved_penalties": 0,
+        "refits_computed": 4,
+        "refits_reused": 22,
+        "selected_at_upper_boundary": false,
+        "singleton_pilots_reused": 236,
+        "stage_integrity_seconds": 0.00463853613473475
+      },
+      "public_tables": {
+        "cluster_centers.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "cluster_label",
+            "cluster_size",
+            "refitted_ccf",
+            "designated_clonal"
+          ],
+          "rows": 241,
+          "sha256": "f7403f776c7f52fc05a6941fb5fe1b23cde69cd509bd6b4e9451541736261775"
+        },
+        "mutation_clusters.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "mutation_id",
+            "status",
+            "node_index",
+            "pilot_ccf",
+            "raw_ccf",
+            "refitted_ccf",
+            "cluster_label",
+            "designated_clonal"
+          ],
+          "rows": 256,
+          "sha256": "98c2be767941f9be7c63c13bc208583ec48e40c797e727d787d5f0bbf2f366d4"
+        },
+        "mutation_multiplicity.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "mutation_id",
+            "raw_ccf",
+            "raw_multiplicity_call",
+            "refitted_ccf",
+            "refitted_multiplicity_call"
+          ],
+          "rows": 256,
+          "sha256": "df4ad7c770e8b780997a2cb29ee1327bd5681ce174558bdfe94a50e1de0c126f"
+        }
+      },
+      "qualification_scope": "complete full-path only; paired baseline comparison not requested",
+      "score": 294338.90798053663,
+      "selected_clusters": 241,
+      "selected_lambda": 0.0,
+      "source_qualified": true,
+      "task": {
+        "attempt": "qualification-diagonal-mixed256-z",
+        "elapsed_seconds": 70.3120671431534,
+        "evidence": {
+          "receipts/startup.json": "7a33dfabe214f5ed9722b720d132ff037812331cb131a36fd4294a1cd5506f86",
+          "receipts/terminal.json": "551390e7db700e9399ea10ec969c8cfec413873967acf4c4c4d758ce1718ce78",
+          "results/mixed256-full.artifacts/full-path.json": "fe613bb03d448f4bbfecd29fa9c8bce75066a6a601b2008d4ee96e9b70d422f5",
+          "results/mixed256-full.artifacts/public-output/cluster_centers.tsv": "f7403f776c7f52fc05a6941fb5fe1b23cde69cd509bd6b4e9451541736261775",
+          "results/mixed256-full.artifacts/public-output/mutation_clusters.tsv": "98c2be767941f9be7c63c13bc208583ec48e40c797e727d787d5f0bbf2f366d4",
+          "results/mixed256-full.artifacts/public-output/mutation_multiplicity.tsv": "df4ad7c770e8b780997a2cb29ee1327bd5681ce174558bdfe94a50e1de0c126f",
+          "results/mixed256-full.json": "091c72ab7b4ed8a7efd0ad89f64b7a5895fea810f4de1dfcdfd49f013543f67f"
+        },
+        "gpu": "NVIDIA L40",
+        "job_id": "77336012",
+        "receipt_status": "passed",
+        "source_sha256": "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+        "task": "mixed256-full"
+      }
+    },
+    {
+      "baseline_absence": "No source-bound same-input baseline in this study; no performance or parity comparison inferred",
+      "baseline_comparison": null,
+      "counts": {
+        "complete_penalties": 26,
+        "planned_penalties": 26,
+        "qualified_refits": 26,
+        "qualified_winners": 26,
+        "search_status": "complete",
+        "starts_attempted": 99,
+        "starts_qualified": 99,
+        "unresolved_starts": []
+      },
+      "family": "mixed_support",
+      "final_export_and_publication_qualified": true,
+      "fit_timing": {
+        "baseline_seconds": null,
+        "current_over_baseline": null,
+        "current_seconds": 58.30152514600195,
+        "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+        "scope": "Instrumented complete numerical path, excluding final export/publication"
+      },
+      "nodes": 512,
+      "numerical_stages": {
+        "audit_calls": 100,
+        "audit_seconds": 2.2285345329437405,
+        "candidate_family": "qualified_complete_graph_path",
+        "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+        "extension_limit_reached": false,
+        "extensions": 0,
+        "graph_build_seconds": 1.5278551978990436,
+        "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+        "lambda_reference": 534084.8053450808,
+        "numerical_wall_seconds": 58.30146264215,
+        "path_seconds": 47.48986945813522,
+        "path_truncated": false,
+        "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+        "pilot_seconds": 5.089696694165468,
+        "planned_path_complete": true,
+        "qp_admm_iterations": 92416,
+        "qp_calls": 279,
+        "qp_dual_warm_resets": 0,
+        "qp_dual_warm_starts": 180,
+        "qp_polish_iterations": 76842,
+        "qp_seconds": 44.67096164566465,
+        "qp_work_scope": "all attempted QPs across all starts and planned penalties, including unresolved attempts",
+        "raw_unresolved_penalties": 0,
+        "refit_seconds": 4.18929393379949,
+        "refit_unresolved_penalties": 0,
+        "refits_computed": 4,
+        "refits_reused": 22,
+        "selected_at_upper_boundary": false,
+        "singleton_pilots_reused": 463,
+        "stage_integrity_seconds": 0.004747358150780201
+      },
+      "public_tables": {
+        "cluster_centers.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "cluster_label",
+            "cluster_size",
+            "refitted_ccf",
+            "designated_clonal"
+          ],
+          "rows": 477,
+          "sha256": "51ca8be0b8963154844828c8ad162dbb048b0c4c731379c147db47190691f745"
+        },
+        "mutation_clusters.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "mutation_id",
+            "status",
+            "node_index",
+            "pilot_ccf",
+            "raw_ccf",
+            "refitted_ccf",
+            "cluster_label",
+            "designated_clonal"
+          ],
+          "rows": 512,
+          "sha256": "97fe69f19faabe6fe66de1dd32ec743985749f5b38483fb36de868dfa89745fe"
+        },
+        "mutation_multiplicity.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "mutation_id",
+            "raw_ccf",
+            "raw_multiplicity_call",
+            "refitted_ccf",
+            "refitted_multiplicity_call"
+          ],
+          "rows": 512,
+          "sha256": "85c0bc1301ff2a1c8f3059ebb9d613f691b97d2c5149881e35d8643cbd95996c"
+        }
+      },
+      "qualification_scope": "complete full-path only; paired baseline comparison not requested",
+      "score": 585310.8401256463,
+      "selected_clusters": 477,
+      "selected_lambda": 0.0,
+      "source_qualified": true,
+      "task": {
+        "attempt": "qualification-diagonal-mixed512-ab",
+        "elapsed_seconds": 62.3024059899617,
+        "evidence": {
+          "receipts/startup.json": "c49eae46d4bfbf4f56d88748a2dfab5d8d4732dd04f58a017d7b87ae132edec4",
+          "receipts/terminal.json": "f7b7fa46b1849aaa18a1ab01bc6f423ce7a67e4f77d0f0cda7c4bcfd1d62cf74",
+          "results/mixed512-full.artifacts/full-path.json": "8707d74d3bdc9680c52f49469ed62efe00ccab77b81d016ba261be5390c4e3ea",
+          "results/mixed512-full.artifacts/public-output/cluster_centers.tsv": "51ca8be0b8963154844828c8ad162dbb048b0c4c731379c147db47190691f745",
+          "results/mixed512-full.artifacts/public-output/mutation_clusters.tsv": "97fe69f19faabe6fe66de1dd32ec743985749f5b38483fb36de868dfa89745fe",
+          "results/mixed512-full.artifacts/public-output/mutation_multiplicity.tsv": "85c0bc1301ff2a1c8f3059ebb9d613f691b97d2c5149881e35d8643cbd95996c",
+          "results/mixed512-full.json": "54da72b1e7a75a3050161c22218a97e848adbed5203ba2b9fe564a9ec78ab16b"
+        },
+        "gpu": "NVIDIA L40",
+        "job_id": "77336044",
+        "receipt_status": "passed",
+        "source_sha256": "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+        "task": "mixed512-full"
+      }
+    },
+    {
+      "baseline_comparison": {
+        "all_selected_fields_exact": true,
+        "baseline_counts": {
+          "complete_penalties": 24,
+          "planned_penalties": 26,
+          "qualified_refits": 26,
+          "qualified_winners": 26,
+          "search_status": "incomplete",
+          "starts_attempted": 99,
+          "starts_qualified": 97,
+          "unresolved_starts": [
+            {
+              "audit_status": null,
+              "path_index": 1,
+              "start_index": 1,
+              "status": "surrogate_unresolved"
+            },
+            {
+              "audit_status": null,
+              "path_index": 2,
+              "start_index": 2,
+              "status": "surrogate_unresolved"
+            }
+          ]
+        },
+        "baseline_search_status": "incomplete",
+        "baseline_task": {
+          "attempt": "below64-f",
+          "elapsed_seconds": 70.94556678598747,
+          "evidence": {
+            "receipts/startup.json": "bdecfe932f869bf1d514d657f86d15b2935f0636ade4ff7cdf9d3dd1cdbeaee7",
+            "receipts/terminal.json": "9b7260ffaa36a2c776228a6ffa147185c4e5d9b3a0360602687af1b24dd3c190",
+            "results/below64-current.artifacts/full-path.json": "111e9fdde0404d4932929861f5ff03f68bdb651db6e98d1372b50f3fa9038dad",
+            "results/below64-current.json": "d35b9386f667a0f0e79de45d68fcc182680daed00d94c36116719d57d91da202"
+          },
+          "gpu": "NVIDIA L40",
+          "job_id": "77334588",
+          "receipt_status": "failed",
+          "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+          "task": "below64-current"
+        },
+        "equal": {
+          "cluster_centers": true,
+          "cluster_labels": true,
+          "raw_ccf": true,
+          "raw_objective": true,
+          "refitted_ccf": true,
+          "score": true,
+          "selected_lambda": true
+        },
+        "graph_identity": {
+          "pilot_sha256": true,
+          "weights_sha256": true
+        },
+        "maximum_absolute_errors": {
+          "cluster_centers": 0.0,
+          "raw_ccf": 0.0,
+          "raw_objective": 0.0,
+          "refitted_ccf": 0.0,
+          "score": 0.0,
+          "selected_lambda": 0.0
+        },
+        "scope": "Saved numerical selection; full-path and publication status remain separate"
+      },
+      "counts": {
+        "complete_penalties": 26,
+        "planned_penalties": 26,
+        "qualified_refits": 26,
+        "qualified_winners": 26,
+        "search_status": "complete",
+        "starts_attempted": 99,
+        "starts_qualified": 99,
+        "unresolved_starts": []
+      },
+      "family": "below_one",
+      "final_export_and_publication_qualified": true,
+      "fit_timing": {
+        "baseline_seconds": 57.85014386707917,
+        "current_over_baseline": 0.513235000351886,
+        "current_seconds": 29.690718607977033,
+        "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+        "scope": "Instrumented complete numerical path, excluding final export/publication"
+      },
+      "nodes": 64,
+      "numerical_stages": {
+        "audit_calls": 100,
+        "audit_seconds": 0.31562900729477406,
+        "candidate_family": "qualified_complete_graph_path",
+        "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+        "extension_limit_reached": false,
+        "extensions": 0,
+        "graph_build_seconds": 1.4682865729555488,
+        "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+        "lambda_reference": 1133502.143527238,
+        "numerical_wall_seconds": 29.690646272152662,
+        "path_seconds": 21.541835099691525,
+        "path_truncated": false,
+        "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+        "pilot_seconds": 4.0458308649249375,
+        "planned_path_complete": true,
+        "qp_admm_iterations": 44720,
+        "qp_calls": 427,
+        "qp_dual_warm_resets": 0,
+        "qp_dual_warm_starts": 328,
+        "qp_polish_iterations": 5037,
+        "qp_seconds": 20.43146640737541,
+        "qp_work_scope": "all attempted QPs across all starts and planned penalties, including unresolved attempts",
+        "raw_unresolved_penalties": 0,
+        "refit_seconds": 2.630544943502173,
+        "refit_unresolved_penalties": 0,
+        "refits_computed": 4,
+        "refits_reused": 22,
+        "selected_at_upper_boundary": false,
+        "singleton_pilots_reused": 67,
+        "stage_integrity_seconds": 0.004148791078478098
+      },
+      "public_tables": {
+        "cluster_centers.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "cluster_label",
+            "cluster_size",
+            "refitted_ccf",
+            "designated_clonal"
+          ],
+          "rows": 64,
+          "sha256": "bc5221b7926d53c13017b72ada58e6656275766ae9cb1ee39c9468b43af8ba79"
+        },
+        "mutation_clusters.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "mutation_id",
+            "status",
+            "node_index",
+            "pilot_ccf",
+            "raw_ccf",
+            "refitted_ccf",
+            "cluster_label",
+            "designated_clonal"
+          ],
+          "rows": 64,
+          "sha256": "c3a3de787942a84a571f0993936acb7547e6daf13ebe0378773e430bffb57f3c"
+        },
+        "mutation_multiplicity.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "mutation_id",
+            "raw_ccf",
+            "raw_multiplicity_call",
+            "refitted_ccf",
+            "refitted_multiplicity_call"
+          ],
+          "rows": 64,
+          "sha256": "8773a6781773205450dcad3e223ea79d20a5b6b1d2894f0578f9dcb6265008cf"
+        }
+      },
+      "qualification_scope": "complete full-path only; paired baseline comparison not requested",
+      "score": 79215.4366730237,
+      "selected_clusters": 64,
+      "selected_lambda": 0.0,
+      "source_qualified": true,
+      "task": {
+        "attempt": "qualification-diagonal-small-x",
+        "elapsed_seconds": 33.11419669399038,
+        "evidence": {
+          "receipts/startup.json": "a89ac56f3fe9dd1d1b1793fabe8498514a560ef2de9ba84f1966de8aaa30f8ee",
+          "receipts/terminal.json": "03e93df5dbe3343b026a2ce83eb5f5d8fe3ecbbc333a2a76beef55de18fe37f0",
+          "results/below64-full.artifacts/full-path.json": "e6cdf9d415017dfc7d5a517de9c2b56d45dbadc8b3c138a95a0c2560852de393",
+          "results/below64-full.artifacts/public-output/cluster_centers.tsv": "bc5221b7926d53c13017b72ada58e6656275766ae9cb1ee39c9468b43af8ba79",
+          "results/below64-full.artifacts/public-output/mutation_clusters.tsv": "c3a3de787942a84a571f0993936acb7547e6daf13ebe0378773e430bffb57f3c",
+          "results/below64-full.artifacts/public-output/mutation_multiplicity.tsv": "8773a6781773205450dcad3e223ea79d20a5b6b1d2894f0578f9dcb6265008cf",
+          "results/below64-full.json": "61072332721e0048258b1225dac018001b50717181884d40101cfb8ecd7304c2"
+        },
+        "gpu": "NVIDIA L40",
+        "job_id": "77335492",
+        "receipt_status": "passed",
+        "source_sha256": "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+        "task": "below64-full"
+      }
+    },
+    {
+      "baseline_comparison": {
+        "all_selected_fields_exact": true,
+        "baseline_counts": {
+          "complete_penalties": 26,
+          "planned_penalties": 26,
+          "qualified_refits": 26,
+          "qualified_winners": 26,
+          "search_status": "complete",
+          "starts_attempted": 99,
+          "starts_qualified": 99,
+          "unresolved_starts": []
+        },
+        "baseline_search_status": "complete",
+        "baseline_task": {
+          "attempt": "qualification-mixed64-h",
+          "elapsed_seconds": 113.989669094095,
+          "evidence": {
+            "receipts/startup.json": "ad07d1d089cc39cfb15281e1d9f249b07657c39a40be4d30a9fbe41e58a759d1",
+            "receipts/terminal.json": "15bc40283446d7e053b30697ea8d8c553eb03775b9460418bdadafee1a7763bd",
+            "results/mixed64-reference.artifacts/full-path.json": "d1794d7da3d975da935cbabeafce9d21b5827e020e16a904e5a1aefb10c31333",
+            "results/mixed64-reference.json": "435e07681830396ce2cdc8a0523b643340a43c1317eee86846e2b7adc3de5602"
+          },
+          "gpu": "NVIDIA L40",
+          "job_id": "77335002",
+          "receipt_status": "passed",
+          "source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+          "task": "mixed64-reference"
+        },
+        "equal": {
+          "cluster_centers": true,
+          "cluster_labels": true,
+          "raw_ccf": true,
+          "raw_objective": true,
+          "refitted_ccf": true,
+          "score": true,
+          "selected_lambda": true
+        },
+        "graph_identity": {
+          "pilot_sha256": true,
+          "weights_sha256": true
+        },
+        "maximum_absolute_errors": {
+          "cluster_centers": 0.0,
+          "raw_ccf": 0.0,
+          "raw_objective": 0.0,
+          "refitted_ccf": 0.0,
+          "score": 0.0,
+          "selected_lambda": 0.0
+        },
+        "scope": "Saved numerical selection; full-path and publication status remain separate"
+      },
+      "counts": {
+        "complete_penalties": 26,
+        "planned_penalties": 26,
+        "qualified_refits": 26,
+        "qualified_winners": 26,
+        "search_status": "complete",
+        "starts_attempted": 99,
+        "starts_qualified": 99,
+        "unresolved_starts": []
+      },
+      "family": "mixed_support",
+      "final_export_and_publication_qualified": true,
+      "fit_timing": {
+        "baseline_seconds": 95.37019113195129,
+        "current_over_baseline": 1.0508827875732858,
+        "current_seconds": 100.22289230814204,
+        "interpretation": "Single observed runs, potentially different allocations/cache histories; not repeated latency or a general speedup claim",
+        "scope": "Instrumented complete numerical path, excluding final export/publication"
+      },
+      "matched_problem_qualification": {
+        "all_fixed_problems_within_existing_gates": true,
+        "fixed_problems": 4,
+        "independent_adaptive_graphs": {
+          "current_lambda_scale": 2560.795160326577,
+          "graph_weights_identical": true,
+          "pilot_phi_max_absolute_difference": 0.0,
+          "reference_lambda_scale": 2560.795160326577,
+          "scope": "Independent pilot/adaptive graph differences; not the identical fixed-problem comparison",
+          "selected_caps_max_absolute_difference": 0.0,
+          "selected_objective_perturbation_envelope": 0.0,
+          "weights_max_absolute_difference": 0.0
+        },
+        "independent_full_fit": {
+          "current_lambda": 10.003106095025691,
+          "differing_fields": [],
+          "equal": {
+            "labels": true,
+            "raw_multiplicity": true,
+            "refitted_multiplicity": true
+          },
+          "fixed_problem": false,
+          "literal_lambda_equal": true,
+          "max_absolute_errors": {
+            "centers": 0.0,
+            "raw_ccf": 0.0,
+            "raw_objective": 0.0,
+            "refitted_ccf": 0.0,
+            "score": 0.0
+          },
+          "reference_lambda": 10.003106095025691,
+          "scope": "independent adaptive full fits",
+          "within_existing_parity_gates": true
+        }
+      },
+      "nodes": 64,
+      "numerical_stages": {
+        "audit_calls": 279,
+        "audit_seconds": 42.7400347343646,
+        "candidate_family": "qualified_complete_graph_path",
+        "completion_scope": "qualified resolution of the bounded planned path; not all penalties",
+        "extension_limit_reached": false,
+        "extensions": 0,
+        "graph_build_seconds": 1.5566914880182594,
+        "inner_timing_scope": "QP and audit times are subsets of path_seconds",
+        "lambda_reference": 2560.795160326577,
+        "numerical_wall_seconds": 100.22280414891429,
+        "path_seconds": 79.47801180137321,
+        "path_truncated": false,
+        "phase_timing_scope": "nonoverlapping synchronized numerical stages; excludes final publication",
+        "pilot_seconds": 4.368946651928127,
+        "planned_path_complete": true,
+        "qp_admm_iterations": 91952,
+        "qp_calls": 1154,
+        "qp_dual_warm_resets": 160,
+        "qp_dual_warm_starts": 876,
+        "qp_polish_iterations": 3338,
+        "qp_seconds": 34.981341081438586,
+        "qp_work_scope": "all attempted QPs across all starts and planned penalties, including unresolved attempts",
+        "raw_unresolved_penalties": 0,
+        "refit_seconds": 14.814613037509844,
+        "refit_unresolved_penalties": 0,
+        "refits_computed": 12,
+        "refits_reused": 14,
+        "selected_at_upper_boundary": false,
+        "singleton_pilots_reused": 142,
+        "stage_integrity_seconds": 0.004541170084849
+      },
+      "public_tables": {
+        "cluster_centers.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "cluster_label",
+            "cluster_size",
+            "refitted_ccf",
+            "designated_clonal"
+          ],
+          "rows": 16,
+          "sha256": "66c33517422f4247b6f84a9fc0a8e81e7cb90eefd4a231220cc83d9e689ebb7a"
+        },
+        "mutation_clusters.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "mutation_id",
+            "status",
+            "node_index",
+            "pilot_ccf",
+            "raw_ccf",
+            "refitted_ccf",
+            "cluster_label",
+            "designated_clonal"
+          ],
+          "rows": 64,
+          "sha256": "fd2f0b89ac6b06eb92069de07d53f9c29cb7fd949141264fb2e38aa70a3b64b2"
+        },
+        "mutation_multiplicity.tsv": {
+          "columns": [
+            "tumor_id",
+            "sample_id",
+            "mutation_id",
+            "raw_ccf",
+            "raw_multiplicity_call",
+            "refitted_ccf",
+            "refitted_multiplicity_call"
+          ],
+          "rows": 64,
+          "sha256": "a94030fc7ba93d58d541ea831586cc0290fff2fb7a1985eb4989a2a55b005a9c"
+        }
+      },
+      "qualification_scope": "current complete path plus identical fixed-problem comparison against 430db26",
+      "score": 82635.79924761453,
+      "selected_clusters": 16,
+      "selected_lambda": 10.003106095025691,
+      "source_qualified": true,
+      "task": {
+        "attempt": "qualification-diagonal-small-x",
+        "elapsed_seconds": 119.48301620292477,
+        "evidence": {
+          "receipts/startup.json": "a89ac56f3fe9dd1d1b1793fabe8498514a560ef2de9ba84f1966de8aaa30f8ee",
+          "receipts/terminal.json": "03e93df5dbe3343b026a2ce83eb5f5d8fe3ecbbc333a2a76beef55de18fe37f0",
+          "results/mixed64-paired.artifacts/full-path.json": "ec32b335efbf61e1866cd33799fe9e78273c1e8f49a6924cc4059f1f94094262",
+          "results/mixed64-paired.artifacts/public-output/cluster_centers.tsv": "66c33517422f4247b6f84a9fc0a8e81e7cb90eefd4a231220cc83d9e689ebb7a",
+          "results/mixed64-paired.artifacts/public-output/mutation_clusters.tsv": "fd2f0b89ac6b06eb92069de07d53f9c29cb7fd949141264fb2e38aa70a3b64b2",
+          "results/mixed64-paired.artifacts/public-output/mutation_multiplicity.tsv": "a94030fc7ba93d58d541ea831586cc0290fff2fb7a1985eb4989a2a55b005a9c",
+          "results/mixed64-paired.json": "5811f00208eb70013c316f4ab96fb209b702010e2627f81ccbe30a87b938f0ca"
+        },
+        "gpu": "NVIDIA L40",
+        "job_id": "77335492",
+        "receipt_status": "passed",
+        "source_sha256": "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+        "task": "mixed64-paired"
+      }
+    }
+  ],
+  "saved_qp_replays": [
+    {
+      "all_replays_qualified": true,
+      "capture": {
+        "baseline_commit": null,
+        "baseline_source_sha256": "276da27b9a8718f3f06182108ccb0a6b7f04f3937a67f050f9721e031554aea5",
+        "path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923k/results/capture-current-below64.json",
+        "sha256": "0c63526d7e324f3d00125208165237df40800f49e2f919ef06f78711e752a4b6",
+        "source_profile": "normalized276da"
+      },
+      "captured_failed_qps": 1,
+      "cases": [
+        {
+          "admm_iterations": 2048,
+          "capture_index": 0,
+          "capture_record_sha256": "924bf40e44caf832d408009be60d703f8ce5b72e01b36fb13162275abd74f1c9",
+          "compiled_original_certificate": {
+            "allowed_gap": 3.94758090488806e-09,
+            "gap": 7.811850662298738e-15,
+            "independently_qualified": true,
+            "kkt": 9.771174834347534e-08,
+            "scale": 384.758090488806
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 3.94758090488806e-09,
+            "gap": 2.060882075453582e-21,
+            "independently_qualified": true,
+            "kkt": 9.771170895039939e-08,
+            "scale": 384.758090488806
+          },
+          "polish_iterations": 3134,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 4.275457717943937
+        }
+      ],
+      "complete_fit_authority": false,
+      "diagnostic_status": "completed",
+      "error": null,
+      "resolved_qps": 1,
+      "scientific_status": "all_original_start_replays_qualified",
+      "scope": "Exact captured-QP replay only; cannot qualify a full path and does not veto independently executed full-path diagnostics",
+      "task": {
+        "attempt": "qualification-diagonal-small-x",
+        "elapsed_seconds": 10.980625518132001,
+        "evidence": {
+          "receipts/startup.json": "a89ac56f3fe9dd1d1b1793fabe8498514a560ef2de9ba84f1966de8aaa30f8ee",
+          "receipts/terminal.json": "03e93df5dbe3343b026a2ce83eb5f5d8fe3ecbbc333a2a76beef55de18fe37f0",
+          "results/replay-later-below64.artifacts/capture-0000/last_equality_attempt-legacy_uniform-q.json": "f84a9fe5571a0e3476dfcc1a5c04d041ab517cbd32ac08b0a03f3c6d7ba116fe",
+          "results/replay-later-below64.artifacts/capture-0000/last_equality_attempt-legacy_uniform-x.json": "1037c5761db867d8ab58a81f31618980cf568d00c5382bb81aefb4c711131357",
+          "results/replay-later-below64.artifacts/capture-0000/last_equality_attempt-production_cone-q.json": "feefac1bdc24448d933a41a0f15ac6ea13536fdec5dfc195aa85befcebbe34ad",
+          "results/replay-later-below64.artifacts/capture-0000/last_equality_attempt-production_cone-x.json": "1037c5761db867d8ab58a81f31618980cf568d00c5382bb81aefb4c711131357",
+          "results/replay-later-below64.artifacts/capture-0000/last_refined_state-legacy_uniform-q.json": "bf4f232019fcf8931ca79274dd59a4c2c5d3f81f593917210f8a17369160c0d2",
+          "results/replay-later-below64.artifacts/capture-0000/last_refined_state-legacy_uniform-x.json": "1037c5761db867d8ab58a81f31618980cf568d00c5382bb81aefb4c711131357",
+          "results/replay-later-below64.artifacts/capture-0000/last_refined_state-production_cone-q.json": "979ab82eb46923417393a74333fb134ea1700ebfe91b2279c931cd0396909352",
+          "results/replay-later-below64.artifacts/capture-0000/last_refined_state-production_cone-x.json": "1037c5761db867d8ab58a81f31618980cf568d00c5382bb81aefb4c711131357",
+          "results/replay-later-below64.artifacts/capture-0000/replay-q.json": "7b6823c7f31bc0df5eb2d7d1102fdaa88ff7998082b1e3ab1b2b0a4287cb0804",
+          "results/replay-later-below64.artifacts/capture-0000/replay-x.json": "7840b5a85a7a33666e3d84608ac5d094c420d0a08bc2a2b6bd50511b53187bce",
+          "results/replay-later-below64.artifacts/capture-0000/result.json": "5395b703065f2c37de6d569353c6d4dae5f380c8d8579b2d5127a4895fd38c1f",
+          "results/replay-later-below64.json": "7aa4d3876600e62ac3176175c887827d913b6815c1069efba2fe2f472105a7e8"
+        },
+        "gpu": "NVIDIA L40",
+        "job_id": "77335492",
+        "receipt_status": "passed",
+        "source_sha256": "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+        "task": "replay-later-below64"
+      },
+      "unresolved_qps": 0
+    },
+    {
+      "all_replays_qualified": true,
+      "capture": {
+        "baseline_commit": "430db26cf07466e88e53c6e1a8fbe2be7b7b25e9",
+        "baseline_source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+        "path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923a/results/capture-below_one-64.json",
+        "sha256": "4958d20fdaf3f7d047ccd14a75dfb4a5ffadebd2f94c1ee8514a33fecda1b0af",
+        "source_profile": "baseline430"
+      },
+      "captured_failed_qps": 2,
+      "cases": [
+        {
+          "admm_iterations": 2048,
+          "capture_index": 0,
+          "capture_record_sha256": "3bf346297327ac9acde1ceebc50a821435937b25dd893933eae4a455dc1177da",
+          "compiled_original_certificate": {
+            "allowed_gap": 3.790925865522741e-09,
+            "gap": 7.064952484561455e-15,
+            "independently_qualified": true,
+            "kkt": 8.83903390827674e-08,
+            "scale": 369.0925865522741
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 3.79092586552274e-09,
+            "gap": 3.52823375536112e-20,
+            "independently_qualified": true,
+            "kkt": 8.839053604814236e-08,
+            "scale": 369.09258655227404
+          },
+          "polish_iterations": 2456,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 4.095477340044454
+        },
+        {
+          "admm_iterations": 1024,
+          "capture_index": 1,
+          "capture_record_sha256": "12486626dded8bb7eeb19803c167785ace8fa4236c9b9fd6b9f7d87ec309aecb",
+          "compiled_original_certificate": {
+            "allowed_gap": 3.947738431243533e-09,
+            "gap": 8.659629878625293e-15,
+            "independently_qualified": true,
+            "kkt": 8.018673128291021e-08,
+            "scale": 384.7738431243534
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 3.947738431243533e-09,
+            "gap": 4.361434440816857e-20,
+            "independently_qualified": true,
+            "kkt": 8.018669188983587e-08,
+            "scale": 384.77384312435333
+          },
+          "polish_iterations": 845,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 0.5040631347801536
+        }
+      ],
+      "complete_fit_authority": false,
+      "diagnostic_status": "completed",
+      "error": null,
+      "resolved_qps": 2,
+      "scientific_status": "all_original_start_replays_qualified",
+      "scope": "Exact captured-QP replay only; cannot qualify a full path and does not veto independently executed full-path diagnostics",
+      "task": {
+        "attempt": "qualification-diagonal-small-x",
+        "elapsed_seconds": 12.10333143803291,
+        "evidence": {
+          "receipts/startup.json": "a89ac56f3fe9dd1d1b1793fabe8498514a560ef2de9ba84f1966de8aaa30f8ee",
+          "receipts/terminal.json": "03e93df5dbe3343b026a2ce83eb5f5d8fe3ecbbc333a2a76beef55de18fe37f0",
+          "results/replay-original-below64.artifacts/capture-0000/last_equality_attempt-legacy_uniform-q.json": "23ee1b576d8e9e1d6821c7127065226b461feae84a614f807bdf4afb432d70e9",
+          "results/replay-original-below64.artifacts/capture-0000/last_equality_attempt-legacy_uniform-x.json": "9201a2b904986e661a911ee59def7011954d69668e25a0f7fec85fcd31b4036d",
+          "results/replay-original-below64.artifacts/capture-0000/last_equality_attempt-production_cone-q.json": "5ecd314646e0ce991f29135223d1f52fee9e662d7fde898b07edcbe0a7d38d5f",
+          "results/replay-original-below64.artifacts/capture-0000/last_equality_attempt-production_cone-x.json": "9201a2b904986e661a911ee59def7011954d69668e25a0f7fec85fcd31b4036d",
+          "results/replay-original-below64.artifacts/capture-0000/last_refined_state-legacy_uniform-q.json": "46b170edc3afb077dfc29ef3b7aca3bfdbbfaca212f667d80192c71fd19e2f11",
+          "results/replay-original-below64.artifacts/capture-0000/last_refined_state-legacy_uniform-x.json": "995d8276856d4cb199d303dfd89e6b6ad946cb0d53b036106b294bb4e029396a",
+          "results/replay-original-below64.artifacts/capture-0000/last_refined_state-production_cone-q.json": "699fb3cb75611b5e086f9a0f65db7da3d08cc799cafc175beed17651616169cc",
+          "results/replay-original-below64.artifacts/capture-0000/last_refined_state-production_cone-x.json": "995d8276856d4cb199d303dfd89e6b6ad946cb0d53b036106b294bb4e029396a",
+          "results/replay-original-below64.artifacts/capture-0000/replay-q.json": "643bacb5a73337eb3ac3256d0b5f914a14762ead128d6bdfbcefd6f2ffb99fcf",
+          "results/replay-original-below64.artifacts/capture-0000/replay-x.json": "995d8276856d4cb199d303dfd89e6b6ad946cb0d53b036106b294bb4e029396a",
+          "results/replay-original-below64.artifacts/capture-0000/result.json": "bf647604cde2845603539e498f59013195d0363bc60494abd0d83316c6fb140a",
+          "results/replay-original-below64.artifacts/capture-0001/last_equality_attempt-legacy_uniform-q.json": "34ec8ece4ac659b053f8ef79a9dbddd751e4b2c0f21596c1e26094b2c781ae65",
+          "results/replay-original-below64.artifacts/capture-0001/last_equality_attempt-legacy_uniform-x.json": "5815eee8e2ab3ddf42487d30ac06885c9ae38501b84a7333766d1c13b326bf0e",
+          "results/replay-original-below64.artifacts/capture-0001/last_equality_attempt-production_cone-q.json": "312c4e20b7650d9b340bd5dc68183966f093aec42e15562770b6feb8b87b1d51",
+          "results/replay-original-below64.artifacts/capture-0001/last_equality_attempt-production_cone-x.json": "5815eee8e2ab3ddf42487d30ac06885c9ae38501b84a7333766d1c13b326bf0e",
+          "results/replay-original-below64.artifacts/capture-0001/last_refined_state-legacy_uniform-q.json": "baacfa2932f5bd6a371bafaa04b53439d73e95c80fa9438a0eeaf90f0ea92a26",
+          "results/replay-original-below64.artifacts/capture-0001/last_refined_state-legacy_uniform-x.json": "0fae2d4e8e7e3dd00b1bf4a8bf4cf4e9abc71e371e2f4630e127d8fa89ad52bb",
+          "results/replay-original-below64.artifacts/capture-0001/last_refined_state-production_cone-q.json": "4edc855943692da99f70483263087c303752a412ad7a686f842bd7ace0f61e31",
+          "results/replay-original-below64.artifacts/capture-0001/last_refined_state-production_cone-x.json": "0fae2d4e8e7e3dd00b1bf4a8bf4cf4e9abc71e371e2f4630e127d8fa89ad52bb",
+          "results/replay-original-below64.artifacts/capture-0001/replay-q.json": "560611c754d9805580b75170c903f20e97e9ff12c059478669e1c9f7d8ad97ab",
+          "results/replay-original-below64.artifacts/capture-0001/replay-x.json": "9e0937243927dc4471e6c72fff9fdb320bb6b3e6022f78eed6706315fda3d534",
+          "results/replay-original-below64.artifacts/capture-0001/result.json": "67b9edf39954c12e10c7026f3d20dccf73b6abb5d0946cc68dc33aaa81442c32",
+          "results/replay-original-below64.json": "3c80427bd0418ca3db04ff30debc6718f892428c316af1648dda1633007fb3fe"
+        },
+        "gpu": "NVIDIA L40",
+        "job_id": "77335492",
+        "receipt_status": "passed",
+        "source_sha256": "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+        "task": "replay-original-below64"
+      },
+      "unresolved_qps": 0
+    },
+    {
+      "all_replays_qualified": false,
+      "capture": {
+        "baseline_commit": null,
+        "baseline_source_sha256": "8627daf96b3b72be689a756445dfb60a7798a03d8bdd8d896f837eb1f11184c2",
+        "path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923u/results/capture-first-below256.json",
+        "sha256": "910a09a7143e27cb4f27e693dec62a4e38db07adb078dc7015b16fa10df2bfc3",
+        "source_profile": "bound8627"
+      },
+      "captured_failed_qps": 1,
+      "cases": [
+        {
+          "admm_iterations": 20000,
+          "capture_index": 0,
+          "capture_record_sha256": "5c8844c9e212a88b1a900f4d0be8c1577868f1318e0db5575681c4ba6cf7f81c",
+          "compiled_original_certificate": {
+            "allowed_gap": 2.3085340981069857e-08,
+            "gap": 1.544686327596286e-10,
+            "independently_qualified": false,
+            "kkt": 2.477685574248767e-07,
+            "scale": 2298.5340981069858
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 2.3085340981069956e-08,
+            "gap": 1.5445872473525447e-10,
+            "independently_qualified": false,
+            "kkt": 2.477685575358654e-07,
+            "scale": 2298.5340981069958
+          },
+          "polish_iterations": 62670,
+          "production_qualified": false,
+          "qualified": false,
+          "seconds": 49.7255712330807
+        }
+      ],
+      "complete_fit_authority": false,
+      "diagnostic_status": "completed",
+      "error": "Promotion requires every original-start replay to qualify",
+      "resolved_qps": 0,
+      "scientific_status": "unresolved_original_start_replays",
+      "scope": "Exact captured-QP replay only; cannot qualify a full path and does not veto independently executed full-path diagnostics",
+      "task": {
+        "attempt": "replay-diagonal-below256-w",
+        "elapsed_seconds": 57.61344332806766,
+        "evidence": {
+          "receipts/startup.json": "97fbd08b5ac832c717324b0a8d1996a0ba89bf86d7c775374aaae4122b748e25",
+          "receipts/terminal.json": "3750a58919d0c251dffdc0be1ca43d9ea488d29a436c8c7de78b979f04bdb63f",
+          "results/replay-first-below256.artifacts/capture-0000/last_equality_attempt-legacy_uniform-q.json": "26f95f5365f6d07a931805c20211eb72ef9a351726db91c076fdea6b98c75774",
+          "results/replay-first-below256.artifacts/capture-0000/last_equality_attempt-legacy_uniform-x.json": "fca18b6968594208edccf94098bd7f4d4ed1764cf0407a81fa5fa30e4462b05a",
+          "results/replay-first-below256.artifacts/capture-0000/last_equality_attempt-production_cone-q.json": "1268f8326bedd145ad7f8096a80918ccf8d1ee90ea25003dc7535e9e30dbb67b",
+          "results/replay-first-below256.artifacts/capture-0000/last_equality_attempt-production_cone-x.json": "fca18b6968594208edccf94098bd7f4d4ed1764cf0407a81fa5fa30e4462b05a",
+          "results/replay-first-below256.artifacts/capture-0000/replay-q.json": "fee9076ee37aab537095f35c0652bfa3df81cd844d01e1520136035785710ee4",
+          "results/replay-first-below256.artifacts/capture-0000/replay-x.json": "0282931eb8f918d315499358e54622eb4d8aff136ce17cfc3c69b8bd8b8eb54a",
+          "results/replay-first-below256.artifacts/capture-0000/result.json": "595b9b173c13e3b464795fd94e720ce0eaacde612933bae7a9817fbea8c50f8d",
+          "results/replay-first-below256.json": "3414d1b37bb4f93755f87ce70c989b09ec4f4feec64bc03d690591324e20a6cb"
+        },
+        "gpu": "NVIDIA L40",
+        "job_id": "77335452",
+        "receipt_status": "failed",
+        "source_sha256": "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+        "task": "replay-first-below256"
+      },
+      "unresolved_qps": 1
+    },
+    {
+      "all_replays_qualified": true,
+      "capture": {
+        "baseline_commit": null,
+        "baseline_source_sha256": "8627daf96b3b72be689a756445dfb60a7798a03d8bdd8d896f837eb1f11184c2",
+        "path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923t/results/capture-largest-mixed256.json",
+        "sha256": "c090549f5c9955d01f054255c965022dbdd31f021f22e08b480db31dbaa9163b",
+        "source_profile": "bound8627"
+      },
+      "captured_failed_qps": 1,
+      "cases": [
+        {
+          "admm_iterations": 10240,
+          "capture_index": 0,
+          "capture_record_sha256": "25a9ddb3f37a41f6fae7e5a8cae485beeb1c6829f239ebc9ac58a3b26cec55bb",
+          "compiled_original_certificate": {
+            "allowed_gap": 0.12232656044244536,
+            "gap": 2.3689551038838322e-07,
+            "independently_qualified": true,
+            "kkt": 4.158752920169384e-08,
+            "scale": 12232656034.244537
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 0.12232656044244537,
+            "gap": 2.2351749777068638e-08,
+            "independently_qualified": true,
+            "kkt": 7.46795633598866e-08,
+            "scale": 12232656034.24454
+          },
+          "polish_iterations": 3,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 9.030146966921166
+        }
+      ],
+      "complete_fit_authority": false,
+      "diagnostic_status": "completed",
+      "error": null,
+      "resolved_qps": 1,
+      "scientific_status": "all_original_start_replays_qualified",
+      "scope": "Exact captured-QP replay only; cannot qualify a full path and does not veto independently executed full-path diagnostics",
+      "task": {
+        "attempt": "replay-diagonal-mixed-v",
+        "elapsed_seconds": 16.151262546889484,
+        "evidence": {
+          "receipts/startup.json": "41f78246ed9e6ef85cb9432f8b56efbbdb8552672587a9e731638213bb6f3df9",
+          "receipts/terminal.json": "d0bf9e1d6464e10c9f9b00cacc5999f0fc8a24a5414f7bd0da946533dc0a7c3f",
+          "results/replay-largest-mixed256.artifacts/capture-0000/last_equality_attempt-legacy_uniform-q.json": "ffd7398e9ba08b0d541ad63d649ec5a0adde7b9318f3ea48feeb308ad796145f",
+          "results/replay-largest-mixed256.artifacts/capture-0000/last_equality_attempt-legacy_uniform-x.json": "f111fdcfd5a53a7a2f89d2e384633070d43bc07f53e071a637a73a1a6e81eaa1",
+          "results/replay-largest-mixed256.artifacts/capture-0000/last_equality_attempt-production_cone-q.json": "aef546646650e81a1b68e8ff9bf010fe32522f44ced53ba3e147a3a6b1710f63",
+          "results/replay-largest-mixed256.artifacts/capture-0000/last_equality_attempt-production_cone-x.json": "f111fdcfd5a53a7a2f89d2e384633070d43bc07f53e071a637a73a1a6e81eaa1",
+          "results/replay-largest-mixed256.artifacts/capture-0000/replay-q.json": "5815beba9d702f8e0d1d598b7413e0ad2ea3b8a1679a8d433836d2fef67df053",
+          "results/replay-largest-mixed256.artifacts/capture-0000/replay-x.json": "6f1dafe81a846e66cb7c219e891697584244455458245aad6631409283e58f0a",
+          "results/replay-largest-mixed256.artifacts/capture-0000/result.json": "ffd20e1a797ca6907e616ec8e0e86fe5c8212615ea261af6a6241916e153632d",
+          "results/replay-largest-mixed256.json": "69f193947bb92b5ee5f6566882896db506c8598085edc67b5bee4d0f185218e8"
+        },
+        "gpu": "NVIDIA L40",
+        "job_id": "77335399",
+        "receipt_status": "passed",
+        "source_sha256": "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+        "task": "replay-largest-mixed256"
+      },
+      "unresolved_qps": 0
+    },
+    {
+      "all_replays_qualified": true,
+      "capture": {
+        "baseline_commit": "430db26cf07466e88e53c6e1a8fbe2be7b7b25e9",
+        "baseline_source_sha256": "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+        "path": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923b/results/capture-mixed_support-256.json",
+        "sha256": "d457d0be06291349cefcce142aff8b8beeeb4f1cb88ab77e4da0acd69347cd26",
+        "source_profile": "baseline430"
+      },
+      "captured_failed_qps": 11,
+      "cases": [
+        {
+          "admm_iterations": 1024,
+          "capture_index": 0,
+          "capture_record_sha256": "c5e3e097deb1c6a9bd7334a2f9e307b6e6e0594ab33d89e29d0e2fbe63b0549e",
+          "compiled_original_certificate": {
+            "allowed_gap": 6.910347682447149e-07,
+            "gap": 2.5292764198819414e-12,
+            "independently_qualified": true,
+            "kkt": 8.528844752631181e-13,
+            "scale": 69093.4768244715
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 6.910347682447148e-07,
+            "gap": 3.1979216598119286e-24,
+            "independently_qualified": true,
+            "kkt": 8.56477999498668e-13,
+            "scale": 69093.47682447148
+          },
+          "polish_iterations": 1073,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 5.0190275660716
+        },
+        {
+          "admm_iterations": 16592,
+          "capture_index": 1,
+          "capture_record_sha256": "6e828d997046ff5583e0d2c2e8529f66f3e8c8ea05c36a9423a8c5c265329178",
+          "compiled_original_certificate": {
+            "allowed_gap": 8.085119885593284e-07,
+            "gap": 3.261054148850889e-11,
+            "independently_qualified": true,
+            "kkt": 9.993745716393639e-08,
+            "scale": 80841.19885593285
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 8.085119885593283e-07,
+            "gap": 3.150067835732132e-11,
+            "independently_qualified": true,
+            "kkt": 9.993745894324755e-08,
+            "scale": 80841.19885593283
+          },
+          "polish_iterations": 31583,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 28.878006673185155
+        },
+        {
+          "admm_iterations": 1488,
+          "capture_index": 2,
+          "capture_record_sha256": "299f66da2e6a3a3cb150cd51ffd9b6486f9f847ba1d68c02dd51f01f5bc73499",
+          "compiled_original_certificate": {
+            "allowed_gap": 2.7652690438601692e-06,
+            "gap": 2.700916491039546e-06,
+            "independently_qualified": true,
+            "kkt": 9.269395058861537e-08,
+            "scale": 276516.90438601695
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 2.7652690438601794e-06,
+            "gap": 2.700913894231228e-06,
+            "independently_qualified": true,
+            "kkt": 9.269395064731403e-08,
+            "scale": 276516.904386018
+          },
+          "polish_iterations": 4159,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 3.2612628689967096
+        },
+        {
+          "admm_iterations": 1024,
+          "capture_index": 3,
+          "capture_record_sha256": "9228edac1d30a0f9939c988e03b07b5fc73c11a347ab818bcb4ebcf10fa55a6b",
+          "compiled_original_certificate": {
+            "allowed_gap": 4.25770424044905e-06,
+            "gap": 1.5123102426565276e-11,
+            "independently_qualified": true,
+            "kkt": 8.694236348304675e-08,
+            "scale": 425760.424044905
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 4.257704240449052e-06,
+            "gap": 8.709375083008395e-12,
+            "independently_qualified": true,
+            "kkt": 8.694236372867143e-08,
+            "scale": 425760.42404490523
+          },
+          "polish_iterations": 1224,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 1.3946425458416343
+        },
+        {
+          "admm_iterations": 1024,
+          "capture_index": 4,
+          "capture_record_sha256": "f5e67d04e995b0c24d8795c2f342e015137e4182d3d810c47c55ce3260df64f9",
+          "compiled_original_certificate": {
+            "allowed_gap": 1.331378517528446e-06,
+            "gap": 1.6815638023508955e-12,
+            "independently_qualified": true,
+            "kkt": 9.806999929135523e-08,
+            "scale": 133127.8517528446
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 1.3313785175284458e-06,
+            "gap": 3.159428174378206e-13,
+            "independently_qualified": true,
+            "kkt": 9.806990382431985e-08,
+            "scale": 133127.85175284458
+          },
+          "polish_iterations": 917,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 0.9313256829045713
+        },
+        {
+          "admm_iterations": 16256,
+          "capture_index": 5,
+          "capture_record_sha256": "c57d59cbc4ecb42c20b55498f28be257e2e67baa1c5a9e2742c929cf8f733a84",
+          "compiled_original_certificate": {
+            "allowed_gap": 1.2947341356171411e-05,
+            "gap": 5.561158536179061e-10,
+            "independently_qualified": true,
+            "kkt": 9.954344734487999e-08,
+            "scale": 1294724.1356171411
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 1.2947341356171404e-05,
+            "gap": 5.387476998902268e-10,
+            "independently_qualified": true,
+            "kkt": 9.95434524030936e-08,
+            "scale": 1294724.1356171404
+          },
+          "polish_iterations": 27405,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 30.181395781924948
+        },
+        {
+          "admm_iterations": 1024,
+          "capture_index": 6,
+          "capture_record_sha256": "ecf5793306e8e9e8160b7c4f0870755832c94d8f6d1daef623cd1f0f6e804adb",
+          "compiled_original_certificate": {
+            "allowed_gap": 5.248390519423869e-06,
+            "gap": 7.012264808027969e-12,
+            "independently_qualified": true,
+            "kkt": 7.202048290963862e-08,
+            "scale": 524829.0519423869
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 5.248390519423869e-06,
+            "gap": 1.0576516711818975e-12,
+            "independently_qualified": true,
+            "kkt": 7.20202802081242e-08,
+            "scale": 524829.0519423869
+          },
+          "polish_iterations": 31,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 0.6885167218279094
+        },
+        {
+          "admm_iterations": 1024,
+          "capture_index": 7,
+          "capture_record_sha256": "31580bca0d58a4bb7d6b238581dc3b3adce37d612119e41a2c6628a34d6f146a",
+          "compiled_original_certificate": {
+            "allowed_gap": 1.0473486425427887e-05,
+            "gap": 1.2857266664894688e-11,
+            "independently_qualified": true,
+            "kkt": 5.546763543503204e-08,
+            "scale": 1047338.6425427888
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 1.0473486425427887e-05,
+            "gap": 1.5742938267574984e-12,
+            "independently_qualified": true,
+            "kkt": 5.546786810019117e-08,
+            "scale": 1047338.6425427888
+          },
+          "polish_iterations": 37,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 0.6062333949375898
+        },
+        {
+          "admm_iterations": 1024,
+          "capture_index": 8,
+          "capture_record_sha256": "9c1014bb694ce22574c3090161c57f86e785dae69801e79662c6be03774c2165",
+          "compiled_original_certificate": {
+            "allowed_gap": 2.0924195282015295e-05,
+            "gap": 2.4011427456848886e-11,
+            "independently_qualified": true,
+            "kkt": 6.039794268107882e-08,
+            "scale": 2092409.5282015298
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 2.092419528201529e-05,
+            "gap": 4.144271440322735e-12,
+            "independently_qualified": true,
+            "kkt": 6.039782000139499e-08,
+            "scale": 2092409.5282015293
+          },
+          "polish_iterations": 39,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 0.6233283488545567
+        },
+        {
+          "admm_iterations": 10048,
+          "capture_index": 9,
+          "capture_record_sha256": "7590c4a187dcca090bdb732d7fe8d8c202d3e8e0984c1853225e0b632fa67753",
+          "compiled_original_certificate": {
+            "allowed_gap": 8.053810622858334e-06,
+            "gap": 1.444034436792909e-11,
+            "independently_qualified": true,
+            "kkt": 9.998788250848512e-08,
+            "scale": 805371.0622858334
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 8.053810622858335e-06,
+            "gap": 1.1448327849770831e-11,
+            "independently_qualified": true,
+            "kkt": 9.998905641368732e-08,
+            "scale": 805371.0622858335
+          },
+          "polish_iterations": 12675,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 13.361904010176659
+        },
+        {
+          "admm_iterations": 11040,
+          "capture_index": 10,
+          "capture_record_sha256": "ecfc4c62b616d7b18d1c162a50d8fe23229b6603e0dfeda7b505bdf287d550fe",
+          "compiled_original_certificate": {
+            "allowed_gap": 7.724565062951646e-06,
+            "gap": 6.513106894618594e-11,
+            "independently_qualified": true,
+            "kkt": 9.949105215059542e-08,
+            "scale": 772446.5062951646
+          },
+          "eager_original_certificate": {
+            "allowed_gap": 7.724565062951646e-06,
+            "gap": 6.206741841292513e-11,
+            "independently_qualified": true,
+            "kkt": 9.949110525848789e-08,
+            "scale": 772446.5062951647
+          },
+          "polish_iterations": 12688,
+          "production_qualified": true,
+          "qualified": true,
+          "seconds": 13.945742279989645
+        }
+      ],
+      "complete_fit_authority": false,
+      "diagnostic_status": "completed",
+      "error": null,
+      "resolved_qps": 11,
+      "scientific_status": "all_original_start_replays_qualified",
+      "scope": "Exact captured-QP replay only; cannot qualify a full path and does not veto independently executed full-path diagnostics",
+      "task": {
+        "attempt": "replay-diagonal-mixed-v",
+        "elapsed_seconds": 122.23350822809152,
+        "evidence": {
+          "receipts/startup.json": "41f78246ed9e6ef85cb9432f8b56efbbdb8552672587a9e731638213bb6f3df9",
+          "receipts/terminal.json": "d0bf9e1d6464e10c9f9b00cacc5999f0fc8a24a5414f7bd0da946533dc0a7c3f",
+          "results/replay-original-mixed256.artifacts/capture-0000/last_equality_attempt-legacy_uniform-q.json": "046a05717001f134f6170f635a482c8c1f323ea8f8e4aa8bfb894b921372020b",
+          "results/replay-original-mixed256.artifacts/capture-0000/last_equality_attempt-legacy_uniform-x.json": "352e686b6d12462f0f92b344877b793b47cb9e4c0263fd3fee9095fae0ee3d8c",
+          "results/replay-original-mixed256.artifacts/capture-0000/last_equality_attempt-production_cone-q.json": "97a90b6689160adc9fdfb072e7e55134f3c4b37c40c249a9d0b4d840166fd368",
+          "results/replay-original-mixed256.artifacts/capture-0000/last_equality_attempt-production_cone-x.json": "352e686b6d12462f0f92b344877b793b47cb9e4c0263fd3fee9095fae0ee3d8c",
+          "results/replay-original-mixed256.artifacts/capture-0000/last_refined_state-legacy_uniform-q.json": "befba7ab0718f29e71a71fb8b6708ed4b28da6a2619d9408f5b51696e896fd2c",
+          "results/replay-original-mixed256.artifacts/capture-0000/last_refined_state-legacy_uniform-x.json": "ea6884e682fd7665227dfac06a57a027df87371c5e96cb8770c2cb6219f5101a",
+          "results/replay-original-mixed256.artifacts/capture-0000/last_refined_state-production_cone-q.json": "88491b9b120a93f91dd97a60c4ab82f1cb4957fe9fb4e96405d8b99e4baf3103",
+          "results/replay-original-mixed256.artifacts/capture-0000/last_refined_state-production_cone-x.json": "ea6884e682fd7665227dfac06a57a027df87371c5e96cb8770c2cb6219f5101a",
+          "results/replay-original-mixed256.artifacts/capture-0000/replay-q.json": "8bc86d3a26d07cf8372c3959155289f99eff4106317c0ca7918e76e8e2cf650c",
+          "results/replay-original-mixed256.artifacts/capture-0000/replay-x.json": "6368669b875ba06f0b245f89c92da7c18436b4c0d35c7552032487445cd9cc13",
+          "results/replay-original-mixed256.artifacts/capture-0000/result.json": "328187b4cf87c3c3f033a2aad8c3b2d98e20d2b771766f0503684bcbdcca77f4",
+          "results/replay-original-mixed256.artifacts/capture-0001/last_equality_attempt-legacy_uniform-q.json": "bb809e19a33fd5fb36a0b5cb937c2e34b4590d3cb721f0e16ca4e313ef44b168",
+          "results/replay-original-mixed256.artifacts/capture-0001/last_equality_attempt-legacy_uniform-x.json": "9d65e184f9dc4a09bbcac483edc62a0a071e36a62d7e37167684ee070bbadf43",
+          "results/replay-original-mixed256.artifacts/capture-0001/last_equality_attempt-production_cone-q.json": "9a507b723f1ae525634edd9fb7e57658a397ccf5779c166d139afce4763fa258",
+          "results/replay-original-mixed256.artifacts/capture-0001/last_equality_attempt-production_cone-x.json": "9d65e184f9dc4a09bbcac483edc62a0a071e36a62d7e37167684ee070bbadf43",
+          "results/replay-original-mixed256.artifacts/capture-0001/replay-q.json": "2d9f30c24e81377b3bcddd2a5263e642a88565323616f62e659fde1405229ac4",
+          "results/replay-original-mixed256.artifacts/capture-0001/replay-x.json": "08b227cdb4f77208c749c5780aad16ea3d2b4ad281f9c459d8e9e2ed4235eb7d",
+          "results/replay-original-mixed256.artifacts/capture-0001/result.json": "39a151f5bbe102266a82816523dbb5f1772d1d05998ab8aaedf6ba36ea1de209",
+          "results/replay-original-mixed256.artifacts/capture-0002/last_equality_attempt-legacy_uniform-q.json": "96b5c0925e701b1796e1164dee99aabe46ed5b7751d4c2629340f4ac01847031",
+          "results/replay-original-mixed256.artifacts/capture-0002/last_equality_attempt-legacy_uniform-x.json": "30a26ac8edc33a0cddfbb9511a632539d12eaf2a4b6479279add6409a7b09977",
+          "results/replay-original-mixed256.artifacts/capture-0002/last_equality_attempt-production_cone-q.json": "d7c6828a22eec6dc29a0545e86f2aa663246e8e207d9f05ec1827844ffad5bd6",
+          "results/replay-original-mixed256.artifacts/capture-0002/last_equality_attempt-production_cone-x.json": "30a26ac8edc33a0cddfbb9511a632539d12eaf2a4b6479279add6409a7b09977",
+          "results/replay-original-mixed256.artifacts/capture-0002/last_refined_state-legacy_uniform-q.json": "7e036732ff31d19baf09e3fcb6c41671727d4003379a65d29fd9bb72adb3d0ac",
+          "results/replay-original-mixed256.artifacts/capture-0002/last_refined_state-legacy_uniform-x.json": "fa2838177965bde11cfd9b256a8e0ca3b3a7f207dade6dc46f2ed6d216fedf55",
+          "results/replay-original-mixed256.artifacts/capture-0002/last_refined_state-production_cone-q.json": "5413ae785925a3b4038d6cd0e82d160a2714b43158cf856d4b73b460f61816e4",
+          "results/replay-original-mixed256.artifacts/capture-0002/last_refined_state-production_cone-x.json": "fa2838177965bde11cfd9b256a8e0ca3b3a7f207dade6dc46f2ed6d216fedf55",
+          "results/replay-original-mixed256.artifacts/capture-0002/replay-q.json": "15ef171d36580ab21be67798c8c8b38036647b62a34d4782453c44562ff3695f",
+          "results/replay-original-mixed256.artifacts/capture-0002/replay-x.json": "5e264d713313e3c90ec85381c1686ef109216892ca2d06f6fa94873f27818069",
+          "results/replay-original-mixed256.artifacts/capture-0002/result.json": "d52cb0cfe546e37bb5511c7cf5d99078ea5ff98f41757988c0b9a0b11994be0d",
+          "results/replay-original-mixed256.artifacts/capture-0003/last_equality_attempt-legacy_uniform-q.json": "62985b568dcc2748989fdf8e95c4d4cbe0bddd81986d94fdcbde92997333b4b3",
+          "results/replay-original-mixed256.artifacts/capture-0003/last_equality_attempt-legacy_uniform-x.json": "015b8b52558f2fef51deec566ae4607843f6bbbfe89c5d7d72859fc7059c9530",
+          "results/replay-original-mixed256.artifacts/capture-0003/last_equality_attempt-production_cone-q.json": "b33c1479babb7be97ffd222794feb474809080724c9e8f00fd7caa61c3ace3e2",
+          "results/replay-original-mixed256.artifacts/capture-0003/last_equality_attempt-production_cone-x.json": "015b8b52558f2fef51deec566ae4607843f6bbbfe89c5d7d72859fc7059c9530",
+          "results/replay-original-mixed256.artifacts/capture-0003/last_refined_state-legacy_uniform-q.json": "398cf422401069eddd4eda551b8408e3e9e86f4adac338d8f83c459ac6cd5fe7",
+          "results/replay-original-mixed256.artifacts/capture-0003/last_refined_state-legacy_uniform-x.json": "fbc584b459e32fe5e208d62a03ca590298751ce6d26ab7d7b4801ea95d2e32e8",
+          "results/replay-original-mixed256.artifacts/capture-0003/last_refined_state-production_cone-q.json": "05f3c43a083db7a55eb3d3538854d5a0055709e12c4655fd7e2fc8a6165e7986",
+          "results/replay-original-mixed256.artifacts/capture-0003/last_refined_state-production_cone-x.json": "fbc584b459e32fe5e208d62a03ca590298751ce6d26ab7d7b4801ea95d2e32e8",
+          "results/replay-original-mixed256.artifacts/capture-0003/replay-q.json": "c838e9afb5a6467e449dc76d4ddea4fb474a9c425aea038833888f30f98dc1b6",
+          "results/replay-original-mixed256.artifacts/capture-0003/replay-x.json": "9bf3aa819f8a99021b2084b7dbb75c554cff182aa89abfbc2a357b7c8575610a",
+          "results/replay-original-mixed256.artifacts/capture-0003/result.json": "372b37ecfb4724e844bc611c5198c2d39095f7e1489ab4904997dff397a8f244",
+          "results/replay-original-mixed256.artifacts/capture-0004/last_equality_attempt-legacy_uniform-q.json": "a7e160565549b904b8b605767debe290e773e169b3ad13d1978beb1fcf5534f1",
+          "results/replay-original-mixed256.artifacts/capture-0004/last_equality_attempt-legacy_uniform-x.json": "bcb542bebd4ff9e2a48d2fe4fd7e808969c433d6a07b176f49a4d8d7ead4b65f",
+          "results/replay-original-mixed256.artifacts/capture-0004/last_equality_attempt-production_cone-q.json": "541ed661c3ba4db89f3e9c6cb294fd240d0c012530f162dd1cfb2b7365e7e68f",
+          "results/replay-original-mixed256.artifacts/capture-0004/last_equality_attempt-production_cone-x.json": "bcb542bebd4ff9e2a48d2fe4fd7e808969c433d6a07b176f49a4d8d7ead4b65f",
+          "results/replay-original-mixed256.artifacts/capture-0004/replay-q.json": "03836b74287ce0f37f71223686c823086a0eb5ccf207251ed501c184da102024",
+          "results/replay-original-mixed256.artifacts/capture-0004/replay-x.json": "c68896326d957b32a4b7dc5989139cd1e814fc092e23adcd72454f6623bb2a8f",
+          "results/replay-original-mixed256.artifacts/capture-0004/result.json": "8e3e13c4f50272421fbbf8d6313271cdb87f8e5d247d7449c0d9e520fe11c818",
+          "results/replay-original-mixed256.artifacts/capture-0005/last_equality_attempt-legacy_uniform-q.json": "382f6dc65b7523eafb914f413d7023209610c61f1b7634bd2b11727a29b2ce0c",
+          "results/replay-original-mixed256.artifacts/capture-0005/last_equality_attempt-legacy_uniform-x.json": "29335a23db4eff849ca54be9aabd844fda93793bf6165306cac88cff382b8c7f",
+          "results/replay-original-mixed256.artifacts/capture-0005/last_equality_attempt-production_cone-q.json": "3f88f57231ffbe12f3bd8e827dbc87d74811df5366b22341c613e516da30801a",
+          "results/replay-original-mixed256.artifacts/capture-0005/last_equality_attempt-production_cone-x.json": "29335a23db4eff849ca54be9aabd844fda93793bf6165306cac88cff382b8c7f",
+          "results/replay-original-mixed256.artifacts/capture-0005/replay-q.json": "ee0babb521a94e01a10e16e6920850444dd6c935de05b7f0e81bb081ec0f49c8",
+          "results/replay-original-mixed256.artifacts/capture-0005/replay-x.json": "da6e13787293fe71fd48b0b999ec00e4b8b35599f0297d6f96ba80e10b646b5a",
+          "results/replay-original-mixed256.artifacts/capture-0005/result.json": "99c551b54706becfbb8b0b9bb3bb58e536db4728be8cf6c3306e4b9dfd874eb3",
+          "results/replay-original-mixed256.artifacts/capture-0006/last_equality_attempt-legacy_uniform-q.json": "b83067850cf2b366f8514606c54fa00c904a918658024a096c5fa242a43ee0cb",
+          "results/replay-original-mixed256.artifacts/capture-0006/last_equality_attempt-legacy_uniform-x.json": "4af81f4a75e3b214b4870684523dd83a808488fd3d021c2efb5b9aeb20639926",
+          "results/replay-original-mixed256.artifacts/capture-0006/last_equality_attempt-production_cone-q.json": "089e917340449503f39469c3ed9ab0d8747f98138a07b67453fd57277263ea26",
+          "results/replay-original-mixed256.artifacts/capture-0006/last_equality_attempt-production_cone-x.json": "4af81f4a75e3b214b4870684523dd83a808488fd3d021c2efb5b9aeb20639926",
+          "results/replay-original-mixed256.artifacts/capture-0006/replay-q.json": "aa97e041adbbc7434eaccbcf82ff83c54c7974a70947df64ffc44cc4359f7cd3",
+          "results/replay-original-mixed256.artifacts/capture-0006/replay-x.json": "8e6cedeb71363478f6a8e6294c20f45c58c2d06b9355b488e3378edbbefa9531",
+          "results/replay-original-mixed256.artifacts/capture-0006/result.json": "bc26482533a3ea2e44225cae3fc707f18ea0de06b04d16e20d2818838a8913bf",
+          "results/replay-original-mixed256.artifacts/capture-0007/last_equality_attempt-legacy_uniform-q.json": "74fc6b733f775bc6940d891d6608ad6546d2763da3f7fbdc81b9a21c6967bf80",
+          "results/replay-original-mixed256.artifacts/capture-0007/last_equality_attempt-legacy_uniform-x.json": "7d909862e587c7563fdb3ae88f68bcc9b9a64c6be6977dacc6c0bef2cd4f1c40",
+          "results/replay-original-mixed256.artifacts/capture-0007/last_equality_attempt-production_cone-q.json": "0432deb573fac32ee021449712f10a968616f0e071e4187d0a69c8a4a3c351ac",
+          "results/replay-original-mixed256.artifacts/capture-0007/last_equality_attempt-production_cone-x.json": "7d909862e587c7563fdb3ae88f68bcc9b9a64c6be6977dacc6c0bef2cd4f1c40",
+          "results/replay-original-mixed256.artifacts/capture-0007/replay-q.json": "4be34599853bacd4839064ac4c58d9b82a8183dde43ef4b16088b4996f614993",
+          "results/replay-original-mixed256.artifacts/capture-0007/replay-x.json": "e01978fe1eb44ddffac121eb9d2d8ed40515fe3d75ab44f223d07bd199a619c5",
+          "results/replay-original-mixed256.artifacts/capture-0007/result.json": "58d2b68981b7183e0f6a90aa6e13029bbf2f8cc827fc24db55a89a6871e2aa22",
+          "results/replay-original-mixed256.artifacts/capture-0008/last_equality_attempt-legacy_uniform-q.json": "1a94eb70d4128ea759aa54f3efb86fe54fecd28d8bcccadcea628b9fc85d7a1a",
+          "results/replay-original-mixed256.artifacts/capture-0008/last_equality_attempt-legacy_uniform-x.json": "87cdc7697e83470d21120f51c60340a2061c7fc7563b096ec66ea70c90d70ed2",
+          "results/replay-original-mixed256.artifacts/capture-0008/last_equality_attempt-production_cone-q.json": "57b93cee835239dcde20f860037a32ad744d4ec3ccd3b4b6538ecc7caa2cd112",
+          "results/replay-original-mixed256.artifacts/capture-0008/last_equality_attempt-production_cone-x.json": "87cdc7697e83470d21120f51c60340a2061c7fc7563b096ec66ea70c90d70ed2",
+          "results/replay-original-mixed256.artifacts/capture-0008/replay-q.json": "5257a3a22c2e374e6e23a8a84427a1abf574d589dbcb59e6ba1ccf7d6bfc41fa",
+          "results/replay-original-mixed256.artifacts/capture-0008/replay-x.json": "9fdb8cac092631f6df2d1f00f2b7fd3b4ff5b9f4a02ef6b3832230cd89e68a75",
+          "results/replay-original-mixed256.artifacts/capture-0008/result.json": "590a669ee9280b8284dd7d90d9d39bda45d45d124419874366fd005f2b001a2e",
+          "results/replay-original-mixed256.artifacts/capture-0009/last_equality_attempt-legacy_uniform-q.json": "adc04fc7282c817e9757557402c0f0a57b300a907d0a0f75a2d1b8e042a2b2a6",
+          "results/replay-original-mixed256.artifacts/capture-0009/last_equality_attempt-legacy_uniform-x.json": "da1642dad1d9af17d80ff1e8efd97f7d3a3ed5749f5eb443fb8e776ce64c1422",
+          "results/replay-original-mixed256.artifacts/capture-0009/last_equality_attempt-production_cone-q.json": "1c11b101d6dd98ada5b8f455572c319fcdb6f38c25ce620955df338048676f68",
+          "results/replay-original-mixed256.artifacts/capture-0009/last_equality_attempt-production_cone-x.json": "da1642dad1d9af17d80ff1e8efd97f7d3a3ed5749f5eb443fb8e776ce64c1422",
+          "results/replay-original-mixed256.artifacts/capture-0009/replay-q.json": "9170454d4609db5e11fdb5d9729b4ff7376d417341e57bb6d71042054b77d626",
+          "results/replay-original-mixed256.artifacts/capture-0009/replay-x.json": "ca6e3c77798a8dc4a3ccf7777c5d3bd222765215d59f169962a77ae6bbf3c55d",
+          "results/replay-original-mixed256.artifacts/capture-0009/result.json": "d5f83f55ff8b6dfa586c885b8b2c760b0e59786ec8890e9e74069335cd0eaa17",
+          "results/replay-original-mixed256.artifacts/capture-0010/last_equality_attempt-legacy_uniform-q.json": "f940f52e5d330181c52f833544159f705145ea3c7f01a8844b5bf44cdeca95d7",
+          "results/replay-original-mixed256.artifacts/capture-0010/last_equality_attempt-legacy_uniform-x.json": "f8d373526b555ad3124642a656039cb079820442770a9d32115632a5374a9382",
+          "results/replay-original-mixed256.artifacts/capture-0010/last_equality_attempt-production_cone-q.json": "1736574b8d870c1d6df2f9c1420b447cddc161eded304e61b16875e47397166d",
+          "results/replay-original-mixed256.artifacts/capture-0010/last_equality_attempt-production_cone-x.json": "f8d373526b555ad3124642a656039cb079820442770a9d32115632a5374a9382",
+          "results/replay-original-mixed256.artifacts/capture-0010/replay-q.json": "dcfccc82d4d770f5634e483d646ea98868387ee778838fc992cc76bfe6142972",
+          "results/replay-original-mixed256.artifacts/capture-0010/replay-x.json": "ca6e3c77798a8dc4a3ccf7777c5d3bd222765215d59f169962a77ae6bbf3c55d",
+          "results/replay-original-mixed256.artifacts/capture-0010/result.json": "5fc211fb1623840e6e70c0c9a2710a30c10568a75a2f7c490703f11ab079d7c2",
+          "results/replay-original-mixed256.json": "520855cd220679e0089048e564f8069d6d73c8bd14a34a5f3614bd6e47935331"
+        },
+        "gpu": "NVIDIA L40",
+        "job_id": "77335399",
+        "receipt_status": "passed",
+        "source_sha256": "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+        "task": "replay-original-mixed256"
+      },
+      "unresolved_qps": 0
+    }
+  ],
+  "schema": "clipp1d.cuda.bound.diagonal_path_comparison.v1",
+  "scope": "Read-only source-bound numerical comparisons, qualification coverage and observed timings; no cohort inference",
+  "script_sha256": "809cd661d29d0ddfe3b87507ac9afca397a90dbb9f8159070696b731c0702dac",
+  "source_sha256": "a3aa1dc7719b743e0e9342291aa25dd21f7860632ade008a67768d8d5c40cf30",
+  "terminal_attempts": [
+    {
+      "attempt": "qualification-diagonal-below256-aa",
+      "manifest_sha256": "4ee1e705e04a0ac5d164f059ac5aaaf9eed1195957214fa25c1a949e8371e705",
+      "terminal_status": {
+        "elapsed_seconds": 65.28583526611328,
+        "error": "{'name': 'below256-full', 'source_role': 'current', 'returncode': 1, 'receipt_sha256': 'f18b0e74d7cca440add062fbe5d71f24b883d56564941bfc955094f18d5cd5be', 'status': 'failed'}",
+        "error_type": "AssertionError",
+        "job_id": "77336027",
+        "passed": false,
+        "plan_sha256": "39af03ff469a497011c7a007cb6793bb5a7ed1b988a1907e83062b044ace0964",
+        "scope": "source-bound synthetic CUDA task; diagnostic capture success is not complete-fit qualification",
+        "tasks": [
+          {
+            "name": "below256-full",
+            "receipt_sha256": "f18b0e74d7cca440add062fbe5d71f24b883d56564941bfc955094f18d5cd5be",
+            "returncode": 1,
+            "source_role": "current",
+            "status": "failed"
+          }
+        ],
+        "traceback": "Traceback (most recent call last):\n  File \"/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923aa/worker.py\", line 112, in main\n    assert completed.returncode == 0 and entry.get(\"status\") == \"passed\", entry\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'name': 'below256-full', 'source_role': 'current', 'returncode': 1, 'receipt_sha256': 'f18b0e74d7cca440add062fbe5d71f24b883d56564941bfc955094f18d5cd5be', 'status': 'failed'}\n"
+      }
+    },
+    {
+      "attempt": "qualification-diagonal-existing-y",
+      "manifest_sha256": "b245a4364585c3d55e0f53071e89bc2ed861ebbe0598b903b972d7e5f02f988f",
+      "terminal_status": {
+        "elapsed_seconds": 644.960860490799,
+        "job_id": "77335501",
+        "passed": true,
+        "plan_sha256": "9b5ee6ee42d5857fa2722906fd68a243efd3a56c336373b1e2ebd4dc02ae0142",
+        "scope": "source-bound synthetic CUDA task; diagnostic capture success is not complete-fit qualification",
+        "tasks": [
+          {
+            "name": "existing-current",
+            "receipt_sha256": "f64272c38f3d5f8c72fd88ba51676b80c42b08f438cb303da580d2c476ed3ea9",
+            "returncode": 0,
+            "source_role": "current",
+            "status": "passed"
+          }
+        ]
+      }
+    },
+    {
+      "attempt": "qualification-diagonal-mixed256-z",
+      "manifest_sha256": "055164f2c3e51c857c062453b942bd8921b63f879a8ffb8cc70bd6b72ade3df6",
+      "terminal_status": {
+        "elapsed_seconds": 75.18180418014526,
+        "job_id": "77336012",
+        "passed": true,
+        "plan_sha256": "d5d0d53e06c9922cc1dfcbb79935cb2cd1c10250ba817433b7f07ac339ceb436",
+        "scope": "source-bound synthetic CUDA task; diagnostic capture success is not complete-fit qualification",
+        "tasks": [
+          {
+            "name": "mixed256-full",
+            "receipt_sha256": "091c72ab7b4ed8a7efd0ad89f64b7a5895fea810f4de1dfcdfd49f013543f67f",
+            "returncode": 0,
+            "source_role": "current",
+            "status": "passed"
+          }
+        ]
+      }
+    },
+    {
+      "attempt": "qualification-diagonal-mixed512-ab",
+      "manifest_sha256": "55c5324f12508b0c3b06fbd9488a57b0561dba58372367affffddad4b7b337a1",
+      "terminal_status": {
+        "elapsed_seconds": 67.19480061531067,
+        "job_id": "77336044",
+        "passed": true,
+        "plan_sha256": "0d5f6362b991b059262dcd0e87edf317d6e0c2fa872e8e5c1eed43d4c9de5fe0",
+        "scope": "source-bound synthetic CUDA task; diagnostic capture success is not complete-fit qualification",
+        "tasks": [
+          {
+            "name": "mixed512-full",
+            "receipt_sha256": "54da72b1e7a75a3050161c22218a97e848adbed5203ba2b9fe564a9ec78ab16b",
+            "returncode": 0,
+            "source_role": "current",
+            "status": "passed"
+          }
+        ]
+      }
+    },
+    {
+      "attempt": "qualification-diagonal-small-x",
+      "manifest_sha256": "f6b06fbb0e1a2875392c7c8c0e291c65ef19f174492edc044643a8a452bb1857",
+      "terminal_status": {
+        "elapsed_seconds": 187.56539964675903,
+        "job_id": "77335492",
+        "passed": true,
+        "plan_sha256": "88f2b3e96dfd02ae71223c65c0d1f652523154c694396d39c36227c11453b908",
+        "scope": "source-bound synthetic CUDA task; diagnostic capture success is not complete-fit qualification",
+        "tasks": [
+          {
+            "name": "replay-original-below64",
+            "receipt_sha256": "3c80427bd0418ca3db04ff30debc6718f892428c316af1648dda1633007fb3fe",
+            "returncode": 0,
+            "source_role": "current",
+            "status": "passed"
+          },
+          {
+            "name": "replay-later-below64",
+            "receipt_sha256": "7aa4d3876600e62ac3176175c887827d913b6815c1069efba2fe2f472105a7e8",
+            "returncode": 0,
+            "source_role": "current",
+            "status": "passed"
+          },
+          {
+            "name": "mixed64-paired",
+            "receipt_sha256": "5811f00208eb70013c316f4ab96fb209b702010e2627f81ccbe30a87b938f0ca",
+            "returncode": 0,
+            "source_role": "current",
+            "status": "passed"
+          },
+          {
+            "name": "below64-full",
+            "receipt_sha256": "61072332721e0048258b1225dac018001b50717181884d40101cfb8ecd7304c2",
+            "returncode": 0,
+            "source_role": "current",
+            "status": "passed"
+          }
+        ]
+      }
+    },
+    {
+      "attempt": "replay-diagonal-below256-w",
+      "manifest_sha256": "38e8e7d1eab6ab0a051149c772d9caa2dff41dd4481732efcec48102967d226d",
+      "terminal_status": {
+        "elapsed_seconds": 62.7068088054657,
+        "error": "{'name': 'replay-first-below256', 'source_role': 'current', 'returncode': 1, 'receipt_sha256': '3414d1b37bb4f93755f87ce70c989b09ec4f4feec64bc03d690591324e20a6cb', 'status': 'failed'}",
+        "error_type": "AssertionError",
+        "job_id": "77335452",
+        "passed": false,
+        "plan_sha256": "a708c51a7a4b8fa7c21101b2a4e4e6706a15c9d84f212c78fd1daae56f36c15e",
+        "scope": "source-bound synthetic CUDA task; diagnostic capture success is not complete-fit qualification",
+        "tasks": [
+          {
+            "name": "replay-first-below256",
+            "receipt_sha256": "3414d1b37bb4f93755f87ce70c989b09ec4f4feec64bc03d690591324e20a6cb",
+            "returncode": 1,
+            "source_role": "current",
+            "status": "failed"
+          }
+        ],
+        "traceback": "Traceback (most recent call last):\n  File \"/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923w/worker.py\", line 112, in main\n    assert completed.returncode == 0 and entry.get(\"status\") == \"passed\", entry\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'name': 'replay-first-below256', 'source_role': 'current', 'returncode': 1, 'receipt_sha256': '3414d1b37bb4f93755f87ce70c989b09ec4f4feec64bc03d690591324e20a6cb', 'status': 'failed'}\n"
+      }
+    },
+    {
+      "attempt": "replay-diagonal-mixed-v",
+      "manifest_sha256": "30454f08808fe3da23a09af3b956f04285fd4db78f0695d2e1b05e725ef53ef5",
+      "terminal_status": {
+        "elapsed_seconds": 145.17413187026978,
+        "job_id": "77335399",
+        "passed": true,
+        "plan_sha256": "3fd6b12d8c8d3efdf9fd9047cda476741deb55ee8f95ae6220af0daf63447bbd",
+        "scope": "source-bound synthetic CUDA task; diagnostic capture success is not complete-fit qualification",
+        "tasks": [
+          {
+            "name": "replay-largest-mixed256",
+            "receipt_sha256": "69f193947bb92b5ee5f6566882896db506c8598085edc67b5bee4d0f185218e8",
+            "returncode": 0,
+            "source_role": "current",
+            "status": "passed"
+          },
+          {
+            "name": "replay-original-mixed256",
+            "receipt_sha256": "520855cd220679e0089048e564f8069d6d73c8bd14a34a5f3614bd6e47935331",
+            "returncode": 0,
+            "source_role": "current",
+            "status": "passed"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -404,6 +404,48 @@ def measured_profile(call, device, *, trace=None, stage_counts=None):
     return result, detail
 
 
+def qualify_stage_coverage(detail, fitted):
+    """Reconcile actual operations; an already certified dual can need no repair.
+
+    This validates accounting only. CPU callers remain CPU reference tests;
+    production admission separately requires real CUDA dispatch and an original
+    QP certificate before invoking this helper.
+    """
+    operations = {
+        'admm_update': ('admm_update', 'residual_balance'),
+        'equality_proposal': ('polish_quadratic', 'prepare_flow_polish'),
+        'dual_flow_repair': ('flow_polish_step', '_polish_dual'),
+        'certificate': ('gap_kkt', 'quadratic_value'),
+    }
+    counts = detail['stage_operation_counts']
+    known = {name for names in operations.values() for name in names}
+    if set(counts) - known or any(type(value) is not int or value < 0 for value in counts.values()):
+        raise AssertionError('Invalid attribution stage operation counts')
+    for stage, names in operations.items():
+        if detail['stages'][stage]['calls'] != sum(counts.get(name, 0) for name in names):
+            raise AssertionError('Attribution stage operation coverage differs')
+    if counts.get('admm_update', 0) != fitted.iterations:
+        raise AssertionError('Attribution did not cover every ADMM iteration')
+    flow_steps = sum(counts.get(name, 0) for name in operations['dual_flow_repair'])
+    if flow_steps != fitted.polish_iterations:
+        raise AssertionError('Attribution did not cover every flow repair step')
+    certificate = detail['certificate']
+    if not (fitted.qualified and certificate['qualified']
+            and certificate['admm_iterations'] == fitted.iterations
+            and certificate['polish_iterations'] == fitted.polish_iterations
+            and counts.get('gap_kkt', 0) > 0):
+        raise AssertionError('Missing original QP certificate coverage')
+    if any(detail['stages'][stage]['calls'] == 0 for stage in STAGES if stage != 'dual_flow_repair'):
+        raise AssertionError('The fixed QP fixture did not exercise required non-repair stages')
+    if flow_steps == 0:
+        row = detail['stages']['dual_flow_repair']
+        if row['host_range_seconds'] != 0 or row['device_kernel_seconds'] != 0:
+            raise AssertionError('Zero flow repair has nonzero attributed work')
+    return dict(qualified=True, flow_repair_steps=flow_steps,
+                zero_flow_repair=flow_steps == 0,
+                scope='Actual operation/range counts and independent certificate; no positive repair count is required')
+
+
 def compare_receipts(baseline, current):
     """Reject incomparable or unresolved measurements before reporting ratios."""
     for receipt in (baseline, current):
@@ -537,10 +579,7 @@ def run(args, receipt, artifacts, record):
                 trace=trace, stage_counts=stages.counts)
             case['attribution']['flow_boundary'] = stages.flow_boundary
         case['attribution']['certificate'] = qualify(fitted, arrays, snapshots, reference)
-        if case['attribution']['stage_operation_counts'].get('admm_update', 0) != fitted.iterations:
-            raise AssertionError('Attribution did not cover every ADMM iteration')
-        if any(case['attribution']['stages'][stage]['calls'] == 0 for stage in STAGES):
-            raise AssertionError('The fixed QP fixture did not exercise every required attribution stage')
+        case['attribution']['stage_coverage'] = qualify_stage_coverage(case['attribution'], fitted)
         all_calls = warmups + case['latency_samples'] + [case['dispatch_profile'], case['attribution']]
         case['work_totals'] = dict(
             qp_calls=len(all_calls), independent_original_certificates=len(all_calls),

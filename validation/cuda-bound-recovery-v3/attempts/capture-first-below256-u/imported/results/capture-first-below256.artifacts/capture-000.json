@@ -1,0 +1,1218 @@
+{
+  "context": {
+    "backtrack_index": 2,
+    "backtracks": 2,
+    "graph_mutation_ids": [
+      "m000000",
+      "m000001",
+      "m000002",
+      "m000003",
+      "m000004",
+      "m000005",
+      "m000006",
+      "m000007",
+      "m000008",
+      "m000009",
+      "m000010",
+      "m000011",
+      "m000012",
+      "m000013",
+      "m000014",
+      "m000015",
+      "m000016",
+      "m000017",
+      "m000018",
+      "m000019",
+      "m000020",
+      "m000021",
+      "m000022",
+      "m000023",
+      "m000024",
+      "m000025",
+      "m000026",
+      "m000027",
+      "m000028",
+      "m000029",
+      "m000030",
+      "m000031",
+      "m000032",
+      "m000033",
+      "m000034",
+      "m000035",
+      "m000036",
+      "m000037",
+      "m000038",
+      "m000039",
+      "m000040",
+      "m000041",
+      "m000042",
+      "m000043",
+      "m000044",
+      "m000045",
+      "m000046",
+      "m000047",
+      "m000048",
+      "m000049",
+      "m000050",
+      "m000051",
+      "m000052",
+      "m000053",
+      "m000054",
+      "m000055",
+      "m000056",
+      "m000057",
+      "m000058",
+      "m000059",
+      "m000060",
+      "m000061",
+      "m000062",
+      "m000063",
+      "m000064",
+      "m000065",
+      "m000066",
+      "m000067",
+      "m000068",
+      "m000069",
+      "m000070",
+      "m000071",
+      "m000072",
+      "m000073",
+      "m000074",
+      "m000075",
+      "m000076",
+      "m000077",
+      "m000078",
+      "m000079",
+      "m000080",
+      "m000081",
+      "m000082",
+      "m000083",
+      "m000084",
+      "m000085",
+      "m000086",
+      "m000087",
+      "m000088",
+      "m000089",
+      "m000090",
+      "m000091",
+      "m000092",
+      "m000093",
+      "m000094",
+      "m000095",
+      "m000096",
+      "m000097",
+      "m000098",
+      "m000099",
+      "m000100",
+      "m000101",
+      "m000102",
+      "m000103",
+      "m000104",
+      "m000105",
+      "m000106",
+      "m000107",
+      "m000108",
+      "m000109",
+      "m000110",
+      "m000111",
+      "m000112",
+      "m000113",
+      "m000114",
+      "m000115",
+      "m000116",
+      "m000117",
+      "m000118",
+      "m000119",
+      "m000120",
+      "m000121",
+      "m000122",
+      "m000123",
+      "m000124",
+      "m000125",
+      "m000126",
+      "m000127",
+      "m000128",
+      "m000129",
+      "m000130",
+      "m000131",
+      "m000132",
+      "m000133",
+      "m000134",
+      "m000135",
+      "m000136",
+      "m000137",
+      "m000138",
+      "m000139",
+      "m000140",
+      "m000141",
+      "m000142",
+      "m000143",
+      "m000144",
+      "m000145",
+      "m000146",
+      "m000147",
+      "m000148",
+      "m000149",
+      "m000150",
+      "m000151",
+      "m000152",
+      "m000153",
+      "m000154",
+      "m000155",
+      "m000156",
+      "m000157",
+      "m000158",
+      "m000159",
+      "m000160",
+      "m000161",
+      "m000162",
+      "m000163",
+      "m000164",
+      "m000165",
+      "m000166",
+      "m000167",
+      "m000168",
+      "m000169",
+      "m000170",
+      "m000171",
+      "m000172",
+      "m000173",
+      "m000174",
+      "m000175",
+      "m000176",
+      "m000177",
+      "m000178",
+      "m000179",
+      "m000180",
+      "m000181",
+      "m000182",
+      "m000183",
+      "m000184",
+      "m000185",
+      "m000186",
+      "m000187",
+      "m000188",
+      "m000189",
+      "m000190",
+      "m000191",
+      "m000192",
+      "m000193",
+      "m000194",
+      "m000195",
+      "m000196",
+      "m000197",
+      "m000198",
+      "m000199",
+      "m000200",
+      "m000201",
+      "m000202",
+      "m000203",
+      "m000204",
+      "m000205",
+      "m000206",
+      "m000207",
+      "m000208",
+      "m000209",
+      "m000210",
+      "m000211",
+      "m000212",
+      "m000213",
+      "m000214",
+      "m000215",
+      "m000216",
+      "m000217",
+      "m000218",
+      "m000219",
+      "m000220",
+      "m000221",
+      "m000222",
+      "m000223",
+      "m000224",
+      "m000225",
+      "m000226",
+      "m000227",
+      "m000228",
+      "m000229",
+      "m000230",
+      "m000231",
+      "m000232",
+      "m000233",
+      "m000234",
+      "m000235",
+      "m000236",
+      "m000237",
+      "m000238",
+      "m000239",
+      "m000240",
+      "m000241",
+      "m000242",
+      "m000243",
+      "m000244",
+      "m000245",
+      "m000246",
+      "m000247",
+      "m000248",
+      "m000249",
+      "m000250",
+      "m000251",
+      "m000252",
+      "m000253",
+      "m000254",
+      "m000255"
+    ],
+    "inflation": 4.0,
+    "input_sha256": "e40d233273f308283ee71ab67e4c240688a48b39254419d3f6e3eb2497ab2fb7",
+    "lambda_value": 137.6911252669794,
+    "outer_iteration": 1,
+    "path_index": 1,
+    "policy": {
+      "check_every": 16,
+      "eps": 1e-06,
+      "fusion_tol": 2e-05,
+      "inner_atol": 1e-10,
+      "inner_kkt_tol": 1e-07,
+      "inner_max_iterations": 20000,
+      "inner_rtol": 1e-11,
+      "max_backtracks": 24,
+      "memory_fraction": 0.7,
+      "outer_max_iterations": 150,
+      "path_extensions": 3,
+      "path_max_exponent": 12,
+      "path_min_exponent": -12,
+      "policy_id": "clipp1d_complete_cuda_unconstrained_v3",
+      "scalar_atol": 1e-07,
+      "scalar_batch_size": 64,
+      "scalar_max_intervals": 4096,
+      "scalar_rtol": 1e-10,
+      "stationarity_tol": 2e-05,
+      "weight_rule": "all_pairs_inverse_gap_mean_one_adjacent_floor_v1"
+    },
+    "qp_ordinal_within_start": 4,
+    "source_sha256": "8627daf96b3b72be689a756445dfb60a7798a03d8bdd8d896f837eb1f11184c2",
+    "start_index": 1
+  },
+  "decomposition": {
+    "last_equality_attempt": {
+      "bounds": {
+        "fixed": 0,
+        "interior": 255,
+        "lower_active": 0,
+        "upper_active": 1
+      },
+      "box_normal": 0.0,
+      "certificate": {
+        "gap": 5.862807714214863e-28,
+        "kkt": 1.0822411460429744e-07,
+        "scale": 2298.534098106846
+      },
+      "curvature": {
+        "maximum": 13137785080844.49,
+        "minimum": 859.7664274424128
+      },
+      "dual": {
+        "exact_skew": true,
+        "max_capacity_violation": 0.0
+      },
+      "edge": 0.0,
+      "group_sizes": [
+        254,
+        1,
+        1
+      ],
+      "literal_normal_formula_sum": -1.947993397830136e-28,
+      "node_quadratic": 5.862807714214863e-28,
+      "raw_box_normal": 0.0,
+      "raw_edge": 0.0,
+      "scope": "Three stable nonnegative gap components use the original safe-target/fixed-coordinate convention. Raw signed terms are separate; this is not a new admission gate.",
+      "top_edges": [
+        {
+          "left": 0,
+          "right": 1,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 2,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 3,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 4,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 5,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 6,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 7,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 8,
+          "value": 0.0
+        }
+      ],
+      "top_nodes": [
+        {
+          "index": 133,
+          "value": 3.302115752492522e-29
+        },
+        {
+          "index": 194,
+          "value": 2.7734205944362075e-29
+        },
+        {
+          "index": 126,
+          "value": 2.314149426196449e-29
+        },
+        {
+          "index": 192,
+          "value": 1.9663020743211303e-29
+        },
+        {
+          "index": 40,
+          "value": 1.9074887833595705e-29
+        },
+        {
+          "index": 43,
+          "value": 1.849883012231494e-29
+        },
+        {
+          "index": 36,
+          "value": 1.82856907906049e-29
+        },
+        {
+          "index": 188,
+          "value": 1.674685785593018e-29
+        }
+      ],
+      "total": 5.862807714214863e-28
+    },
+    "last_refined_state": {
+      "bounds": {
+        "fixed": 0,
+        "interior": 255,
+        "lower_active": 0,
+        "upper_active": 1
+      },
+      "box_normal": 0.0,
+      "certificate": {
+        "gap": 6.357103086881352e-28,
+        "kkt": 1.0822411460429744e-07,
+        "scale": 2298.534098106846
+      },
+      "curvature": {
+        "maximum": 13137785080844.49,
+        "minimum": 859.7664274424128
+      },
+      "dual": {
+        "exact_skew": true,
+        "max_capacity_violation": 0.0
+      },
+      "edge": 0.0,
+      "group_sizes": [
+        254,
+        1,
+        1
+      ],
+      "literal_normal_formula_sum": -1.9840776212681753e-28,
+      "node_quadratic": 6.357103086881352e-28,
+      "raw_box_normal": 0.0,
+      "raw_edge": 0.0,
+      "scope": "Three stable nonnegative gap components use the original safe-target/fixed-coordinate convention. Raw signed terms are separate; this is not a new admission gate.",
+      "top_edges": [
+        {
+          "left": 0,
+          "right": 1,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 2,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 3,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 4,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 5,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 6,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 7,
+          "value": 0.0
+        },
+        {
+          "left": 0,
+          "right": 8,
+          "value": 0.0
+        }
+      ],
+      "top_nodes": [
+        {
+          "index": 140,
+          "value": 2.54853390975789e-29
+        },
+        {
+          "index": 92,
+          "value": 2.4957154816516915e-29
+        },
+        {
+          "index": 175,
+          "value": 2.4573572105264355e-29
+        },
+        {
+          "index": 21,
+          "value": 2.4482097812167362e-29
+        },
+        {
+          "index": 142,
+          "value": 2.4086932201539162e-29
+        },
+        {
+          "index": 126,
+          "value": 2.314149426196449e-29
+        },
+        {
+          "index": 43,
+          "value": 1.849883012231494e-29
+        },
+        {
+          "index": 98,
+          "value": 1.8420075769095615e-29
+        }
+      ],
+      "total": 6.357103086881352e-28
+    },
+    "returned": {
+      "bounds": {
+        "fixed": 0,
+        "interior": 255,
+        "lower_active": 0,
+        "upper_active": 1
+      },
+      "box_normal": 0.0,
+      "certificate": {
+        "gap": 1.0452504050277864e-10,
+        "kkt": 1.0822411227353396e-07,
+        "scale": 2298.534098106941
+      },
+      "curvature": {
+        "maximum": 13137785080844.49,
+        "minimum": 859.7664274424128
+      },
+      "dual": {
+        "exact_skew": true,
+        "max_capacity_violation": 0.0
+      },
+      "edge": 1.0452504050267472e-10,
+      "group_sizes": [
+        193,
+        61,
+        1,
+        1
+      ],
+      "literal_normal_formula_sum": -8.200951748358973e-27,
+      "node_quadratic": 1.0392247544937374e-22,
+      "raw_box_normal": 0.0,
+      "raw_edge": 1.0452504050267472e-10,
+      "scope": "Three stable nonnegative gap components use the original safe-target/fixed-coordinate convention. Raw signed terms are separate; this is not a new admission gate.",
+      "top_edges": [
+        {
+          "left": 245,
+          "right": 250,
+          "value": 1.508210341068941e-12
+        },
+        {
+          "left": 133,
+          "right": 245,
+          "value": 1.5080966185793496e-12
+        },
+        {
+          "left": 98,
+          "right": 245,
+          "value": 1.5079368556303395e-12
+        },
+        {
+          "left": 104,
+          "right": 245,
+          "value": 1.5078543130495732e-12
+        },
+        {
+          "left": 112,
+          "right": 245,
+          "value": 1.507712651594104e-12
+        },
+        {
+          "left": 123,
+          "right": 175,
+          "value": 1.4782516456792368e-12
+        },
+        {
+          "left": 55,
+          "right": 63,
+          "value": 1.4765380016416386e-12
+        },
+        {
+          "left": 120,
+          "right": 124,
+          "value": 1.4763138384094328e-12
+        }
+      ],
+      "top_nodes": [
+        {
+          "index": 187,
+          "value": 6.987323403613614e-24
+        },
+        {
+          "index": 90,
+          "value": 3.516379445910104e-24
+        },
+        {
+          "index": 114,
+          "value": 3.4902016204409064e-24
+        },
+        {
+          "index": 206,
+          "value": 3.445403964647373e-24
+        },
+        {
+          "index": 216,
+          "value": 3.1310919191672774e-24
+        },
+        {
+          "index": 29,
+          "value": 2.9912536471386702e-24
+        },
+        {
+          "index": 23,
+          "value": 2.555280907169473e-24
+        },
+        {
+          "index": 234,
+          "value": 2.5499940926895375e-24
+        }
+      ],
+      "total": 1.0452504050277864e-10
+    }
+  },
+  "graph": {
+    "gap_floor": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/80d80ebf7d352cc3309700936029c4670b89ecd53840df46d390aadabe93eeba.json",
+      "sha256": "85289b01d45ddce0d681772e06cc4b4d1d8d9102f1ee0611dbc46982b3944acf",
+      "shape": [],
+      "tensor_sha256": "7c946188b2f8a5af2bc8f58a7e7f7fa273b6970413589cf7a0d863146813eff2"
+    },
+    "mutation_ids": [
+      "m000000",
+      "m000001",
+      "m000002",
+      "m000003",
+      "m000004",
+      "m000005",
+      "m000006",
+      "m000007",
+      "m000008",
+      "m000009",
+      "m000010",
+      "m000011",
+      "m000012",
+      "m000013",
+      "m000014",
+      "m000015",
+      "m000016",
+      "m000017",
+      "m000018",
+      "m000019",
+      "m000020",
+      "m000021",
+      "m000022",
+      "m000023",
+      "m000024",
+      "m000025",
+      "m000026",
+      "m000027",
+      "m000028",
+      "m000029",
+      "m000030",
+      "m000031",
+      "m000032",
+      "m000033",
+      "m000034",
+      "m000035",
+      "m000036",
+      "m000037",
+      "m000038",
+      "m000039",
+      "m000040",
+      "m000041",
+      "m000042",
+      "m000043",
+      "m000044",
+      "m000045",
+      "m000046",
+      "m000047",
+      "m000048",
+      "m000049",
+      "m000050",
+      "m000051",
+      "m000052",
+      "m000053",
+      "m000054",
+      "m000055",
+      "m000056",
+      "m000057",
+      "m000058",
+      "m000059",
+      "m000060",
+      "m000061",
+      "m000062",
+      "m000063",
+      "m000064",
+      "m000065",
+      "m000066",
+      "m000067",
+      "m000068",
+      "m000069",
+      "m000070",
+      "m000071",
+      "m000072",
+      "m000073",
+      "m000074",
+      "m000075",
+      "m000076",
+      "m000077",
+      "m000078",
+      "m000079",
+      "m000080",
+      "m000081",
+      "m000082",
+      "m000083",
+      "m000084",
+      "m000085",
+      "m000086",
+      "m000087",
+      "m000088",
+      "m000089",
+      "m000090",
+      "m000091",
+      "m000092",
+      "m000093",
+      "m000094",
+      "m000095",
+      "m000096",
+      "m000097",
+      "m000098",
+      "m000099",
+      "m000100",
+      "m000101",
+      "m000102",
+      "m000103",
+      "m000104",
+      "m000105",
+      "m000106",
+      "m000107",
+      "m000108",
+      "m000109",
+      "m000110",
+      "m000111",
+      "m000112",
+      "m000113",
+      "m000114",
+      "m000115",
+      "m000116",
+      "m000117",
+      "m000118",
+      "m000119",
+      "m000120",
+      "m000121",
+      "m000122",
+      "m000123",
+      "m000124",
+      "m000125",
+      "m000126",
+      "m000127",
+      "m000128",
+      "m000129",
+      "m000130",
+      "m000131",
+      "m000132",
+      "m000133",
+      "m000134",
+      "m000135",
+      "m000136",
+      "m000137",
+      "m000138",
+      "m000139",
+      "m000140",
+      "m000141",
+      "m000142",
+      "m000143",
+      "m000144",
+      "m000145",
+      "m000146",
+      "m000147",
+      "m000148",
+      "m000149",
+      "m000150",
+      "m000151",
+      "m000152",
+      "m000153",
+      "m000154",
+      "m000155",
+      "m000156",
+      "m000157",
+      "m000158",
+      "m000159",
+      "m000160",
+      "m000161",
+      "m000162",
+      "m000163",
+      "m000164",
+      "m000165",
+      "m000166",
+      "m000167",
+      "m000168",
+      "m000169",
+      "m000170",
+      "m000171",
+      "m000172",
+      "m000173",
+      "m000174",
+      "m000175",
+      "m000176",
+      "m000177",
+      "m000178",
+      "m000179",
+      "m000180",
+      "m000181",
+      "m000182",
+      "m000183",
+      "m000184",
+      "m000185",
+      "m000186",
+      "m000187",
+      "m000188",
+      "m000189",
+      "m000190",
+      "m000191",
+      "m000192",
+      "m000193",
+      "m000194",
+      "m000195",
+      "m000196",
+      "m000197",
+      "m000198",
+      "m000199",
+      "m000200",
+      "m000201",
+      "m000202",
+      "m000203",
+      "m000204",
+      "m000205",
+      "m000206",
+      "m000207",
+      "m000208",
+      "m000209",
+      "m000210",
+      "m000211",
+      "m000212",
+      "m000213",
+      "m000214",
+      "m000215",
+      "m000216",
+      "m000217",
+      "m000218",
+      "m000219",
+      "m000220",
+      "m000221",
+      "m000222",
+      "m000223",
+      "m000224",
+      "m000225",
+      "m000226",
+      "m000227",
+      "m000228",
+      "m000229",
+      "m000230",
+      "m000231",
+      "m000232",
+      "m000233",
+      "m000234",
+      "m000235",
+      "m000236",
+      "m000237",
+      "m000238",
+      "m000239",
+      "m000240",
+      "m000241",
+      "m000242",
+      "m000243",
+      "m000244",
+      "m000245",
+      "m000246",
+      "m000247",
+      "m000248",
+      "m000249",
+      "m000250",
+      "m000251",
+      "m000252",
+      "m000253",
+      "m000254",
+      "m000255"
+    ],
+    "normalization": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/1f67eebad1352aeb03e0f4116eabb30c4269e6ed5f35e63b994c837d24a5035c.json",
+      "sha256": "f1eff328b92ee16465fb0212e097dfdeb0587a723beca150d73ed9229ef9108b",
+      "shape": [],
+      "tensor_sha256": "652d79c4871bdc42c2834d736cefc5cc667dbe7dc6231e0e364b1f4cf95dc83a"
+    },
+    "pilot": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/ef35fa9da05b92b8156250dfd21e82bd378dce42686659f43eaa3d340b52df64.json",
+      "sha256": "712ab03f89cad2e898d5e1fd2cd3a362dd6057803e843fc426c4262c3b5e52f3",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "1cca855831bbed7817778d59f93fc45fcac6c9b54df8deb853958f1a6d1961c6"
+    },
+    "weight_rule": "all_pairs_inverse_gap_mean_one_adjacent_floor_v1",
+    "weights": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/fb8f7c17ca76bb0c899ac97aea70ce960a04e357381fad3b04e9b064ced79e31.json",
+      "sha256": "b57c02fcb74faf5f543cc5c1cb54d63885974d8ece6db03282b5985e7aca2d4c",
+      "shape": [
+        256,
+        256
+      ],
+      "tensor_sha256": "fb7c030f0807ebeeb6755aa2c9e522e80dde98a50f0f0f3f4a9128a90a405164"
+    }
+  },
+  "last_equality_attempt": {
+    "input_q": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/9a4333735bf5a2592c56300f5a25400c2795b013c52eebfc9ea3cfe67e9c1b01.json",
+      "sha256": "e40f79146617a010e03b156be10756c7de8515f4a8e72e76c082add6e0f63bc3",
+      "shape": [
+        256,
+        256
+      ],
+      "tensor_sha256": "0cf25068f632f97b4cbdd4128bf7cbe014f2968551872defb1b7e45bdd6e20c2"
+    },
+    "new_value": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/8db6597c1c05d62befb0904eef1cbda1cfc36db0f7c9d31c6b71e57f83458e74.json",
+      "sha256": "72d7f0ba6af6df0e8e13ac4b40c1bdf820f89ebaa8c6aeef4dac0a4a8b7fd992",
+      "shape": [],
+      "tensor_sha256": "50703549b2ab7be9e3f2cc269c2c782ac0526cd9cfbc176e7eb18420997387d6"
+    },
+    "objective_admitted": true,
+    "objective_reference": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/5ddf43c19c849b4190439b13f37a479fa92dfef2baeb2bbd4ed435ab6ccc1c6e.json",
+      "sha256": "e6c6c50559a43195ff7ee931ad446442a4e33946e6610768f4c3c2bafca7dcc5",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "2c832fb70897222b533e917698495809a0abc06e8520bed9ea1c7d61ebb43684"
+    },
+    "old_value": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/7cb0e44a0ffe78251a241d8c6572373104cb7d9432cdaa0df9cc4c6acb60a3d5.json",
+      "sha256": "d74b6c89782c10d2f8b8f5a34cac9dfac95f4bc58065090fb652e5e1b5955532",
+      "shape": [],
+      "tensor_sha256": "a0bf0576690ce1b89d415de049809ccd763af3daf2bf9976cfc7713463ae36d3"
+    },
+    "q": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/083bf6f0a864742adc1778dad1d8797086451fd021e00ecb796ca0119cff3b34.json",
+      "sha256": "1796220c2262a4dad0dbb2a268de8bc778617394117310bad891fe9a902f73f2",
+      "shape": [
+        256,
+        256
+      ],
+      "tensor_sha256": "bc551b16542720ee8d199cb7ca7812b84fee4aa6d579954d2f1362a3920ccb6e"
+    },
+    "roundoff": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/da989c09181f8d4e6d29670f537ade7d8692a3f24d427db3759006a3eb2d0a04.json",
+      "sha256": "d931cf55d002a487fcecc702ffb6e1a8fc7e1dc46f7c9fef5187c6544f5aeb31",
+      "shape": [],
+      "tensor_sha256": "c0ee76351bd75767e8ea166522832a6053476b86499f8effa8517a40a396f2ea"
+    },
+    "stats": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/0b4fc9feaa0e9bd6cb5e8a36a0c23902742674280ae301713bad372fe87ac148.json",
+      "sha256": "e21ae9bd672d6764cdbcab8f9cf4ffbae53047613e33e5dc517895888031d7b1",
+      "shape": [
+        3
+      ],
+      "tensor_sha256": "ef393d2cf62322f348327a2c13a0fabb7fdc187994ded1828a160dc3124e5413"
+    },
+    "tolerance": 7.8125e-08,
+    "x": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/8c808b7b9f88724a40c7b38c0de19466b433461f7cae2bb229806fefd4621737.json",
+      "sha256": "fca18b6968594208edccf94098bd7f4d4ed1764cf0407a81fa5fa30e4462b05a",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "9f64cb229b1f281df09647f20a0bdc745606c5ca216c2e691c80e0b0af9753a6"
+    }
+  },
+  "last_refined_state": {
+    "flow_steps": 3071,
+    "input_q": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/9a4333735bf5a2592c56300f5a25400c2795b013c52eebfc9ea3cfe67e9c1b01.json",
+      "sha256": "e40f79146617a010e03b156be10756c7de8515f4a8e72e76c082add6e0f63bc3",
+      "shape": [
+        256,
+        256
+      ],
+      "tensor_sha256": "0cf25068f632f97b4cbdd4128bf7cbe014f2968551872defb1b7e45bdd6e20c2"
+    },
+    "q": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/344cdd304866adb5a510c5e523b58eef9b9aba45036652e2eb4fca69ffd45f8f.json",
+      "sha256": "e0c9820bd9250325515d02d22efc6be435691e606cbe05d0e77224984048bbd3",
+      "shape": [
+        256,
+        256
+      ],
+      "tensor_sha256": "ff91202af249ccae7988069a5d18b03b4e4f743e5f52da8cbe5cbab46bb004ab"
+    },
+    "returned_qualified_candidate": false,
+    "stats": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/2bb2c8c707a31ce3fcf13750b8cc20cf73087f8800037c10649a1b9e6c2f4549.json",
+      "sha256": "4e574635e08bff7a62bd99638400d2d323174c680c197d8f23663cabf09d167b",
+      "shape": [
+        3
+      ],
+      "tensor_sha256": "4ef3165a78e7bbaa01dcf88b7b876c8f1403b3bffc007d6bcbed8052236fe6c4"
+    },
+    "tolerance": 7.8125e-08,
+    "x": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/8c808b7b9f88724a40c7b38c0de19466b433461f7cae2bb229806fefd4621737.json",
+      "sha256": "fca18b6968594208edccf94098bd7f4d4ed1764cf0407a81fa5fa30e4462b05a",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "9f64cb229b1f281df09647f20a0bdc745606c5ca216c2e691c80e0b0af9753a6"
+    }
+  },
+  "original_compiled_certificate_replay": {
+    "exact_bits_equal": true,
+    "stats": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/f5ca35a93a6c5307f3b4b2e6cfdde2e742e8dad62d56e880926dafda5f009dc6.json",
+      "sha256": "5bf74a5ca3e5bb0f67f818f629039ef2e46e34fb781faabb3b8071810cacb351",
+      "shape": [
+        3
+      ],
+      "tensor_sha256": "897efcb6355844faf765f804418d1eff857f2b385fb42079927101366fb26108"
+    }
+  },
+  "problem": {
+    "caps": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/74848defb05e7632678942d2b76f78418e2c563525add1b8f11771f8bd39d1f3.json",
+      "sha256": "bb0a47a507e89a9377e42dc70eacd37441cbb0e4a305556ea5242f1bbe2b5475",
+      "shape": [
+        256,
+        256
+      ],
+      "tensor_sha256": "23354d91a707d0bd925d27206eac04e0c6a40ac9ad1f549117881c2addb5a7ed"
+    },
+    "dual": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/9ebd4b6810dd2b7da96e880a0c561612c45cc82029d2ace9b33b884ec76dee07.json",
+      "sha256": "ec73d6ba785c2066aff7bce807efe1ef1433e4c198a818762fafcf888388ae47",
+      "shape": [
+        256,
+        256
+      ],
+      "tensor_sha256": "bcd75a5354705806aa3ae8aa03fbb047f405548adcf101e30e832b4d079a01f2"
+    },
+    "h": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/81a59e128f53871634d9740eb0a39a1f5d1506485028d435cf8ae4f69a4f0528.json",
+      "sha256": "2b0305c3c2a21ab17b65c32a0550ceb9ddd55d5f265341c6e039c530f2d808fc",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "76812d6533c82cea82cba504a7eeac4edb18759b067c97388f19f1fc64c03a22"
+    },
+    "lower": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/b56b6eb7f240e8913b9c9c3aa9b554fc4f3d1948e80f3f0004a88508e6cb4676.json",
+      "sha256": "37b312b124c8360fc6dbcc8f704d199bb2e48a280beb84251f11d2c877311409",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "9da73d45db4be867b3e2a8e0d2504c5b73617048eb3b66bbf2a37cc7a73c7c43"
+    },
+    "start": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/6bd5033168c5545b212c76d05e1cac60de7b2cbe64bbd34c82653f655341cfc1.json",
+      "sha256": "dcc6bf42f9df6c0a184106d7f8686783697c19e276f54c5d9b97c4ffa864f14c",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "a09235a6f66f01f805ac41ba76a3381337012a23650a375157f1c6896b4beed4"
+    },
+    "target": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/8b3e400439fb93166fb1eb6a184ccc4f780e62292e2ffa2d78b005e4e7c5d27a.json",
+      "sha256": "ef428c8771a83af2d4ed61facfd53c11c736bd79c5cb7bdb3d070e6993687bff",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "bc7f7c9e39c67ffca19cafed9caec9bca6ee756072c174462cbadfe8832a82a8"
+    },
+    "upper": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/18a6569161164d029b89d86456e5a115420e001f6286a9d9bc51ca19b662fafa.json",
+      "sha256": "68d66ec253e1ac847d4235e4408b393e189d33aead72fb98cd0cf467d8cae75b",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "145fcef44ead3c57b415188b216d46e0522614b113e28731e7d9c50d9ed21534"
+    }
+  },
+  "returned": {
+    "gap": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/68c12dde32c19636241a623dcc6f78c6ff51e0266a6c8e6fa130ab346505c8b3.json",
+      "sha256": "c5736cad12b32626880313537b05a4ba9f4ee12dad52baede9a3806c8f01f8ba",
+      "shape": [],
+      "tensor_sha256": "5107553cc7cc20d8f5600010b5a8382d28a0634146d79acd7f672fa4691fd335"
+    },
+    "iterations": 20000,
+    "kkt": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/01477a90b7578c7bc82dee1e6c72434f7e04d3ef8d72226e7a16aba917c70fb3.json",
+      "sha256": "f8c476d78e41d90c90426c7b8f87cc11354eb6b8ef84f4f770c9d9897c74cec6",
+      "shape": [],
+      "tensor_sha256": "a0f8bd69cac5398370f9d1cf593d4670cd1412e960d0e7c426d906e59c16a286"
+    },
+    "polish_iterations": 62670,
+    "q": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/9a4333735bf5a2592c56300f5a25400c2795b013c52eebfc9ea3cfe67e9c1b01.json",
+      "sha256": "e40f79146617a010e03b156be10756c7de8515f4a8e72e76c082add6e0f63bc3",
+      "shape": [
+        256,
+        256
+      ],
+      "tensor_sha256": "0cf25068f632f97b4cbdd4128bf7cbe014f2968551872defb1b7e45bdd6e20c2"
+    },
+    "qualified": false,
+    "scale": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/796bb5f66325aa1c66a9121cbaf3e49d945ffbc4e46d6a4949da31cc24e8e0f3.json",
+      "sha256": "d40b2186cf15f3b149e74dbf8918a5ff7d1d63124a6c2b2d72dfebd5a017bf4b",
+      "shape": [],
+      "tensor_sha256": "18a1f5d61c03b4b75a6ece78b3552ecb5dd6f830665c62f42ab1c02c009a5a17"
+    },
+    "x": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/5fc2f808c14e37f02b56cf350f0a2ec17c634291f69e90a707492b7fcac699e6.json",
+      "sha256": "5545af22f6dbddb1efc3fffea623a34cce8bd2926fd6d62f6209f52e529252f1",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "07284cb294d9c7a9283a1cde227848ec970b499e7f7ba876617efc7c9a56a86b"
+    }
+  },
+  "start_vector": {
+    "dtype": "float64",
+    "path": "capture-first-below256.artifacts/arrays/66cf2b4a16ef5df25ba6b6dc0695ac38befea33b6f49e54c29437e8b4bf40ded.json",
+    "sha256": "79b10baabee088effcc9ff33bb83b5113d0d2cf7a20c8364cff3bd7e888af83a",
+    "shape": [
+      256
+    ],
+    "tensor_sha256": "b210032f1f75a52571d098bd044582a64d3b17702bc9ab24926400a86eb98841"
+  },
+  "terminal_admm": {
+    "q": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/9a4333735bf5a2592c56300f5a25400c2795b013c52eebfc9ea3cfe67e9c1b01.json",
+      "sha256": "e40f79146617a010e03b156be10756c7de8515f4a8e72e76c082add6e0f63bc3",
+      "shape": [
+        256,
+        256
+      ],
+      "tensor_sha256": "0cf25068f632f97b4cbdd4128bf7cbe014f2968551872defb1b7e45bdd6e20c2"
+    },
+    "rho": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/f943dcb321262cfff93a8939d7f366b2ccbe2e21f4f83eb7def13772563db4de.json",
+      "sha256": "5f185e64ebc1b8740867aa7c71b66e018e7a16defabe7a78c4785f0b57d34119",
+      "shape": [],
+      "tensor_sha256": "5dc81078b6555237a8f770ddbdd56a7aeebc4b1b71b0ce6ce54aa0ed45917d86"
+    },
+    "v": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/9f5b7a52cdc8f29dcac1c4ef5b5c0f9b3bfaa71496090a5c18e48837731825e8.json",
+      "sha256": "712fdc8eb801196edd8208adcf0d3a4207ba7a9f5ceeb6be678922008fef046f",
+      "shape": [
+        256,
+        256
+      ],
+      "tensor_sha256": "2f2db17ca469397a7d342d922f3a29b517e5397ad4330779b6f1220611299e17"
+    },
+    "x": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/5fc2f808c14e37f02b56cf350f0a2ec17c634291f69e90a707492b7fcac699e6.json",
+      "sha256": "5545af22f6dbddb1efc3fffea623a34cce8bd2926fd6d62f6209f52e529252f1",
+      "shape": [
+        256
+      ],
+      "tensor_sha256": "07284cb294d9c7a9283a1cde227848ec970b499e7f7ba876617efc7c9a56a86b"
+    },
+    "z": {
+      "dtype": "float64",
+      "path": "capture-first-below256.artifacts/arrays/da95f20160e45c54d2bfcf4ab0a589f134c208cf40488f9f4719193b6db65fe3.json",
+      "sha256": "2e7bc136e56d08e2092830da16a23c0df7fd8f02918fb6108a4b54750f121f86",
+      "shape": [
+        256,
+        256
+      ],
+      "tensor_sha256": "61b507ab3ec2fd9ebad426ce788d9eeaf07f54b8fb435a1612a4c5e74433faff"
+    }
+  },
+  "terminal_state_scope": "Literal locals at return, including any final rho/v residual balancing. No q=rho*v identity is imposed."
+}

@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13",
+    "-B",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923l/source/benchmarks/capture_outer_failure.py",
+    "--device",
+    "cuda:0",
+    "--out",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923l/results/pooled-outer-diagnostic.json",
+    "--reference",
+    "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_bound_20260923j/results/mixed256-full.artifacts/full-path.json",
+    "--reference-sha256",
+    "a910183f847f0ce715b7a476b1d244796f6d94736b4ad3975229c91b78a745ca",
+    "--expected-source-sha256",
+    "276da27b9a8718f3f06182108ccb0a6b7f04f3937a67f050f9721e031554aea5",
+    "--timeout-seconds",
+    "900"
+  ],
+  "source_role": "current",
+  "timeout_seconds": 1020
+}

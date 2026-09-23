@@ -1,0 +1,42 @@
+[
+  {
+    "name": "mixed64-reference",
+    "source_role": "baseline",
+    "script": "qualify_mixed_cuda.py",
+    "args": [
+      "--fixture",
+      "mixed_support",
+      "--nodes",
+      "64",
+      "--mode",
+      "reference",
+      "--expected-source-sha256",
+      "726eaf873550d80cd89d72d7c1253e1c70aa97135011fbad7f9d6c97c9382a88",
+      "--timeout-seconds",
+      "1500"
+    ],
+    "timeout_seconds": 1620
+  },
+  {
+    "name": "mixed64-paired",
+    "source_role": "current",
+    "script": "qualify_mixed_cuda.py",
+    "args": [
+      "--fixture",
+      "mixed_support",
+      "--nodes",
+      "64",
+      "--mode",
+      "paired",
+      "--expected-source-sha256",
+      "276da27b9a8718f3f06182108ccb0a6b7f04f3937a67f050f9721e031554aea5",
+      "--baseline",
+      "@ROOT@/results/mixed64-reference.json",
+      "--baseline-sha256",
+      "@SHA256@/results/mixed64-reference.json",
+      "--timeout-seconds",
+      "1500"
+    ],
+    "timeout_seconds": 1620
+  }
+]

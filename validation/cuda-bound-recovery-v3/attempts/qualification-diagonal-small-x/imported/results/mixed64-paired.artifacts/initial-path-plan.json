@@ -1,0 +1,138 @@
+{
+  "extension_rule": "Double the final penalty only when its candidate is the current best",
+  "initial_candidates": [
+    {
+      "index": 0,
+      "lambda_value": 0.0,
+      "status": "not_attempted"
+    },
+    {
+      "index": 1,
+      "lambda_value": 0.6251941309391056,
+      "status": "not_attempted"
+    },
+    {
+      "index": 2,
+      "lambda_value": 1.2503882618782114,
+      "status": "not_attempted"
+    },
+    {
+      "index": 3,
+      "lambda_value": 2.500776523756423,
+      "status": "not_attempted"
+    },
+    {
+      "index": 4,
+      "lambda_value": 5.001553047512845,
+      "status": "not_attempted"
+    },
+    {
+      "index": 5,
+      "lambda_value": 10.003106095025691,
+      "status": "not_attempted"
+    },
+    {
+      "index": 6,
+      "lambda_value": 20.006212190051382,
+      "status": "not_attempted"
+    },
+    {
+      "index": 7,
+      "lambda_value": 40.012424380102765,
+      "status": "not_attempted"
+    },
+    {
+      "index": 8,
+      "lambda_value": 80.02484876020553,
+      "status": "not_attempted"
+    },
+    {
+      "index": 9,
+      "lambda_value": 160.04969752041103,
+      "status": "not_attempted"
+    },
+    {
+      "index": 10,
+      "lambda_value": 320.0993950408221,
+      "status": "not_attempted"
+    },
+    {
+      "index": 11,
+      "lambda_value": 640.1987900816442,
+      "status": "not_attempted"
+    },
+    {
+      "index": 12,
+      "lambda_value": 1280.3975801632885,
+      "status": "not_attempted"
+    },
+    {
+      "index": 13,
+      "lambda_value": 2560.795160326577,
+      "status": "not_attempted"
+    },
+    {
+      "index": 14,
+      "lambda_value": 5121.590320653154,
+      "status": "not_attempted"
+    },
+    {
+      "index": 15,
+      "lambda_value": 10243.180641306308,
+      "status": "not_attempted"
+    },
+    {
+      "index": 16,
+      "lambda_value": 20486.361282612615,
+      "status": "not_attempted"
+    },
+    {
+      "index": 17,
+      "lambda_value": 40972.72256522523,
+      "status": "not_attempted"
+    },
+    {
+      "index": 18,
+      "lambda_value": 81945.44513045046,
+      "status": "not_attempted"
+    },
+    {
+      "index": 19,
+      "lambda_value": 163890.89026090092,
+      "status": "not_attempted"
+    },
+    {
+      "index": 20,
+      "lambda_value": 327781.78052180185,
+      "status": "not_attempted"
+    },
+    {
+      "index": 21,
+      "lambda_value": 655563.5610436037,
+      "status": "not_attempted"
+    },
+    {
+      "index": 22,
+      "lambda_value": 1311127.1220872074,
+      "status": "not_attempted"
+    },
+    {
+      "index": 23,
+      "lambda_value": 2622254.244174415,
+      "status": "not_attempted"
+    },
+    {
+      "index": 24,
+      "lambda_value": 5244508.488348829,
+      "status": "not_attempted"
+    },
+    {
+      "index": 25,
+      "lambda_value": 10489016.97669766,
+      "status": "not_attempted"
+    }
+  ],
+  "lambda_reference": 2560.795160326577,
+  "maximum_adaptive_extensions": 3,
+  "status_scope": "Initial states; ordered candidate events and final path records retain subsequent outcomes"
+}

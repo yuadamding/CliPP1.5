@@ -1,0 +1,146 @@
+{
+  "adjacent_floats_bracketing_stationary_root": [
+    {
+      "ccf": 0.5517830770635616,
+      "direction": "increase",
+      "gap_cost_to_global_allowance": {
+        "approximate": 6724.77332668908,
+        "denominator_bits": 299,
+        "exact_rational_sha256": "64e9d92556766ae4fc16b5f25c432be72b9d9f31f498f3e755a5396966ac0c26",
+        "numerator_bits": 312
+      },
+      "minimum_incident_edge_gap": {
+        "approximate": 0.00015524368526856393,
+        "denominator_bits": 239,
+        "exact_rational_sha256": "b549cba401d9e0f6d5f1c57f332401dc910cd6c0e8ec1a7759ac48fad6c1c1b4",
+        "numerator_bits": 226
+      },
+      "minimum_separation_over_entire_admitted_region": {
+        "approximate": 0.2564133212193044,
+        "denominator_bits": 104,
+        "exact_rational_sha256": "0f877fb6496ce5a52d096c33420cbd3e121a30c10d1239070357037a7926c0ef",
+        "numerator_bits": 102
+      },
+      "normalized_kkt": {
+        "approximate": 2.4776855629346886e-07,
+        "denominator_bits": 75,
+        "exact_rational_sha256": "79466bbd404b4c4006cc71c4dd37fd5fb64ada0c649160982b7e0a709d7c0b78",
+        "numerator_bits": 53
+      },
+      "required_adjoint_change": {
+        "approximate": 0.0006054431358337565,
+        "denominator_bits": 136,
+        "exact_rational_sha256": "d54622755bf383304317056151cae0e6b0c81413fc2b2978ebd21649561b52a9",
+        "numerator_bits": 125
+      },
+      "stationarity_residual": {
+        "approximate": -0.001015167167136543,
+        "denominator_bits": 63,
+        "exact_rational_sha256": "0e39da228f19fd0f5c042bd7b17e14cd53a702b4936a2c44f254f90e7e81ba50",
+        "numerator_bits": 53
+      }
+    },
+    {
+      "ccf": 0.5517830770635617,
+      "direction": "decrease",
+      "gap_cost_to_global_allowance": {
+        "approximate": 241.4023230764624,
+        "denominator_bits": 299,
+        "exact_rational_sha256": "819fad800c6482eadc420586f70fa2628562075767393ff0da1e48d72f9b4740",
+        "numerator_bits": 306
+      },
+      "minimum_incident_edge_gap": {
+        "approximate": 5.572854941897914e-06,
+        "denominator_bits": 235,
+        "exact_rational_sha256": "53e0e4f8ffc240f83078666c3676eee59e885b184bc0bf633b15f54ab59791aa",
+        "numerator_bits": 217
+      },
+      "minimum_separation_over_entire_admitted_region": {
+        "approximate": 0.16538545928812837,
+        "denominator_bits": 104,
+        "exact_rational_sha256": "8e90c197b163386c241c1be9e80da9dfb9c43c26f800bfdffaaec0690f5b10f9",
+        "numerator_bits": 101
+      },
+      "normalized_kkt": {
+        "approximate": 1.0822411459840917e-07,
+        "denominator_bits": 73,
+        "exact_rational_sha256": "da87582cbf379d9770f84df37a45137aaf57605f098cf4c19ee2dca6f5de1a23",
+        "numerator_bits": 49
+      },
+      "required_adjoint_change": {
+        "approximate": 3.369616026635748e-05,
+        "denominator_bits": 133,
+        "exact_rational_sha256": "6c148ea8fa964475a29062ae878dab613894f1b71142a89165d9075cd8fe19f9",
+        "numerator_bits": 119
+      },
+      "stationarity_residual": {
+        "approximate": 0.0004434199817964996,
+        "denominator_bits": 61,
+        "exact_rational_sha256": "e5073b63afd3c57c687e3e99c15e5f93c0874ae77ffbe18e526a5f5c7eeac8a2",
+        "numerator_bits": 49
+      }
+    }
+  ],
+  "all_incident_edge_orderings_proved_unchanged": true,
+  "capture_sha256": "910a09a7143e27cb4f27e693dec62a4e38db07adb078dc7015b16fa10df2bfc3",
+  "captured_exact_objective_scale": {
+    "approximate": 2298.534098106846,
+    "denominator_bits": 153,
+    "exact_rational_sha256": "1004559a43a14f3e8524b13e81172902f29c0fc648efe2fb1e964e898f2e4582",
+    "numerator_bits": 164
+  },
+  "captured_exact_primal_dual_gap": {
+    "approximate": 7.483045882681934e-21,
+    "denominator_bits": 11921,
+    "exact_rational_sha256": "c246de5966eed6d93b06ec875ba59a58e335cb11eea849ea4b766cdf0f0dc9a2",
+    "numerator_bits": 11854
+  },
+  "captured_source_sha256": "8627daf96b3b72be689a756445dfb60a7798a03d8bdd8d896f837eb1f11184c2",
+  "exact_stationary_root": {
+    "approximate": 0.5517830770635617,
+    "denominator_bits": 103,
+    "exact_rational_sha256": "14a020ac88e8f84f404634796edb92af0c4cbd4b79f14fb7adef8046c06f30d3",
+    "numerator_bits": 102
+  },
+  "floating_execution_limit": "Actual eager/compiled certificates and W replay separately report failure. This rational proof does not authorize a tolerance change, alternative certificate arithmetic, perturbed surrogate, or promotion of the unresolved QP.",
+  "global_gap_upper_bound_for_any_mathematical_gate_pass": {
+    "approximate": 2.3085340981299313e-08,
+    "denominator_bits": 241,
+    "exact_rational_sha256": "bc1fdb90470d9cecd975557e2d3419c113c583cb13579d976cd15acc3abba550",
+    "numerator_bits": 216
+  },
+  "global_scale_upper_bound_for_any_mathematical_gate_pass": {
+    "approximate": 2298.5340981299314,
+    "denominator_bits": 152,
+    "exact_rational_sha256": "4bbd135d0b1b0356b6256d397879ce337697894526a3349a3a7f899ceaa6a6d0",
+    "numerator_bits": 164
+  },
+  "implication": "More fixed-candidate flow iterations, higher-accuracy center arithmetic, or another ADMM trajectory cannot remove this exact mathematical represented-primal obstruction for this literal surrogate. The existing solver must keep its failed status unless its unchanged actual CUDA certificate passes.",
+  "maximum_gradient_over_admitted_region": {
+    "approximate": -1269.2856810006538,
+    "denominator_bits": 113,
+    "exact_rational_sha256": "698346c77f4c3408b493821fcf71ad743d2181aa1b325791a82cec4a271cc4db",
+    "numerator_bits": 123
+  },
+  "maximum_other_node_radius": {
+    "approximate": 7.3281297567673925e-06,
+    "denominator_bits": 90,
+    "exact_rational_sha256": "e3d45fa846665616b8d891f537e17658a6d6ab14c3b89dbeac54cfed5f95ee77",
+    "numerator_bits": 72
+  },
+  "node_index": 139,
+  "node_radius_about_captured_primal": {
+    "approximate": 5.928192743263258e-11,
+    "denominator_bits": 104,
+    "exact_rational_sha256": "d56e3e4bdd2b93a0c0663b41fb650901660a3fc3299f80c7f34b48f7ce1dad68",
+    "numerator_bits": 70
+  },
+  "positive_adjoint_necessary_for_kkt_proved": true,
+  "reason_all_other_floats_are_excluded": "Within the proved region g is negative and the saturated adjoint is positive. The distance from the saturated adjoint to the exact KKT-admissible interval increases monotonically as the primal moves away from the stationary root. The two bracketing floats therefore lower-bound the required flow adjustment for every binary64 primal in that region.",
+  "record_sha256": "5c8844c9e212a88b1a900f4d0be8c1577868f1318e0db5575681c4ba6cf7f81c",
+  "schema": "clipp1d.literal_qp_rational_gate_bound.v1",
+  "scope": "Exact rational arithmetic over literal binary64 QP inputs and policy constants. This proves incompatibility for exact mathematical gap/KKT gates with a binary64 primal; it is not a formal interval verification of every CUDA reduction/rounding context.",
+  "script_sha256": "1965d6093f754515518f880c6925a8ee24073957ecc6f19e7a46f945f12e5560",
+  "singleton_proved_interior": true,
+  "status": "exact_mathematical_gate_incompatibility_proved"
+}

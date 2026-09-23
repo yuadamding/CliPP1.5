@@ -1,0 +1,240 @@
+{
+  "negative": {
+    "original": {
+      "diagnostics": {
+        "attained_value": -2.8833835598463406,
+        "iterations": 16,
+        "lower_bound": -5.418327369250382,
+        "objective_scale": 12866153.642236987,
+        "primal_margin": 2.3499487606631758e-12,
+        "roundoff_margin": 8.77642390525467e-12,
+        "roundoff_unit": 7.772330626592253e-08,
+        "status": "attained_descent",
+        "tolerance": 1.5544661253184507e-12
+      },
+      "direction": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/5ebc35eb7403f1919a6f7877d6627b488ed30f85a48471c24d7282560a01dc6a.json",
+        "sha256": "4d829759f1e9c91ddd954f8ccbd6141317198415a4876d49762988f863b19a36",
+        "shape": [
+          256
+        ],
+        "tensor_sha256": "0df24dd0e9e07c2fe8838becc37f7cbd675e7e588008fc7dc9e7bf4fa96f8baf"
+      },
+      "qualified": false
+    },
+    "problem": {
+      "a": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/b265eeb7f4d15b786b1d8d2e78f356e016a7358a9cf9eea5814e468a187f46e4.json",
+        "sha256": "d1fc7e70a0cf472f338fb4531a31297e0b53e5c07668702ef40290c8e755fd33",
+        "shape": [
+          256
+        ],
+        "tensor_sha256": "2c05b4e70fa94690972a6d9c747f6c2e53d6bc2735da2e9ddbeaf2f065e278f8"
+      },
+      "allowed": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/3d932cc27012304fb0896c49e0e03e17321b8f134f6ad9f50ab7eaa4c247db02.json",
+        "sha256": "79eff5e6f0681c7fbc3b405c8262710dd8bd99116a26b0ee44ddd4ebbbb9e441",
+        "shape": [
+          256
+        ],
+        "tensor_sha256": "ec9d9827912e6fc384605ff044ae1117cb51deba78e578a2a9ca6e5979dba98a"
+      },
+      "caps": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/ae58aae90761779b830d69703cf0a3a08c1b0530523cc3d3d47a29fee5415e5c.json",
+        "sha256": "3672e38df07587e266969b44a5a55f8a840b5739b37134a98c6472c29afb9b98",
+        "shape": [
+          256,
+          256
+        ],
+        "tensor_sha256": "35c932233004565834b62da5cab346c46c853f256d6d1c867197ebfaffaaaf97"
+      },
+      "initial_dual": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/0ef04babe9bae8916ab72b1768d370f335510d1ca81cf069c0cd59b5406de437.json",
+        "sha256": "a5fea3a65fa9ecfea0637fe3dd8f20647a238c5ab7d958a9616eeae7935c5022",
+        "shape": [
+          256,
+          256
+        ],
+        "tensor_sha256": "d5314e84a1b5ee393cde3115758ae88a6f5446d6f3ecbdebf781fc7f0ea3b2c8"
+      },
+      "objective_scale": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/bb6d3e57d4eccb1db0177b59aac58f1a4269e8731b2e8bc1b946d7759c47ef64.json",
+        "sha256": "c1140470e71629a85b94f46676e815c1520bce1001ef76171eb7d0249d6c36de",
+        "shape": [],
+        "tensor_sha256": "c4ccf0856d45f781a870fa4117abfadb8a58c57caa1d0b67a3cfa98d2bd54f74"
+      },
+      "roundoff_unit": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/2c9abb4d3761e2c3ee3802a0776d3260d5e244d7d1eaacee5d2a07d7f50f8eea.json",
+        "sha256": "37533426f0df6cd1ede591a705dd6326fc03ee37db35276b5c0e6df3c7d5f70b",
+        "shape": [],
+        "tensor_sha256": "dc916744837d02b2a1ee24753da494b0212bede733426d0c65684349255c683e"
+      },
+      "tolerance": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/ef40ae7223a2857dacb47aab158f0640620419ee045b4086d985037d8ca6f479.json",
+        "sha256": "20c015f481deee34b3f809ff50d3a7fcf60f19963e860895a7e194111a9e7f12",
+        "shape": [],
+        "tensor_sha256": "18413be2fc71dd075e8678c66e5c92da104c5d13e20c25173498017f9514caa7"
+      },
+      "unscaled_caps": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/b12b18efffd06b97acbbf873b45d8e5673df88fa5feca1256244042dd0121f3e.json",
+        "sha256": "7c2a63418011939441eea2e24920c14843832ae5a2fcd681ecd456386e6e5e66",
+        "shape": [
+          256,
+          256
+        ],
+        "tensor_sha256": "83f60137e52bac9eb4c16293edb30adf2a1a4e791f054240c2c80f67b620f871"
+      },
+      "unscaled_linear": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/f3c6c336a1f42b645385867ac97a54b777345643e310f3ad4c1e182b360c2b7b.json",
+        "sha256": "91169dfee826254f274719303289df573943288494257b6bc23ccda339428f85",
+        "shape": [
+          256
+        ],
+        "tensor_sha256": "feef97c0062927506f93af7503f0b1a54b6171adf16bef56494a6db87c32632d"
+      }
+    },
+    "rowwise": {
+      "diagnostics": {
+        "attained_value": -2.8833835598463406,
+        "iterations": 16,
+        "lower_bound": -5.4183273692504414,
+        "objective_scale": 12866153.642236987,
+        "primal_margin": 2.3499487606631758e-12,
+        "roundoff_margin": 2.4832198187826757e-12,
+        "roundoff_unit": 7.772330626592253e-08,
+        "status": "attained_descent",
+        "tolerance": 1.5544661253184507e-12
+      },
+      "direction": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/5ebc35eb7403f1919a6f7877d6627b488ed30f85a48471c24d7282560a01dc6a.json",
+        "sha256": "4d829759f1e9c91ddd954f8ccbd6141317198415a4876d49762988f863b19a36",
+        "shape": [
+          256
+        ],
+        "tensor_sha256": "0df24dd0e9e07c2fe8838becc37f7cbd675e7e588008fc7dc9e7bf4fa96f8baf"
+      },
+      "qualified": false
+    }
+  },
+  "positive": {
+    "original": {
+      "diagnostics": {
+        "attained_value": 0.0,
+        "iterations": 20000,
+        "lower_bound": -2.941987824372397e-12,
+        "objective_scale": 10636489.241149299,
+        "roundoff_margin": 2.941987824372397e-12,
+        "roundoff_unit": 9.401598378262897e-08,
+        "status": "unresolved",
+        "tolerance": 1.8803196756525797e-12
+      },
+      "direction": null,
+      "qualified": false
+    },
+    "problem": {
+      "a": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/d7c861f12e2abfbd2a13cc7f13ee4db86db87a3f94e53321dd87a7a4b54d6b69.json",
+        "sha256": "c5cb3a768b45e3fd4fa253015ce6333e9d024e28098f620a2547315becfef828",
+        "shape": [
+          256
+        ],
+        "tensor_sha256": "241f731ca23d247adc4395bc9d5f2717e022b8ccb5bc44f408adcf89ecf98c08"
+      },
+      "allowed": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/a8f6ea5967fcf4460b1fc422c92da0f0744382112ae66a5ca58159e06b27d05a.json",
+        "sha256": "90d86af830e5c12f23759659f3659d8a8a8dd7374f811789c4d59212f3a6e737",
+        "shape": [
+          256
+        ],
+        "tensor_sha256": "467ee4e2051bfdf4fe093312726f16a3f1e44322bf295e3271b54686996e250e"
+      },
+      "caps": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/4eabfb2739108ed56b7a5a07aa08239b6cc874bae7b92f0202c0a3425752a2dc.json",
+        "sha256": "32e7b095a8139fd9fbd692c1c6459f2c0c130ee65872b6d91bc8223f11af180b",
+        "shape": [
+          256,
+          256
+        ],
+        "tensor_sha256": "a9113bc157ac3e5f78de5fad2339b5d0acdb86235e21364baffaeca4741ae80f"
+      },
+      "initial_dual": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/5b7a3f91e885770b396be03dec3930d86804d8a5bcb55e0f29b3b6aaf1c18e45.json",
+        "sha256": "05e8fab03154d721056400126f9cf79b4c120fe2b2f86aff285e9946a4ca0c89",
+        "shape": [
+          256,
+          256
+        ],
+        "tensor_sha256": "07854d2fef297a06ba81685e660c332de36d5d18d546927d30daad6d7fda1541"
+      },
+      "objective_scale": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/80c786fe425a5f33d944d1091cba3c0c05ebdd1878710e837a04ec0c2fac3d87.json",
+        "sha256": "b337f4104206d3bba2de697b25414983e51ad1edce93a1febd00723b201f02dc",
+        "shape": [],
+        "tensor_sha256": "5157a238aaa1980b167ccff89e29ed1518be46aac722d9665cba768dd5a36175"
+      },
+      "roundoff_unit": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/9311311232e96006c86f8fb0de267b95d3c29a06f3e63b554bb42fc8194cccc0.json",
+        "sha256": "c074de7f978c66e1d8301a93cca615138728e6c6e967e313133a2ce04ef03c05",
+        "shape": [],
+        "tensor_sha256": "59218b8ce86ea0ae69293101b336643b31a2c9850e57695b26a5a42223dfdf01"
+      },
+      "tolerance": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/0d4174ce8b427091803e50a5f3ce091e4911f0fa483bd766e59b0156eb27f364.json",
+        "sha256": "5120272ab6ee2f970e5c4e6971e88614b442ee5240455084b2cb859546022ffd",
+        "shape": [],
+        "tensor_sha256": "ab87d41bcdcba43efa5dde68645b8c004014217048232c5a591673c965fd4925"
+      },
+      "unscaled_caps": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/b12b18efffd06b97acbbf873b45d8e5673df88fa5feca1256244042dd0121f3e.json",
+        "sha256": "7c2a63418011939441eea2e24920c14843832ae5a2fcd681ecd456386e6e5e66",
+        "shape": [
+          256,
+          256
+        ],
+        "tensor_sha256": "83f60137e52bac9eb4c16293edb30adf2a1a4e791f054240c2c80f67b620f871"
+      },
+      "unscaled_linear": {
+        "dtype": "float64",
+        "path": "pooled-outer-diagnostic.artifacts/arrays/7ec94b4c45debc29547a9d5ad6443b681073448d8ae8d9998bb49228cf5a78d2.json",
+        "sha256": "cc0402d5b6a67612796fcc61598b02a21e6b76017a3447e8c6dd0731f9926843",
+        "shape": [
+          256
+        ],
+        "tensor_sha256": "9418c858a3a9f190312c48399a427a289d9d41584dfe59be2b7e9c7597d3e2a8"
+      }
+    },
+    "rowwise": {
+      "diagnostics": {
+        "attained_value": 0.0,
+        "iterations": 0,
+        "lower_bound": -4.308753143774573e-20,
+        "objective_scale": 10636489.241149299,
+        "roundoff_margin": 4.308753143774573e-20,
+        "roundoff_unit": 9.401598378262897e-08,
+        "status": "qualified_lower_bound",
+        "tolerance": 1.8803196756525797e-12
+      },
+      "direction": null,
+      "qualified": true
+    }
+  }
+}
