@@ -87,17 +87,69 @@ def direction_restart(model, x, direction, caps, current, policy):
     return None
 
 
-def solve_start(model, graph, lam, start, policy=CudaPolicy()):
+def inner_certificate_diagnostics(fitted, policy):
+    """Report each literal QP gate independently; neither flag admits a QP.
+
+    The combined result retains the solver's feasibility/validity checks. A
+    missing certificate has no measured values and cannot pass either gate.
+    Compute the allowance on the certificate device in the admission order.
+    """
+    allowance = None if fitted is None else policy.inner_atol + policy.inner_rtol * fitted.scale
+    gap_pass = bool(fitted is not None and torch.isfinite(fitted.gap)
+                    & torch.isfinite(fitted.scale) & torch.isfinite(allowance)
+                    & (fitted.gap >= 0) & (fitted.scale >= 0)
+                    & (fitted.gap <= allowance))
+    kkt_pass = bool(fitted is not None and torch.isfinite(fitted.kkt)
+                    & (fitted.kkt >= 0)
+                    & (fitted.kkt <= policy.inner_kkt_tol))
+    return dict(inner_gap_pass=gap_pass, inner_kkt_pass=kkt_pass,
+                inner_qp_qualified=bool(fitted is not None and fitted.qualified),
+                # Retain field names consumed by older diagnostic readers,
+                # with their intended individual-test meaning corrected.
+                inner_gap_qualified=gap_pass, inner_kkt_qualified=kkt_pass,
+                inner_gap=None if fitted is None else float(fitted.gap),
+                inner_gap_scale=None if fitted is None else float(fitted.scale),
+                inner_gap_allowed=None if allowance is None else float(allowance),
+                inner_kkt_residual=None if fitted is None else float(fitted.kkt),
+                inner_kkt_allowed=policy.inner_kkt_tol,
+                inner_certificate_present=fitted is not None,
+                inner_certificate_scope="last_solved_surrogate_not_raw_likelihood")
+
+
+def solve_start(model, graph, lam, start, policy=CudaPolicy(), *,
+                surrogate_policy="scalar_backtracking_v1"):
     with model.validated_stage(), graph.validated_stage():
-        return _solve_start(model, graph, lam, start, policy)
+        if surrogate_policy == "scalar_backtracking_v1":
+            return _solve_start(model, graph, lam, start, policy)
+        return _solve_start(model, graph, lam, start, policy, surrogate_policy=surrogate_policy)
 
 
-def _solve_start(model, graph, lam, start, policy):
+def coordinate_inflation(inflation, losses, gradient_step, quadratic_step, trial_losses):
+    """Research policy: double only rows violating their local quadratic model.
+
+    The conservative row margins identify proposals, never admit an iterate.
+    The original aggregate majorization, QP and observed-objective gates still
+    apply. If no row explains a rejected aggregate trial, retain the original
+    all-coordinate backtrack instead of accepting or weakening that gate.
+    """
+    major = losses + gradient_step + quadratic_step
+    margin = 64 * torch.finfo(losses.dtype).eps * (
+        1 + losses.abs() + gradient_step.abs() + quadratic_step.abs() + trial_losses.abs())
+    failed = (~torch.isfinite(trial_losses) | ~torch.isfinite(major)
+              | ~torch.isfinite(margin) | (trial_losses > major + margin))
+    return inflation * torch.where(failed | ~failed.any(), 2., 1.)
+
+
+def _solve_start(model, graph, lam, start, policy, *,
+                 surrogate_policy="scalar_backtracking_v1"):
+    if surrogate_policy not in ("scalar_backtracking_v1", "coordinate_backtracking_v1"):
+        raise ValueError("Unknown outer surrogate policy")
+    coordinate = surrogate_policy == "coordinate_backtracking_v1"
     x = start.clamp(model.lower, model.upper).clone()
     caps = graph.weights * lam
     q = torch.zeros_like(caps)
     current = objective(model, x, caps)
-    inflation = 1.
+    inflation = torch.ones_like(x) if coordinate else 1.
     backtracks = surrogate_calls = inner = restarts = polish_iterations = 0
     tail = []
     last_inner = None
@@ -118,7 +170,8 @@ def _solve_start(model, graph, lam, start, policy):
 
     def result(audit, qualified, status, iterations, **extra):
         qualified = qualified and bool(torch.isfinite(current))
-        diagnostics = dict(status=status, raw_stationarity_qualified=bool(audit and audit.qualified),
+        diagnostics = dict(status=status, outer_surrogate_policy=surrogate_policy,
+                           raw_stationarity_qualified=bool(audit and audit.qualified),
                            directional_stationarity_qualified=bool(audit and audit.qualified),
                            raw_branch_stationarity_qualified=bool(audit and audit.qualified),
                            directional_qualified=bool(audit and audit.qualified),
@@ -138,13 +191,8 @@ def _solve_start(model, graph, lam, start, policy):
                            audit_status=None if audit is None else audit.status,
                            audit_diagnostics={} if audit is None else audit.diagnostics,
                            audit_signed_direction_count=0 if audit is None else audit.signed_direction_count,
-                           inner_gap_qualified=bool(last_inner and last_inner.qualified),
-                           inner_kkt_qualified=bool(last_inner and last_inner.qualified),
-                           inner_gap=None if last_inner is None else float(last_inner.gap),
-                           inner_gap_scale=None if last_inner is None else float(last_inner.scale),
-                           inner_kkt_residual=None if last_inner is None else float(last_inner.kkt),
                            inner_polish_iterations=0 if last_inner is None else last_inner.polish_iterations,
-                           inner_certificate_scope="last_solved_surrogate_not_raw_likelihood")
+                           **inner_certificate_diagnostics(last_inner, policy))
         diagnostics.update(extra)
         return RawFit(x, q, current, None, qualified, diagnostics)
 
@@ -182,7 +230,8 @@ def _solve_start(model, graph, lam, start, policy):
             warm_dual = QualifiedDualWarmState.from_fit(last_inner, graph, lambda_literal)
             trial = last_inner.x
             d = trial - x
-            trial_loss = model.loss(trial).sum()
+            trial_losses = model.loss(trial)
+            trial_loss = trial_losses.sum()
             major = losses.sum() + (grad * d + .5 * h * d.square()).sum()
             penalty_trial = .5 * (caps * differences(trial).abs()).sum()
             trial_value = trial_loss + penalty_trial
@@ -197,12 +246,13 @@ def _solve_start(model, graph, lam, start, policy):
                 accepted = True
                 old_value = current
                 x, q, current = trial, last_inner.dual, trial_value
-                inflation = max(1., inflation / 2.)
+                inflation = (inflation / 2.).clamp_min(1.) if coordinate else max(1., inflation / 2.)
                 decrease = old_value - current
                 tail.append(float(current))
                 tail = tail[-8:]
                 break
-            inflation *= 2.
+            inflation = (coordinate_inflation(inflation, losses, grad * d, .5 * h * d.square(),
+                                              trial_losses) if coordinate else inflation * 2.)
             backtracks += 1
         if accepted and not bool(decrease.abs() <= 1e-10 * (1 + current.abs())):
             continue
@@ -216,7 +266,7 @@ def _solve_start(model, graph, lam, start, policy):
                 current = objective(model, x, caps)
                 q = torch.zeros_like(caps)
                 warm_dual = None
-                inflation = 1.
+                inflation = torch.ones_like(x) if coordinate else 1.
                 restarts += 1
                 continue
         # An unchanged, gap-qualified QP state may fail the stricter raw kink
@@ -288,8 +338,8 @@ def _fit_lambda(model, graph, pilots, lam, previous, policy):
                            stationarity_residual=audit.residual, audit_status=audit.status,
                            audit_diagnostics=audit.diagnostics,
                            audit_signed_direction_count=audit.signed_direction_count,
-                           inner_gap_qualified=True, inner_gap=0., inner_gap_scale=0.,
-                           inner_kkt_qualified=True, inner_kkt_residual=0.,
+                           **dict(inner_certificate_diagnostics(None, policy),
+                                  inner_certificate_scope="not_applicable_separable_lambda_zero"),
                            inner_iterations=0, qp_admm_iterations=0, outer_iterations=0, surrogate_qp_calls=0,
                            qp_calls=0, qp_dual_warm_starts=0, qp_seconds=0.0,
                            qp_dual_warm_resets=0,

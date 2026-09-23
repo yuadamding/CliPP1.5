@@ -274,3 +274,14 @@ def test_exhausted_upper_boundary_is_explicit_without_changing_planned_coverage(
     assert result.timings['path_truncated']
     assert result.timings['planned_path_complete']
     assert result.search_status == 'complete'
+
+
+def test_lambda_zero_reports_absent_surrogate_separately_from_qualified_scalar_pilots():
+    m = model()
+    p = pilot(m)
+    result = fit_lambda(m, build_graph(p.phi), p, 0.)
+    assert result.qualified and result.diagnostics['separable_scalar_gap_qualified']
+    assert result.diagnostics['inner_certificate_scope'] == 'not_applicable_separable_lambda_zero'
+    assert not result.diagnostics['inner_certificate_present']
+    assert not result.diagnostics['inner_qp_qualified']
+    assert result.diagnostics['inner_gap'] is None
