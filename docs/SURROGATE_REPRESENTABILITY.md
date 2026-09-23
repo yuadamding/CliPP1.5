@@ -1,6 +1,6 @@
 # Binary64 representability and separately reported QP gates
 
-The development baseline is `42f44d409b97b7762f393e1a7476f520b019be4c`.
+The development baseline is `a0e14067e2e3bdd48e4769ebfd54b9221dfbb7d8`.
 Its fixed below256 quadratic surrogate remains unresolved. None of the work in
 this document changes that saved problem, raises a gate, or claims complete
 below256/below512 qualification without fresh allocated-CUDA evidence.
@@ -52,6 +52,11 @@ original initialization with the unchanged production QP solver. Both eager
 and compiled certificates must retain the failed classification. An unexpected
 pass stops qualification and requires an exact mathematical re-audit; it is not
 silently treated as successful recovery of the represented-primal obstruction.
+The driver saves exact problem/initialization and returned primal/dual NPZ arrays,
+readback checks and hashes, plus both certificates, **before** applying this
+expected-failure assertion. Contradictory measurements remain in the failed
+receipt. Nonpositive wall budgets are rejected before creating run directories
+or installing handlers; previous SIGTERM/SIGALRM handlers are restored on exit.
 
 ## Explicit experimental outer strategy
 
@@ -96,6 +101,23 @@ fixture and size per allocated job. It reuses the existing independent full-path
 qualifier, including every planned start, final raw audit, refit and publication.
 The pilot and weight hashes and initial penalty plans must match between the
 strategies. Selection and allowed adaptive extensions may differ and are reported.
+Version 2 receipts report both selected lambdas and exact-literal equality. The
+selected `raw_objective_difference` is null when lambdas differ; the separately
+selected objective difference is explicitly labeled and never an optimizer
+quality measure. Candidate events retain raw objective, qualification, full-start
+coverage and work at every literal lambda. Common-lambda comparisons use exact
+equality (no nearest-penalty matching); objectives are compared only when both
+returned candidates qualify. Unmatched penalties and unresolved starts remain
+separate coverage evidence. Shared lambda/graph means the same fixed objective,
+not necessarily the same continuation or optimization trajectory.
+
+Research starts additionally retain bounded observations: the first 128 and last
+16 outer trials per start, with explicit omitted counts, rejected-row masks,
+scalar/vector inflation, curvature range and each original acceptance slack.
+Every unresolved QP retains exact h/target/boxes/caps/initialization/returned
+states and its original certificate in hash-bound artifacts. The production
+default supplies no observer. Instrumented times include synchronization,
+copies and artifact writes and do not establish uninstrumented throughput.
 
 Qualify below64, then below256, then below512. Each size above 64 requires a
 passed same-source, same-helper, same-family candidate receipt at the immediately
@@ -109,9 +131,17 @@ process/compiler cache. Report each fit time, QP work, completeness, selected ra
 and refit differences and score difference. Do not turn incomplete-search runtime
 or one observed pair into a general speedup claim.
 
-No CUDA results for this strategy are claimed by the local tests. The latest
-four-cohort run includes the diagnostic changes on top of `42f44d4`, with its
-exact source and patch frozen in the run receipts. It retains the production
-`scalar_backtracking_v1` policy. The coordinate strategy has not been allocated
-a research GPU or qualified on CUDA; the cohort launch does not enable it or
-provide evidence for it.
+No CUDA results for this strategy are claimed by the local tests. The running
+four-cohort attempt retains its frozen `a0e1406` source and production
+`scalar_backtracking_v1` policy; it does not enable or qualify this experiment.
+
+The September 23 review fixes passed 1,111 local tests (including reexecution
+of the rational proof), lint, and four separate operational sequencing tests.
+The review ZIP's original, Git-blob-verified reproductions also reproduced all
+three reporting/deadline defects before their corrected regression tests passed.
+A separate source-frozen LSF study was initiated with scalar job **77341022**.
+Its evidence and exact serial owner are indexed in
+`results/cuda-surrogate-review-20260923-v1/README.md`. Allocation, complete-path
+qualification and throughput remain separate claims: consult that study's
+receipts, not a submission or these CPU checks, for CUDA results. Larger sizes
+require a passed same-family predecessor; no production promotion is automatic.

@@ -231,7 +231,8 @@ def test_adaptive_graph_difference_is_separate_and_bounds_feasible_penalty_chang
 def test_candidate_trace_persists_unresolved_raw_and_refit_failure(tmp_path, monkeypatch):
     def raw(*a, **k):
         return SimpleNamespace(
-            qualified=False, diagnostics={"search_complete": False}, x=torch.tensor([0.2])
+            qualified=False, diagnostics={"search_complete": False}, x=torch.tensor([0.2]),
+            objective=torch.tensor(1.)
         )
 
     def refit(*a, **k):

@@ -117,11 +117,12 @@ def inner_certificate_diagnostics(fitted, policy):
 
 
 def solve_start(model, graph, lam, start, policy=CudaPolicy(), *,
-                surrogate_policy="scalar_backtracking_v1"):
+                surrogate_policy="scalar_backtracking_v1", observer=None):
     with model.validated_stage(), graph.validated_stage():
-        if surrogate_policy == "scalar_backtracking_v1":
+        if surrogate_policy == "scalar_backtracking_v1" and observer is None:
             return _solve_start(model, graph, lam, start, policy)
-        return _solve_start(model, graph, lam, start, policy, surrogate_policy=surrogate_policy)
+        return _solve_start(model, graph, lam, start, policy,
+                            surrogate_policy=surrogate_policy, observer=observer)
 
 
 def coordinate_inflation(inflation, losses, gradient_step, quadratic_step, trial_losses):
@@ -141,7 +142,7 @@ def coordinate_inflation(inflation, losses, gradient_step, quadratic_step, trial
 
 
 def _solve_start(model, graph, lam, start, policy, *,
-                 surrogate_policy="scalar_backtracking_v1"):
+                 surrogate_policy="scalar_backtracking_v1", observer=None):
     if surrogate_policy not in ("scalar_backtracking_v1", "coordinate_backtracking_v1"):
         raise ValueError("Unknown outer surrogate policy")
     coordinate = surrogate_policy == "coordinate_backtracking_v1"
@@ -208,7 +209,7 @@ def _solve_start(model, graph, lam, start, policy, *,
             return result(None, False, "nonfinite_likelihood_surrogate", iteration)
         base_h = curv.clamp_min(1.)
         accepted = False
-        for _ in range(policy.max_backtracks):
+        for backtrack_index in range(policy.max_backtracks):
             h = base_h * inflation
             target = x - grad / h
             if not bool(torch.isfinite(h).all() & torch.isfinite(target).all()):
@@ -223,6 +224,12 @@ def _solve_start(model, graph, lam, start, policy, *,
             inner += last_inner.iterations
             polish_iterations += last_inner.polish_iterations
             if not last_inner.qualified:
+                if observer is not None:
+                    observer("unresolved_qp", dict(
+                        iteration=iteration, backtrack_index=backtrack_index,
+                        inflation=inflation, base_h=base_h, h=h, target=target,
+                        lower=model.lower, upper=model.upper, caps=caps,
+                        start=x, dual=initial_dual, fitted=last_inner))
                 return result(None, False, "surrogate_unresolved", iteration)
             # The QP can qualify even when the likelihood majorization trial is
             # rejected. Its physical dual remains a valid initialization for the
@@ -242,6 +249,16 @@ def _solve_start(model, graph, lam, start, policy, *,
                            torch.isfinite(major) & torch.isfinite(surrogate_delta) & torch.isfinite(margin))
             gate = (finite_gate & (trial_loss <= major + margin) &
                     (surrogate_delta <= margin) & (trial_value <= current + margin))
+            if observer is not None:
+                observer("outer_trial", dict(
+                    iteration=iteration, backtrack_index=backtrack_index,
+                    inflation=inflation, base_h=base_h, h=h, losses=losses,
+                    gradient_step=grad * d, quadratic_step=.5 * h * d.square(),
+                    trial_losses=trial_losses, accepted=bool(gate),
+                    finite_gate=bool(finite_gate), margin=margin,
+                    majorization_slack=major + margin - trial_loss,
+                    surrogate_slack=margin - surrogate_delta,
+                    objective_slack=current + margin - trial_value))
             if bool(gate):
                 accepted = True
                 old_value = current

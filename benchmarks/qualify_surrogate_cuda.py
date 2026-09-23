@@ -24,20 +24,24 @@ if __package__ in (None, ''):
 from benchmarks import qualify_cuda as common
 from benchmarks import qualify_mixed_cuda as mixed
 from benchmarks import replay_failed_qp as replay
+from benchmarks import surrogate_trace as tracing
 from clipp1d.api import source_provenance
 from clipp1d.cuda import solver
 from clipp1d.cuda.kernels import Kernels
 from clipp1d.cuda.policy import CudaPolicy
 from clipp1d.cuda_api import require_cuda
 
-SCHEMA='clipp1d.cuda.surrogate_experiment.v1'
+SCHEMA='clipp1d.cuda.surrogate_experiment.v2'
 CONTROL='scalar_backtracking_v1'
 CANDIDATE='coordinate_backtracking_v1'
 ORIGINAL_HELPERS=mixed.helper_hashes
 
 
 def helpers():
-    return dict(ORIGINAL_HELPERS(),surrogate_driver=common.sha(Path(__file__)))
+    return dict(ORIGINAL_HELPERS(),surrogate_driver=common.sha(Path(__file__)),
+                surrogate_trace=common.sha(Path(tracing.__file__)),
+                literal_replay=common.sha(Path(replay.__file__)),
+                capture=common.sha(Path(replay.capture.__file__)))
 
 
 def load_predecessor(args,source):
@@ -66,7 +70,7 @@ def load_predecessor(args,source):
 
 
 @contextmanager
-def strategy(name):
+def strategy(name, journal=None):
     """The sole numerical intervention is the declared solve_start keyword."""
     if name not in (CONTROL,CANDIDATE):
         raise ValueError('Unknown experimental strategy')
@@ -76,7 +80,13 @@ def strategy(name):
     old_helpers=mixed.helper_hashes
     calls=[]
     def execute(model,graph,lam,start,policy):
-        fit=original(model,graph,lam,start,policy,surrogate_policy=name)
+        trace=None if journal is None else tracing.SurrogateTrace(journal,len(calls),lam,policy)
+        try:
+            kwargs={} if trace is None else dict(observer=trace)
+            fit=original(model,graph,lam,start,policy,surrogate_policy=name,**kwargs)
+        finally:
+            if trace is not None:
+                trace.finish()
         mixed.require(fit.diagnostics['outer_surrogate_policy']==name,'Strategy dispatch changed')
         calls.append(dict(qualified=fit.qualified,status=fit.diagnostics['status']))
         return fit
@@ -97,28 +107,36 @@ def strategy(name):
         mixed.helper_hashes=old_helpers
 
 
-def literal_replay(path,sha,device):
+def literal_replay(path,sha,device,journal):
     receipt=replay.capture.load_capture(path,sha)
     mixed.require(len(receipt['captures'])==1,'Expected the single captured below256 obstruction')
     record=replay.capture.load_record(receipt,receipt['captures'][0])
     policy=replay.check_problem(record,receipt['captures'][0])
     problem=replay.load_problem(receipt,record,device)
     before={k:common.tensor_sha(v) if v is not None else None for k,v in problem.items()}
+    problem_state=tracing.save_tensors(journal,'literal-problem.npz',problem)
     kernels=Kernels(device,compiled=True)
     fitted=replay.qp.solve_qp(*(problem[k] for k in replay.PROBLEM_KEYS),kernels,policy,
                             start=problem['start'],dual=problem['dual'])
+    returned=tracing.save_tensors(journal,'literal-returned.npz',dict(x=fitted.x,q=fitted.dual))
     compiled=replay.certificate(replay.stats_for(fitted.x,fitted.dual,problem,kernels),policy)
     eager=replay.certificate(replay.stats_for(fitted.x,fitted.dual,problem,Kernels(device,compiled=False)),policy)
-    mixed.require(before=={k:common.tensor_sha(v) if v is not None else None for k,v in problem.items()},
-                  'Literal replay changed its problem or initialization')
+    after={k:common.tensor_sha(v) if v is not None else None for k,v in problem.items()}
     detail=dict(capture_sha256=sha,problem_sha256=before,iterations=fitted.iterations,
         fitted_qualified=fitted.qualified,compiled=compiled,eager=eager,
+        problem_state=problem_state,returned_state=returned,
+        problem_sha256_after=after,problem_unchanged=before==after,
         diagnostic_flags=solver.inner_certificate_diagnostics(fitted,policy),
         scope='Unchanged literal binary64 QP and original initialization; no outer-surrogate strategy applies')
-    mixed.require(not fitted.qualified and not compiled['independently_qualified']
-                  and not eager['independently_qualified'],
-                  'Literal obstruction unexpectedly promoted: retain evidence and require exact mathematical re-audit')
     return detail
+
+
+def admit_literal_replay(detail):
+    """Call only after the measurements and binary states are persisted."""
+    mixed.require(detail['problem_unchanged'],'Literal replay changed its problem or initialization')
+    mixed.require(not detail['fitted_qualified'] and not detail['compiled']['independently_qualified']
+                  and not detail['eager']['independently_qualified'],
+                  'Literal obstruction unexpectedly promoted: retained evidence requires exact mathematical re-audit')
 
 
 def trial(args,out,name,repeat):
@@ -130,7 +148,7 @@ def trial(args,out,name,repeat):
         production_default_changed=False,artifacts={})
     began=perf_counter()
     try:
-        with strategy(name) as calls:
+        with strategy(name,journal) as calls:
             mixed.execute(args,record,journal)
         mixed.require(calls and all(c['qualified'] for c in calls),'Planned starts incompletely qualified')
         record.update(status='passed',starts_attempted=len(calls))
@@ -144,6 +162,44 @@ def trial(args,out,name,repeat):
                       artifacts=journal.artifacts)
         common.write_json(out,record)
     return record
+
+
+def common_lambda_comparisons(pair,root):
+    """Literal float equality, never nearest-lambda matching or cross-lambda ranking."""
+    paths={}
+    for key,record in pair.items():
+        rows={}
+        for line in (root/record['events_file']).read_text().splitlines():
+            event=json.loads(line)
+            if event['kind'] not in ('candidate_raw','candidate_failed'):
+                continue
+            lam=event['lambda_value']
+            mixed.require(np.isfinite(lam) and lam >= 0 and lam not in rows,
+                          'Invalid or duplicate literal penalty in candidate history')
+            rows[lam]=event
+        paths[key]=rows
+    candidate,control=paths[CANDIDATE],paths[CONTROL]
+    matched=[]
+    for lam in sorted(candidate.keys() & control.keys()):
+        a,b=candidate[lam],control[lam]
+        both=bool(a.get('qualified',False) and b.get('qualified',False))
+        row=dict(lambda_value=lam,qualified_objectives_comparable=both,
+                 raw_objective_difference=a['raw_objective']-b['raw_objective'] if both else None)
+        for name,event in (('candidate',a),('control',b)):
+            diagnostics=event.get('diagnostics',{})
+            row.update({name+'_qualified':event.get('qualified',False),
+                        name+'_all_starts_qualified':diagnostics.get('search_complete',False),
+                        name+'_raw_objective':event.get('raw_objective'),
+                        name+'_seconds':event['seconds'],
+                        name+'_qp_iterations':diagnostics.get('qp_admm_iterations'),
+                        name+'_starts_attempted':diagnostics.get('starts_attempted'),
+                        name+'_starts_unresolved':diagnostics.get('starts_unresolved'),
+                        name+'_error':event.get('error')})
+        matched.append(row)
+    return dict(common_literal_lambdas=matched,
+                candidate_only_lambdas=sorted(candidate.keys()-control.keys()),
+                control_only_lambdas=sorted(control.keys()-candidate.keys()),
+                scope='Same fixed objective at exact literal lambda; trajectories and continuation starts may differ; qualification, coverage and instrumented work are separate')
 
 
 def comparisons(records,root):
@@ -163,6 +219,8 @@ def comparisons(records,root):
         plans={key:mixed.load_json(root/r['artifact_directory']/'initial-path-plan.json')
                for key,r in pair.items()}
         mixed.require(plans[CONTROL]==plans[CANDIDATE], 'Initial path policy/penalties differ')
+        same_lambda=a['selected_lambda']==b['selected_lambda']
+        selected_difference=a['raw_objective']-b['raw_objective']
         values.append(dict(repeat=index,graph_and_pilots_identical=True,
             candidate_search_status=a['search_status'],control_search_status=b['search_status'],
             candidate_fit_seconds=a['fit_seconds'],control_fit_seconds=b['fit_seconds'],
@@ -171,7 +229,14 @@ def comparisons(records,root):
             raw_max_difference=float(np.max(np.abs(np.asarray(a['raw_ccf'])-np.asarray(b['raw_ccf'])))),
             refit_max_difference=float(np.max(np.abs(np.asarray(a['refitted_ccf'])-np.asarray(b['refitted_ccf'])))),
             exact_labels=a['cluster_labels']==b['cluster_labels'],score_difference=a['score']-b['score'],
-            raw_objective_difference=a['raw_objective']-b['raw_objective']))
+            candidate_selected_lambda=a['selected_lambda'],control_selected_lambda=b['selected_lambda'],
+            same_selected_lambda=same_lambda,
+            raw_objectives_comparable_at_selected_lambda=same_lambda,
+            separately_selected_raw_objective_difference=selected_difference,
+            raw_objective_difference=selected_difference if same_lambda else None,
+            selected_objective_scope='Same-lambda objective comparison' if same_lambda else
+                'Separately selected objectives at different lambdas; not an optimizer-quality comparison',
+            fixed_lambda_comparisons=common_lambda_comparisons(pair,root)))
     return values
 
 
@@ -189,6 +254,8 @@ def main():
     parser.add_argument('--repeats',type=int,choices=(1,3),default=1)
     parser.add_argument('--timeout-seconds',type=int,default=3000)
     args=parser.parse_args()
+    if args.timeout_seconds <= 0:
+        raise ValueError('Experiment timeout must be positive')
     args.mode='full'
     args.baseline=args.baseline_sha256=None
     if args.out.exists():
@@ -198,7 +265,7 @@ def main():
     record=dict(schema=SCHEMA,status='running',source=source_provenance(),helpers=helpers(),
         policy=asdict(CudaPolicy()),fixture_family=args.fixture,nodes=args.nodes,
         candidate_policy=CANDIDATE,control_policy=CONTROL,trials=[],
-        command=sys.argv,started_utc=common.utc_now(),artifacts={},
+        command=sys.argv,started_utc=common.utc_now(),artifacts={},timeout_seconds=args.timeout_seconds,
         scope='Explicit research policy; unchanged binary64 QP gates and observed objective; no production-default promotion',
         timing_scope='Repeated same-fixture fits, alternating execution order; repeat 0 includes cold shape specialization, later repeats reuse process/compiler caches; fit timings include instrumentation')
     began=perf_counter()
@@ -206,8 +273,8 @@ def main():
         raise TimeoutError('Bounded experiment wall budget exhausted')
     def terminated(signum,frame):
         raise KeyboardInterrupt('Experimental worker terminated; partial evidence retained')
-    signal.signal(signal.SIGALRM,timeout)
-    signal.signal(signal.SIGTERM,terminated)
+    previous_alarm=signal.signal(signal.SIGALRM,timeout)
+    previous_term=signal.signal(signal.SIGTERM,terminated)
     signal.alarm(args.timeout_seconds)
     try:
         mixed.require(record['source']['source_sha256']==args.expected_source_sha256,'Source differs')
@@ -216,8 +283,12 @@ def main():
                       torch=torch.__version__,cuda_runtime=torch.version.cuda)
         record['predecessor']=load_predecessor(args,record['source'])
         if args.literal_capture is not None:
-            record['literal_replay']=literal_replay(args.literal_capture,args.literal_sha256,device)
+            journal=mixed.Journal(work/'literal.json')
+            record['literal_replay']=literal_replay(args.literal_capture,args.literal_sha256,device,journal)
             common.write_json(work/'literal-replay.json',record['literal_replay'])
+            record['literal_replay_artifacts']={str(p.relative_to(args.out.parent)):common.sha(p)
+                for p in sorted(work.rglob('*')) if p.is_file()}
+            admit_literal_replay(record['literal_replay'])
         for repeat in range(args.repeats):
             order=(CONTROL,CANDIDATE) if repeat%2==0 else (CANDIDATE,CONTROL)
             for name in order:
@@ -238,6 +309,8 @@ def main():
         record.update(status='failed',error_type=type(error).__name__,error=str(error),traceback=traceback.format_exc())
     finally:
         signal.alarm(0)
+        signal.signal(signal.SIGTERM,previous_term)
+        signal.signal(signal.SIGALRM,previous_alarm)
         record.update(elapsed_seconds=perf_counter()-began,finished_utc=common.utc_now(),
                       artifacts={str(p.relative_to(args.out.parent)):common.sha(p) for p in sorted(work.rglob('*')) if p.is_file()})
         common.write_json(args.out,record)

@@ -4,6 +4,8 @@ import json
 from types import SimpleNamespace
 
 import pytest
+import numpy as np
+import torch
 
 from benchmarks import qualify_surrogate_cuda as study
 from clipp1d.cuda.policy import CudaPolicy
@@ -82,3 +84,149 @@ def test_timeout_cannot_be_swallowed_as_a_failed_trial_and_continue(monkeypatch,
         study.trial(args,output,study.CANDIDATE,0)
     record=json.loads(output.read_bytes())
     assert record['status']=='failed' and record['error_type']=='TimeoutError'
+
+
+def synthetic_pair(tmp_path, candidate_lambda):
+    records=[]
+    for name,lam in ((study.CONTROL,1.),(study.CANDIDATE,candidate_lambda)):
+        directory=tmp_path/name
+        directory.mkdir()
+        summary=dict(selected_lambda=lam,raw_objective=1.+lam*.6,raw_ccf=[.3,.7],
+            refitted_ccf=[.3,.7],cluster_labels=[0,1],score=2.,search_status='complete',
+            fit_seconds=1.,path_records=[{},{}],timings={'qp_admm_iterations':16},
+            pilot_and_graph={key:'same' for key in
+                ('pilot_sha256','weights_sha256','weight_rule','gap_floor','normalization')})
+        (directory/'full-path.json').write_text(json.dumps(summary))
+        (directory/'initial-path-plan.json').write_text('{}')
+        events=[dict(kind='candidate_raw',lambda_value=value,qualified=True,
+                     raw_objective=1.+value*.6,seconds=.1,diagnostics=dict(
+                         search_complete=True,qp_admm_iterations=8,starts_attempted=2,
+                         starts_unresolved=0)) for value in (0.,1.,lam) if value != 0.]
+        events=list({row['lambda_value']:row for row in events}.values())
+        events_file=name+'.jsonl'
+        (tmp_path/events_file).write_text(''.join(json.dumps(row)+'\n' for row in events))
+        records.append(dict(repeat=0,surrogate_policy=name,artifact_directory=name,events_file=events_file))
+    return records
+
+
+@pytest.mark.parametrize('lam',[1.,2.,np.nextafter(1.,2.)])
+def test_selected_objectives_only_comparable_at_identical_literal_lambda(tmp_path,lam):
+    row,=study.comparisons(synthetic_pair(tmp_path,lam),tmp_path)
+    assert row['candidate_selected_lambda']==lam and row['control_selected_lambda']==1.
+    same=bool(lam==1.)
+    assert row['same_selected_lambda'] is same
+    assert row['raw_objectives_comparable_at_selected_lambda'] is same
+    assert row['raw_max_difference']==0
+    if same:
+        assert row['raw_objective_difference']==0
+    else:
+        assert row['raw_objective_difference'] is None
+        assert row['separately_selected_raw_objective_difference']==(1.+lam*.6)-1.6
+    fixed=row['fixed_lambda_comparisons']
+    assert fixed['common_literal_lambdas'][0]['lambda_value']==1.
+    assert fixed['common_literal_lambdas'][0]['raw_objective_difference']==0
+    assert fixed['candidate_only_lambdas']==([] if same else [lam])
+
+
+def test_common_lambda_unqualified_state_is_not_an_objective_comparison(tmp_path):
+    records=synthetic_pair(tmp_path,1.)
+    path=tmp_path/records[1]['events_file']
+    row=json.loads(path.read_text())
+    row.update(kind='candidate_failed',qualified=False,error='no qualified starts')
+    row.pop('raw_objective')
+    path.write_text(json.dumps(row)+'\n')
+    result,=study.comparisons(records,tmp_path)
+    fixed,=result['fixed_lambda_comparisons']['common_literal_lambdas']
+    assert not fixed['qualified_objectives_comparable']
+    assert fixed['raw_objective_difference'] is None
+    assert fixed['candidate_error']=='no qualified starts'
+
+
+def main_args(monkeypatch,tmp_path,*extra):
+    out=tmp_path/'experiment.json'
+    monkeypatch.setattr(study.sys,'argv',['study','--fixture','below_one','--nodes','64',
+        '--expected-source-sha256','source','--out',str(out),*extra])
+    return out
+
+
+@pytest.mark.parametrize('timeout',[0,-1,-3600])
+def test_nonpositive_deadline_rejected_before_files_or_handlers(monkeypatch,tmp_path,timeout):
+    main_args(monkeypatch,tmp_path,'--timeout-seconds',str(timeout))
+    monkeypatch.setattr(study.signal,'signal',lambda *a:pytest.fail('installed handler'))
+    monkeypatch.setattr(study.signal,'alarm',lambda *a:pytest.fail('installed alarm'))
+    with pytest.raises(ValueError,match='timeout must be positive'):
+        study.main()
+    assert not list(tmp_path.iterdir())
+
+
+def mock_main(monkeypatch):
+    previous={study.signal.SIGALRM:object(),study.signal.SIGTERM:object()}
+    current=previous.copy()
+    alarms=[]
+    def handler(sig,value):
+        old=current[sig]
+        current[sig]=value
+        return old
+    monkeypatch.setattr(study.signal,'signal',handler)
+    monkeypatch.setattr(study.signal,'alarm',alarms.append)
+    monkeypatch.setattr(study,'source_provenance',lambda:dict(source_sha256='source'))
+    monkeypatch.setattr(study,'require_cuda',lambda device:'mock-device')
+    monkeypatch.setattr(study.torch.cuda,'get_device_name',lambda device:'mock-GPU')
+    monkeypatch.setattr(study,'trial',lambda args,out,name,repeat:
+                        dict(surrogate_policy=name,repeat=repeat,status='passed'))
+    monkeypatch.setattr(study,'comparisons',lambda *a:[])
+    return previous,current,alarms
+
+
+@pytest.mark.parametrize('failure',[None,ValueError,TimeoutError,KeyboardInterrupt])
+def test_signal_handlers_restored_after_success_or_failure(monkeypatch,tmp_path,failure):
+    out=main_args(monkeypatch,tmp_path,'--timeout-seconds','7')
+    previous,current,alarms=mock_main(monkeypatch)
+    if failure:
+        def fail(*args):
+            raise failure('test failure')
+        monkeypatch.setattr(study,'require_cuda',fail)
+    assert study.main()==int(failure is not None)
+    assert current==previous and alarms==[7,0]
+    receipt=json.loads(out.read_text())
+    assert receipt['status']==('failed' if failure else 'passed')
+    assert receipt['timeout_seconds']==7
+
+
+@pytest.mark.parametrize('qualified',[False,True])
+def test_literal_replay_retains_actual_states_and_both_certificates_before_admission(
+        monkeypatch,tmp_path,qualified):
+    out=main_args(monkeypatch,tmp_path,'--literal-capture','capture.json','--literal-sha256','hash')
+    previous,current,_=mock_main(monkeypatch)
+    def t(value):
+        return torch.tensor(value,dtype=torch.float64)
+    problem=dict(h=t([1.,2.]),target=t([.3,.7]),lower=t([0.,0.]),upper=t([1.,1.]),
+                 caps=t([[0.,.1],[.1,0.]]),start=t([.2,.8]),dual=None)
+    fitted=SimpleNamespace(x=t([.4,.6]),dual=torch.zeros((2,2),dtype=torch.float64),
+        iterations=16,qualified=qualified,gap=t(0.),scale=t(1.),kkt=t(0. if qualified else 1.))
+    monkeypatch.setattr(study.replay.capture,'load_capture',lambda *a:{'captures':[{}]})
+    monkeypatch.setattr(study.replay.capture,'load_record',lambda *a:{})
+    monkeypatch.setattr(study.replay,'check_problem',lambda *a:CudaPolicy())
+    monkeypatch.setattr(study.replay,'load_problem',lambda *a:problem)
+    monkeypatch.setattr(study,'Kernels',lambda device,compiled:compiled)
+    monkeypatch.setattr(study.replay.qp,'solve_qp',lambda *a,**k:fitted)
+    monkeypatch.setattr(study.replay,'stats_for',lambda *a:t([0.,1.,0. if qualified else 1.]))
+    assert study.main()==int(qualified)
+    record=json.loads(out.read_text())
+    assert current==previous
+    detail=record['literal_replay']
+    assert detail['fitted_qualified']==qualified
+    assert detail['compiled']['independently_qualified']==qualified
+    assert detail['eager']['independently_qualified']==qualified
+    assert detail['problem_unchanged']
+    assert record['literal_replay_artifacts']
+    for relative,digest in record['artifacts'].items():
+        assert study.common.sha(tmp_path/relative)==digest
+    tensors=out.with_suffix('.trials')/detail['returned_state']['path']
+    with np.load(tensors,allow_pickle=False) as arrays:
+        np.testing.assert_array_equal(arrays['x'],fitted.x.numpy())
+        np.testing.assert_array_equal(arrays['q'],fitted.dual.numpy())
+    assert (out.with_suffix('.trials')/'literal-replay.json').exists()
+    if qualified:
+        assert record['trials']==[]
+        assert 'unexpectedly promoted' in record['error']

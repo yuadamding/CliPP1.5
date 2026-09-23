@@ -236,6 +236,7 @@ def trace_candidates(journal):
         active["index"] += 1
         active["lambda_value"] = float(args[3])
         journal.record("candidate_started", **active)
+        began = perf_counter()
         try:
             result = original_raw(*args, **kwargs)
         except BaseException as error:
@@ -245,6 +246,7 @@ def trace_candidates(journal):
                 error_type=type(error).__name__,
                 error=str(error),
                 diagnostics=getattr(error, "diagnostics", {}),
+                seconds=perf_counter() - began,
             )
             raise
         journal.record(
@@ -253,6 +255,8 @@ def trace_candidates(journal):
             qualified=result.qualified,
             diagnostics=result.diagnostics,
             raw_ccf=result.x.detach().cpu().tolist(),
+            raw_objective=float(result.objective),
+            seconds=perf_counter() - began,
         )
         return result
 
