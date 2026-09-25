@@ -276,6 +276,12 @@ def _solve_start(model, graph, lam, start, policy, *,
         audit = run_audit()
         if audit.qualified:
             return result(audit, True, "qualified", iteration + 1)
+        if (audit.status.endswith("_invalid_cut") or
+                audit.status == "nonfinite_likelihood_derivatives"):
+            # An invalid audit problem supplies neither a certificate nor a
+            # usable restart direction. Retrying the same start cannot repair
+            # that evidence; retain its diagnostics and try the other starts.
+            return result(audit, False, "raw_audit_unresolved", iteration + 1)
         if audit.direction is not None:
             restart = direction_restart(model, x, audit.direction, caps, current, policy)
             if restart is not None:

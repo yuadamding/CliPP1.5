@@ -1,0 +1,51 @@
+{
+  "created_utc": "2026-09-25T18:34:09.013451+00:00",
+  "panel_cases": 193,
+  "panel_mutations": 41712,
+  "source_fingerprints": [
+    "62ec9d1480563cda8ce5c192aff94c6763a9978a2fd73ea53b85c1975ed21e09"
+  ],
+  "environment": {
+    "interpreter": "/home/yding1995/miniforge3/envs/ml1/bin/python",
+    "python": "3.13.2 | packaged by conda-forge | (main, Feb 17 2025, 14:10:22) [GCC 13.3.0]",
+    "numpy": "2.2.6",
+    "scipy": "1.18.0",
+    "sklearn": "1.7.1"
+  },
+  "checks": {
+    "remote_output_hashes": "193 run.json and193 mutation_multiplicity.tsv matched frozen validation hashes",
+    "input_and_truth_audit": "all193cases;zero mismatches",
+    "public_score_reconstruction_max_error": 1.1641532182693481e-10,
+    "exact_move_delta": "independently audited;every accepted move checked against full score",
+    "public_multiplicity_calls_reconstructed": 83424,
+    "scalar_grid_sensitivity": "68cases,1025vs4097points;no comparison classifications changed",
+    "ruff_parent_scripts": "--select F passed",
+    "git_diff_check": "passed",
+    "figure_review": "four-page PDF; exact-score PNG visually checked"
+  },
+  "scope": "Offline diagnosis; not production CUDA qualification; no job/source/output changes",
+  "summary": {
+    "cases": 193,
+    "lower_score_cases": 152,
+    "lower_score_complete": 123,
+    "changed_mutations": 5704,
+    "moves": 5939,
+    "ari_improved": 152,
+    "ari_worsened": 0,
+    "mean_score_improvement": 100.63890214211014,
+    "median_score_improvement": 77.78554920395254,
+    "original": {
+      "mean_ari": 0.48500447719076567,
+      "mean_k": 6.538860103626943,
+      "mean_ccf_mae": 0.08870257388069722,
+      "smf_ccc": 0.783054531633905
+    },
+    "diagnostic": {
+      "mean_ari": 0.6397342815640212,
+      "mean_k": 2.471502590673575,
+      "mean_ccf_mae": 0.059303282580347526,
+      "smf_ccc": 0.8743995125401041
+    },
+    "limitations": "Fixed published centers; exact score-descent membership diagnostic, no scalar refit, no raw solver certificate, no truth used in moves; selected early193 cases."
+  }
+}

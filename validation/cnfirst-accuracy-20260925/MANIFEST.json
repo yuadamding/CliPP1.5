@@ -1,0 +1,150 @@
+{
+  "created_utc": "2026-09-25T18:54:14.195913+00:00",
+  "files": {
+    "evidence/VALIDATION.json": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/VALIDATION.json",
+      "size_bytes": 2057,
+      "sha256": "f554bb3dd791e2c154a85eb1f12f4e97c7c2bb090948db093f89c25d1e201e11"
+    },
+    "evidence/reassignment/summary.json": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/reassignment/summary.json",
+      "size_bytes": 779,
+      "sha256": "ddc6946007e427c22f9425c4ed8c3d679698d57f298f941faa4890d9a71c3a74"
+    },
+    "evidence/reassignment/per_case.tsv": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/reassignment/per_case.tsv",
+      "size_bytes": 41341,
+      "sha256": "6ac1131cef3f055d78d9afb1391ce7146bfb2f8f980789c9378b500bbb898c73"
+    },
+    "evidence/bound_analysis/summary.json": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/bound_analysis/summary.json",
+      "size_bytes": 834,
+      "sha256": "dbddcc0d19a546b143f61ecec082d40bb4d4f579e74fabb59a99c5958b96c8f8"
+    },
+    "evidence/bound_analysis/search_diagnostic.tsv": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/bound_analysis/search_diagnostic.tsv",
+      "size_bytes": 15702,
+      "sha256": "9856127062feae163d80c118f8c048fa130497a8a7b8212daf4194c1e5f84eca"
+    },
+    "evidence/input_audit/README.md": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/input_audit/README.md",
+      "size_bytes": 3272,
+      "sha256": "fd948cc836024065a0c2a682390f3b6a4df74fa537ef63451cf024526d6a3349"
+    },
+    "evidence/input_audit/READOUT.json": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/input_audit/READOUT.json",
+      "size_bytes": 613,
+      "sha256": "51a51df9c7cf6f49137f42e5415c4ed9b5160711eab6190796c603acd1f4c94e"
+    },
+    "evidence/input_audit/evidence/summary.json": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/input_audit/evidence/summary.json",
+      "size_bytes": 3539,
+      "sha256": "6bc50c4222cf10c7f741e1c31eab5412b458da6eaaa42a8125b758cfc3c8efdc"
+    },
+    "evidence/input_audit/evidence/pilot_by_major_multiplicity.tsv": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/input_audit/evidence/pilot_by_major_multiplicity.tsv",
+      "size_bytes": 1920,
+      "sha256": "fdea7c1a82b715425b8e79cc48b15100c47b2e88e801e867a2e92e1f63e9c5a3"
+    },
+    "evidence/input_audit/evidence/graph_edges_summary.tsv": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/input_audit/evidence/graph_edges_summary.tsv",
+      "size_bytes": 403,
+      "sha256": "7b0094cc893f2aa9cdec30a7eafb41cb5b87ab5be7b9343d33572f39ed6c905e"
+    },
+    "evidence/scoring_diagnostic/README.md": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/scoring_diagnostic/README.md",
+      "size_bytes": 5979,
+      "sha256": "94eab784d5ea9cdb84bdfc84393c508229996c42c619c0f495e4996ed2d9d444"
+    },
+    "evidence/scoring_diagnostic/all/SUMMARY.json": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/scoring_diagnostic/all/SUMMARY.json",
+      "size_bytes": 2552,
+      "sha256": "311d77eddcaebf20e75c8271cf51d2c92ed50ce2fbd664e3edf16cfdb80b89dc"
+    },
+    "evidence/scoring_diagnostic/all/per_case_candidates.tsv": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/scoring_diagnostic/all/per_case_candidates.tsv",
+      "size_bytes": 192741,
+      "sha256": "307beefb9d563b747702035c9031c9092538b2a89cc487de4d7d384fd27bf9fd"
+    },
+    "evidence/scoring_diagnostic/score_limits_summary.json": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/scoring_diagnostic/score_limits_summary.json",
+      "size_bytes": 618,
+      "sha256": "3c0ca37a6b53f4aa23490b88e17d36484510761e364f29b8258c9a5a33351883"
+    },
+    "evidence/scoring_diagnostic/score_limits_strata.tsv": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/scoring_diagnostic/score_limits_strata.tsv",
+      "size_bytes": 882,
+      "sha256": "e1aedaf97e1227fff7f0efaaa95655b2a7df29ad67ee3dfc0cd7aca9a068e79e"
+    },
+    "evidence/scoring_diagnostic/grid4097_verification/SUMMARY.json": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/scoring_diagnostic/grid4097_verification/SUMMARY.json",
+      "size_bytes": 504,
+      "sha256": "7c6fddfccf0746f496db1fb8046c86a3ecb8a615ee3769f767ed548a79c19fcb"
+    },
+    "evidence/error_patterns/README.md": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/error_patterns/README.md",
+      "size_bytes": 10281,
+      "sha256": "7d68ca5475210133e5c31c8fcae625ee605dabe31a8349ad08c6ffe4d076de95"
+    },
+    "evidence/error_patterns/matched_cna_strata.tsv": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/error_patterns/matched_cna_strata.tsv",
+      "size_bytes": 914,
+      "sha256": "8d70c386e067c851fcc60d8012a56283978953720e0653e12138e364ce2911f7"
+    },
+    "evidence/error_patterns/strata.tsv": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/error_patterns/strata.tsv",
+      "size_bytes": 16631,
+      "sha256": "0ab3acd562621e98d3c8609e1e5a2f291927405944d13b25222cdbb6c57c3db5"
+    },
+    "evidence/error_patterns/CNfirst4K_CliPP15_error_diagnostics.pdf": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/error_patterns/CNfirst4K_CliPP15_error_diagnostics.pdf",
+      "size_bytes": 62211,
+      "sha256": "75c5b0cde7f27e1e3935f2d20be35605a608087b1e1e3bee657717ba799c2f31"
+    },
+    "archived_scripts/reassignment_diagnostic.py": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/reassignment_diagnostic.py",
+      "size_bytes": 6071,
+      "sha256": "3a7a7397dd00510820562419c23d7aaea27fd313bb31d9892475081a554ecea1"
+    },
+    "archived_scripts/analyze_bound_diagnostics.py": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/analyze_bound_diagnostics.py",
+      "size_bytes": 4743,
+      "sha256": "e3e2cf6d7ba1d70bf7861bd3655f17b618f6c8e3fd749ac9ae45b02f6ebc276e"
+    },
+    "archived_scripts/input_audit/audit.py": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/input_audit/audit.py",
+      "size_bytes": 16132,
+      "sha256": "5462b225b40e4c307dcccfa3c567cb0a3426cd979d19b52b4bd8f3f94e06e415"
+    },
+    "archived_scripts/scoring_diagnostic/diagnose.py": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/scoring_diagnostic/diagnose.py",
+      "size_bytes": 13049,
+      "sha256": "09c8e7dd4df10893d56637c733cdad1cdb35ac287b604ac6f70cc253e7f24890"
+    },
+    "archived_scripts/scoring_diagnostic/score_limits.py": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/scoring_diagnostic/score_limits.py",
+      "size_bytes": 4585,
+      "sha256": "c12e8c4288d40803fb5bcd789c5fb06407515a87fe2ab9c7bdc95dee94fff981"
+    },
+    "archived_scripts/scoring_diagnostic/verify_grid.py": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/scoring_diagnostic/verify_grid.py",
+      "size_bytes": 1963,
+      "sha256": "0f9f0948fceae849d562c71f431d1da3670e667f24e335673fe7475d7afb283e"
+    },
+    "archived_scripts/error_patterns/analyze.py": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/error_patterns/analyze.py",
+      "size_bytes": 5448,
+      "sha256": "69eb13f1fe0caf56c45192cfa9b1f1c33b1af2baeacae0aa91b7a094f3f6cb4c"
+    },
+    "archived_scripts/error_patterns/fixed_center_reassignment.py": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/error_patterns/fixed_center_reassignment.py",
+      "size_bytes": 4334,
+      "sha256": "caa0007490ac44b3bc3f0e18b868ce391cd7e1dcee960cfb773f8e0ad99f4dd4"
+    },
+    "archived_scripts/error_patterns/plot.py": {
+      "original_path": "/storage/CliPP2/CNfirst4K_CliPP15_investigation_20260925/error_patterns/plot.py",
+      "size_bytes": 8062,
+      "sha256": "db7fd6611327fd9461b7657875e1434da26b46b5bc858e7ff2ae478cef56381a"
+    }
+  }
+}

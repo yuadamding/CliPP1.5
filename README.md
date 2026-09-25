@@ -61,6 +61,31 @@ reports completion after publication. See the
 [measurement scopes](docs/CUDA_FRAMEWORK.md#timing-and-memory-scopes) before using
 these fields for benchmarks.
 
+## CliPPSim4K simulation
+
+The package extends `/data/CliPP_Sim/07222026/generate_clippsim4k.py` with
+CN-first multiplicity sampling: generate major and minor CN, then sample
+multiplicity uniformly from 1 through major CN. It preserves the original
+conditional CN distribution, cluster design and raw output formats. The manifest
+identifies this revised model; seeded outputs differ from the original generator.
+
+```bash
+python -m pip install -e '.[simulation]'
+python -m clipp1d.simulation --dry-run
+python -m clipp1d.simulation --output-dir results/CliPPSim4K_generated
+```
+
+The default is 4,000 tumors with seed 20260730 and CNA rates 0.1/0.4/0.7. The
+installed `clipp1d-simulate` command provides the same interface. Generation uses CPU;
+fitting retains its CUDA contract. See the [simulation guide](docs/SIMULATION.md)
+for parameters, raw files, model provenance and regression checks.
+
+The [CN-first accuracy investigation](RESEARCH_CNFIRST_FAILURES.md) analyzes
+193 finished complete-graph fits and documents membership-search limitations,
+multiplicity aliases, and offline counterfactuals. Its
+[evidence bundle](validation/cnfirst-accuracy-20260925/README.md) preserves the
+diagnostic results; the proposed inference changes are not yet integrated.
+
 ## Validation and evidence
 
 ```bash
@@ -117,5 +142,16 @@ acceptance and preserved failed attempts. The retrievable
 [prior CUDA evidence for `371003f`](validation/371003f/README.md) qualifies its
 policy-v2 source only. It does not qualify this revision. Historical chain
 documentation and receipts likewise retain their original scope.
+
+## Operating and recovering cohort runs
+
+Start with [operations and reusable lessons](benchmarks/OPERATIONS.md) for
+current-owner discovery, input identity, CPU process admission, A100 failure
+isolation, LSF concurrency and retries, qualification and evaluation rules.
+The local `results/CURRENT_RUNS.json` pointer is the live operational entry point;
+it is intentionally excluded from Git. The
+[September 23 recovery record](validation/cohort-recovery-20260923/README.md)
+preserves dated evidence and limitations in the repository. Contributors and
+agents can start with [AGENTS.md](AGENTS.md).
 
 The original scientific provenance and AGPL-3.0 license are retained.

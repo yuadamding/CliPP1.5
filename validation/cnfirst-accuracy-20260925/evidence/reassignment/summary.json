@@ -1,0 +1,24 @@
+{
+  "cases": 193,
+  "lower_score_cases": 152,
+  "lower_score_complete": 123,
+  "changed_mutations": 5704,
+  "moves": 5939,
+  "ari_improved": 152,
+  "ari_worsened": 0,
+  "mean_score_improvement": 100.63890214211014,
+  "median_score_improvement": 77.78554920395254,
+  "original": {
+    "mean_ari": 0.48500447719076567,
+    "mean_k": 6.538860103626943,
+    "mean_ccf_mae": 0.08870257388069722,
+    "smf_ccc": 0.783054531633905
+  },
+  "diagnostic": {
+    "mean_ari": 0.6397342815640212,
+    "mean_k": 2.471502590673575,
+    "mean_ccf_mae": 0.059303282580347526,
+    "smf_ccc": 0.8743995125401041
+  },
+  "limitations": "Fixed published centers; exact score-descent membership diagnostic, no scalar refit, no raw solver certificate, no truth used in moves; selected early193 cases."
+}

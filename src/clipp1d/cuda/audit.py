@@ -20,6 +20,14 @@ class Audit:
     diagnostics: dict = field(default_factory=dict)
 
 
+class InvalidDirectionalCut(ValueError):
+    """An invalid numerical cut is evidence of nonqualification, never success."""
+
+    def __init__(self, checks):
+        super().__init__("Invalid finite symmetric capacities or feasible-direction mask")
+        self.checks = checks
+
+
 def _cut_inputs(a, caps, allowed, initial_dual):
     n = a.numel()
     arrays = (a, caps, allowed, initial_dual)
@@ -27,10 +35,15 @@ def _cut_inputs(a, caps, allowed, initial_dual):
             initial_dual.shape != (n, n) or
             any(v.dtype != torch.float64 or v.device != a.device for v in arrays)):
         raise ValueError("Directional cuts require matching device float64 node/edge arrays")
-    if not bool(torch.isfinite(a).all() & torch.isfinite(caps).all() &
-                torch.isfinite(initial_dual).all() & ((allowed == 0) | (allowed == 1)).all() &
-                (caps >= 0).all() & (caps == caps.T).all() & (caps.diagonal() == 0).all()):
-        raise ValueError("Invalid finite symmetric capacities or feasible-direction mask")
+    checks = dict(linear_finite=torch.isfinite(a).all(),
+                  capacities_finite=torch.isfinite(caps).all(),
+                  dual_finite=torch.isfinite(initial_dual).all(),
+                  mask_binary=((allowed == 0) | (allowed == 1)).all(),
+                  capacities_nonnegative=(caps >= 0).all(),
+                  capacities_symmetric=(caps == caps.T).all(),
+                  diagonal_zero=(caps.diagonal() == 0).all())
+    if not bool(torch.stack(tuple(checks.values())).all()):
+        raise InvalidDirectionalCut({name: bool(value) for name, value in checks.items()})
 
 
 def _cut_lower_bound(a, q, allowed, unit):
@@ -148,6 +161,9 @@ def _audit_raw(model, x, q, caps, policy):
              & (q == -q.T).all())
     if not bool(valid):
         return Audit(False, float("inf"), None, "infeasible")
+    if not bool(torch.isfinite(grad).all() & torch.isfinite(left).all() &
+                torch.isfinite(right).all()):
+        return Audit(False, float("inf"), None, "nonfinite_likelihood_derivatives")
     d = differences(x)
     a = adjoint(q)
     chosen = torch.maximum(left, torch.minimum(right, -a))
@@ -184,14 +200,26 @@ def _audit_raw(model, x, q, caps, policy):
         dual = torch.where(moving, dual, 0.)
         scale = torch.maximum(linear.abs().max(), fc.sum(-1).max()).clamp_min(1.)
         cut = {}
-        ok, direction = directional_cut(linear / scale, fc / scale, allowed, dual / scale,
-                                        policy, diagnostics=cut,
-                                        tolerance=policy.stationarity_tol / scale,
-                                        roundoff_unit=torch.ones_like(scale) / scale)
-        cut["objective_scale"] = float(scale)
         name = "positive" if sign > 0 else "negative"
-        diagnostics[name] = cut
         count = 1 if sign > 0 else 2
+        if not bool(torch.isfinite(scale)):
+            diagnostics[name] = dict(status="nonfinite_cut_scale")
+            return Audit(False, float("inf"), None, name + "_invalid_cut", count, diagnostics)
+        try:
+            ok, direction = directional_cut(linear / scale, fc / scale, allowed, dual / scale,
+                                            policy, diagnostics=cut,
+                                            tolerance=policy.stationarity_tol / scale,
+                                            roundoff_unit=torch.ones_like(scale) / scale)
+        except InvalidDirectionalCut as error:
+            # Keep the strict cut invariant. This start cannot supply a raw
+            # certificate or a descent direction. Other starts/path candidates
+            # still undergo their own unchanged qualification checks.
+            cut.update(status="invalid_cut_inputs", validation_checks=error.checks,
+                       objective_scale=float(scale))
+            diagnostics[name] = cut
+            return Audit(False, float("inf"), None, name + "_invalid_cut", count, diagnostics)
+        cut["objective_scale"] = float(scale)
+        diagnostics[name] = cut
         if not ok:
             return Audit(False, residual, None if direction is None else sign * direction,
                          name + ("_descent" if direction is not None else "_unresolved"),

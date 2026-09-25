@@ -42,6 +42,9 @@ published tumor/sample IDs match; fitting, internal refitting and final validati
 use the same staged input. Its plan retains the original `a0e1406` source and
 112 imported fits. This canary does not establish completion of the full cohort.
 
-Live operational receipts and controller identity remain indexed locally by
-`results/CURRENT_LSF_RUN.json` (intentionally excluded from Git). Use the tracked
+Use the local `results/CURRENT_RUNS.json` aggregate registry for current owners,
+assignments and the exact read-only observer. The older pool-specific
+`results/CURRENT_LSF_RUN.json` pointer describes a historical handoff and may
+lag that registry; both are intentionally excluded from Git. See
+[operations and lessons](OPERATIONS.md) for recovery rules. Use the tracked
 evidence link above for review; historical receipts must not be overwritten.

@@ -1,0 +1,71 @@
+{
+  "created_utc": "2026-09-25T18:27:49.033182+00:00",
+  "cases": 193,
+  "grid_size": 1025,
+  "maximum_processes": 4,
+  "diagnostic": "approximate scalar refits; no production solver or scalar qualification",
+  "score_formula": "2*NLL + K*log(N) - 1.4*(lgamma(K)-lgamma(N+K)+sum(lgamma(nk+1))+lgamma(K+1))",
+  "likelihood_source": "/storage/CliPP2/CliPP1.5/results/cnfirst-pool14-20260925-v2/a100/payload/source/src/clipp1d/model.py",
+  "likelihood_source_sha256": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+  "script_sha256": "09c8e7dd4df10893d56637c733cdad1cdb35ac287b604ac6f70cc253e7f24890",
+  "export_sha256": "8e6c594c18e2082b6b947c97eb0c57f061f78b307ec53d23650da747e9e3cddc",
+  "bound_diagnostics_sha256": "fb2d19e6cb68d0da3fed838c4d88205d46c672e1a92e6759f9e63e588f2fc518",
+  "maximum_published_score_reconstruction_error": 1.1641532182693481e-10,
+  "candidate_summary": [
+    {
+      "candidate": "greedy_merge",
+      "lower_score_cases": 134,
+      "median_score_delta": -48.92047905821528,
+      "mean_ari": 0.5164377244189262,
+      "ari_improved": 119,
+      "ari_worsened": 15,
+      "mean_ccf_mae": 0.07997904061305051,
+      "mean_k": 2.2538860103626943,
+      "smf_ccc": 0.8197602786883518
+    },
+    {
+      "candidate": "published",
+      "lower_score_cases": 0,
+      "median_score_delta": 0.0,
+      "mean_ari": 0.48500447719076567,
+      "ari_improved": 0,
+      "ari_worsened": 0,
+      "mean_ccf_mae": 0.08870257388069723,
+      "mean_k": 6.538860103626943,
+      "smf_ccc": 0.7830545316339051
+    },
+    {
+      "candidate": "published_approx_refit",
+      "lower_score_cases": 0,
+      "median_score_delta": 0.0,
+      "mean_ari": 0.48500447719076567,
+      "ari_improved": 0,
+      "ari_worsened": 0,
+      "mean_ccf_mae": 0.08870257264836806,
+      "mean_k": 6.538860103626943,
+      "smf_ccc": 0.7830545316339051
+    },
+    {
+      "candidate": "pyclone_partition_approx_refit",
+      "lower_score_cases": 147,
+      "median_score_delta": -67.17607638874324,
+      "mean_ari": 0.6408898361256817,
+      "ari_improved": 148,
+      "ari_worsened": 20,
+      "mean_ccf_mae": 0.055416227216657454,
+      "mean_k": 2.8031088082901556,
+      "smf_ccc": 0.9396418134600567
+    },
+    {
+      "candidate": "truth_partition_approx_refit",
+      "lower_score_cases": 136,
+      "median_score_delta": -54.134728813580296,
+      "mean_ari": 1.0,
+      "ari_improved": 169,
+      "ari_worsened": 0,
+      "mean_ccf_mae": 0.005739815204063095,
+      "mean_k": 2.5492227979274613,
+      "smf_ccc": 1.0
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "utc": "2026-09-25T18:29:13.546372+00:00",
+  "python": "/home/yding1995/miniforge3/envs/ml1/bin/python",
+  "python_version": "3.13.2 | packaged by conda-forge | (main, Feb 17 2025, 14:10:22) [GCC 13.3.0]",
+  "numpy": "2.2.6",
+  "pandas": "3.0.3",
+  "scipy": "1.18.0",
+  "sklearn": "1.7.1",
+  "low_m_cna_count": 11321,
+  "low_m_alias_closer": 10876,
+  "low_m_alias_fraction": 0.9606925183287696,
+  "paired_multicluster_cases": 169,
+  "wrong_edges_stronger_cases": 128,
+  "median_wrong_same_edge_ratio": 1.678754137638612,
+  "readme_sha256": "fd948cc836024065a0c2a682390f3b6a4df74fa537ef63451cf024526d6a3349"
+}

@@ -1,0 +1,81 @@
+{
+  "schema": "clipp1d.recovery_evidence.v1",
+  "created_utc": "2026-09-25T04:59:59.869829+00:00",
+  "files": [
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/timeout-recovery-20260925-v1/PREPARED.json",
+      "sha256": "169444b2f26a571ce619586134c933e7b4796d5d14ee30e943be980541a47886",
+      "bytes": 41478
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/timeout-recovery-20260925-v1/STOPPED_REFILLER.json",
+      "sha256": "0c9ddfe2ad5ab0864a085508716f1caa2b73cc42e7d5b4d67979186250bad139",
+      "bytes": 512406
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/timeout-recovery-20260925-v1/launch.json",
+      "sha256": "98b32400d76dc75a942249fb205001d9bd96533003017aa0d42750071de4e13c",
+      "bytes": 6183
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/timeout-recovery-20260925-v1/publication.json",
+      "sha256": "a99a1986f37114e2ca214aa34c4e3530687f840742da0665e9b806289f07b46c",
+      "bytes": 2484
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/timeout-recovery-20260925-v1/RUN_REGISTRY.json",
+      "sha256": "5c3b5fc1c9c9de7258d62d66f0d81104ec41016abbe3732f097b70c883aad8bc",
+      "bytes": 32821
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/timeout-recovery-20260925-v1/test_handoff.py",
+      "sha256": "ece913f5ceb3adecb3d880cbe8c0b8c38ccdbffc2bf728492a4574572d769a95",
+      "bytes": 3579
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/timeout-recovery-20260925-v1/handoff_gates.py",
+      "sha256": "1940c24aff054785df2f65120fb1422a9d9f15aa9679c333393368705d5c657f",
+      "bytes": 5498
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/timeout-recovery-20260925-v1/sealed/clipp2_clipp1d_timeout_recovery_20260925a/PREPARED.json",
+      "sha256": "961a837a294d9181eff9225a715ca532c25b64591c069b753ebce8142b018598",
+      "bytes": 41173
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/benchmarks/lsf_retry_lineage.py",
+      "sha256": "e8680663abe622379e7302027c0043860556a2399ad3ec1afc7977aeb54f165a",
+      "bytes": 2262
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/tests/test_lsf_retry_lineage.py",
+      "sha256": "26abc106ee6f61ab3ec3b22e109cd92a7d2776db1b16713b5be71e031382b647",
+      "bytes": 3369
+    },
+    {
+      "path": "/storage/CliPP2/PyCloneVI_runs/CliPPSim4K_CNfirst_20260924_export_recovery_v1/COMPLETE.json",
+      "sha256": "47a4a6aa4673efc9f6e5b6560ba2e49531faa76594929150773fa8f06c9a8649",
+      "bytes": 304
+    },
+    {
+      "path": "/storage/CliPP2/PyCloneVI_runs/CliPPSim4K_CNfirst_20260924_export_recovery_v1/RESULTS_MANIFEST.json",
+      "sha256": "9da0496447cf96d31d789f5b0c6fa791001c4dd864ad574e77252b6131230c05",
+      "bytes": 2467041
+    },
+    {
+      "path": "/storage/CliPP2/PyCloneVI_runs/CliPPSim4K_CNfirst_20260924_export_recovery_v1/post_process.py",
+      "sha256": "7139117970fe4e125c177fe68848197859a43c1a28840aef5e85603abda3c07c",
+      "bytes": 2714
+    },
+    {
+      "path": "/storage/CliPP2/PyCloneVI_runs/CliPPSim4K_CNfirst_20260924_export_recovery_v1/post_process.patch",
+      "sha256": "16ab4da62212fde570d2fc016221f0685abeedaa034cc6689ea2feb334168a45",
+      "bytes": 692
+    },
+    {
+      "path": "/storage/CliPP2/PyCloneVI_runs/CliPPSim4K_CNfirst_20260924_export_recovery_v1/test_export.py",
+      "sha256": "ee5c7019711ea37906aa314a2aa26d96c31d4421f9d3e7b8f139962e72d68401",
+      "bytes": 1927
+    }
+  ]
+}

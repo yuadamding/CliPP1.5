@@ -1,7 +1,14 @@
 # Full single-region evaluation of CliPP1.5 0.3.0
 
-The production changes are integrated and the full evaluation was launched
-on September 21, 2026. Consult the current receipts below for live status.
+**Historical chain-era experiment.** This document describes the September 21
+0.3.0 source, candidate policy and metrics. It is not the current CUDA
+complete-graph specification, current clonal-label convention or active run
+authority. Use [the operations guide](benchmarks/OPERATIONS.md) and the local
+`results/CURRENT_RUNS.json` registry for current runs. Input/truth observations
+below remain source-bound evidence and should be revalidated for a new panel.
+
+The production changes described here were integrated and the full evaluation
+was launched on September 21, 2026. The receipts below belong to that experiment.
 No full-cohort accuracy claim is made until every planned tumor has a terminal
 receipt and the final audit passes.
 
@@ -85,8 +92,9 @@ canonical data. They were preparation issues, not fit failures.
 
 Use `benchmarks/run_four_cohorts.py freeze` with the prepared manifest and a
 fresh result directory, then execute its frozen controller. Existing evidence
-is never overwritten. The current run is already active: do not launch another
-controller or duplicate its tumors.
+is never overwritten. Do not use these historical commands to resume the current
+campaign or infer that its old owner remains active. Reconcile the requested
+attempt before launching another controller or duplicating any tumors.
 
 ## Integration qualification
 

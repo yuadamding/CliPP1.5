@@ -25,17 +25,24 @@ retained mutation population and truth hash. `validate_cpu_cohort.py` validates
 the output tables, provenance, selected candidate and final-refit cohort metrics.
 
 Each case gets a fresh process, one CPU affinity and one numerical thread.
-The pool uses 25 workers with a 3 GiB estimated numerical workspace budget,
-4 GiB RSS limit per worker and 12 GiB host headroom. The controller monitors
-memory and original per-case wall limits. Resource and numerical failures retain
-their receipts; unexpected setup, execution or validation failures stop refilling
-and drain admitted work. Outputs and submission receipts are never overwritten.
+The initial September 23 pool used 25 workers with a 3 GiB estimated numerical
+workspace budget, 4 GiB RSS limit per worker and 12 GiB host headroom. Read the
+current frozen plan for actual limits; later authorized timeout recoveries have
+their own contracts. The controller monitors memory and per-case wall limits.
+The current phase-aware worker isolates scientific, resource, timeout and
+unexpected fitting failures. Setup/input, output-validation and reconciliation
+errors halt refilling while admitted work drains. Earlier frozen controllers
+retain their original behavior. Outputs and submission receipts are never
+overwritten. See [recovery behavior](COHORT_RECOVERY.md) and
+[ownership lessons](OPERATIONS.md#cpu-ownership-and-recovery).
 
-The LSF handoff preserves every previously accepted job and completed import.
-Only unsubmitted cases within the CPU memory estimate go to the local pool.
-Larger cases remain assigned to LSF. The replacement GPU submitter holds the
-original controller lock and retains the original GPU source, workers and
-15-job cap. The immutable partition prevents duplicate case ownership.
+The initial LSF handoff preserved every previously accepted job and completed
+import. Only unsubmitted cases within the CPU memory estimate went to the local
+pool. Larger cases remained assigned to LSF. That replacement GPU submitter held
+the original controller lock and retained the original GPU source, workers and
+15-job cap. Subsequent source-changing recoveries have separate owners and
+import maps. The canonical local `results/CURRENT_RUNS.json` registry binds the
+current assignment; immutable partitions prevent duplicate case ownership.
 
 The frozen controller entry point is:
 

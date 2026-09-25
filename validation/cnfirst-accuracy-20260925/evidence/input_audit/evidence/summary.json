@@ -1,0 +1,55 @@
+{
+  "created_utc": "2026-09-25T18:27:44.354354+00:00",
+  "checks": {
+    "cases": 193,
+    "mutations": 41712,
+    "normal_cn_mismatch": 0,
+    "purity_mismatch": 0,
+    "counts_mismatch": 0,
+    "cn_mismatch": 0,
+    "truth_mismatch": 0,
+    "pyclone_mismatch": 0,
+    "phylogic_mismatch": 0,
+    "truth_outside_support": 0,
+    "truth_outside_upper": 0
+  },
+  "max_purity_absolute_difference": 0.0,
+  "binomial_residual_mean": -0.009515148106533781,
+  "binomial_residual_mean_square": 1.0069956726014724,
+  "oracle_equal_mean_ari": 0.6386875608856055,
+  "oracle_frequency_mean_ari": 0.7091650322894412,
+  "oracle_equal_multi_mean_ari": 0.587376918644508,
+  "oracle_frequency_multi_mean_ari": 0.6678630250406045,
+  "classification_counts": {
+    "diploid_errors": 1222,
+    "diploid_n": 23671,
+    "cna_errors": 2951,
+    "cna_n": 18041
+  },
+  "pilot": {
+    "mean_absolute_error": 0.14123229219146832,
+    "alias_closer_fraction": 0.26546317606444186,
+    "lower_alias_closer_fraction": 0.2603807057920982,
+    "higher_alias_closer_fraction": 0.00508247027234369
+  },
+  "source_hashes": {
+    "/storage/CliPP2/CNfirst4K_CliPP15_performance_20260925T181236Z/CLIPP15_RESULTS.json": "8e6c594c18e2082b6b947c97eb0c57f061f78b307ec53d23650da747e9e3cddc",
+    "/storage/CliPP2/CliPP1.5/results/cnfirst-pool14-20260925-v1/CASES.json": "88c563b9e0ae54de53f32dcef59026c6b21185a82f84ccd1ec8156e0175cd3f9",
+    "/storage/CliPP2/PyCloneVI_runs/CliPPSim4K_CNfirst_20260924_binomial_c20_r1000_cpu28/cases.json": "a9af61f57d0904da5f721acd351cd1b0618f45fe4502124364075064cb3ed3f9",
+    "/storage/CliPP2/PhylogicNDT_runs/CliPPSim4K_CNfirst_20260924_ni1000_cpu28/cases.json": "efcb6c038e82b048a8718294312184a0cf2ec42339e176b72067637518a6f5af",
+    "/storage/CliPP2/CliPPSim4K_CNfirst_20260924/generation_manifest.json": "605c3a67c3b0ce54fc63b5d88cb81671294aa5e47e8b50fe016fa04a33f4c54b",
+    "/storage/CliPP2/CliPP1.5/results/cnfirst-pool14-20260925-v1/source/src/clipp1d/model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+    "/storage/CliPP2/CliPP1.5/results/cnfirst-pool14-20260925-v1/source/src/clipp1d/cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466"
+  },
+  "script_sha256": "5462b225b40e4c307dcccfa3c567cb0a3426cd979d19b52b4bd8f3f94e06e415",
+  "definitions": {
+    "population": "All 193 validated cases in the fixed export; all 41,712 retained mutations.",
+    "oracle": "True centers are fixed. Assignment uses exact uniform-multiplicity marginal binomial log likelihood, either equal cluster probabilities or known true cluster frequencies. No optimization/refit. Not deployable performance and not an ARI upper bound.",
+    "alias": "For observed truth CCF phi and multiplicity m, feasible alternate CCF phi*m/q for q in 1..major CN. Alias closer means a different q beats distance to truth by >1e-12.",
+    "graph": "Source-equivalent inverse-pilot-gap weights, adjacent-positive-gap median floor and global mean-one normalization. Reconstructed from full-precision saved pilot; not a device-tensor-certified replay.",
+    "graph_pairs": "Ordered focal/neighbor pairs; low-m CNA means CN not1/1 and true_m<major. Same/different refer to truth cluster membership.",
+    "wrong_weight": "Per mutation average weight to wrong truth-cluster mutations exceeds average weight to own truth-cluster neighbors. K1 excluded.",
+    "purity": "Numerical mismatch threshold 1e-12; serialization maximum separately reported.",
+    "cna": "Any CN except1/1, including balanced amplification."
+  }
+}

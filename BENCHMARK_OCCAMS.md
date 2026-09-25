@@ -1,9 +1,79 @@
-# OCCAMS matched-input CPU run
+# OCCAMS runs
+
+## September 24 reassignment: ten A100s plus four H100s
+
+The user stopped Regional-CN and reassigned its ten A100 workers to OCCAMS.
+Regional-CN's completed outputs remain preserved; its exact Job and Pods were
+removed after stopping its supervisor. `results/CURRENT_RUNS.json` records the
+stop override. Do not relaunch Regional-CN from an older registry assignment.
+
+The user subsequently requested one shared pool for all fourteen GPUs.
+`results/CURRENT_OCCAMS.json` identifies the draining predecessors and the
+shared queue's A100/H100 workers. Two device-specific Kubernetes Jobs consume
+the same 548-case queue through atomic claims; there are no fixed case subsets
+or worker shards. The original predecessor retains its 18 accepted results
+and four active fits at handoff. All 570 cases have unique ownership; small
+qualification repeats are separate from cohort completion. The numerical
+source and fit settings are unchanged from the fresh campaign below.
+
+A100 routing requires the existing memory estimate to fit within 70% of a
+conservative 39-GiB baseline; the per-case runtime guard still applies.
+Each device pool must pass static, compiled FP64 capacity and separate real-fit
+qualification before expansion. Workers claim the next eligible case when
+free; H100s can claim from the entire queue. Claims are never stolen after a
+crash. Replacements wait for exact predecessor Job/Pod and owner absence.
+Reserved H100 frontier cases are released only after the old H100 generation
+is absent. The combined allocation cap is ten A100s and four H100s throughout
+handoff. See the pointer's report and status command for actual Ready/Running
+allocation and gate outcomes. Memory remains per GPU for each individual fit.
+
+## September 24, 2026: fresh four-H100 run
+
+The user requested all OCCAMS inputs on four H100 workers, then explicitly
+requested a full restart and deletion of existing results. The new attempt
+imports **zero results** and includes all **570 single-region inputs** from
+the reference manifest below. Original compressed input bytes, basenames and
+retained mutation IDs were checked with the current CliPP1.5 reader.
+
+Use `results/CURRENT_OCCAMS.json` for the exact attempt, source and read-only
+status command. This campaign is independent of the active four-cohort
+CPU/LSF/A100 campaign. The current production fit is unconstrained PyTorch
+CUDA, float64, complete graph, with the closest-to-one refitted cluster labeled
+0. OCCAMS has no supplied simulation truth: cluster count, sMF and numerical
+status are descriptive results, not accuracy measurements.
+
+On September 24, 85 files in 17 previous local CliPP1.5 OCCAMS result
+directories were deleted at the user's request. File hashes and terminal
+metadata were recorded in
+`results/occams-h1004-20260924-v1/DELETE_PRIOR_OUTPUTS_INTENT.json`; deletion
+was verified in `DELETE_PRIOR_OUTPUTS_COMPLETE.json`. Inputs, CliPP2 reference
+results and unrelated simulations were retained. No old OCCAMS result is
+eligible for import into this full restart.
+
+Each worker uses one H100; memory is not pooled across workers. The unchanged
+production preflight estimates `256*N*N + 8,388,608` device bytes and compares
+that with 70% of currently free memory. Using a conservative 78 GiB device
+baseline, 244 cases fall within this estimate and 326 exceed it. These are
+planning estimates, not completed resource failures. Every scheduled case
+still receives its actual runtime guard; failures are reported separately.
+The largest input contains 32,504 retained mutations. Qualification probes
+N=15,499, the largest input potentially admitted within the allowed 78–82 GiB
+H100 profile, followed by a complete real small-case fit before scaling to four.
+
+The first qualification Job was cleaned up before any scientific fit. Its
+single-worker static manifest accidentally inherited Indexed completion mode;
+Kubernetes inserted `JOB_COMPLETION_INDEX`, triggering the strict Pod-spec
+guard. The replacement uses NonIndexed mode for static qualification and
+Indexed mode with an explicit index field for the four execution queues.
+Do not relax the admission comparison to hide unexpected changes.
+
+## Historical September 21 CPU plan
 
 Historical scope: this document records the September 21, 2026 source-bound CPU
 plan and its historical output contracts. It is not live run status or authority
 to launch or restart the plan. Statements about production and active jobs below
-refer to that recorded attempt; its receipts and evidence remain unchanged.
+refer to that recorded attempt. The deletion and missing-path notes above
+supersede historical statements about the availability of its fit outputs.
 
 The current 0.5.0.dev0 [production framework](docs/CUDA_FRAMEWORK.md) requires
 CUDA. The historical OCCAMS runner rejects the current CUDA-only package before

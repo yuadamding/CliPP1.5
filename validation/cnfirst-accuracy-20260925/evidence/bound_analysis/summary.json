@@ -1,0 +1,26 @@
+{
+  "cases": 193,
+  "public_multiplicity_calls_reproduced": 83424,
+  "selected_at_upper_boundary": 0,
+  "path_truncated": 0,
+  "paths_without_one_cluster_candidate": 0,
+  "cn_clonal_wrong_label": 3772,
+  "cn_clonal_wrong_label_overcalled_m": 3596,
+  "cn_clonal_wrong_label_correct_m": 176,
+  "original": {
+    "cna_macro_f1": 0.6551137975700229,
+    "cna_micro_f1": 0.6592206640430132,
+    "cna_m_overcalled": 4962,
+    "cna_m_undercalled": 1186,
+    "clonal_cna_ccf_bias": -0.17364185698643703,
+    "clonal_cna_dosage_relative_error": 0.05922279287884077
+  },
+  "diagnostic": {
+    "cna_macro_f1": 0.7907655334148886,
+    "cna_micro_f1": 0.800565378859265,
+    "cna_m_overcalled": 1656,
+    "cna_m_undercalled": 1942,
+    "clonal_cna_ccf_bias": -0.05184397179824694,
+    "clonal_cna_dosage_relative_error": 0.03705219203557902
+  }
+}

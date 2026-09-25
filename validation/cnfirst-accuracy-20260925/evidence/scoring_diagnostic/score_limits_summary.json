@@ -1,0 +1,20 @@
+{
+  "multi_cases": 169,
+  "oracle_relation": {
+    "lower": 136,
+    "higher": 33
+  },
+  "higher_selected_count": {
+    "under": 13,
+    "over": 12,
+    "equal": 8
+  },
+  "higher_gap": {
+    "minimum": 0.20036320845167677,
+    "median": 0.25295335987487655,
+    "maximum": 0.5760782529242348
+  },
+  "known_truth_scope": "Exact frozen-model likelihood evaluated at known true CCFs; feasible points, not optimized scores.",
+  "oracle_scope": "1025-grid/local-minima approximate refit of known memberships; not globally certified.",
+  "script_sha256": "c12e8c4288d40803fb5bcd789c5fb06407515a87fe2ab9c7bdc95dee94fff981"
+}

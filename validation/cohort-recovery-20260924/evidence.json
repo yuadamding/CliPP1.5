@@ -1,0 +1,115 @@
+{
+  "files": {
+    "benchmarks/lsf_admission.py": {
+      "bytes": 2132,
+      "sha256": "13f02742d9853a292ffb8bc9ccc44f5361af5ab6226a53da6beca60bbe2bc666"
+    },
+    "benchmarks/research_transport.py": {
+      "bytes": 2340,
+      "sha256": "128fc39e3135082a766f6e12385c53c4f46eb5bebebd29cd175fba0bdd987b4f"
+    },
+    "results/cuda-surrogate-empirical-20260924-v4/CONTROLLER_INVENTORY.json": {
+      "bytes": 890,
+      "sha256": "a6b047478ce93b63e2aec1bdc1aee83f546528d2c8af9b48073460fdea265f01"
+    },
+    "results/cuda-surrogate-empirical-20260924-v4/LAUNCH.json": {
+      "bytes": 179,
+      "sha256": "307fc364c1b10cedba41a4b7bad1f3500e634d93d6b3ff017423e8fdbf3b5660"
+    },
+    "results/cuda-surrogate-empirical-20260924-v4/STUDY_PLAN.json": {
+      "bytes": 34442,
+      "sha256": "a71d49f135aae54c3dbf10aa6c4f56eaf00e550ab70ef3b18b1e0803b7528a8d"
+    },
+    "results/cuda-surrogate-empirical-20260924-v4/controller-started.json": {
+      "bytes": 274,
+      "sha256": "06e59e345951616302074e354f110366fb38845b82fa34a0943d0cabee20fd7d"
+    },
+    "results/cuda-surrogate-timing-20260924-v4/CONTROLLER_INVENTORY.json": {
+      "bytes": 795,
+      "sha256": "a3238fe03c3280c7cebb32250c6343dcb3fcabdb8bbc5379b831f86430701649"
+    },
+    "results/cuda-surrogate-timing-20260924-v4/LAUNCH.json": {
+      "bytes": 179,
+      "sha256": "0ace5d5ab4fbe1b49ed2b17a5a66a22f28d48787f51e893c281f22c4d1473858"
+    },
+    "results/cuda-surrogate-timing-20260924-v4/STUDY_PLAN.json": {
+      "bytes": 419,
+      "sha256": "5c6ce59b5b9cc77d94f82a04702ff2efc4e9c60cfe19755ee051f8ab95541f6c"
+    },
+    "results/cuda-surrogate-timing-20260924-v4/below512-import/IMPORT_MANIFEST.json": {
+      "bytes": 16504,
+      "sha256": "eea6ba2b0cdc654a642cb39040eca0335fdf165427aefbbcbf4ab9558c4122e5"
+    },
+    "results/cuda-surrogate-timing-20260924-v4/controller-started.json": {
+      "bytes": 1180,
+      "sha256": "af5be3453fdc08346979b81cdfcb139174d7ea46e2102d722cd1098faa171f1e"
+    },
+    "results/cuda-surrogate-timing-20260924-v4/mixed512-g/launch.json": {
+      "bytes": 2515,
+      "sha256": "7901e9268bec013202d1a532406719e1928ee9be4f90d436b35e022e40e850c4"
+    },
+    "results/lsf-recovery-20260924-v1/AMENDMENT_DIAGNOSIS.json": {
+      "bytes": 4726,
+      "sha256": "2019f3d3601a4dce0fca9ad11acdd96391f0251781d53ea7f047138dbef16785"
+    },
+    "results/lsf-recovery-20260924-v1/INITIAL.json": {
+      "bytes": 72284,
+      "sha256": "91fc722c6cc591d54d6a8ffd113464276de90d8c40e8f53e59ef3d77e63402c6"
+    },
+    "results/lsf-recovery-20260924-v1/PREPARED.json": {
+      "bytes": 12155,
+      "sha256": "4d2fe6bea1612006666d2883fffcec206d67ece1fca065e83904358a39a839f8"
+    },
+    "results/lsf-recovery-20260924-v1/RESEARCH_TERMINAL.json": {
+      "bytes": 2027,
+      "sha256": "47796b3e594b1bc3ed77f88dc79608df372d2dd294a5e2330660e85442f78bd0"
+    },
+    "results/lsf-recovery-20260924-v1/RUN_REGISTRY.json": {
+      "bytes": 26715,
+      "sha256": "bdcb444c780bf04f7cf583deadee582cb219583280a2e85ffbf2bd52d9498465"
+    },
+    "results/lsf-recovery-20260924-v1/TESTS.json": {
+      "bytes": 709,
+      "sha256": "7300ae3f62fc156cc4013aefe5b9c6d21201d16741bbd2dc35aa90df93be4465"
+    },
+    "results/lsf-recovery-20260924-v1/initial-snapshot.json": {
+      "bytes": 71214,
+      "sha256": "1b34642945e2c679c66553a3bac6928a7fd5632a6623d778ea68d09e935eba68"
+    },
+    "results/lsf-recovery-20260924-v1/launch.json": {
+      "bytes": 3373,
+      "sha256": "785d0f44a08e74977ddd46c5c6595f90f9faff9a72f6292f9e7f13521bc46b70"
+    },
+    "results/lsf-recovery-20260924-v1/publication.json": {
+      "bytes": 2474,
+      "sha256": "809b63614c44d5d5d9b74cbd3e7b640a6e4ce7bdc274ba0870c801c48aaa0746"
+    },
+    "results/lsf-recovery-20260924-v1/release-reconciled-held.json": {
+      "bytes": 2451,
+      "sha256": "1407eadb5734467057af2bbec45872b9581c92027bacc86df8f799089c15e465"
+    },
+    "results/lsf-recovery-20260924-v1/repair-held.json": {
+      "bytes": 2668,
+      "sha256": "9b208f6ba2e98729b4f8f4d64ee378f82c0833a0a8bcb4525c62580534f03342"
+    },
+    "results/lsf-recovery-20260924-v1/snapshot-20260924T084523151307Z/SNAPSHOT.json": {
+      "bytes": 402576,
+      "sha256": "4c90c5c5954615a62d384794b67f9b6f5bb517ac82bca66e60e2b111c628c336"
+    },
+    "results/lsf-recovery-20260924-v1/test_recovery.py": {
+      "bytes": 2533,
+      "sha256": "59a0ae5a75bfc1eebcad419110732be3dac955732cbeb9ab245d176ea42573c7"
+    },
+    "tests/test_lsf_admission.py": {
+      "bytes": 1474,
+      "sha256": "4e55640dae4e70ab415dffbca6cfff331df8cd01a2d5610f9815d6d961419db7"
+    },
+    "tests/test_research_transport.py": {
+      "bytes": 1948,
+      "sha256": "c26d19a95fb8d7192d584febb4f1e06fa4f4f2726ea53463a7972d2f9ea3acf1"
+    }
+  },
+  "recorded_utc": "2026-09-24T08:49:06.388905+00:00",
+  "schema": "clipp1d.operational.recovery.evidence.v1",
+  "scope": "Actual retained artifacts; results paths are workstation-local and ignored by git"
+}

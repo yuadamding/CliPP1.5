@@ -1,0 +1,367 @@
+{
+  "hash_rule": "file_sha256 values below are SHA-256 of actual saved bytes; recorded receipt fields are identified separately",
+  "lsf_deferred_retries": {
+    "admission_gate": "Both existing LSF owners finished and every accepted job reconciled; qualify independently before retries.",
+    "case_budget": "One retry per named 360-minute timeout, 1080 minutes; unchanged numerical budgets",
+    "case_keys": [
+      "000512",
+      "001187",
+      "001282"
+    ],
+    "controller_phase": "waiting_for_predecessors",
+    "launch_extraction": "stdout line starting RECEIPT=, decoded JSON /progress",
+    "launch_source": "results/lsf-timeout-retries-20260923-v1/launch.json",
+    "max_submitted": 15,
+    "new_active_jobs": 0,
+    "queue_hard_minutes_observed": 30240,
+    "remaining_to_submit": 3,
+    "remote_root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_timeout_retries_20260923a",
+    "retry_parents": {
+      "000512": {
+        "job_id": "77346183",
+        "reconciled_sha256": "eade3a317aca199166ee2fc746263ca75a71018a70982df6ae19ee16a91a012c",
+        "root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_fourcohorts_20260923d"
+      },
+      "001187": {
+        "job_id": "77346185",
+        "reconciled_sha256": "9204bef089242131bbb62bd84f7b0bb59965d5f3803b8ef26d04881dbeaf4b45",
+        "root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_fourcohorts_20260923d"
+      },
+      "001282": {
+        "job_id": "77346184",
+        "reconciled_sha256": "16484c9041f1f08f348b1a7848fd42ae07b0b3dde9642da5d220b8627e7b404d",
+        "root": "/rsrch8/scratch/bcb/yding4/clipp2_clipp1d_fourcohorts_20260923d"
+      }
+    },
+    "source": "results/lsf-timeout-retries-20260923-v1/PREPARED.json",
+    "updated_utc": "2026-09-24T01:24:51.960390+00:00"
+  },
+  "original_files": [
+    {
+      "bytes": 5164,
+      "file_sha256": "b4fbf0dc3dd748743a2a00938678bcbd2cae137278b64b8f461b7e3e0c537c76",
+      "path": "results/a100-node-recovery-20260923-v1/README.md"
+    },
+    {
+      "bytes": 15439,
+      "file_sha256": "f896fcf45d790f2f61ffd4117b9601293edb2b270889c7199dddaa13683a42fe",
+      "path": "results/a100-node-recovery-20260923-v1/SOURCE.json"
+    },
+    {
+      "bytes": 605909,
+      "file_sha256": "4024888eb04db10bb329f6d3b7e10f2ff774c4720a37d51d2331264e5ff135df",
+      "path": "results/a100-node-recovery-20260923-v1/source.tar.gz"
+    },
+    {
+      "bytes": 22056,
+      "file_sha256": "0b20055c1c368523d6ed0c4600cae7bff3b494ee4ef15914c70f2e6f229a9a24",
+      "path": "results/a100-node-recovery-20260923-v1/changes.patch"
+    },
+    {
+      "bytes": 710,
+      "file_sha256": "b6063a7af60b14388618301dd134b28b77be5e1607e196954be62728503a4cef",
+      "path": "results/a100-node-recovery-20260923-v1/TESTS.json"
+    },
+    {
+      "bytes": 3277,
+      "file_sha256": "b0a9cca0e500becbeda8f3aaf92c5909192e16fd4341ce3fcae4227d17c34583",
+      "path": "results/a100-node-recovery-20260923-v1/RELAUNCH_PLAN.json"
+    },
+    {
+      "bytes": 442,
+      "file_sha256": "039248aba89d048934b0c7c908353e7574a4135142761659415667bfa29fdaef",
+      "path": "results/a100-node-recovery-20260923-v1/PARENT_ABSENCE.json"
+    },
+    {
+      "bytes": 348946,
+      "file_sha256": "88b09b53dee570969e22dbffde625d7709ac16b10b917137ad26689c6c10a311",
+      "path": "results/a100-node-recovery-20260923-v1/PARENT_REVALIDATED.json"
+    },
+    {
+      "bytes": 183,
+      "file_sha256": "c72d40a73bab97e3e698a136aa91c32e52e4c1a5ab29ec72e218b9cad0a1799e",
+      "path": "results/a100-node-recovery-20260923-v1/GPU_HANDOFF.json"
+    },
+    {
+      "bytes": 2494,
+      "file_sha256": "d5db8852b226caf0740f5a854e33f1422c3a56846d102c9ef4f0cfd0d9537d27",
+      "path": "results/a100-node-recovery-20260923-v1/RECOVERY_COMPLETE.json"
+    },
+    {
+      "bytes": 23408,
+      "file_sha256": "da09afa2d9204a19b72634f8ab3a8df98b1a6a41f5281db1757a62c04e75688d",
+      "path": "results/a100-node-recovery-20260923-v1/RUN_REGISTRY.json"
+    },
+    {
+      "bytes": 337387,
+      "file_sha256": "cd25696653a124c2f9b7d871a642e788966afb6189a0ca7d2ebf473c54715980",
+      "path": "results/a100-node-recovery-20260923-v1/snapshot-20260924T012548216891Z/SNAPSHOT.json"
+    },
+    {
+      "bytes": 4519,
+      "file_sha256": "cba63a4deba6ac6d468182f3b1547f611efabf55a1d86a18fdfcf33a3522d771",
+      "path": "results/cpu-identity-recovery-20260923-v1/README.md"
+    },
+    {
+      "bytes": 15439,
+      "file_sha256": "c3388825e1afb83e5bd41184b28f9633c6a87a7993e3149a4b30a68f78c2cbff",
+      "path": "results/cpu-identity-recovery-20260923-v1/SOURCE.json"
+    },
+    {
+      "bytes": 605091,
+      "file_sha256": "5ea32199f7a1fc64a605110b77fd613a5b5abf7b48f3f1459dc430292257b873",
+      "path": "results/cpu-identity-recovery-20260923-v1/source.tar.gz"
+    },
+    {
+      "bytes": 129,
+      "file_sha256": "1501b8a2bebaeb0ff823ac9d77cb7140ca20db9d485d779bd801ae3f059239c0",
+      "path": "results/cpu-identity-recovery-20260923-v1/TESTS.json"
+    },
+    {
+      "bytes": 52439,
+      "file_sha256": "834ebba3a42978d6f5b64bed4e0679d181d39ea8e8343d1ea4489563dc32ba23",
+      "path": "results/cpu-identity-recovery-20260923-v1/CPU_RELAUNCHED.json"
+    },
+    {
+      "bytes": 26263,
+      "file_sha256": "7f40cd891c09d1725b63d469faf106a72275a3197de113d1b234e72a73932b90",
+      "path": "results/cpu-identity-recovery-20260923-v1/snapshot-20260924T010139170766Z/A100_DIAGNOSIS.json"
+    },
+    {
+      "bytes": 631,
+      "file_sha256": "1406711832d55bbac6b3c0bb21f0a8c6680736f302c5de4a2739aa7b5b525e1c",
+      "path": "results/regionalcn-a10010-20260923-v5/BUNDLE.json"
+    },
+    {
+      "bytes": 4515741,
+      "file_sha256": "2a0338a27d22b2ce292e86506e0d40065b93acb44ec550f30c6765ee7b519fb7",
+      "path": "results/regionalcn-a10010-20260923-v5/payload.tar.gz"
+    },
+    {
+      "bytes": 789965,
+      "file_sha256": "0ae427feab0e42a7b89cbfdda90fc59c14d4a89003be0081a731c3a3cedf8740",
+      "path": "results/regionalcn-a10010-20260923-v5/payload/plan.json"
+    },
+    {
+      "bytes": 11849,
+      "file_sha256": "63281fb8162acca0bacdd7a002cca83d380dea5262de8280ad0bc416b66e734f",
+      "path": "results/regionalcn-a10010-20260923-v5/payload/INVENTORY.json"
+    },
+    {
+      "bytes": 7030,
+      "file_sha256": "c29250e38a987fb5568a7e3a6ff55b8723220064dbb7be812f7d2a829d885151",
+      "path": "results/regionalcn-a10010-20260923-v5/payload/gpu.manifest.json"
+    },
+    {
+      "bytes": 6719,
+      "file_sha256": "50be2181840b9feeb5b429dee6bbb724f71616bc68821cab9ce91588ced06053",
+      "path": "results/regionalcn-a10010-20260923-v5/payload/static.manifest.json"
+    },
+    {
+      "bytes": 13517,
+      "file_sha256": "24b688e19ec9efcbbc09cea5e287a54b1b3658f6ee4947ddde080f70fc354400",
+      "path": "results/regionalcn-a10010-20260923-v5/payload/a100_worker.py"
+    },
+    {
+      "bytes": 18114,
+      "file_sha256": "f9b426b992f11f534d280314bc33d4f1990bfff424d0c37f5467fbf0ca8af428",
+      "path": "results/regionalcn-a10010-20260923-v5/payload/lifecycle.py"
+    },
+    {
+      "bytes": 1041,
+      "file_sha256": "9129fd3f9e9912df1172d6062d7cad299ba365e0a0e15f64cd59184c3983b6a1",
+      "path": "results/lsf-timeout-retries-20260923-v1/README.md"
+    },
+    {
+      "bytes": 9983,
+      "file_sha256": "1eb470af02f15292d9d105bab3ca97a4a5c80129ef5b55b7b26f4c7bbb9767d7",
+      "path": "results/lsf-timeout-retries-20260923-v1/PREPARED.json"
+    },
+    {
+      "bytes": 414,
+      "file_sha256": "2123ea83a13aa50e0cc007ef69d74c6d25a5dc050eefe8aa84e6c61c46e0d200",
+      "path": "results/lsf-timeout-retries-20260923-v1/RETRY_PROOF.json"
+    },
+    {
+      "bytes": 5557,
+      "file_sha256": "9e6b8a2b7a62affddde8d25c1cad2070fc44da969ed6a8bf4e78b20089b056c0",
+      "path": "results/lsf-timeout-retries-20260923-v1/launch.json"
+    },
+    {
+      "bytes": 1000402,
+      "file_sha256": "b47a5626289236ca444d1d207d38d1117482a40d1d21923d468987c53b1e5905",
+      "path": "results/lsf-timeout-retries-20260923-v1/clipp2_clipp1d_timeout_retries_20260923a.tar.gz"
+    }
+  ],
+  "path_base": "repository root; results paths are local-only and ignored by Git",
+  "qualification": {
+    "a100_tests": {
+      "controller_simulation": "blocked and successful handoff passed",
+      "diff_check": "passed",
+      "focused_tests": 40,
+      "result": "passed",
+      "ruff": "passed",
+      "tests": {
+        "/storage/CliPP2/CliPP1.5/results/a100-node-recovery-20260923-v1/test_relaunch_controller.py": "a46d1c10c36d47710e691f6e36651adabaf0a71af7eaddb88fefbfb0be1e39fa",
+        "tests/test_a100_cohort_dispatch.py": "8a0995e44f92ea84e011545c4f78da77c5053467d7f8564822c65cf1d4710c8f",
+        "tests/test_a100_lifecycle.py": "455ee57ecabe341cf2d6ffcc3da0e0c1b3f8559396109dfdda878006eb63039d",
+        "tests/test_cohort_failures.py": "97b4ef4f54e2faf526b224bc60439f63236929c59381686c195d21b3313ac1c5"
+      },
+      "utc": "2026-09-24T01:17:25.188234+00:00"
+    },
+    "audit_limit": "Invalid-cut arithmetic root cause not proven; rejection and containment were qualified.",
+    "audit_scope": "Injected invalid cut inputs are rejected; valid stationary fixture remains certified",
+    "canary": {
+      "after_source": "b16f1fc8068351aeeb75dfe0f940a205d2699347f3ce0799f0e349cbf51aba99",
+      "before_source": "40c5304905d3e86832e22832e768bc9fe61cb291351358680d9053e93dd9505c",
+      "graph_identical": true,
+      "key": "000029",
+      "labels_identical": true,
+      "max_ccf_error": 0.0,
+      "mutations": 270,
+      "passed": true,
+      "plan_sha256": "0ae427feab0e42a7b89cbfdda90fc59c14d4a89003be0081a731c3a3cedf8740",
+      "qualification_repeat": true,
+      "score_delta": 0.0,
+      "utc": "2026-09-24T01:22:42.656709+00:00",
+      "validated_sha256": "9c03d8d04dd8e86700578a8fe047ca27c14cbd8d893f03ea22f1e3aacec2dd76"
+    },
+    "capacity": {
+      "maximum_n": 4143,
+      "passed": true,
+      "peak_reserved_bytes": 2195718144,
+      "plan_sha256": "0ae427feab0e42a7b89cbfdda90fc59c14d4a89003be0081a731c3a3cedf8740",
+      "utc": "2026-09-24T01:20:14.753157+00:00"
+    },
+    "capacity_scope": "Synthetic complete-graph QP resource probe; no full-fit speed or cohort accuracy claim.",
+    "cpu_tests": {
+      "diff_check": "passed",
+      "focused_passed": 31,
+      "numerical_source_unchanged": true,
+      "ruff": "passed",
+      "seconds": 3.02
+    },
+    "cuda_audit_passed": true,
+    "focused_tests_including_lsf_retry_gate": 44,
+    "json_pointer": "/remote/a100",
+    "recorded_remote_gate_file_hashes": {
+      "canary_sha256": "e46a8aac5d3998f2073cf348864d242e0ef45d6d2190c205f6ee050427bb4635",
+      "capacity_sha256": "4f9305ddeb7e5f85ddc88d29380edceba4c2c0203b180519895903e7509e1a01"
+    },
+    "remote_hash_note": "These two hashes are fields captured in the saved scale receipt, not recalculated raw remote receipt files.",
+    "source": "results/a100-node-recovery-20260923-v1/snapshot-20260924T012548216891Z/SNAPSHOT.json",
+    "static_passed": true
+  },
+  "record_kind": "derived summary of saved local artifacts; no raw receipt files copied",
+  "recovery": {
+    "absence_gate": {
+      "observations": [
+        {
+          "job_absent": true,
+          "pods": [],
+          "pods_absent": true
+        },
+        {
+          "job_absent": true,
+          "pods": [],
+          "pods_absent": true
+        }
+      ],
+      "owner_absent": true,
+      "parent": "/rsrch8/home/bcb/yding4/clipp1d_regional_a10010_20260923d",
+      "passed": true,
+      "plan_sha256": "0b3d2253a96e171fb678185e54f13d122c4d968c0868989fa2da308a774179c5",
+      "uid": "d94fe901-e6f7-49d5-8a6d-f6956cac5284"
+    },
+    "absence_source": "results/a100-node-recovery-20260923-v1/PARENT_ABSENCE.json",
+    "cause_limit": "Shared CUDA/device-service loss on hpcgpu11 observed; underlying node/driver cause not proven.",
+    "clonal_constraint": false,
+    "clonal_label_rule": "nearest_to_one_l2_v1",
+    "excluded_nodes": [
+      "hpcgpu11"
+    ],
+    "gpu_handoff": {
+      "gpu_uid": "59164b8f-3467-45f1-90c0-0b96a52801ce",
+      "root": "/rsrch8/home/bcb/yding4/clipp1d_regional_a10010_20260923e",
+      "static_uid": "3c85af90-acac-4e34-bb08-8f8c4c57feb2"
+    },
+    "gpu_handoff_source": "results/a100-node-recovery-20260923-v1/GPU_HANDOFF.json",
+    "imported": 82,
+    "remaining": 118,
+    "source": "results/a100-node-recovery-20260923-v1/RELAUNCH_PLAN.json",
+    "worker_cap": 10
+  },
+  "schema": "clipp1d.dated_recovery_evidence.v1",
+  "scope": "Historical September 23, 2026 recovery; not live status or launch authorization",
+  "snapshot": {
+    "facts": {
+      "a100_hardware_verified": 10,
+      "a100_parallelism": 10,
+      "a100_ready": 10,
+      "cohorts": {
+        "CliPP2Sim1K_regionalCN_CNA0246_20260917": {
+          "failures": 0,
+          "planned": 200,
+          "validated_complete": 24,
+          "validated_incomplete": 58
+        },
+        "CliPPSim4K_tsv": {
+          "failures": 3,
+          "planned": 4000,
+          "validated_complete": 399,
+          "validated_incomplete": 41
+        },
+        "PhylogicNDT500_TSV": {
+          "failures": 2,
+          "planned": 500,
+          "validated_complete": 1,
+          "validated_incomplete": 0
+        },
+        "SimClone1000_TSV": {
+          "failures": 1,
+          "planned": 756,
+          "validated_complete": 125,
+          "validated_incomplete": 7
+        }
+      },
+      "cpu_active": 25,
+      "failed": 6,
+      "lsf_states": {
+        "PEND": 2,
+        "RUN": 10
+      },
+      "planned": 5456,
+      "snapshot_time": "2026-09-23 20:25:49 CDT",
+      "validated": 655,
+      "validation_errors": []
+    },
+    "json_pointer": "/summary",
+    "source": "results/a100-node-recovery-20260923-v1/snapshot-20260924T012548216891Z/SNAPSHOT.json"
+  },
+  "source_identity": {
+    "a100_gpu_manifest_sha256": "c29250e38a987fb5568a7e3a6ff55b8723220064dbb7be812f7d2a829d885151",
+    "a100_inventory_sha256": "63281fb8162acca0bacdd7a002cca83d380dea5262de8280ad0bc416b66e734f",
+    "a100_payload_sha256": "2a0338a27d22b2ce292e86506e0d40065b93acb44ec550f30c6765ee7b519fb7",
+    "a100_plan_sha256": "0ae427feab0e42a7b89cbfdda90fc59c14d4a89003be0081a731c3a3cedf8740",
+    "a100_source_archive_sha256": "4024888eb04db10bb329f6d3b7e10f2ff774c4720a37d51d2331264e5ff135df",
+    "a100_static_manifest_sha256": "50be2181840b9feeb5b429dee6bbb724f71616bc68821cab9ce91588ced06053",
+    "base_commit": "a8a3ef7aaaeda8dffa8ac5fccef1cc4b77aa71f5",
+    "cpu_source_archive_sha256": "5ea32199f7a1fc64a605110b77fd613a5b5abf7b48f3f1459dc430292257b873",
+    "dirty_source": true,
+    "lsf_retry_archive_sha256": "b47a5626289236ca444d1d207d38d1117482a40d1d21923d468987c53b1e5905",
+    "numerical_source_sha256": "b16f1fc8068351aeeb75dfe0f940a205d2699347f3ce0799f0e349cbf51aba99",
+    "recorded_environment_fields": {
+      "compiler": {
+        "path": "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/x86_64-conda-linux-gnu-gcc",
+        "resolved": "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/x86_64-conda-linux-gnu-gcc",
+        "sha256": "b84b3a39da544e68b2eac6d285433431d58fa09d3aa2b5f925ed387127be5512",
+        "version": "x86_64-conda-linux-gnu-gcc (conda-forge gcc 15.1.0-5) 15.1.0"
+      },
+      "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+      "image": "hpcharbor.mdanderson.edu/yding41/credo_env@sha256:138d7191792ce1139708751f109817a976c5b96ba3a00be3dff88173b62eb21a",
+      "python": "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/python3.13"
+    },
+    "source_patch_sha256": "0b20055c1c368523d6ed0c4600cae7bff3b494ee4ef15914c70f2e6f229a9a24",
+    "warning": "Numerical source hash excludes operational helper identity; archives and manifests differ across attempts."
+  }
+}

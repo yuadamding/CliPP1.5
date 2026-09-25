@@ -1,0 +1,9 @@
+{
+  "cases": 68,
+  "maximum_processes": 4,
+  "selection": "union of cases where truth or PyClone partition failed to lower published score on 1025-grid diagnostic",
+  "maximum_absolute_score_difference": 9.84665093710646e-05,
+  "script_sha256": "0f9f0948fceae849d562c71f431d1da3670e667f24e335673fe7475d7afb283e",
+  "diagnostic_script_sha256": "09c8e7dd4df10893d56637c733cdad1cdb35ac287b604ac6f70cc253e7f24890",
+  "limitations": "Grid agreement is a sensitivity check, not a global scalar certificate."
+}
