@@ -23,6 +23,7 @@ from .cuda.policy import CudaPolicy, QualificationError
 from .cuda.selection import fit_tensor_model
 
 SCHEMA = "clipp1d.cuda.run.v3"
+PARTITION_SCHEMA = "clipp1d.cuda.run.v4"
 BASE_COMMIT = "371003ffcadcc57e23c62df5901d9463085cceea"
 
 
@@ -49,6 +50,7 @@ class FitResult:
     partition_labels: np.ndarray
     candidate_provenance: dict
     operation_metrics: dict | None = None  # Return-only completion; never a self-timed receipt.
+    partition_estimate: object = None  # Separately qualified development estimator, never a raw fit.
 
     def __post_init__(self):
         for name in ("pilot_phi", "raw_phi", "refitted_phi", "cluster_labels", "cluster_centers",
@@ -63,7 +65,8 @@ class FitResult:
 
     def _metadata_hash(self):
         payload = dict(raw=self.raw_diagnostics, source=self.provenance, candidate=self.candidate_provenance,
-                       operation=self.operation_metrics)
+                       operation=self.operation_metrics,
+                       partition=None if self.partition_estimate is None else self.partition_estimate.identity())
         return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
 
@@ -152,13 +155,16 @@ def _validate_device_fit(d):
     # Contexts own full snapshot checks at entry and exit, including exceptions.
     with d.model.validated_stage(), d.graph.validated_stage():
         _validate_device_fit_owned(d)
+        if d.partition_estimate is not None:
+            from .partition_output import validate_device_partition
+            validate_device_partition(d)
 
 
-def _validate_device_fit_owned(d):
+def _validate_device_fit_owned(d, *, separate_exact_one=True):
     """Reconcile the selected device states before the final host boundary."""
     from .cuda.audit import audit_raw
     from .cuda.kernels import differences
-    from .cuda.partition import grouping, partition_score
+    from .cuda.partition import grouping
     m, p = d.model, d.policy
     m.validate()
     d.graph.validate()
@@ -199,26 +205,42 @@ def _validate_device_fit_owned(d):
     else:
         audit = audit_raw(m, d.raw.x, d.raw.dual, caps, None, p)
         require(audit.qualified, "raw state failing independent final stationarity audit")
-    expected_labels = grouping(d.raw.x, p.fusion_tol)[2]
+    expected_labels = grouping(d.raw.x, p.fusion_tol, separate_clonal=separate_exact_one)[2]
     require(torch.equal(expected_labels, d.refit.labels), "memberships unrelated to the selected raw state")
-    scalar = d.refit.scalar
-    k = d.refit.centers.numel()
-    require(scalar.phi.shape == (k,) and torch.equal(scalar.phi, d.refit.centers) and
-            torch.equal(d.refit.phi, d.refit.centers[d.refit.labels]), "mismatched scalar refit centers")
+    _validate_refit(m, d.refit, p)
+
+
+def _validate_refit(m, fitted, p):
+    """Common final qualification for raw-derived and explicit memberships."""
+    from .cuda.partition import canonical_labels, partition_score
+
+    def require(value, message):
+        if not bool(value):
+            raise QualificationError("Refusing to export " + message)
+
+    canonical, _, lengths = canonical_labels(fitted.labels)
+    require(torch.equal(canonical, fitted.labels) and fitted.labels.shape == m.lower.shape and
+            fitted.labels.device == m.device, "noncanonical explicit memberships")
+    scalar = fitted.scalar
+    k = fitted.centers.numel()
+    require(scalar.phi.shape == (k,) and torch.equal(scalar.phi, fitted.centers) and
+            torch.equal(fitted.phi, fitted.centers[fitted.labels]), "mismatched scalar refit centers")
+    require(torch.isfinite(fitted.phi).all() & (fitted.phi >= m.lower).all() & (fitted.phi <= m.upper).all(),
+            "explicit refit outside original bounds")
     require(scalar.qualified.all() & torch.isfinite(scalar.loss).all() & torch.isfinite(scalar.lower_bound).all() &
             torch.isfinite(scalar.gap).all() & (scalar.gap >= 0).all() &
             torch.equal(scalar.gap, (scalar.loss - scalar.lower_bound).clamp_min(0.)) &
             (scalar.gap <= p.scalar_atol + p.scalar_rtol * scalar.loss.abs()).all(),
             "unqualified secondary scalar refit")
-    require(torch.equal(d.refit.sizes, torch.bincount(d.refit.labels, minlength=k)) and
-            torch.equal(d.refit.gap, scalar.gap.sum()) and torch.equal(d.refit.loss, scalar.loss.sum()),
+    require(torch.equal(fitted.sizes, lengths) and
+            torch.equal(fitted.gap, scalar.gap.sum()) and torch.equal(fitted.loss, scalar.loss.sum()),
             "inconsistent refit membership sizes or scalar arithmetic")
-    refit_loss = m.loss(d.refit.phi).sum()
-    require((refit_loss - d.refit.loss).abs() <= 128 * torch.finfo(torch.float64).eps * (1 + refit_loss.abs()),
+    refit_loss = m.loss(fitted.phi).sum()
+    require((refit_loss - fitted.loss).abs() <= 128 * torch.finfo(torch.float64).eps * (1 + refit_loss.abs()),
             "secondary refit loss inconsistent with the model")
-    require(torch.equal(d.refit.score, partition_score(d.refit.loss, d.refit.sizes)),
+    require(torch.equal(fitted.score, partition_score(fitted.loss, fitted.sizes)),
             "secondary score inconsistent with its exact memberships")
-    require(d.refit.clonal == int((d.refit.centers - 1).abs().argmin()),
+    require(fitted.clonal == int((fitted.centers - 1).abs().argmin()),
             "secondary clonal designation inconsistent with closest-to-one rule")
 
 
@@ -286,6 +308,12 @@ def _export(device_fit, source, *, wall_started=None):
     # Materialize every remaining device scalar/array BEFORE the measurement.
     raw_multiplicity, refit_multiplicity = _host(raw_calls), _host(refit_calls)
     selected_lambda, score, raw_objective = float(d.lambda_value), float(d.refit.score), float(d.raw.objective)
+    partition_estimate = None
+    if d.partition_estimate is not None:
+        from .partition_output import export_partition
+        partition_estimate = export_partition(d, model_sha, graph_sha)
+        source.update(partition_search=asdict(d.partition_estimate.policy),
+                      partition_estimator_role="separate development estimate; primary raw estimator unchanged")
     m.validate(full=True)
     d.graph.validate(full=True)
     metrics = _device_metrics(m)
@@ -301,7 +329,8 @@ def _export(device_fit, source, *, wall_started=None):
     return FitResult(m.mutation_ids, pilots, raw, refitted, labels, centers,
                      raw_multiplicity, refit_multiplicity, selected_lambda,
                      score, raw_objective, None, d.raw.diagnostics, d.search_status,
-                     source, graph_sha, arrays["lower"], arrays["upper"], partition_labels, candidate)
+                     source, graph_sha, arrays["lower"], arrays["upper"], partition_labels, candidate,
+                     partition_estimate=partition_estimate)
 
 
 def _clonality(result):
@@ -417,6 +446,9 @@ def _validate_result(result, data, records):
     complete = all(r.get('raw_status') == r.get('refit_status') == 'qualified' and r.get('search_complete', False)
                    for r in records)
     require(result.search_status == ('complete' if complete else 'incomplete'), "false search completeness")
+    if result.partition_estimate is not None:
+        from .partition_output import validate_partition_result
+        validate_partition_result(result)
 
 
 def _prepared_result(result, preparation_started, wall_started, *, tables_written):
@@ -466,9 +498,15 @@ def _write_bundle(result, data, destination, records, *, preparation_started=Non
         for i, mid in enumerate(result.mutation_ids):
             w.writerow(prefix + [mid, result.raw_phi[i], result.multiplicity_calls[i],
                                  result.refitted_phi[i], result.refitted_multiplicity_calls[i]])
+    if result.partition_estimate is not None:
+        from .partition_output import write_partition_tables
+        write_partition_tables(result, data, destination)
     hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in destination.glob("*.tsv")}
     result = _prepared_result(result, preparation_started, wall_started, tables_written=True)
-    receipt_sha256 = _json(destination / "run.json", dict(schema=SCHEMA, status="success", search_status=result.search_status,
+    receipt_sha256 = _json(destination / "run.json", dict(
+          schema=SCHEMA if result.partition_estimate is None else PARTITION_SCHEMA,
+          partition_estimate=None if result.partition_estimate is None else result.partition_estimate.receipt(),
+          status="success", search_status=result.search_status,
           selected_lambda=result.selected_lambda, raw_objective=result.raw_objective,
           selection_score=result.selection_score, raw_witness_mutation_id=result.raw_witness_mutation_id,
           raw_diagnostics=result.raw_diagnostics, graph_sha256=result.graph_sha256, provenance=result.provenance,
@@ -529,7 +567,8 @@ def _publish(result, data, destination, records, *, wall_started=None):
 
 
 @torch.no_grad()
-def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:0"):
+def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:0",
+        partition_search=False, generic_partition_grouping=False):
     """Fit one sample on CUDA, default float64, with strict compiled tensor kernels.
 
     An unavailable CUDA device or compiler error is fatal. Numerical candidates
@@ -549,6 +588,10 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
     source.update(started_utc=started_utc, requested_device=str(device),
                   base_commit=BASE_COMMIT)
     try:
+        if not isinstance(partition_search, bool) or not isinstance(generic_partition_grouping, bool):
+            raise ValueError("Partition search controls must be boolean")
+        if generic_partition_grouping and not partition_search:
+            raise ValueError("Generic partition grouping requires partition_search")
         d = require_cuda(device)
         compiler = os.environ.get("CC")
         if not compiler or shutil.which(compiler) is None:
@@ -573,6 +616,8 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
         free, total = torch.cuda.mem_get_info(d)
         # Conservative preflight, not a claimed exact memory bound for compiler allocations.
         estimated = 32 * 8 * len(canonical) ** 2 + 64 * 4096 * 8 * 4
+        if partition_search:
+            estimated += 4 * 8 * len(canonical) ** 2  # Additional raw reference and worst-case N-by-K costs.
         if estimated > policy.memory_fraction * free:
             raise MemoryError(f"Dense complete-graph preflight needs approximately {estimated} bytes; {free} free")
         source.update(gpu_name=props.name, capability=list(torch.cuda.get_device_capability(d)),
@@ -585,10 +630,13 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
         model = TensorModel.from_host(canonical, d, compiled=True)
         _synchronize(d)
         phases["device_upload_and_compile_seconds"] = perf_counter() - upload_started
-        result_device = fit_tensor_model(model, policy)
+        from .cuda.refinement import PartitionSearchPolicy
+        search = PartitionSearchPolicy(separate_exact_one=not generic_partition_grouping) if partition_search else None
+        result_device = fit_tensor_model(model, policy, partition_search=search)
         _synchronize(d)
         for key in ("pilot_seconds", "graph_build_seconds", "path_seconds", "refit_seconds", "stage_integrity_seconds"):
             phases[key] = result_device.timings[key]
+        phases["partition_search_seconds"] = result_device.timings["partition_search_seconds"]
         source.update(numerical_stages=result_device.timings, phase_seconds=phases,
                       compilation_timing_scope="initial compiler admission in upload phase; lazy specializations charged to the executing phase")
         result = _export(result_device, source, wall_started=start)
@@ -609,7 +657,8 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
         return result
     except Exception as error:
         if destination is not None and not (destination / "run.json").exists():
-            _json(destination / "run.json", dict(schema=SCHEMA, status="failure", search_status="not_completed",
+            _json(destination / "run.json", dict(schema=PARTITION_SCHEMA if partition_search else SCHEMA,
+                  status="failure", search_status="not_completed",
                   error_type=type(error).__name__, message=str(error), provenance=source,
                   diagnostics=getattr(error, "diagnostics", {})))
         raise

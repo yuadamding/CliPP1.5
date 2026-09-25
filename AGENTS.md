@@ -12,6 +12,10 @@ It is a different scientific contract from the adjacent **CliPP2** repository.
   first, then multiplicity uniformly on 1..major CN, including balanced amplified
   loci. Preserve the original joint CN distribution and record the revised model
   identity; simulation truth does not constrain fits.
+- Partition-search development: [separate estimator contract](docs/PARTITION_SEARCH.md).
+  `--partition-search` retains the primary raw output and adds independently
+  qualified partition tables. It is opt-in pending allocated-CUDA and held-out
+  evidence; never relabel CPU replay as CUDA qualification.
 - Status, recovery or cohort evaluation: [operations and lessons](benchmarks/OPERATIONS.md).
   On this workstation, start from `results/CURRENT_RUNS.json`; do not infer the
   active attempt from directory names or an old progress message.

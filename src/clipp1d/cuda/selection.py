@@ -1,7 +1,8 @@
 """GPU graph-path candidates, membership refits, and unchanged allocation score.
 
-The score chooses a lambda; its selected raw penalized state remains primary.
-No direct partition proposal or post-refit constraint changes that raw state.
+The legacy score-selected raw state remains primary. Optional partition search
+streams qualified starts and returns an independent estimator; it never changes
+the raw continuation, the path-extension decision, or the baseline winner.
 """
 from dataclasses import dataclass
 from time import perf_counter
@@ -26,14 +27,15 @@ class DeviceFit:
     records: list
     timings: dict
     policy: CudaPolicy = CudaPolicy()
+    partition_estimate: object = None
 
 
 @torch.no_grad()
-def fit_tensor_model(model, policy=CudaPolicy(), *, lambda_values=None):
+def fit_tensor_model(model, policy=CudaPolicy(), *, lambda_values=None, partition_search=None):
     """Low-level CPU execution serves numerical tests, never public fallback."""
     boundary_started = _synchronized_time(model)
     with model.validated_stage():
-        result = _fit_tensor_model(model, policy, lambda_values=lambda_values)
+        result = _fit_tensor_model(model, policy, lambda_values=lambda_values, partition_search=partition_search)
     boundary_finished = _synchronized_time(model)
     # Include entry/exit integrity reconciliation in the numerical wall scope.
     # It is reported separately from the four inner numerical phases.
@@ -50,7 +52,7 @@ def _synchronized_time(model):
     return perf_counter()
 
 
-def _fit_tensor_model(model, policy, *, lambda_values):
+def _fit_tensor_model(model, policy, *, lambda_values, partition_search=None):
     started = _synchronized_time(model)
     pilots = pilot(model, policy)
     pilot_reuse = QualifiedPilot(model, pilots, policy)
@@ -62,6 +64,13 @@ def _fit_tensor_model(model, policy, *, lambda_values):
     graph_finished = _synchronized_time(model)
     graph_build_seconds = graph_finished - pilot_finished
     cache = LastPartitionCache(model, policy)
+    proposals = None
+    if partition_search is not None:
+        from .partition_search import PartitionSearch
+        from .refinement import PartitionSearchPolicy
+        if not isinstance(partition_search, PartitionSearchPolicy):
+            raise ValueError("partition_search requires an explicit PartitionSearchPolicy")
+        proposals = PartitionSearch(model, graph, pilot_reuse, policy, partition_search)
     refit_seconds = 0.
     if lambda_values is None:
         path = [reference.new_tensor(0.)]
@@ -81,7 +90,14 @@ def _fit_tensor_model(model, policy, *, lambda_values):
         record = dict(lambda_value=float(lam), raw_status="not_attempted", refit_status="not_attempted")
         begin = perf_counter()
         try:
-            raw = fit_lambda(model, graph, pilots, lam, previous, policy)
+            if proposals is not None:
+                proposals.begin_lambda(index, lam)
+            if proposals is not None and partition_search.all_starts:
+                raw = fit_lambda(model, graph, pilots, lam, previous, policy, on_qualified=proposals.observe)
+            else:
+                raw = fit_lambda(model, graph, pilots, lam, previous, policy)
+                if proposals is not None:
+                    proposals.observe(raw, "raw_winner")
             if not raw.qualified or not bool(torch.isfinite(raw.objective)):
                 raise QualificationError("Unqualified path state cannot enter selection", **raw.diagnostics)
             record.update(raw.diagnostics)
@@ -136,11 +152,14 @@ def _fit_tensor_model(model, policy, *, lambda_values):
                                extensions >= policy.path_extensions)
     complete = all(r["raw_status"] == r["refit_status"] == "qualified" and r.get("search_complete", False)
                    for r in records)
+    partition_estimate = None if proposals is None else proposals.finish(best[1], best[2], best[0])
     finished = _synchronized_time(model)
+    proposal_seconds = 0. if partition_estimate is None else partition_estimate.seconds
     return DeviceFit(model, graph, pilots, best[1], best[2], best[0],
                      "complete" if complete else "incomplete", records,
                      dict(pilot_seconds=pilot_seconds, graph_build_seconds=graph_build_seconds,
-                          path_seconds=finished - graph_finished - refit_seconds,
+                          path_seconds=finished - graph_finished - refit_seconds - proposal_seconds,
+                          partition_search_seconds=proposal_seconds,
                           refit_seconds=refit_seconds, numerical_wall_seconds=finished - started,
                           phase_timing_scope="nonoverlapping synchronized numerical stages; excludes final publication",
                           refits_computed=cache.refits_computed, refits_reused=cache.refits_reused,
@@ -163,4 +182,5 @@ def _fit_tensor_model(model, policy, *, lambda_values):
                           extension_limit_reached=extension_limit_reached,
                           path_truncated=extension_limit_reached,
                           planned_path_complete=complete,
-                          completion_scope="qualified resolution of the bounded planned path; not all penalties"), policy)
+                          completion_scope="qualified resolution of the bounded planned path; not all penalties"),
+                     policy, partition_estimate)

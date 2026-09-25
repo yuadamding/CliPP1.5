@@ -173,7 +173,7 @@ class LastPartitionCache:
                      ("labels", "centers", "phi", "sizes", "loss", "gap", "score")) + tuple(
                          getattr(r.scalar, name) for name in _SCALAR_FIELDS)
 
-    def get(self, model, labels, policy):
+    def get(self, model, labels, policy, *, allow_reuse=True):
         if (model is not self.model or policy != self.policy or
                 tuple(model.mutation_ids) != self.mutation_ids):
             raise ValueError("Partition refit cache is bound to its canonical model and policy")
@@ -183,6 +183,8 @@ class LastPartitionCache:
         self._snapshot.validate(self._tensors(), "Cached refit")
         if (self.result.clonal, self.result.scalar.subdivisions) != self._metadata:
             raise ValueError("Cached refit metadata was modified")
+        if not allow_reuse:
+            return None
         if not torch.equal(labels, self.result.labels):
             return None
         self.refits_reused += 1
@@ -210,23 +212,69 @@ def partition_score(loss, sizes):
     return score
 
 
-def refit(model, x, policy=CudaPolicy(), *, pilot_reuse=None, cache=None):
-    """Refit arbitrary memberships in original boxes; designate clonal post hoc."""
-    with model.validated_stage():
-        return _refit(model, x, policy, pilot_reuse=pilot_reuse, cache=cache)
+def canonical_labels(labels):
+    """Relabel occupied groups by first node, without changing any membership."""
+    if labels.ndim != 1 or labels.numel() == 0 or labels.dtype != torch.long:
+        raise ValueError("Memberships must be a nonempty int64 vector")
+    _, inverse = torch.unique(labels, sorted=True, return_inverse=True)
+    n = labels.numel()
+    counts = torch.bincount(inverse)
+    first = torch.full_like(counts, n)
+    first.scatter_reduce_(0, inverse, torch.arange(n, device=labels.device), reduce="amin")
+    blocks = torch.argsort(first, stable=True)
+    rename = torch.empty_like(blocks)
+    rename[blocks] = torch.arange(blocks.numel(), device=labels.device)
+    result = rename[inverse]
+    return result, torch.argsort(result, stable=True), counts[blocks]
 
 
-def _refit(model, x, policy, *, pilot_reuse, cache):
+def refit(model, x, policy=CudaPolicy(), *, pilot_reuse=None, cache=None,
+          separate_exact_one=True):
+    """Extract raw memberships and delegate to the explicit-label refitter.
+
+    Legacy raw-path extraction retains exact-one separation for a controlled
+    baseline. Generic extraction is an explicit, separately measured variant.
+    """
     if x.shape != model.lower.shape or x.device != model.device:
         raise ValueError("Refit CCF vector must match the model")
+    labels = grouping(x, policy.fusion_tol, separate_clonal=separate_exact_one)[2]
+    return refit_labels(model, labels, policy, pilot_reuse=pilot_reuse, cache=cache)
+
+
+def refit_labels(model, labels, policy=CudaPolicy(), *, incumbent_centers=None,
+                 pilot_reuse=None, cache=None):
+    """Qualify the supplied memberships; equal centers never merge groups.
+
+    Incumbent centers, when supplied, follow canonical first-node group order,
+    independent of the caller's integer label names. They are feasible loss
+    witnesses, not inherited scalar certificates.
+    """
+    with model.validated_stage():
+        return _refit_labels(model, labels, policy, incumbent_centers=incumbent_centers,
+                             pilot_reuse=pilot_reuse, cache=cache)
+
+
+def _refit_labels(model, labels, policy, *, incumbent_centers, pilot_reuse, cache):
+    if labels.shape != model.lower.shape or labels.device != model.device:
+        raise ValueError("Refit memberships must match the model")
     model.validate(full=True)
-    order, _, labels, lengths = grouping(x, policy.fusion_tol)
+    labels, order, lengths = canonical_labels(labels)
+    k = lengths.numel()
+    lower = torch.segment_reduce(model.lower[order], "max", lengths=lengths)
+    upper = torch.segment_reduce(model.upper[order], "min", lengths=lengths)
+    if not bool((lower <= upper).all()):
+        raise QualificationError("Membership proposal has an empty feasible interval")
+    if incumbent_centers is not None:
+        c = incumbent_centers
+        if (c.shape != (k,) or c.dtype != torch.float64 or c.device != model.device or
+                not bool(torch.isfinite(c).all() & (c >= lower).all() & (c <= upper).all())):
+            raise ValueError("Incumbent centers must be feasible float64 canonical centers")
     if cache is not None:
-        cached = cache.get(model, labels, policy)
+        cached = cache.get(model, labels, policy, allow_reuse=incumbent_centers is None)
+        # An incumbent can supply a better feasible point than a cached rounded
+        # scalar solution. Do not silently discard that witness.
         if cached is not None:
             return cached
-    k = int((lengths > 0).sum())  # One output-shape/control decision per candidate.
-    lengths = lengths[:k]
     singleton = lengths == 1
     reused = int(singleton.sum()) if pilot_reuse is not None else 0
     if pilot_reuse is not None:
@@ -257,8 +305,18 @@ def _refit(model, x, policy, *, pilot_reuse, cache):
         scalar = ScalarBatch(*fields, subdivisions=subdivisions)
     else:
         scalar = solve_scalar(Problems(model.subset(order), lengths), policy)
-    lower = torch.segment_reduce(model.lower[order], "max", lengths=lengths)
-    upper = torch.segment_reduce(model.upper[order], "min", lengths=lengths)
+    if incumbent_centers is not None:
+        losses = model.loss(incumbent_centers[labels])
+        proposed = torch.segment_reduce(losses[order], "sum", lengths=lengths)
+        improve = proposed < scalar.loss
+        value = torch.where(improve, proposed, scalar.loss)
+        bound = torch.minimum(scalar.lower_bound, value)
+        gap = (value - bound).clamp_min(0.)
+        scalar = ScalarBatch(torch.where(improve, incumbent_centers, scalar.phi), value,
+                             bound, gap, scalar.alternative,
+                             torch.isfinite(bound) & torch.isfinite(gap) &
+                             (gap <= policy.scalar_atol + policy.scalar_rtol * value.abs()),
+                             scalar.subdivisions)
     valid = _qualified_scalar(scalar, lower, upper, policy)
     if not bool(valid):
         raise QualificationError("Secondary membership refit unresolved", maximum_gap=float(scalar.gap.max()))

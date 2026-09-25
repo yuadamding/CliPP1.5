@@ -46,6 +46,8 @@ def source_provenance():
                                         "longdouble": _floating_format(np.longdouble)})
 
 
-def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:0"):
+def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:0",
+        partition_search=False, generic_partition_grouping=False):
     from .cuda_api import fit as implementation
-    return implementation(input_file, outdir, max_major_cn=max_major_cn, verbose=verbose, device=device)
+    return implementation(input_file, outdir, max_major_cn=max_major_cn, verbose=verbose, device=device,
+                          partition_search=partition_search, generic_partition_grouping=generic_partition_grouping)

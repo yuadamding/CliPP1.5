@@ -1,0 +1,61 @@
+{
+  "schema": "clipp1d.partition_cuda_submission.v1",
+  "status": "submitted_not_qualified",
+  "accepted": {
+    "job_id": "77420786",
+    "job_name": "clipp1d_partition_0925a",
+    "root": "/rsrch8/scratch/bcb/yding4/clipp1d_partition_qualification_20260925a",
+    "user": "yding4",
+    "queue": "egpu",
+    "cpu_slots": 1,
+    "host_memory_gb": 32,
+    "gpus": 1,
+    "wall_minutes": 60,
+    "utc": "2026-09-25T20:05:28.857867+00:00",
+    "source_sha256": "4e5c1c9fdb20529a3c48b9b7c6536442b9b28b8cb2e4021a52fb4d6019d1f95b",
+    "archive_sha256": "82bcba53c962c02a5b01464a308a038346a47ec62dd8ddc53c7ceaf10c582663"
+  },
+  "source_sha256": "4e5c1c9fdb20529a3c48b9b7c6536442b9b28b8cb2e4021a52fb4d6019d1f95b",
+  "package_revision": 2,
+  "archive_sha256": "82bcba53c962c02a5b01464a308a038346a47ec62dd8ddc53c7ceaf10c582663",
+  "inventory_sha256": "d5721d747759a55bc55dc97f1f20d4722912ce763ad55a555fa6a6cab00bdf57",
+  "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+  "compiler": {
+    "path": "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/x86_64-conda-linux-gnu-gcc",
+    "resolved": "/rsrch8/home/bcb/yding4/miniforge3/envs/ml1/bin/x86_64-conda-linux-gnu-gcc",
+    "sha256": "b84b3a39da544e68b2eac6d285433431d58fa09d3aa2b5f925ed387127be5512",
+    "version": "x86_64-conda-linux-gnu-gcc (conda-forge gcc 15.1.0-5) 15.1.0"
+  },
+  "scope": "3 synthetic paired full-path fixtures plus frozen 193-case component replay; no cohort fits or changes to active campaigns",
+  "authorization": "User approved one additional temporary LSF GPU above the 15 cohort jobs, for 1 CPU/32 GB/up to 1 hour; existing campaign unchanged",
+  "snapshot": {
+    "utc": "2026-09-25T20:06:19.004224+00:00",
+    "scheduler_state": "PEND",
+    "reason": "GPU reservation unavailable",
+    "cuda_execution_proven": false
+  },
+  "next_gates": [
+    "allocated compiled CUDA engineering panel",
+    "allocated CUDA discovery component replay",
+    "predeclared 36-case held-out full-fit comparison",
+    "paired A100/H100 evidence before equivalence claims"
+  ],
+  "evidence": [
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/partition-search-lsf-qualification-20260925-v1/AUTHORIZATION.json",
+      "sha256": "be7962d52cc619c590682cf7e33b8aa5a16196d384ba4db42e83904dc5cfe314"
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/partition-search-lsf-qualification-20260925-v1/PLAN_V2.json",
+      "sha256": "e23239cb47c591b69ea9bb02d360441131d4c5d44b94e6ba9302ba19bb67b170"
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/partition-search-lsf-qualification-20260925-v1/ACCEPTED.json",
+      "sha256": "0a1c5b74e6b620ba98be1fcfbd399adfd50e4a9f04a4eed46b88be2a8c2f3b8f"
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/partition-search-lsf-qualification-20260925-v1/INITIAL_STATUS.json",
+      "sha256": "73bec5e0164f7a97fa6e469e27ac00885a9e4466e8279e76d1fc66de091f7bae"
+    }
+  ]
+}

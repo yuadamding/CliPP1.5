@@ -46,6 +46,14 @@ print(result.refitted_phi) # secondary summary
 print(result.search_status)
 ```
 
+The opt-in [separate partition estimator](docs/PARTITION_SEARCH.md) adds
+`--partition-search`, which scores every qualified raw start's distinct
+memberships and alternates exact-score reassignment with qualified refits.
+It adds two partition tables and schema-v4 provenance while retaining the
+primary raw outputs. CUDA and held-out qualification of this new stage are
+pending; [reference validation](validation/partition-search-20260925/README.md)
+records the 193-case frozen replay and its limits.
+
 The twelve-column TSV input contract, copy-number filtering, marginalized
 multiplicity likelihood, original probability-safe bounds and partition-score
 arithmetic are retained. Complete-graph weights are frozen after the independent
@@ -84,7 +92,8 @@ The [CN-first accuracy investigation](RESEARCH_CNFIRST_FAILURES.md) analyzes
 193 finished complete-graph fits and documents membership-search limitations,
 multiplicity aliases, and offline counterfactuals. Its
 [evidence bundle](validation/cnfirst-accuracy-20260925/README.md) preserves the
-diagnostic results; the proposed inference changes are not yet integrated.
+diagnostic results. The subsequent optional partition-search implementation
+and its separate qualification status are linked above.
 
 ## Validation and evidence
 

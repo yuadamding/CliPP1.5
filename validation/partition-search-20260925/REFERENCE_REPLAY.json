@@ -1,0 +1,616 @@
+{
+  "source": {
+    "package_version": "0.5.1.dev0",
+    "source_commit": "75f4eae89d2b3875dca702fcf47dfc07f86dc738",
+    "source_sha256": "4e5c1c9fdb20529a3c48b9b7c6536442b9b28b8cb2e4021a52fb4d6019d1f95b",
+    "source_files": {
+      "__init__.py": "55444e3e8488c6ff952dd004f6afd2f84aaad4603b31c46b767bdc3935c513e7",
+      "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "api.py": "dce4402526c7f659b12c53cc6e7f640b9b6b498679d2ceaa3de6d8fd9c73279d",
+      "chain.py": "16af0866ea547c9c5cb5fd726dc34dcbec55b230819287f68daa83f5195dd237",
+      "cli.py": "cc799549812416df2869e8558637fc76de5b40f8834343862b27bf03bacf9e1f",
+      "clonal.py": "e130b66c3441344d8c93ea311fb839aa1f980141eb77af2eac1c8f467d6dd9c1",
+      "cuda/__init__.py": "20577f422667d38ecec061680405ec8307f0d26949fdcdaf3421870564d8ec05",
+      "cuda/audit.py": "be67ca3d2ea9473c1e0bd5e0af9ad651f18a7171502565c454d429dcd31b6736",
+      "cuda/graph.py": "93a7db7b57e025fef835b0f3d1c0857aeebbb85e6b4b9f299a3826d1c27cd466",
+      "cuda/kernels.py": "96862d6c9b56d1ab6531364ca1f852ec45bbe4a45c3ed114b31f24cdc464a04c",
+      "cuda/model.py": "8bc6af95e71fe9691f47c72fb41613927c545463c5c1c0825f7dcf96966001f7",
+      "cuda/partition.py": "4e11ad40e506e6ac8b066ce20d4052e137b73b02c64d1a9552b1301b2c834b2e",
+      "cuda/partition_search.py": "46bedfa6362396742abe8e80348883550b2a5ec989db6608e2b3427229ecb8cb",
+      "cuda/policy.py": "eacdcd433836780e8c017e2e9276fee5559dd5144c658c51e98cde316aeb8308",
+      "cuda/qp.py": "835e8b9f58e2604ea668e1fe3c599e0d5f851e3f25837fd903f6876ebd0a0420",
+      "cuda/refinement.py": "0bdde4f2bd0763b58d2a83b644abc6cf7b876ea4aa9426db7d9da18b54967536",
+      "cuda/scalar.py": "9e05d230419f9eaadf83c9a4c412aa8819ca866e802d7107ecf2b24155d9c65c",
+      "cuda/selection.py": "eca9b26dfbc23c2c4af9d03706720288762fc410536b89dfbca22474b054a651",
+      "cuda/solver.py": "4eea0d91513f7a0a8081f23a302988a8d40c56ec51aae58c9da6318267603bf5",
+      "cuda_api.py": "a12fe6f1a6bcdac1a33400e81e16c9df4284309f10d088b2fee1f996e1404f87",
+      "fitting.py": "fe2457e29567a2100da82f280eb080831ae2b4d4fecfb04595b6ebb8c2c0e7fa",
+      "intervals.py": "cd6e8a8dbb9b8cbc8a88a7d3829f100e4833b71de6b66b80aee9adf4f031d768",
+      "io.py": "a2b54a879908a9b0c1a60e740db1d69228616320e09010dd6fc55239843140d1",
+      "labeling.py": "d361627a4576d133e7f9ea72333808f0b58d2e9c29573867e753f0b125cd19c6",
+      "model.py": "864d4a6e406af3234afc1f30e645887c221b795bf9d62d4b6e5fb3fd8394ef08",
+      "partition_output.py": "b0c09a87683e0c372e1110bbd96939b0c23c839ef184757e7368171f89120adf",
+      "partitions.py": "5c710db67d725226575c3bac9827b8f526389d315c61d083cb1ab04ef01641ca",
+      "policy.py": "fa74999953d6b6e79395b38e120a7706e9015c1b7cbe73e39ede7fd2eeb1f49d",
+      "proposals.py": "803759bb677d2e3959c952673415cdb690900eda22227e4034e94724653b5484",
+      "report.py": "626b5f27d2d5bb4639abc4d47fbc21ca7c7841e9f4e4b2a2030344f2b0dbc292",
+      "scalar.py": "f65612bed6a1eeeb84e5522bba227b2ac52e005017bf46c5bfc75f47cf46df6d",
+      "selection.py": "99982f63add0d210ae0002910adb4db6fb7f9fe457ddb6f8e083ddd53a168b05",
+      "simulation/__init__.py": "1f3b96e8c469bd1d6061cc307abeac3fd3258bec5506025eaeb1b339d7435943",
+      "simulation/__main__.py": "9d59173c3c7fe7513e9a99d3ad103f29a806604c997303b322cdbf02e0709436",
+      "simulation/generate_clippsim4k.py": "01e932df2bb3df01dcb13509011251b2bd7306e0357f639aacbb28f5c46c08be",
+      "solver.py": "6e8280d0ae16585a51cec9cdc7d698c3567fabdd629ec0ffc5a94a060bd698f7",
+      "tv.py": "532e9e8c2811cee83327c023eee101b1e2afb4b89fb31e8552fb08cfe62fc457",
+      "types.py": "e69bbf3367f6c6cdc88816000d282df2167d993f1c0610c572568e257768862f",
+      "ward.py": "ae12994d7b9279b2fb4f99f5d40785c2d53f6b76829714edff382f9ae6a59bc0"
+    },
+    "python": "3.13.2",
+    "interpreter": "/home/yding1995/miniforge3/envs/ml1/bin/python",
+    "numpy": "2.2.6",
+    "scipy": "1.18.0",
+    "torch": "2.9.1+cu128",
+    "dtype": "float64",
+    "precision_scope": "PyTorch CUDA inference uses float64. This receipt does not qualify other platforms.",
+    "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "floating_point_formats": {
+      "float64": {
+        "dtype": "float64",
+        "storage_bits": 64,
+        "nmant": 52,
+        "significand_bits": 53,
+        "exponent_bits": 11,
+        "minexp": -1022,
+        "maxexp": 1024,
+        "machep": -52,
+        "eps": "2.220446049250313e-16",
+        "epsneg": "1.1102230246251565e-16",
+        "smallest_normal": "2.2250738585072014e-308",
+        "max_finite": "1.7976931348623157e+308"
+      },
+      "longdouble": {
+        "dtype": "float128",
+        "storage_bits": 128,
+        "nmant": 63,
+        "significand_bits": 64,
+        "exponent_bits": 15,
+        "minexp": -16382,
+        "maxexp": 16384,
+        "machep": -63,
+        "eps": "1.084202172485504434e-19",
+        "epsneg": "5.42101086242752217e-20",
+        "smallest_normal": "3.3621031431120935063e-4932",
+        "max_finite": "1.189731495357231765e+4932"
+      }
+    }
+  },
+  "created_utc": "2026-09-25T19:55:10.511465+00:00",
+  "bundle_sha256": "771317d9b80175e5f95a1025d19ed711921225c4d5d827674a79f7e0bbdb03cb",
+  "execution": "cpu_reference_partition_replay",
+  "new_fusion_fits": false,
+  "alternating_seed": "qualified_original_memberships",
+  "search_policy": {
+    "policy_id": "explicit_partition_search_v1",
+    "all_starts": true,
+    "separate_exact_one": true,
+    "max_rounds": 4,
+    "max_moves": 10000,
+    "cost_block_size": 128,
+    "minimum_decrease": 1e-08
+  },
+  "summary": [
+    {
+      "population": "native",
+      "stage": "alternating_refit",
+      "cases": 193,
+      "mutations": 41712,
+      "mean_ari": 0.6525072045459801,
+      "mean_ccf_mae": 0.054569575758341114,
+      "mean_k": 2.4455958549222796,
+      "correct_k": 122,
+      "overclustered": 28,
+      "underclustered": 43,
+      "smf_ccc": 0.8835063023865031,
+      "smf_mae": 0.06336879248735577,
+      "cna_macro_f1": 0.7937631692450936
+    },
+    {
+      "population": "native",
+      "stage": "fixed_centers",
+      "cases": 193,
+      "mutations": 41712,
+      "mean_ari": 0.6397342815640212,
+      "mean_ccf_mae": 0.059303282580347526,
+      "mean_k": 2.471502590673575,
+      "correct_k": 119,
+      "overclustered": 31,
+      "underclustered": 43,
+      "smf_ccc": 0.8743995125401041,
+      "smf_mae": 0.07062884703416425,
+      "cna_macro_f1": 0.7907655334148886
+    },
+    {
+      "population": "native",
+      "stage": "published",
+      "cases": 193,
+      "mutations": 41712,
+      "mean_ari": 0.48500447719076567,
+      "mean_ccf_mae": 0.08870257388069722,
+      "mean_k": 6.538860103626943,
+      "correct_k": 47,
+      "overclustered": 124,
+      "underclustered": 22,
+      "smf_ccc": 0.783054531633905,
+      "smf_mae": 0.13577391514070838,
+      "cna_macro_f1": 0.6551137975700229
+    },
+    {
+      "population": "matched",
+      "stage": "alternating_refit",
+      "cases": 193,
+      "mutations": 41194,
+      "mean_ari": 0.6572445780043265,
+      "mean_ccf_mae": 0.053656151320018636,
+      "mean_k": 2.4455958549222796,
+      "correct_k": 122,
+      "overclustered": 28,
+      "underclustered": 43,
+      "smf_ccc": 0.8835926504062922,
+      "smf_mae": 0.06278638606820049,
+      "cna_macro_f1": 0.8011827436819854
+    },
+    {
+      "population": "matched",
+      "stage": "fixed_centers",
+      "cases": 193,
+      "mutations": 41194,
+      "mean_ari": 0.6447384248960997,
+      "mean_ccf_mae": 0.05832214902340237,
+      "mean_k": 2.471502590673575,
+      "correct_k": 119,
+      "overclustered": 31,
+      "underclustered": 43,
+      "smf_ccc": 0.8744580276666418,
+      "smf_mae": 0.07005911589424811,
+      "cna_macro_f1": 0.7985657509747981
+    },
+    {
+      "population": "matched",
+      "stage": "published",
+      "cases": 193,
+      "mutations": 41194,
+      "mean_ari": 0.4893261529608433,
+      "mean_ccf_mae": 0.08769528220077749,
+      "mean_k": 6.481865284974093,
+      "correct_k": 47,
+      "overclustered": 124,
+      "underclustered": 22,
+      "smf_ccc": 0.7827277491231038,
+      "smf_mae": 0.13475922202077598,
+      "cna_macro_f1": 0.661492044654931
+    }
+  ],
+  "exact_membership_matches": 193,
+  "largest_score_difference": 5.820766091346741e-11,
+  "runtime_median_seconds": 0.1573538677766919,
+  "scope": "Frozen discovery component replay; not full-fit CUDA or held-out qualification",
+  "all_qualified_start_coverage_replayed": false,
+  "grouping_changed_cases": 0,
+  "alternating_status_counts": {
+    "fixed_point": 153,
+    "round_budget_exhausted": 40
+  },
+  "scalar_refit_failures": 0,
+  "paired_changes": [
+    {
+      "ari": {
+        "improved": 0,
+        "worsened": 0,
+        "unchanged": 193
+      },
+      "ccf_mae": {
+        "improved": 0,
+        "worsened": 0,
+        "unchanged": 193
+      },
+      "smf_absolute_error": {
+        "improved": 0,
+        "worsened": 0,
+        "unchanged": 193
+      },
+      "cna_macro_f1": {
+        "improved": 0,
+        "worsened": 0,
+        "unchanged": 193
+      },
+      "population": "native",
+      "stage": "published",
+      "comparison": "published",
+      "true_single_cluster_cases": 24,
+      "true_single_cluster_false_splits": 0
+    },
+    {
+      "ari": {
+        "improved": 152,
+        "worsened": 0,
+        "unchanged": 41
+      },
+      "ccf_mae": {
+        "improved": 146,
+        "worsened": 6,
+        "unchanged": 41
+      },
+      "smf_absolute_error": {
+        "improved": 134,
+        "worsened": 16,
+        "unchanged": 43
+      },
+      "cna_macro_f1": {
+        "improved": 138,
+        "worsened": 12,
+        "unchanged": 43
+      },
+      "population": "native",
+      "stage": "fixed_centers",
+      "comparison": "published",
+      "true_single_cluster_cases": 24,
+      "true_single_cluster_false_splits": 0
+    },
+    {
+      "ari": {
+        "improved": 151,
+        "worsened": 1,
+        "unchanged": 41
+      },
+      "ccf_mae": {
+        "improved": 150,
+        "worsened": 8,
+        "unchanged": 35
+      },
+      "smf_absolute_error": {
+        "improved": 138,
+        "worsened": 13,
+        "unchanged": 42
+      },
+      "cna_macro_f1": {
+        "improved": 137,
+        "worsened": 15,
+        "unchanged": 41
+      },
+      "population": "native",
+      "stage": "alternating_refit",
+      "comparison": "published",
+      "true_single_cluster_cases": 24,
+      "true_single_cluster_false_splits": 0
+    },
+    {
+      "ari": {
+        "improved": 0,
+        "worsened": 0,
+        "unchanged": 193
+      },
+      "ccf_mae": {
+        "improved": 0,
+        "worsened": 0,
+        "unchanged": 193
+      },
+      "smf_absolute_error": {
+        "improved": 0,
+        "worsened": 0,
+        "unchanged": 193
+      },
+      "cna_macro_f1": {
+        "improved": 0,
+        "worsened": 0,
+        "unchanged": 193
+      },
+      "population": "matched",
+      "stage": "published",
+      "comparison": "published",
+      "true_single_cluster_cases": 24,
+      "true_single_cluster_false_splits": 0
+    },
+    {
+      "ari": {
+        "improved": 152,
+        "worsened": 0,
+        "unchanged": 41
+      },
+      "ccf_mae": {
+        "improved": 146,
+        "worsened": 6,
+        "unchanged": 41
+      },
+      "smf_absolute_error": {
+        "improved": 133,
+        "worsened": 17,
+        "unchanged": 43
+      },
+      "cna_macro_f1": {
+        "improved": 139,
+        "worsened": 11,
+        "unchanged": 43
+      },
+      "population": "matched",
+      "stage": "fixed_centers",
+      "comparison": "published",
+      "true_single_cluster_cases": 24,
+      "true_single_cluster_false_splits": 0
+    },
+    {
+      "ari": {
+        "improved": 151,
+        "worsened": 1,
+        "unchanged": 41
+      },
+      "ccf_mae": {
+        "improved": 150,
+        "worsened": 8,
+        "unchanged": 35
+      },
+      "smf_absolute_error": {
+        "improved": 137,
+        "worsened": 14,
+        "unchanged": 42
+      },
+      "cna_macro_f1": {
+        "improved": 138,
+        "worsened": 14,
+        "unchanged": 41
+      },
+      "population": "matched",
+      "stage": "alternating_refit",
+      "comparison": "published",
+      "true_single_cluster_cases": 24,
+      "true_single_cluster_false_splits": 0
+    }
+  ],
+  "multiplicity": [
+    {
+      "population": "native",
+      "stage": "published",
+      "scope": "CNA loci, excluding only CN 1/1; exact class; posterior mode conditional on stage CCF",
+      "eligible": 18041,
+      "called": 18041,
+      "coverage": 1.0,
+      "macro_f1": 0.6551137975700229,
+      "micro_f1": 0.6592206640430132,
+      "weighted_f1": 0.6639834661384423,
+      "per_class": [
+        {
+          "multiplicity": 1,
+          "support": 6600,
+          "precision": 0.8894642053129221,
+          "recall": 0.5986363636363636,
+          "f1": 0.7156312262271327
+        },
+        {
+          "multiplicity": 2,
+          "support": 5678,
+          "precision": 0.6243793870912515,
+          "recall": 0.6423036280380415,
+          "f1": 0.6332146887750673
+        },
+        {
+          "multiplicity": 3,
+          "support": 3809,
+          "precision": 0.5792219082808086,
+          "recall": 0.6996587030716723,
+          "f1": 0.633769322235434
+        },
+        {
+          "multiplicity": 4,
+          "support": 1954,
+          "precision": 0.5163129553373456,
+          "recall": 0.834186284544524,
+          "f1": 0.6378399530424574
+        }
+      ]
+    },
+    {
+      "population": "native",
+      "stage": "fixed_centers",
+      "scope": "CNA loci, excluding only CN 1/1; exact class; posterior mode conditional on stage CCF",
+      "eligible": 18041,
+      "called": 18041,
+      "coverage": 1.0,
+      "macro_f1": 0.7907655334148886,
+      "micro_f1": 0.800565378859265,
+      "weighted_f1": 0.8007166593787044,
+      "per_class": [
+        {
+          "multiplicity": 1,
+          "support": 6600,
+          "precision": 0.8583473861720068,
+          "recall": 0.8483333333333334,
+          "f1": 0.8533109807208717
+        },
+        {
+          "multiplicity": 2,
+          "support": 5678,
+          "precision": 0.7602438198442262,
+          "recall": 0.7907713983797112,
+          "f1": 0.775207182320442
+        },
+        {
+          "multiplicity": 3,
+          "support": 3809,
+          "precision": 0.7634351949420443,
+          "recall": 0.760829614071935,
+          "f1": 0.762130177514793
+        },
+        {
+          "multiplicity": 4,
+          "support": 1954,
+          "precision": 0.801762114537445,
+          "recall": 0.7451381780962129,
+          "f1": 0.7724137931034483
+        }
+      ]
+    },
+    {
+      "population": "native",
+      "stage": "alternating_refit",
+      "scope": "CNA loci, excluding only CN 1/1; exact class; posterior mode conditional on stage CCF",
+      "eligible": 18041,
+      "called": 18041,
+      "coverage": 1.0,
+      "macro_f1": 0.7937631692450936,
+      "micro_f1": 0.8040574247547253,
+      "weighted_f1": 0.8044163838356192,
+      "per_class": [
+        {
+          "multiplicity": 1,
+          "support": 6600,
+          "precision": 0.86703125,
+          "recall": 0.8407575757575757,
+          "f1": 0.8536923076923076
+        },
+        {
+          "multiplicity": 2,
+          "support": 5678,
+          "precision": 0.7673558581274164,
+          "recall": 0.8039802747446284,
+          "f1": 0.7852412488174078
+        },
+        {
+          "multiplicity": 3,
+          "support": 3809,
+          "precision": 0.7613961969262829,
+          "recall": 0.7673930165397742,
+          "f1": 0.7643828451882845
+        },
+        {
+          "multiplicity": 4,
+          "support": 1954,
+          "precision": 0.7927684835402051,
+          "recall": 0.7517911975435005,
+          "f1": 0.7717362752823745
+        }
+      ]
+    },
+    {
+      "population": "matched",
+      "stage": "published",
+      "scope": "CNA loci, excluding only CN 1/1; exact class; posterior mode conditional on stage CCF",
+      "eligible": 17523,
+      "called": 17523,
+      "coverage": 1.0,
+      "macro_f1": 0.661492044654931,
+      "micro_f1": 0.6655823774467843,
+      "weighted_f1": 0.6702347827461733,
+      "per_class": [
+        {
+          "multiplicity": 1,
+          "support": 6502,
+          "precision": 0.8945686900958466,
+          "recall": 0.6028914180252231,
+          "f1": 0.7203234105108416
+        },
+        {
+          "multiplicity": 2,
+          "support": 5480,
+          "precision": 0.6251963008201012,
+          "recall": 0.6538321167883212,
+          "f1": 0.6391936490946392
+        },
+        {
+          "multiplicity": 3,
+          "support": 3665,
+          "precision": 0.5873233014135887,
+          "recall": 0.7028649386084584,
+          "f1": 0.6399205067693454
+        },
+        {
+          "multiplicity": 4,
+          "support": 1876,
+          "precision": 0.5238095238095238,
+          "recall": 0.8443496801705757,
+          "f1": 0.6465306122448979
+        }
+      ]
+    },
+    {
+      "population": "matched",
+      "stage": "fixed_centers",
+      "scope": "CNA loci, excluding only CN 1/1; exact class; posterior mode conditional on stage CCF",
+      "eligible": 17523,
+      "called": 17523,
+      "coverage": 1.0,
+      "macro_f1": 0.7985657509747981,
+      "micro_f1": 0.8076242652513839,
+      "weighted_f1": 0.8077726379270811,
+      "per_class": [
+        {
+          "multiplicity": 1,
+          "support": 6502,
+          "precision": 0.8623154623154623,
+          "recall": 0.8534297139341741,
+          "f1": 0.8578495787276803
+        },
+        {
+          "multiplicity": 2,
+          "support": 5480,
+          "precision": 0.7634146341463415,
+          "recall": 0.7996350364963504,
+          "f1": 0.7811051693404635
+        },
+        {
+          "multiplicity": 3,
+          "support": 3665,
+          "precision": 0.775414364640884,
+          "recall": 0.765893587994543,
+          "f1": 0.7706245710363762
+        },
+        {
+          "multiplicity": 4,
+          "support": 1876,
+          "precision": 0.8182870370370371,
+          "recall": 0.753731343283582,
+          "f1": 0.7846836847946725
+        }
+      ]
+    },
+    {
+      "population": "matched",
+      "stage": "alternating_refit",
+      "scope": "CNA loci, excluding only CN 1/1; exact class; posterior mode conditional on stage CCF",
+      "eligible": 17523,
+      "called": 17523,
+      "coverage": 1.0,
+      "macro_f1": 0.8011827436819854,
+      "micro_f1": 0.8108771329110313,
+      "weighted_f1": 0.8112360043800357,
+      "per_class": [
+        {
+          "multiplicity": 1,
+          "support": 6502,
+          "precision": 0.8715305313243458,
+          "recall": 0.8451245770532144,
+          "f1": 0.8581244631841961
+        },
+        {
+          "multiplicity": 2,
+          "support": 5480,
+          "precision": 0.7701089776855216,
+          "recall": 0.8124087591240876,
+          "f1": 0.7906935440902229
+        },
+        {
+          "multiplicity": 3,
+          "support": 3665,
+          "precision": 0.7716535433070866,
+          "recall": 0.775443383356071,
+          "f1": 0.773543821448013
+        },
+        {
+          "multiplicity": 4,
+          "support": 1876,
+          "precision": 0.8095781071835804,
+          "recall": 0.7569296375266524,
+          "f1": 0.7823691460055097
+        }
+      ]
+    }
+  ]
+}

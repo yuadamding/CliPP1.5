@@ -3,6 +3,12 @@
 Package: `0.5.1.dev0`. Policy: `clipp1d_complete_cuda_unconstrained_v3`.
 Output schema: `clipp1d.cuda.run.v3`.
 
+An opt-in [separate partition estimator](PARTITION_SEARCH.md) now adds explicit
+membership refitting, all-qualified-start candidate scoring, and sequential
+exact-score reassignment. Its v4 output extension preserves the primary raw
+estimator and the baseline v3 table semantics. The baseline contract below
+continues to apply; the new estimator has separate provenance and qualification.
+
 ## Statistical contract
 
 For the canonical observed-count negative log likelihood, fit

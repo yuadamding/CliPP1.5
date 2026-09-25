@@ -324,12 +324,17 @@ def _validate_pilots(model, graph, pilots, policy):
         raise QualificationError("Separable scalar pilots do not qualify for this model and graph")
 
 
-def fit_lambda(model, graph, pilots, lam, previous=None, policy=CudaPolicy()):
+def fit_lambda(model, graph, pilots, lam, previous=None, policy=CudaPolicy(), *, on_qualified=None):
+    """Keep raw-objective continuation; stream qualified starts to an observer.
+
+    The observer must not modify the RawFit or its tensors. It may retain one
+    selected reference, but no history of dense dual matrices is accumulated.
+    """
     with model.validated_stage(), graph.validated_stage():
-        return _fit_lambda(model, graph, pilots, lam, previous, policy)
+        return _fit_lambda(model, graph, pilots, lam, previous, policy, on_qualified=on_qualified)
 
 
-def _fit_lambda(model, graph, pilots, lam, previous, policy):
+def _fit_lambda(model, graph, pilots, lam, previous, policy, *, on_qualified=None):
     lam = torch.as_tensor(lam, dtype=torch.float64, device=model.device)
     if lam.ndim != 0 or not bool(torch.isfinite(lam) & (lam >= 0)):
         raise ValueError("Penalty must be a finite nonnegative scalar")
@@ -351,7 +356,7 @@ def _fit_lambda(model, graph, pilots, lam, previous, policy):
         began = perf_counter()
         audit = audit_raw(model, x, caps, caps, None, policy)
         audit_seconds = perf_counter() - began
-        return RawFit(x, caps, value, None, True,
+        result = RawFit(x, caps, value, None, True,
                       dict(status="qualified_separable", separable_scalar_gap_qualified=True,
                            separable_global_gap=float(gap), clonal_constraint=False,
                            raw_stationarity_qualified=audit.qualified,
@@ -370,6 +375,9 @@ def _fit_lambda(model, graph, pilots, lam, previous, policy):
                            audit_calls=1, audit_seconds=audit_seconds,
                            phase_timing_scope="host wall through device-qualified QP/audit returns",
                            starts_attempted=0, search_complete=True, global_optimality_proven=False))
+        if on_qualified is not None:
+            on_qualified(result, "separable")
+        return result
     curvature = model.terms(pilots.phi)[2].clamp_min(1.)
     if not bool(torch.isfinite(curvature).all() & torch.isfinite(graph.weights * lam).all()):
         raise QualificationError("Complete-graph penalty caps or pilot curvature are nonfinite")
@@ -384,7 +392,7 @@ def _fit_lambda(model, graph, pilots, lam, previous, policy):
         if not any(torch.equal(x, old) for old in starts):
             starts.append(x)
     best, diagnostics = None, []
-    for initial in starts:
+    for start_index, initial in enumerate(starts):
         result = solve_start(model, graph, lam, initial, policy)
         finite_objective = bool(torch.isfinite(result.objective))
         if not finite_objective:
@@ -394,6 +402,8 @@ def _fit_lambda(model, graph, pilots, lam, previous, policy):
                                 qualified=result.qualified))
         if result.qualified and (best is None or bool(result.objective < best.objective)):
             best = result
+        if result.qualified and on_qualified is not None:
+            on_qualified(result, f"start_{start_index}")
     coverage = dict(starts=diagnostics, search_complete=all(d["qualified"] for d in diagnostics),
                     starts_attempted=len(starts), starts_qualified=sum(d["qualified"] for d in diagnostics),
                     starts_unresolved=sum(not d["qualified"] for d in diagnostics),
