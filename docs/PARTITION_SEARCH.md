@@ -1,6 +1,6 @@
 # Separate CUDA partition estimator
 
-This revision implements the search-repair foundation described in the
+This revision extends the search-repair foundation described in the
 [CN-first investigation](../RESEARCH_CNFIRST_FAILURES.md). It is explicitly
 opt-in while CUDA execution and held-out scientific validation are pending.
 The observation model, uniform multiplicity prior, bounds, allocation score,
@@ -12,7 +12,7 @@ clipp1d fit --input-file tumor.tsv --outdir new-output --device cuda:0 --partiti
 
 The original raw estimator remains primary. Its three TSVs retain their original
 meaning and baseline path winner. Enabling the additional estimator produces
-schema `clipp1d.cuda.run.v4`, adding:
+schema `clipp1d.cuda.run.v5` (partition receipt `clipp1d.partition_estimate.v2`), adding:
 
 - `partition_mutation_clusters.tsv`: explicit memberships, partition CCF,
   closest-to-one label 0, and multiplicity conditional on that partition CCF.
@@ -37,11 +37,13 @@ reference penalty is not a fitted penalty parameter of a direct partition.
    callback. The raw-objective winner still supplies the next penalty's primal
    warm state. Partition score never changes continuation or path extensions.
 3. `cuda/partition_search.py` scores distinct memberships from qualified starts,
-   retaining one winning raw reference, one refit cache, and at most four
-   within-penalty membership vectors. It does not retain a history of dense duals.
+   retaining a bounded seed bank (one by default, at most eight), one refit cache,
+   and at most four within-penalty membership vectors. Each retained raw seed can
+   own a dense dual; memory admission accounts for the configured bank size.
    The original baseline winner remains an explicit candidate and wins exact
-   score/K/penalty ties. Failure of an optional proposal preserves that baseline
-   and marks partition-search coverage incomplete.
+   score/K/penalty ties. The previous partition result after refinement is also
+   preserved explicitly. Failure keeps the last qualified incumbent and records
+   incomplete coverage, including earlier accepted refinement rounds.
 4. `cuda/refinement.py` computes blocked mutation-by-center likelihood costs with
    the existing CUDA loss-only kernel. It evaluates move deltas in parallel,
    accepts one deterministic improving move, updates counts, and recomputes the
@@ -50,8 +52,42 @@ reference penalty is not a fitted penalty parameter of a direct partition.
 5. After each sweep, explicit memberships receive qualified scalar refits.
    Moves and refits alternate for at most four rounds, with at most 10,000 moves
    per round. Budget exhaustion is separate from raw-path completeness; it is
-   not a convergence certificate. Costs refresh after centers change. No split
-   or graph/score variant is silently included.
+   not a convergence certificate. Costs refresh after centers change. Birth
+   candidates use their own declared 20-round budget; graph and score stay fixed.
+
+## Staged birth and multi-seed policies
+
+`PartitionSearchPolicy` is versioned as `explicit_partition_birth_v2`.
+`--partition-search` defaults to `birth_mode="single_cluster"` and
+`seed_bank_size=1`. This ports the discovery algorithm: on the previous
+selected K=1 partition, use 19 center pairs `(0.05 ... 0.95, 1.0)`, assign by
+the unchanged marginalized likelihood, qualify every distinct whole-group
+partition, then refine the three best split seeds for at most 20 rounds.
+The original qualified candidate and every qualified split remain available.
+The initial 1.0 center is unconstrained during refitting. Mutation-specific
+bounds are enforced before assigning; an infeasible pair never clips centers
+separately for different mutations.
+
+`--partition-birth off` disables birth. `--partition-seeds 3` additionally
+retains different inferred K and distinct memberships, and refines the baseline
+and bank seeds before final selection. Neither true K nor simulated truth is
+used. The default birth-only mode leaves previous selected K>1 cases unchanged.
+
+`--partition-birth any_cluster` is a separate experimental extension. For each
+eligible parent group (canonical order, at most eight), it sorts the likelihood
+differences between each proposed center pair and scans all nonempty child
+sizes. Forced assignments are handled first. This is exact conditional on the
+pair and feasibility, not globally exact over centers. It imposes no pilot-order
+contiguity and does not exempt the designated clonal cluster.
+
+For tumor-wide N, occupied K, parent size n and child size t, the complexity
+increment is `log(N) + 1.4*log((N+K)/(K*(K+1))) + 1.4*log(binomial(n,t))`.
+Candidates always receive a full-tumor qualified refit, using the existing
+`partition_score`. Initial-center scores do not screen refitted candidates.
+The Python API accepts an explicit `partition_policy=PartitionSearchPolicy(...)`;
+`birth_generations` controls further bounded exploration, including provisional
+candidates that do not yet improve the incumbent. Default is one generation.
+Parent truncation and unresolved numerical work remain explicit in coverage.
 
 For a non-singleton source, the score change is
 `2*(loss_destination-loss_source) + 1.4*log(source_size/(destination_size+1))`.
@@ -68,6 +104,17 @@ original-bound feasibility, fresh scalar qualification, exact score, and proposa
 history. A direct partition has `raw_qualified=false`, `raw_certificate=null`,
 and `selected_lambda=null`; its separately named `raw_reference` retains the
 actual parent state, penalty, and certificate.
+
+Schema v5 records a continuous `partition_ancestry_v2` chain: original raw
+reference, immediate partition parent, whole-group birth, and subsequent
+reassignment/refit. Each step binds canonical memberships, N/K, qualified
+loss-gap-derived score bounds and proposal details. Device publication rechecks
+every retained ancestor's scalar qualification; host publication checks
+parent/child continuity and selected identities. `published_score_improved`
+and `refit_order_certified` are distinct: the latter requires the child's upper
+score below the parent's lower score bound, including a numerical margin.
+Near-ties are not proved ordering of optimally refitted partitions. The previous
+selected result is explicitly retained as `preserved_partition`.
 
 Device snapshots cover candidate arrays, scalar certificate fields, and search
 metadata. Export independently audits the parent raw state and both refits.
@@ -125,8 +172,9 @@ publication schema, source/array identities, non-worse partition score, runtime
 and memory. It requires an allocated CUDA device and compiled inference.
 It does not establish full-cohort accuracy or A100/H100 equivalence.
 
-The next scientific comparison must use the predeclared held-out panel, including
-larger tumors, paired identical mutation populations, and per-case gains and
-regressions. Merge/split, graph, and score changes remain later separately
-attributable experiments. No discovery improvement is promoted to CUDA or
-held-out qualification.
+The new birth revision is documented in
+[birth validation](../validation/birth-search-20260925/README.md). Two original
+holdouts entered the 382-case discovery panel and are excluded from the revised
+34-case holdout plan. Birth-only, extra iterations, multi-seed-only and combined
+modes have separate comparisons. Graph and score changes remain separate
+experiments. No discovery improvement is promoted to CUDA or held-out qualification.

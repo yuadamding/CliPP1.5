@@ -7,6 +7,48 @@ import math
 import numpy as np
 import torch
 from .cuda.policy import QualificationError
+from .cuda.ancestry import refit_identity
+
+
+def validate_ancestry(proposal, reference, selected):
+    """Validate continuous independently refitted partition ancestry, not raw KKT."""
+    def require(test, message):
+        if not test:
+            raise QualificationError("Invalid partition ancestry: " + message)
+    require(proposal.get('algorithm') == 'partition_ancestry_v2' and
+            proposal.get('truth_used') is False and proposal.get('raw_certificate_inherited') is False,
+            "algorithm or inherited claims")
+    steps = proposal.get('ancestry')
+    require(isinstance(steps, list) and bool(steps), "empty ancestry")
+    expected = reference
+    for step in steps:
+        require(step.get('operation') in ('birth', 'reassignment'), "unknown operation")
+        require(step.get('parent') == expected, "immediate parent identity")
+        child = step.get('child', {})
+        require(child.get('n') == reference['n'] and isinstance(child.get('k'), int) and
+                1 <= child['k'] <= child['n'] and child.get('refit_qualified') is True,
+                "child dimensions/qualification")
+        require(isinstance(child.get('membership_sha256'), str) and len(child['membership_sha256']) == 64,
+                "membership identity")
+        require(all(np.isfinite(child.get(key, np.nan)) for key in
+                    ('score', 'score_lower', 'score_upper', 'refit_gap')) and child['refit_gap'] >= 0 and
+                child['score'] == child['score_upper'] and
+                child['score_lower'] == child['score'] - 2*child['refit_gap'], "score interval")
+        margin = step.get('comparison_margin', np.nan)
+        require(np.isfinite(margin) and margin > 0, "comparison margin")
+        require(step.get('published_score_improved') == (child['score'] < expected['score']-margin) and
+                step.get('refit_order_certified') == (child['score_upper'] < expected['score_lower']-margin),
+                "score ordering claim")
+        if step['operation'] == 'birth':
+            details = step.get('details', {})
+            require(child['k'] == expected['k']+1 and details.get('tumor_n') == reference['n'] and
+                    details.get('occupied_k') == expected['k'] and
+                    details.get('algorithm') in ('grid_k1_birth_v1', 'conditional_global_split_v1'),
+                    "birth dimensions/global score")
+        else:
+            require(child['k'] <= expected['k'] and child['score'] < expected['score'], "refinement ordering")
+        expected = child
+    require(expected == selected, "selected child identity")
 
 
 _ARRAYS = ("ccf", "labels", "centers", "memberships", "multiplicity", "reference_raw_phi",
@@ -41,7 +83,7 @@ class PartitionEstimate:
                     arrays={name: hashlib.sha256(getattr(self, name).tobytes()).hexdigest() for name in _ARRAYS})
 
     def receipt(self):
-        return dict(schema="clipp1d.partition_estimate.v1", score=self.score, search_status=self.search_status,
+        return dict(schema="clipp1d.partition_estimate.v2", score=self.score, search_status=self.search_status,
                     provenance=self.provenance, search=self.records,
                     **{name: getattr(self, name).tolist() for name in _ARRAYS})
 
@@ -54,7 +96,7 @@ def validate_device_partition(d):
     result.validate_identity()
     if candidate.family not in ("raw_fusion_path", "direct_partition"):
         raise QualificationError("Unknown partition candidate family")
-    expected_rule = True if candidate.origin == "baseline" or candidate.proposal.get("seed_origin") == "baseline" \
+    expected_rule = True if candidate.origin == "baseline" or candidate.proposal.get("root_origin") == "baseline" \
         else result.policy.separate_exact_one
     if candidate.separate_exact_one != expected_rule:
         raise QualificationError("Partition reference extraction policy does not match its origin")
@@ -64,20 +106,20 @@ def validate_device_partition(d):
     # the original model/graph/penalty. The direct partition receives none of it.
     _validate_device_fit_owned(reference, separate_exact_one=candidate.separate_exact_one)
     _validate_refit(d.model, candidate.refit, d.policy)
+    for ancestor in candidate.ancestors:
+        _validate_refit(d.model, ancestor, d.policy)
     if candidate.family == "raw_fusion_path":
         expected = grouping(candidate.raw_reference.x, d.policy.fusion_tol,
                             separate_clonal=candidate.separate_exact_one)[2]
         if not torch.equal(expected, candidate.refit.labels) or candidate.proposal:
             raise QualificationError("Raw-family partition is unrelated to its raw state")
     else:
-        if (candidate.proposal.get("raw_certificate_inherited") is not False or
-                candidate.proposal.get("truth_used") is not False or
-                candidate.proposal.get("algorithm") != "sequential_exact_score_moves_and_qualified_refits_v1" or
-                candidate.proposal.get("seed_score") != float(candidate.reference_refit.score) or
-                not bool(candidate.refit.score < candidate.reference_refit.score)):
-            raise QualificationError("Invalid direct-partition provenance or inherited raw certificate")
-    if not bool(candidate.refit.score <= d.refit.score):
-        raise QualificationError("Partition estimate is worse than the preserved baseline")
+        validate_ancestry(candidate.proposal, refit_identity(candidate.reference_refit), refit_identity(candidate.refit))
+        if [s['parent'] for s in candidate.proposal['ancestry']] != [refit_identity(r) for r in candidate.ancestors]:
+            raise QualificationError("Partition ancestry is not bound to independently qualified parents")
+    _validate_refit(d.model, result.preserved.refit, d.policy)
+    if not bool(candidate.refit.score <= result.preserved.refit.score):
+        raise QualificationError("Partition estimate is worse than the preserved current result")
 
 
 def export_partition(d, model_sha, graph_sha):
@@ -102,12 +144,15 @@ def export_partition(d, model_sha, graph_sha):
                       raw_qualified=False if direct else True,
                       raw_certificate=None if direct else deepcopy(c.raw_reference.diagnostics),
                       refit_qualified=True, refit_gap=float(r.gap), loss=float(r.loss),
+                      partition_identity=refit_identity(r),
+                      preserved_partition=refit_identity(result.preserved.refit),
                       global_optimality_proven=False, clonal_constraint=False,
                       clonal_label_rule="nearest_to_one_l2_v1", proposal=deepcopy(c.proposal),
                       raw_reference=dict(lambda_value=float(c.reference_lambda),
                                          objective=float(c.raw_reference.objective),
                                          certificate=deepcopy(c.raw_reference.diagnostics),
                                          score=float(c.reference_refit.score),
+                                         partition_identity=refit_identity(c.reference_refit),
                                          separate_exact_one=c.separate_exact_one,
                                          role="independently qualified raw reference; not the direct partition's certificate"),
                       array_sha256={k: hashlib.sha256(v.tobytes()).hexdigest() for k, v in values.items()})
@@ -164,6 +209,14 @@ def validate_partition_result(result):
     expected = 2 * meta['loss'] + k * math.log(n) - 1.4 * mass
     require(np.isfinite(p.score) and abs(expected - p.score) <= 1e-9 * (1 + abs(p.score)), "score arithmetic mismatch")
     require(p.score <= result.selection_score, "discarded the better baseline")
+    identity = meta.get('partition_identity', {})
+    require(identity.get('membership_sha256') == hashlib.sha256(p.memberships.astype('<i8').tobytes()).hexdigest()
+            and identity.get('score') == p.score and identity.get('n') == n and identity.get('k') == k and
+            identity.get('refit_gap') == meta['refit_gap'], "unbound selected partition identity")
+    preserved = meta.get('preserved_partition', {})
+    require(preserved.get('n') == n and np.isfinite(preserved.get('score', np.nan)) and
+            p.score <= preserved['score'] <= result.selection_score,
+            "discarded the preserved current partition")
     reference = meta['raw_reference']
     certificate = reference['certificate']
     require(certificate.get('box_feasible') is True and certificate.get('clonal_constraint') is False and
@@ -176,8 +229,13 @@ def validate_partition_result(result):
         require(meta.get("raw_qualified") is False and meta.get("raw_certificate") is None and
                 meta.get("selected_lambda") is None and
                 meta['proposal'].get("raw_certificate_inherited") is False and
-                meta['proposal'].get("truth_used") is False and p.score < reference['score'],
+                meta['proposal'].get("truth_used") is False,
                 "direct partition inherited a raw certificate or penalty")
+        reference_identity = reference.get('partition_identity', {})
+        require(reference_identity.get('membership_sha256') ==
+                hashlib.sha256(p.reference_memberships.astype('<i8').tobytes()).hexdigest() and
+                reference_identity.get('score') == reference['score'], "unbound raw reference partition")
+        validate_ancestry(meta['proposal'], reference_identity, identity)
     else:
         require(family == "raw_fusion_path" and meta.get("raw_qualified") is True and
                 meta.get("raw_certificate") == certificate and meta.get("selected_lambda") == reference['lambda_value'] and
@@ -195,8 +253,7 @@ def validate_partition_result(result):
     require(best['origin'] == meta['origin'], "winner violates score/tie ordering")
     require(p.search_status in ('complete', 'incomplete') and
             not (result.search_status == 'incomplete' and p.search_status == 'complete'), "false search coverage")
-    proposal_statuses = [r.get('proposal', {}).get('status', r.get('proposal_status'))
-                         for r in p.records if r.get('candidate_family') == 'direct_partition']
+    proposal_statuses = [r.get('coverage_status', 'fixed_point') for r in p.records]
     complete = (result.search_status == 'complete' and
                 all(r.get('status') != 'unresolved' for r in p.records) and
                 all(status == 'fixed_point' for status in proposal_statuses))

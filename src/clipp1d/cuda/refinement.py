@@ -11,24 +11,35 @@ from .policy import CudaPolicy, QualificationError
 
 @dataclass(frozen=True)
 class PartitionSearchPolicy:
-    policy_id: str = "explicit_partition_search_v1"
+    policy_id: str = "explicit_partition_birth_v2"
     all_starts: bool = True
     separate_exact_one: bool = True  # Retained baseline; False is a distinct grouping ablation.
     max_rounds: int = 4
     max_moves: int = 10000  # Per fixed-center sweep, reported if exhausted.
     cost_block_size: int = 128
     minimum_decrease: float = 1e-8
+    birth_mode: str = "single_cluster"  # off / tested K=1 repair / conditional any-cluster
+    seed_bank_size: int = 1  # >1 is an independently selectable experiment.
+    birth_refine_seeds: int = 3
+    birth_max_rounds: int = 20
+    birth_max_parents: int = 8
+    birth_generations: int = 1
 
     def __post_init__(self):
         for name in ("all_starts", "separate_exact_one"):
             if not isinstance(getattr(self, name), bool):
                 raise ValueError(f"{name} must be boolean")
-        for name in ("max_rounds", "max_moves", "cost_block_size"):
+        for name in ("max_rounds", "max_moves", "cost_block_size", "seed_bank_size",
+                     "birth_refine_seeds", "birth_max_rounds", "birth_max_parents", "birth_generations"):
             v = getattr(self, name)
             if isinstance(v, bool) or not isinstance(v, int) or v < 1:
                 raise ValueError(f"{name} must be a positive integer")
         if not 0 < self.minimum_decrease < float("inf"):
             raise ValueError("minimum_decrease must be finite and positive")
+        if self.birth_mode not in ("off", "single_cluster", "any_cluster"):
+            raise ValueError("Unknown birth_mode")
+        if self.seed_bank_size > 8 or self.birth_refine_seeds > 8:
+            raise ValueError("Seed banks are bounded to at most eight entries")
 
 
 def center_costs(model, centers, block_size=128):
@@ -152,7 +163,13 @@ def refine_memberships(model, initial, policy=CudaPolicy(), search_policy=Partit
     best = initial
     records = []
     for iteration in range(search_policy.max_rounds):
-        moved = reassign_fixed_centers(model, best.labels, best.centers, search_policy)
+        try:
+            moved = reassign_fixed_centers(model, best.labels, best.centers, search_policy)
+        except QualificationError as error:
+            records.append(dict(round=iteration, status="unresolved", refit_status="not_started",
+                                seed_score=float(best.score), error=str(error),
+                                failure_diagnostics=error.diagnostics))
+            return best, records, "unresolved"
         record = dict(round=iteration, fixed_center_status=moved.status, moves=moved.moves,
                       seed_score=float(best.score), fixed_center_score=float(moved.score))
         if not moved.moves:
@@ -168,7 +185,10 @@ def refine_memberships(model, initial, policy=CudaPolicy(), search_policy=Partit
             return best, records, "unresolved"
         if not bool(fitted.score <= moved.score +
                     256 * torch.finfo(torch.float64).eps * (1 + moved.score.abs())):
-            raise QualificationError("Qualified refit lost its feasible incumbent score")
+            record.update(status="unresolved", refit_status="incumbent_check_failed",
+                          error="Qualified refit lost its feasible incumbent score")
+            records.append(record)
+            return best, records, "unresolved"
         if not bool(fitted.score < best.score - search_policy.minimum_decrease):
             record.update(status="no_qualified_improvement", refit_status="qualified", score=float(fitted.score))
             records.append(record)

@@ -1,0 +1,92 @@
+{
+  "schema": "clipp1d.birth_cuda_submission.v1",
+  "status": "running_not_qualified",
+  "accepted": {
+    "utc": "2026-09-26T01:10:12.348001+00:00",
+    "job_id": "77425633",
+    "job_name": "clipp1d_birth_0925a",
+    "user": "yding4",
+    "queue": "egpu",
+    "held": true,
+    "root": "/rsrch8/scratch/bcb/yding4/clipp1d_birth_qualification_20260925a",
+    "cpu_slots": 1,
+    "gpus": 1,
+    "host_memory_gb": 32,
+    "wall_minutes": 60,
+    "source_sha256": "55d6e45949e4dee2e8798ac81fb49510baffca9959104355db87d45acca1a523",
+    "archive_sha256": "a6df13f3549e2263af7f39a5f9a9e0c38a66689409c529185284f6b011863316",
+    "wrapper_sha256": "2ac4958bf830eb7f0b8ef3afe2af4e14860cc4d98d8019f08137f25b4ba38ce7"
+  },
+  "activated_utc": "2026-09-26T01:12:54.085123+00:00",
+  "source_sha256": "55d6e45949e4dee2e8798ac81fb49510baffca9959104355db87d45acca1a523",
+  "source_commit": "d44c3e728fa6f535f725719cc77a1dab9a96efc5",
+  "source_dirty": true,
+  "archive_sha256": "a6df13f3549e2263af7f39a5f9a9e0c38a66689409c529185284f6b011863316",
+  "original_archive_sha256": "609f7d9b98d25aec54e607c022be947732ed9d08cc29d7a10cac30ad2ea038ed",
+  "inventory_sha256": "dd66f71e021b59c53321b98151e66ad37f7054e5e3567d3c1236bdd35d82c4e0",
+  "wrapper_sha256": "2ac4958bf830eb7f0b8ef3afe2af4e14860cc4d98d8019f08137f25b4ba38ce7",
+  "environment_sha256": "c026fbddbd2ee46d14460c47cced807456c6a637dd82f1462ebb384dd4b23558",
+  "compiler_sha256": "b84b3a39da544e68b2eac6d285433431d58fa09d3aa2b5f925ed387127be5512",
+  "scope": [
+    "three paired full-path engineering fixtures with independent variants",
+    "one birth ancestry publication on certified fused raw reference",
+    "382 frozen-partition replays including 72 eligible K1 cases"
+  ],
+  "authorization": "One temporary additional LSF GPU, one CPU, 32 GB host memory, up to 60 minutes; existing 10 A100 + 4 H100 campaign unchanged",
+  "snapshot": {
+    "utc": "2026-09-26T01:13:13.993018+00:00",
+    "display_time": "2026-09-25 20:13:13 CDT",
+    "scheduler_state": "RUN",
+    "host": "gdragon005",
+    "cpu_slots_allocated": 1,
+    "gpus_allocated": 1,
+    "cuda_qualification_complete": false
+  },
+  "heldout_study": "not_run",
+  "evidence": [
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/birth-integration-20260925/lsf-qualification-20260925a/AUTHORIZATION.json",
+      "sha256": "22193fb8d127e048def7a8310bf07e59a650644a6841e30ae5263e15635fcd22"
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/birth-integration-20260925/lsf-qualification-20260925a/PLAN.json",
+      "sha256": "9dabd0260d2d7fa48eb1139f149e64ecc735d30dfba078225484cdee829d8955"
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/birth-integration-20260925/lsf-qualification-20260925a/preflight.json",
+      "sha256": "d6d71ce364270df085699bc44e84caec4b88bd2cbfc367531679694bea94f754"
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/birth-integration-20260925/lsf-qualification-20260925a/publish.json",
+      "sha256": "5fe3cf58f350f381d7f896628747dd783030c6dcf004d2973392cb67aeaad1c7"
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/birth-integration-20260925/lsf-qualification-20260925a/publication_state.json",
+      "sha256": "d0ddec970fc9aa80b40260fea044ff8df45884c44b30092ebd6b93a5f930c344"
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/birth-integration-20260925/lsf-qualification-20260925a/publish_reserved.json",
+      "sha256": "169b0551bfb9bae8fd80617de060ae7b178bb30ab8011c8f2f86786898a4440d"
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/birth-integration-20260925/lsf-qualification-20260925a/submit_held.json",
+      "sha256": "7c43357a8db4a345cab608698cf7888f579a1ba690e0632c764b8fcea49641d6"
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/birth-integration-20260925/lsf-qualification-20260925a/activate.json",
+      "sha256": "455d169e21e4b747cc94c7c61cc7141ca2ee7e5dc7163cbe11f88ae0969c6496"
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/birth-integration-20260925/lsf-qualification-20260925a/admission_cpu.json",
+      "sha256": "0ead684d80034c46064d1dd4842e34fce2ee564200c186f4612d027d48265322"
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/birth-integration-20260925/lsf-qualification-20260925a/activate_v2.json",
+      "sha256": "59ff3373ca9535bfec84a2b2c70bec5111f6fac2e5b408f0bcd8f45bb8eee4aa"
+    },
+    {
+      "path": "/storage/CliPP2/CliPP1.5/results/birth-integration-20260925/lsf-qualification-20260925a/initial_status.json",
+      "sha256": "918bd4a9c5ef22586359469c835ae1d346f825b1ab16163fb4808b00f5d87c7f"
+    }
+  ]
+}

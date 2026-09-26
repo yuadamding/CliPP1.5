@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import numpy as np
 import torch
+from clipp1d.cuda.refinement import PartitionSearchPolicy
 from clipp1d.api import source_provenance
 from clipp1d.cuda_api import fit, require_cuda, PARTITION_SCHEMA
 from clipp1d.io import SCHEMA_COLUMNS
@@ -42,6 +43,8 @@ def main():
             path = args.outdir/(name+'.tsv')
             write_case(path, alt, major)
             baseline = fit(path, args.outdir/(name+'-baseline'), device=str(device))
+            current = fit(path, args.outdir/(name+'-birth-off'), device=str(device), partition_search=True,
+                          partition_policy=PartitionSearchPolicy(birth_mode='off'))
             extended = fit(path, args.outdir/(name+'-partition'), device=str(device), partition_search=True)
             generic = fit(path, args.outdir/(name+'-generic'), device=str(device), partition_search=True,
                           generic_partition_grouping=True)
@@ -55,6 +58,21 @@ def main():
                 assert abs(baseline.selection_score - variant.selection_score) < 1e-7
                 assert variant.partition_estimate.score <= baseline.selection_score
                 assert variant.provenance['compiled_inference'] is True
+            assert extended.partition_estimate.score <= current.partition_estimate.score
+            variants = {}
+            for mode, seeds in [('off', 3), ('single_cluster', 3), ('any_cluster', 3)]:
+                label = f'{mode}-seeds{seeds}'
+                variant = fit(path, args.outdir/(name+'-'+label), device=str(device), partition_search=True,
+                              partition_policy=PartitionSearchPolicy(birth_mode=mode, seed_bank_size=seeds))
+                assert variant.graph_sha256 == baseline.graph_sha256
+                assert variant.selected_lambda == baseline.selected_lambda
+                assert variant.search_status == baseline.search_status
+                np.testing.assert_array_equal(variant.cluster_labels, baseline.cluster_labels)
+                np.testing.assert_allclose(variant.raw_phi, baseline.raw_phi, atol=1e-9, rtol=0.)
+                assert variant.partition_estimate.score <= current.partition_estimate.score
+                variants[label] = dict(score=variant.partition_estimate.score,
+                    seconds=variant.operation_metrics['elapsed_seconds'],
+                    peak_allocated_bytes=variant.provenance['peak_allocated_bytes'])
             output = json.loads((args.outdir/(name+'-partition')/'run.json').read_bytes())
             assert output['schema'] == PARTITION_SCHEMA and len(output['table_sha256']) == 5
             for filename, expected in output['table_sha256'].items():
@@ -63,12 +81,38 @@ def main():
                                 baseline_score=baseline.selection_score, partition_score=extended.partition_estimate.score,
                                 generic_score=generic.partition_estimate.score,
                                 family=extended.partition_estimate.provenance['candidate_family'],
+                                previous_partition_score=current.partition_estimate.score,
+                                independent_variants=variants,
                                 baseline_seconds=baseline.operation_metrics['elapsed_seconds'],
                                 partition_seconds=extended.operation_metrics['elapsed_seconds'],
                                 generic_seconds=generic.operation_metrics['elapsed_seconds'],
                                 partition_search_status=extended.partition_estimate.search_status,
                                 peak_allocated_bytes=extended.provenance['peak_allocated_bytes']))
-        receipt = dict(status='passed', paired_complete_path_cases=len(records), records=records)
+        # Exercise publication of a birth-derived result whose independent raw
+        # reference is genuinely fused, not just a component-level replay.
+        from clipp1d.io import read_tumor
+        from clipp1d.model import compile_model
+        from clipp1d.cuda.model import TensorModel
+        from clipp1d.cuda.selection import fit_tensor_model
+        from clipp1d.cuda_api import _export, _publish
+        path = args.outdir/'birth-publication.tsv'
+        write_case(path, [12, 13, 38, 39], [1]*4)
+        data = read_tumor(path)
+        host = compile_model(data)
+        host = host.subset(np.argsort(host.mutation_ids, kind='stable'))
+        model = TensorModel.from_host(host, device, compiled=True)
+        d = fit_tensor_model(model, lambda_values=[1000.], partition_search=PartitionSearchPolicy())
+        result = _export(d, source_provenance())
+        destination = args.outdir/'birth-publication'
+        destination.mkdir()
+        _publish(result, data, destination, d.records)
+        assert result.partition_estimate.provenance['proposal']['ancestry'][0]['operation'] == 'birth'
+        assert result.partition_estimate.score < result.selection_score
+        records.append(dict(case='birth-publication-restricted-penalty',
+                            score=result.partition_estimate.score, raw_partition_score=result.selection_score,
+                            scope='compiled birth ancestry/publication on certified raw reference; not default-path timing'))
+        receipt = dict(status='passed', paired_complete_path_cases=len(fixtures),
+                       restricted_penalty_birth_publications=1, records=records)
     except Exception as error:
         receipt = dict(status='failed', error=repr(error), records=records)
         raise

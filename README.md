@@ -49,10 +49,14 @@ print(result.search_status)
 The opt-in [separate partition estimator](docs/PARTITION_SEARCH.md) adds
 `--partition-search`, which scores every qualified raw start's distinct
 memberships and alternates exact-score reassignment with qualified refits.
-It adds two partition tables and schema-v4 provenance while retaining the
-primary raw outputs. CUDA and held-out qualification of this new stage are
-pending; [reference validation](validation/partition-search-20260925/README.md)
-records the 193-case frozen replay and its limits.
+It now includes the tested whole-group birth repair for selected K=1 tumors.
+It adds two partition tables and schema-v5 ancestry while retaining the primary
+raw outputs. `--partition-birth off` provides the previous search ablation;
+`--partition-seeds 3` and `--partition-birth any_cluster` are separate experimental
+extensions. [Birth validation](validation/birth-search-20260925/README.md) records
+the frozen 382-case CPU replay; allocated-CUDA and held-out validation remain
+separate gates. The [earlier reference record](validation/partition-search-20260925/README.md)
+preserves the original 193-case evidence.
 
 The twelve-column TSV input contract, copy-number filtering, marginalized
 multiplicity likelihood, original probability-safe bounds and partition-score

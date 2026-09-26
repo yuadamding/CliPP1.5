@@ -23,7 +23,7 @@ from .cuda.policy import CudaPolicy, QualificationError
 from .cuda.selection import fit_tensor_model
 
 SCHEMA = "clipp1d.cuda.run.v3"
-PARTITION_SCHEMA = "clipp1d.cuda.run.v4"
+PARTITION_SCHEMA = "clipp1d.cuda.run.v5"
 BASE_COMMIT = "371003ffcadcc57e23c62df5901d9463085cceea"
 
 
@@ -568,7 +568,7 @@ def _publish(result, data, destination, records, *, wall_started=None):
 
 @torch.no_grad()
 def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:0",
-        partition_search=False, generic_partition_grouping=False):
+        partition_search=False, generic_partition_grouping=False, partition_policy=None):
     """Fit one sample on CUDA, default float64, with strict compiled tensor kernels.
 
     An unavailable CUDA device or compiler error is fatal. Numerical candidates
@@ -592,6 +592,13 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
             raise ValueError("Partition search controls must be boolean")
         if generic_partition_grouping and not partition_search:
             raise ValueError("Generic partition grouping requires partition_search")
+        from .cuda.refinement import PartitionSearchPolicy
+        if partition_policy is not None and (not partition_search or not isinstance(partition_policy, PartitionSearchPolicy)):
+            raise ValueError("partition_policy requires partition_search and a PartitionSearchPolicy")
+        search = partition_policy if partition_policy is not None else (
+            PartitionSearchPolicy(separate_exact_one=not generic_partition_grouping) if partition_search else None)
+        if search is not None and search.separate_exact_one != (not generic_partition_grouping):
+            raise ValueError("Partition grouping controls disagree")
         d = require_cuda(device)
         compiler = os.environ.get("CC")
         if not compiler or shutil.which(compiler) is None:
@@ -617,7 +624,9 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
         # Conservative preflight, not a claimed exact memory bound for compiler allocations.
         estimated = 32 * 8 * len(canonical) ** 2 + 64 * 4096 * 8 * 4
         if partition_search:
-            estimated += 4 * 8 * len(canonical) ** 2  # Additional raw reference and worst-case N-by-K costs.
+            # Each retained seed can own an independent dense raw dual. This
+            # bound also accounts for the baseline and preserved current winner.
+            estimated += (4 + 2*search.seed_bank_size) * 8 * len(canonical) ** 2
         if estimated > policy.memory_fraction * free:
             raise MemoryError(f"Dense complete-graph preflight needs approximately {estimated} bytes; {free} free")
         source.update(gpu_name=props.name, capability=list(torch.cuda.get_device_capability(d)),
@@ -630,8 +639,6 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
         model = TensorModel.from_host(canonical, d, compiled=True)
         _synchronize(d)
         phases["device_upload_and_compile_seconds"] = perf_counter() - upload_started
-        from .cuda.refinement import PartitionSearchPolicy
-        search = PartitionSearchPolicy(separate_exact_one=not generic_partition_grouping) if partition_search else None
         result_device = fit_tensor_model(model, policy, partition_search=search)
         _synchronize(d)
         for key in ("pilot_seconds", "graph_build_seconds", "path_seconds", "refit_seconds", "stage_integrity_seconds"):

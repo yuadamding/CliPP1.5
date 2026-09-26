@@ -16,6 +16,10 @@ It is a different scientific contract from the adjacent **CliPP2** repository.
   `--partition-search` retains the primary raw output and adds independently
   qualified partition tables. It is opt-in pending allocated-CUDA and held-out
   evidence; never relabel CPU replay as CUDA qualification.
+  The v2 search policy adds default K=1 birth proposals; multi-seed and general
+  splitting remain explicit experiments. See the
+  [birth validation record](validation/birth-search-20260925/README.md) for
+  discovery replay, schema-v5 ancestry and the revised uncontaminated holdouts.
 - Status, recovery or cohort evaluation: [operations and lessons](benchmarks/OPERATIONS.md).
   On this workstation, start from `results/CURRENT_RUNS.json`; do not infer the
   active attempt from directory names or an old progress message.
@@ -69,6 +73,11 @@ It is a different scientific contract from the adjacent **CliPP2** repository.
   ten A100 plus four H100 shared pool to **CN-first 4K**. Follow
   `results/CURRENT_CNFIRST.json` and [the campaign note](BENCHMARK_CNFIRST.md).
   OCCAMS output preservation is not authorization to resume its old workers.
+- The September 25 cluster-birth revision has a separately authorized temporary
+  **one-GPU LSF qualification** (one CPU, 32 GB host RAM, up to 60 minutes).
+  Follow `results/CURRENT_BIRTH_QUALIFICATION.json` for its exact identity and
+  source. This exception leaves the existing 10 A100 + 4 H100 campaign intact;
+  it does not revive stopped cohort LSF runs or authorize held-out cohort fits.
 - The user then explicitly requested **skip qualification** for this CN-first
   campaign. Its v2 launch starts the full 10 A100 + 4 H100 pool directly and
   records qualification as skipped. Do not restore the prelaunch gate for this
