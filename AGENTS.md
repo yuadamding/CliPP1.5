@@ -23,6 +23,27 @@ It is a different scientific contract from the adjacent **CliPP2** repository.
 - Status, recovery or cohort evaluation: [operations and lessons](benchmarks/OPERATIONS.md).
   On this workstation, start from `results/CURRENT_RUNS.json`; do not infer the
   active attempt from directory names or an old progress message.
+- Statistical-model development: [soft mixture experiment](docs/SOFT_MIXTURE_EXPERIMENT.md).
+  This separately identified CUDA estimator has an explicit CPU reference adapter;
+  it is not the default, has no inherited fusion/refit certificate, and requires
+  the three-cohort and allocated-CUDA gates before adoption.
+  The expanded 3,097-case development test has a separate
+  `results/CURRENT_MIXTURE_STUDY.json` pointer. Its original one-slot LSF phase
+  used three publication canaries before the remaining cases. Preserve failed
+  qualification attempts and follow the latest resource override below.
+  The September 28 scheduling recovery allows qualification on A40 or L40 and
+  binds later jobs to the actual qualified model. Follow the current pointer;
+  the original L40-only panel owner is retired and must not be restarted.
+  The later September 28 user instruction stops all previous CliPP1.5 runs
+  and transfers their capacity to this Experimental study: 10 A100, 4 H100
+  and 22 scalar LSF slots, sharing one case-claim queue. The new pool imports
+  603 validated cases of the fixed 3,097-case inventory. Baseline CN-first,
+  SimClone/Phylogic and the prior-proposal study remain stopped; other methods
+  are outside this stop scope. See [the handoff](benchmarks/OPERATIONS.md#experimental-resource-transfer-september-28).
+  That fixed study is now complete: all 3,097 cases are validated and evaluated,
+  with no active workers. Use the resolved result index for the five recovered
+  output paths. The [completed performance report](validation/experimental-pool-20260928/PERFORMANCE.md)
+  supersedes partial comparisons; SimClone/Phylogic sMF CCC still trails PyClone-VI.
 - September 23 recovery evidence and its limits:
   [dated recovery record](validation/cohort-recovery-20260923/README.md).
 - CPU runs: [explicit benchmark adapter](benchmarks/CPU_COMPLETE_GRAPH.md).
@@ -32,6 +53,13 @@ It is a different scientific contract from the adjacent **CliPP2** repository.
 
 ## Scientific boundaries
 
+- **Preserve CN-first4K accuracy while improving SimClone1000 and PhylogicNDT500.**
+  The user's September 27 requirement targets best performance on all three
+  with one scientific policy. Follow the [three-cohort acceptance contract](docs/THREE_COHORT_ACCEPTANCE.md):
+  no cross-cohort metric compensation, truth/cohort-specific tuning, or adoption
+  from a partial favorable panel. A lower objective or preserved baseline
+  candidate does not guarantee preserved accuracy. Existing study-specific
+  acceptance reports do not replace this joint requirement.
 - **Do not restore a clonal fitting constraint.** Every CCF retains its original
   feasible bounds. The refitted cluster closest to CCF 1 receives label 0, with
   canonical mutation-ID tie breaking. Labeling does not alter the fit.

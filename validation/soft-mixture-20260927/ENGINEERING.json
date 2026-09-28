@@ -1,0 +1,78 @@
+{
+  "utc": "2026-09-28T00:16:00.233941+00:00",
+  "execution": "explicit CPU component reference, ml1, float64",
+  "source_commit": "da651879c2a33f481957ffae1d1c865d11ad39c8",
+  "source_dirty": true,
+  "source_files": {
+    "src/clipp1d/cuda/mixture.py": "b7378148e498730d49b589dfd67ba678589479a28fbfd10f82f5688bf32c3b6a",
+    "benchmarks/run_mixture_experiment.py": "861041d41dae37cb1f93dd085ccc1c54b7c5b5acbf7bb344ec28fd3308f3a33f",
+    "benchmarks/mixture_structural_guard.py": "74856b026416ab2202eb9e05628e1e192b8bac8a7e53716b790c36003f7d51bd",
+    "benchmarks/apply_mixture_structural_guard.py": "ad6c0bb1a2fcfc9b0733f1595fa4b0fb5e0aade766f5e7b765dcc19b4e9d2ab0",
+    "benchmarks/evaluate_mixture_experiment.py": "3d55e8d088ed471c4b1ab34f27c59ba6f01a3b08587eeadd925c4f633a58c645",
+    "benchmarks/qualify_mixture_cuda.py": "1383247b1d120d1303dd01d33c581146e957dd79c17a60e66cd868d869d8b3fd",
+    "benchmarks/prepare_four_cohorts.py": "897f79261cd2b8b429d58c88ea4a55a097329201f9e1443ae68a52d1d24dfd60",
+    "tests/test_mixture_estimator.py": "086e63296be31765d56e0ed75b309671b3486f2b664b6c263d041d158786c27e",
+    "tests/test_mixture_experiment_io.py": "cceaf47752f82a7cf89a8378a01684a43ac4bc4d319a1e0f827558d75a233058",
+    "tests/test_mixture_structural_guard.py": "16a0014ff202ca20c1e85bc52f2f78fdd315d79cc30923f325cd4bc11b8833a9",
+    "tests/test_mixture_evaluation.py": "686df75cef4f2e909ae6c8e74525d227068e2c0473351c118587dc51c1f04085",
+    "tests/test_mixture_cuda.py": "e66e8470447d531168f004d56c4e09b82c0f0b37c081b363332cb7e98af07b58",
+    "tests/test_cohort_truth_join.py": "219564c39245122fe7976c84901080150a38a94a8c07637edba9a2acfc994db3"
+  },
+  "focused_pytest_runs": [
+    {
+      "files": [
+        "tests/test_mixture_estimator.py",
+        "tests/test_mixture_experiment_io.py",
+        "tests/test_mixture_structural_guard.py"
+      ],
+      "passed": 15,
+      "note": "Before addition of preserved-metadata regression; numerical module unchanged afterward"
+    },
+    {
+      "files": [
+        "tests/test_mixture_experiment_io.py"
+      ],
+      "passed": 3,
+      "note": "Latest IO publication tests, including preserved-metadata regression"
+    },
+    {
+      "files": [
+        "tests/test_mixture_evaluation.py"
+      ],
+      "passed": 1
+    },
+    {
+      "files": [
+        "tests/test_cohort_truth_join.py",
+        "tests/test_simclone_repair.py"
+      ],
+      "passed": 5
+    }
+  ],
+  "unique_cpu_tests_passed": 22,
+  "scoped_ruff": "passed",
+  "cuda_tests_executed": 0,
+  "cuda_qualified": false,
+  "production_adopted": false,
+  "center_reduction_fit_parity": {
+    "cases": 20,
+    "labels_equal": true,
+    "multiplicity_equal": true,
+    "max_ccf_difference": 0.0,
+    "max_score_difference": 0.0,
+    "statuses_equal": true,
+    "scope": "Same CPU numerical model before and after identical-slope center-step reduction; not CUDA qualification"
+  },
+  "phylogic_truth_repair": {
+    "cases": 12,
+    "retained": 23799,
+    "changed_mixed_flags": 664,
+    "inputs_unchanged": true,
+    "other_truth_fields_unchanged": true
+  },
+  "evidence_files": {
+    "results/soft-mixture-development-20260927-v2/CENTER_REDUCTION_FIT_PARITY.json": "3302a13dd2aba54db1e4013a53167841798d1ef7622256d2c0f4bc6ab2e8a402",
+    "results/soft-mixture-development-20260927-v2/corrected-phylogic-truth/VALIDATION.json": "b0a52958926c69a6c26dea9a46ca57da0499d053d488ccebdd9f8b129fb4652f",
+    "results/soft-mixture-development-20260927-v2/SESSION_INTERRUPTION_RECOVERY.json": "967dbb380073390366487bfb614c9b128013f3f550070df0c615d89397eb34ba"
+  }
+}

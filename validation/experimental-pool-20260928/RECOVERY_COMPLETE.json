@@ -1,0 +1,167 @@
+{
+  "status": "all_cases_validated",
+  "utc": "2026-09-28T19:44:30.666537+00:00",
+  "planned": 3097,
+  "validated": 3097,
+  "preserved": 3092,
+  "recovered": [
+    "02593",
+    "02920",
+    "02915",
+    "02921",
+    "02922"
+  ],
+  "unresolved_failed_cases": 0,
+  "active_gpu_workers": 0,
+  "original_failure_evidence_preserved": true,
+  "scientific_changes": false,
+  "production_adopted": false,
+  "result_index_sha256": "8db668bb23606313fe4b22b5dd97e003763ede398cf1b89f4075e5eb756340d7",
+  "generation_sha256": "e4b712809974e74ae8bcac953eaa621d5837b7a79514a0d473b7218a71f80940",
+  "qualifications": {
+    "lsf": {
+      "qualification_sha256": "79b1407023ec06229df0b3f1753baa5b877d5e904e52bbe8e62b92983917fe94",
+      "stress_sha256": "e663becf2c6bbe49337467dd1b918a4e5513010696d1d82b893414c66742cf65",
+      "gpu": "NVIDIA A40",
+      "tests": {
+        "tests": 3,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      "pairs": [
+        {
+          "case_id": "100_2_0.4_0.1_rep80",
+          "max_ccf_delta": 0.0,
+          "score_delta": -3.637978807091713e-12
+        },
+        {
+          "case_id": "Sim_500_16",
+          "max_ccf_delta": 0.0,
+          "score_delta": 0.0
+        },
+        {
+          "case_id": "simn0vt5y",
+          "max_ccf_delta": 0.0,
+          "score_delta": 0.0
+        }
+      ],
+      "stress": [
+        {
+          "components": 1,
+          "repetitions": 2000,
+          "max_posterior_delta": 6.439293542825908e-15
+        },
+        {
+          "components": 2,
+          "repetitions": 2000,
+          "max_posterior_delta": 7.105427357601002e-15
+        },
+        {
+          "components": 8,
+          "repetitions": 2000,
+          "max_posterior_delta": 8.548717289613705e-15
+        }
+      ],
+      "peak_reserved_bytes": 23068672,
+      "largest_input_n": 2180
+    },
+    "h100": {
+      "qualification_sha256": "594bdd105073e29a8bd66963003efb949b31c87c55cff13c45b65035960efc1e",
+      "stress_sha256": "fead35d70d19b5938bad7b76d96e4475b3e5ae4aee5c88f602ed2be8dbe54609",
+      "gpu": "NVIDIA H100 80GB HBM3",
+      "tests": {
+        "tests": 3,
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0
+      },
+      "pairs": [
+        {
+          "case_id": "100_2_0.4_0.1_rep80",
+          "max_ccf_delta": 0.0,
+          "score_delta": -3.637978807091713e-12
+        },
+        {
+          "case_id": "Sim_500_16",
+          "max_ccf_delta": 0.0,
+          "score_delta": 0.0
+        },
+        {
+          "case_id": "simn0vt5y",
+          "max_ccf_delta": 0.0,
+          "score_delta": 0.0
+        }
+      ],
+      "stress": [
+        {
+          "components": 1,
+          "repetitions": 2000,
+          "max_posterior_delta": 6.439293542825908e-15
+        },
+        {
+          "components": 2,
+          "repetitions": 2000,
+          "max_posterior_delta": 7.105427357601002e-15
+        },
+        {
+          "components": 8,
+          "repetitions": 2000,
+          "max_posterior_delta": 8.548717289613705e-15
+        }
+      ],
+      "peak_reserved_bytes": 54525952,
+      "largest_input_n": 2180
+    }
+  },
+  "default_diagnostics": {
+    "02593": {
+      "original_failure_reproduced": false,
+      "successful_default_repeats": 3,
+      "repaired_score_deltas": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "02920": {
+      "original_failure_reproduced": false,
+      "successful_default_repeats": 3,
+      "repaired_score_deltas": [
+        1.4551915228366852e-11,
+        1.4551915228366852e-11,
+        1.4551915228366852e-11
+      ]
+    }
+  },
+  "verified_clean_child_groups": 12,
+  "lsf_states": {
+    "77471879": "DONE",
+    "77471986": "DONE"
+  },
+  "h100": {
+    "name": "clipp1d-experimental-h100-recovery-20260928a",
+    "uid": "a2bab056-0452-4336-96bd-277a05dfec4d",
+    "pool_completed": true,
+    "job_absent": true,
+    "pods_absent": true
+  },
+  "shutdown_replay": {
+    "key": "01059",
+    "previous_job": "77469627",
+    "replay_job": "77471986",
+    "comparison": {
+      "mixture": {
+        "max_ccf_delta": 0.0,
+        "score_delta": 0.0,
+        "labels_and_multiplicity_equal": true
+      },
+      "guarded": {
+        "max_ccf_delta": 0.0,
+        "score_delta": null,
+        "labels_and_multiplicity_equal": true
+      }
+    },
+    "original_root_cause": "Not identifiable from retained logs; descendant cleanup gap reproduced locally and repaired."
+  }
+}

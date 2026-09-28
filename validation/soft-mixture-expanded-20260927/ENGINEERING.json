@@ -1,0 +1,25 @@
+{
+  "utc": "2026-09-28T01:21:32.557322+00:00",
+  "source_inventory": {
+    "benchmarks/mixture_lsf/common.py": "92df8a32e32a04cb1fa942760efa67f6f3c46fd476ed50cb5fceb7e04a2a99a9",
+    "benchmarks/mixture_lsf/controller.py": "0e8fdca6b94750934039fd6a4c01d247976c2ae3a84f1f64e4d313b11ff98a9f",
+    "benchmarks/mixture_lsf/worker.py": "f42ab628ca9ec58afcf967b249e24eaeece70a7c97705e598ce9004a877f4dfb",
+    "benchmarks/mixture_artifacts.py": "22ba2cb77d378a322f57654b0089e422be163df235f1f12fae26de71e2123041",
+    "benchmarks/evaluate_mixture_experiment.py": "555840ec4d514260d75898939135188f34da22b0d02dcbc5c3e37cb1e956665f",
+    "tests/test_mixture_lsf.py": "dad78424a3f00c7ac1a4369e09f0b445fed501edf855b2056a69bb00a62343d7",
+    "tests/test_mixture_evaluation.py": "9facbb774068b7e45eea425ff0f660fdbcdb984c6839a7ab07032a3a1a1a7a19"
+  },
+  "focused_tests": 10,
+  "pytest_log_sha256": "835b2023e6fc77787ef6c6a1cb7f19e41f582fbccbe5959fe2c7557cc7c25555",
+  "ruff": "passed",
+  "compileall": "passed",
+  "diff_check": "passed",
+  "relocated_36_case_replay": {
+    "cases": 36,
+    "all_metrics_exact": true,
+    "evaluator_sha256": "555840ec4d514260d75898939135188f34da22b0d02dcbc5c3e37cb1e956665f",
+    "resolver_sha256": "22ba2cb77d378a322f57654b0089e422be163df235f1f12fae26de71e2123041"
+  },
+  "numerical_source_changed": false,
+  "cuda_qualified": false
+}

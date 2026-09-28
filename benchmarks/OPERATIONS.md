@@ -30,6 +30,27 @@ stopped workers. OCCAMS's v3 pointer lists its draining predecessors and the
 two hardware groups consuming one shared queue, as requested subsequently.
 A cap or installed continuation is not allocated capacity.
 
+The September 26 multiplicity-prior proposal study has its own
+`results/CURRENT_PRIOR_STUDY.json` pointer, linked through
+`additional_run_pointers`. Its single LSF study slot is separate from the
+20-job SimClone/Phylogic pool. Read the [frozen study and handoff](../validation/prior-perturbation-v1/README.md)
+before interpreting its stages: qualification, 108 development comparisons,
+12 diagnostic factorial cases, 382 pilot-only discovery cases, 324 confirmation
+comparisons and nine cost fixtures are different units. Auxiliary failures do
+not erase the preserved B result; incomplete extra-search coverage is separate
+from publication failure. This experiment does not promote a new default or
+revive any stopped Regional-CN/OCCAMS campaign.
+
+The first prior-study canary exposed a cold-process CUDA initialization bug:
+visibility checks and a separate worker probe do not initialize the fitting
+child's allocator. Synchronize before resetting CUDA memory statistics, and
+qualify actual fresh children before the parent owns an exclusive GPU context.
+The [startup recovery](../validation/prior-perturbation-v1/recovery-20260926c/README.md)
+also fixes the case-sensitive qualification receipt consumed by panel admission.
+Use the current pointer for the retry; preserve the original qualification and
+failure receipts, and bind benchmark hashes even when the numerical fingerprint
+is unchanged.
+
 For fixed-queue handoff, publish the supported drain flag before reserving each
 queue's started prefix and first unstarted frontier. An already-admitted case
 may create its directory after the flag; only keys beyond that frontier are
@@ -60,6 +81,139 @@ Documentation-only work needs no remote session. For remote work, use the
 installed [Seadragon skill](/home/yding1995/.agents/skills/seadragon/SKILL.md) and
 only its requested scheduler route. CliPP2-specific skills and the neighboring
 repository do not override CliPP1.5's unconstrained scientific contract.
+
+## Soft-mixture GPU scheduling recovery, September 28
+
+The expanded study initially restricted its qualification and case jobs to
+L40 GPUs. The qualification waited nearly four hours while compatible A40
+capacity was available. An authorized resource-only transition removed the
+qualification's model restriction with `bmod -gpu
+'num=1:mode=exclusive_process' 77453726`; that same job then started on an A40.
+This is dated evidence, not a reusable job ID or live capacity observation.
+
+LSF applied the accepted `bmod` asynchronously: the immediate `bjobs -UF`
+response still showed the old request. Preserve the mutation response and
+reconcile the effective request after rescheduling; do not repeat a successful
+mutation merely because its first readback is stale.
+
+The old panel controller was cooperatively stopped and its terminal identity
+verified before installing a new immutable controller generation. The successor
+uses the hardware model from the qualification's hash-verified allocation log
+for both scheduler requests and actual worker-device checks. Qualifying one
+model does not qualify another model. Numerical source, input/seed bytes,
+candidate budgets, scoring, publication checks and the one-job cap remain fixed.
+Follow `results/CURRENT_MIXTURE_STUDY.json` for the current generation and its
+separate resource-change receipt. Do not edit the older frozen payload or restart
+its retired owner.
+
+## Experimental resource transfer, September 28
+
+The user subsequently requested: “stop all Previous CliPP1.5 runs and use all
+saved resources to test Experimental.” This supersedes the previous allocations
+and the Experimental one-slot cap. All older baseline CN-first, SimClone/Phylogic
+and prior-proposal controllers were stopped before their exact GPU children.
+The ten A100 and four H100 Jobs and UID-owned Pods were verified absent; the
+20 baseline LSF jobs and one prior-study job were terminated. Previously stopped
+OCCAMS, Regional-CN and local CliPP1.5 work remains stopped. Other methods are
+not covered by this stop instruction.
+
+`results/experimental-pool36-20260928-v1` binds the transition. Follow
+`results/CURRENT_MIXTURE_STUDY.json` for the active generation. The shared pool
+uses 10 A100 workers, 4 H100 workers and a 22-slot rolling scalar LSF controller.
+Every case receives exactly one atomic directory claim across schedulers; a
+missing or failed receipt never releases its claim automatically. Pending and
+uncertain LSF submissions retain capacity. One LSF job still fits one tumor.
+Kubernetes completion indexes identify workers, not case indexes.
+
+The old Experimental owner was stopped at a receipt-verified boundary of 603
+validated cases. All are explicitly imported with their original source,
+manifest, job and output hashes, leaving 2,494 of the unchanged 3,097 development
+cases. Their original artifacts remain in scratch. New shared worker data lives
+under the approved home project subdirectory because Kubernetes cannot see
+scratch. No truth files are supplied to inference, and qualification repeats
+are outside the cohort totals.
+
+The numerical source remains the previously qualified soft-mixture/structural
+selector. A40 qualification is reused only after exact source/environment checks.
+A new LSF worker canary gates expansion to 22. Each Kubernetes family starts
+with one worker, executes all three allocated-CUDA tests, checks three component
+outputs against the bound A40 references and guarded outputs against independent
+CPU references, then checks the largest input for capacity. Its exact supervisor
+scales to the authorized count only after that family qualifies. Requested slots,
+Running/Ready Pods and verified actual GPUs are reported separately.
+
+The institutional admission webhook overrides a requested 1-CPU/32-GiB shape
+with 24 CPUs and 100 GiB per A100 (200 GiB per H100). The first A100 dry run
+correctly failed before Job creation. A separate immutable Kubernetes control
+generation binds the enforced shape; it does not modify the already running
+LSF owner or frozen numerical worker. Keep the failed dry-run evidence. PyTorch
+still uses one compute thread. LSF retains its verified 1-CPU/32-GB contract.
+
+The first A100/H100 qualification workers then failed before numerical tests:
+the mounted `ml1` interpreter has no pytest. The successful A40 qualification
+had supplied a private, hash-bound `test_dependencies` tree; copying only the
+case-worker payload omitted it. Do not install into the shared environment or
+treat this as a numerical failure. The next Kubernetes-only control generation
+copies that exact dependency tree into its visible home directory, verifies
+`python -S -m pytest --version` locally and remotely, and exposes it only to the
+test subprocess. Use a new qualification namespace and new Job identities after
+proving both failed Jobs and their owned Pods absent. The healthy LSF owner and
+all validated results remain intact. Each successor worker records its control
+generation hash in its ownership and validation receipts.
+
+On A100, the first full SimClone qualification exposed an intermittent compiled
+posterior row with almost zero mass instead of one. The independent EM
+monotonicity guard correctly rejected the update. Eager likelihood/M-step replay
+agreed with the recorded objectives; loosening the guard would hide malformed
+posterior output. Returned-tensor mutation was excluded by a separate allocated
+diagnostic. Ten successful compiler repetitions were insufficient: disabling
+persistent reductions and epilogue fusion still failed at repetition 16 of a
+longer stress test.
+
+The qualified A100 `k8s-v5` execution wrapper additionally sets
+`max_fusion_size=1` and `allow_buffer_reuse=False`, with a generation-specific
+compiler cache. All mathematical source files and tolerances remain unchanged.
+It passed 2,000 eager stability repetitions, 6,000 compiled posterior checks,
+three allocated-CUDA tests, three paired publication cases and the N=2,180
+capacity case, then scaled to ten. At that launch the H100 `k8s-v3` owner and
+scalar A40 LSF owner retained their existing configurations. Do not generalize this
+result into a diagnosis of a specific upstream compiler bug or apply a new
+configuration to a running owner. See the
+[qualification record](../validation/experimental-pool-20260928/README.md).
+
+Compiled caches are shared within, and separated between, hardware families;
+temporary directories and GPU ownership remain worker-specific. The memory
+profiler must catch a successful helper `SystemExit(0)` before publishing peak
+memory; otherwise a successful fit silently skips its telemetry. Unit checks
+cover this, duplicate claims, uncertain scheduler state and complete activation
+identity tests. All completed output hashes are read back before counting a case.
+
+The later terminal snapshot had 3,092/3,097 validated cases: one A40 guard
+failure, one H100 guard failure and three H100 shutdown interruptions. The
+remaining A100 queue completed cleanly. The explicit `terminal-five-v1`
+recovery uses new claims/outputs and binds every failed predecessor receipt;
+never remove a failed original claim to put it back in the old queue. Both
+affected GPU families must qualify the new compiler generation separately.
+Original failures remain history even after successful replacement. Original
+status scripts do not see recovery subdirectories; use the current pointer's
+recovery status command and count each case once.
+
+One original LSF job also reached RUNLIMIT after publishing validated output.
+Its logs do not prove which process survived. A reproducible worker cleanup
+gap allowed compiler descendants to outlive their Python leader. The repaired
+`case_helpers.run_child` uses a scoped Linux subreaper and bounded cleanup of
+its own child group on success, failure, timeout and interruption. Group
+absence is recorded before validation; a valid table alone does not establish
+successful scheduler exit. Keep the original output, retain the scheduler
+anomaly, and use a separate paired replay to verify the shutdown repair.
+
+The [terminal recovery](../validation/experimental-pool-20260928/RECOVERY.md)
+completed all 3,097 cases and cleaned every worker. The subsequent
+[complete evaluation](../validation/experimental-pool-20260928/PERFORMANCE.md)
+includes all five replacement outputs via `RECOVERY_RESULT_INDEX.json` and
+supersedes the older 1,754-case performance snapshot. Read the current study
+pointer for the local report and per-sample tables; do not restart a retired
+controller or resolve replacement output paths from the original input root.
 
 ## Preserve execution and scientific identity
 
@@ -298,6 +452,12 @@ tolerance, mutation removal or inherited certificate.
 
 ## Inputs, evaluation and scientific interpretation
 
+- Apply the user's [three-cohort accuracy requirement](../docs/THREE_COHORT_ACCEPTANCE.md)
+  before adopting a revision: preserve CN-first4K and evaluate SimClone/Phylogic
+  separately with one source/configuration. The joint evaluator requires bound
+  paired populations and rejects missing candidate evidence. A passed older
+  prior-study acceptance gate alone does not satisfy this expanded requirement;
+  keep the frozen study's historical gates and active payload unchanged.
 - Stage under `TASK/input/<original-basename>` using
   [cohort_staging.py](cohort_staging.py). Without `##tumor_id`, the reader uses
   the basename; renaming everything `input.tsv` changed every attempted Sim4K
@@ -337,6 +497,17 @@ tolerance, mutation removal or inherited certificate.
   denser lambda sampling need not fix missing partitions. Those experiments
   do not establish the behavior of current complete-graph production. A better
   model score need not mean better truth ARI or sMF.
+- The [September 27 SimClone/Phylogic investigation](../RESEARCH_SIMCLONE_PHYLOGIC_PYCLONE_GAP.md)
+  separates those mechanisms on a frozen 436-case complete-graph panel.
+  Refit an external partition with the original likelihood and score before
+  attributing its absence to search: most better-ARI PyClone memberships lost
+  under the existing allocation penalty. Five severe SimClone CCF failures
+  retained low-CCF likelihood modes even with correct memberships; proposal-only
+  prior perturbation cannot change that final likelihood preference. These are
+  source-bound CPU component diagnostics, not CUDA or full-cohort qualification.
+  Preserve original Phylogic mixed-CN flags when preparing future truth versions;
+  the audited normalized truth wrote zero despite mixed CN in original MAFs.
+  Never repair frozen truth in place or tune a production prior using test truth.
 
 ## Certification, verification and remaining limits
 
@@ -406,3 +577,27 @@ correctly report its original export failures after recovery succeeds.
 
 See the [September 24 evening recovery record](../validation/cohort-recovery-20260925/README.md)
 for the six LSF timeout cases and four repaired PyClone-VI CN-first exports.
+
+### PyClone-VI posterior-variance validation, September 27
+
+The SimClone/Phylogic campaign exposed a separate validation-only issue: its
+exporter already used centered variance, while the frozen validator still used
+`E[x²] - E[x]²`. Concentrated posteriors within the existing normalization
+tolerance produced negative values around `-1.4e-12`. Three successful fits
+were rejected even though their TSVs were finite and correct.
+
+Use centered variance in both exporter and validator, preserving the original
+mean and normalization tolerance. Revalidate the original best-of-1,000 fit,
+restart logs, mutation coverage, posterior, assignments and export agreement;
+compare output hashes before and after. Do not refit, renormalize, raise the
+acceptance tolerance or modify a live frozen controller to repair this issue.
+
+The local recovery record is
+`/storage/CliPP2/PyCloneVI_runs/SimClone1000_PhylogicNDT500_20260927_validation_recovery_v1/README.md`.
+It records 13 passing regression tests and full unchanged-output validation of
+the three failures plus a passing control. Follow
+`PyCloneVI_runs/CURRENT_SIMCLONE_PHYLOGIC.json`: its separate monitor publishes
+an atomic effective manifest while the original 28-worker pool continues.
+Original raw failures remain historical evidence. Matched comparisons must
+consume effective validation receipts and retain both original and recovery
+receipt hashes; an old raw progress count does not supersede those receipts.

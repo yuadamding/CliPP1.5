@@ -58,6 +58,18 @@ the frozen 382-case CPU replay; allocated-CUDA and held-out validation remain
 separate gates. The [earlier reference record](validation/partition-search-20260925/README.md)
 preserves the original 193-case evidence.
 
+The [soft-mixture research estimator](docs/SOFT_MIXTURE_EXPERIMENT.md) studies
+allocation-driven merging and multiplicity/CCF aliases. Its compiled PyTorch
+implementation and conservative structural selector have separate benchmark
+entry points and output identities. Adoption requires allocated-CUDA qualification
+and the [three-cohort non-regression gate](docs/THREE_COHORT_ACCEPTANCE.md);
+the standard `fit` command retains the model described below.
+
+The [completed 3,097-case development comparison](validation/experimental-pool-20260928/PERFORMANCE.md)
+improves aggregate ARI, CCF error and sMF metrics over the previous estimator in
+all three cohorts. Experimental still trails PyClone-VI on SimClone and Phylogic
+sMF CCC; these development results do not establish full-cohort superiority.
+
 The twelve-column TSV input contract, copy-number filtering, marginalized
 multiplicity likelihood, original probability-safe bounds and partition-score
 arithmetic are retained. Complete-graph weights are frozen after the independent

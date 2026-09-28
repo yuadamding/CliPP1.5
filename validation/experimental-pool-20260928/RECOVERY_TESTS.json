@@ -1,0 +1,27 @@
+{
+  "status": "recovery_in_progress",
+  "generation_sha256": "e4b712809974e74ae8bcac953eaa621d5837b7a79514a0d473b7218a71f80940",
+  "changed_files": [
+    "benchmarks/mixture_pool/case_helpers.py",
+    "benchmarks/mixture_pool/worker.py",
+    "benchmarks/mixture_pool/recovery.py",
+    "benchmarks/mixture_pool/diagnose_case.py",
+    "benchmarks/mixture_pool/stress_posterior.py"
+  ],
+  "scientific_source_unchanged": true,
+  "original_payload_unchanged": true,
+  "local_tests": {
+    "passed": 22,
+    "suite": [
+      "tests/test_mixture_child_cleanup.py",
+      "tests/test_mixture_recovery.py",
+      "tests/test_mixture_pool.py",
+      "tests/test_mixture_lsf.py"
+    ]
+  },
+  "allocated_gates": {
+    "a40": "passed",
+    "h100": "posterior_stress_and_three_tests_passed; full fits pending"
+  },
+  "evidence_root": "/storage/CliPP2/CliPP1.5/results/experimental-pool36-20260928-v1"
+}

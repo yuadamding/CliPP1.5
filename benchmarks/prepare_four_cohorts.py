@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 import csv
 import hashlib
 import json
+import math
 from pathlib import Path
 import sys
 
@@ -22,6 +23,7 @@ WORK = Path('/data/CliPP2')
 SIM = Path('/data/CliPP_Sim')
 FIELDS = ['mutation_id', 'true_cluster', 'true_ccf', 'true_multiplicity',
           'major_cn', 'minor_cn', 'mixed_cn']
+TRUTH_SCHEMA = 'clipp1d.normalized_simulation_truth.v2'
 
 
 def sha(path):
@@ -50,6 +52,27 @@ def unique(table, chromosome, position, fields):
         else:
             result[key] = value
     return result
+
+
+def phylogic_mixed_cn(major, minor, fraction, major2, minor2):
+    """Use original simulator CN states; formatting is not a distinct state."""
+    fraction = float(fraction)
+    if not math.isfinite(fraction) or not 0 <= fraction <= 1:
+        raise ValueError('Original Phylogic CN mixture fraction must be in [0, 1]')
+    if fraction in (0, 1):
+        return False
+    states = [float(v) for v in (major, minor, major2, minor2)]
+    if any(not math.isfinite(v) or v < 0 or not v.is_integer() for v in states):
+        raise ValueError('Original Phylogic mixture states must have nonnegative integer CN')
+    return tuple(states[:2]) != tuple(states[2:])
+
+
+def truth_recoverable(case):
+    # Legacy Phylogic tables silently wrote every mixed-CN flag as zero. Do not
+    # import them into a preparation that promises corrected flags. Other old
+    # truth contracts retain their original identities and can still be reused.
+    return (case['dataset'] != 'PhylogicNDT500_TSV' or
+            case.get('truth_schema') == TRUTH_SCHEMA)
 
 
 def inventory():
@@ -99,6 +122,7 @@ def prepare(case, root):
                 normal_cn_counts=dict(Counter(str(m.normal_cn) for m in data.mutations)))
     truth_paths = []
     by_id = {}
+    mixed_by_id = {}
     name = case['case_id']
     if case['dataset'] == 'SimClone1000_TSV':
         t = SIM / 'testing_SimClone1000_truth' / name / 'simulated_0001'
@@ -131,8 +155,9 @@ def prepare(case, root):
                 continue
             ccf, integer, mult, alt, ref, major, minor, fraction, major2, minor2 = dosage[key]
             assert int(alt) == int(row['alt_count']) and int(ref) == int(row['ref_count'])
-            is_mixed = 0 < float(fraction) < 1 and (major,minor) != (major2,minor2)
+            is_mixed = phylogic_mixed_cn(major, minor, fraction, major2, minor2)
             mixed += is_mixed
+            mixed_by_id[row['mutation_id']] = int(is_mixed)
             mismatch += sorted([float(major),float(minor)]) != sorted([float(row['allele_a_cn']),float(row['allele_b_cn'])])
             # The integer dosage field is explicit simulator truth. Retain any
             # effective-dosage disagreement as model-mismatch metadata.
@@ -169,13 +194,17 @@ def prepare(case, root):
         assert float(multiplicity) == int(float(multiplicity)) and float(multiplicity) >= 1
         normalized.append(dict(mutation_id=row['mutation_id'],true_cluster=cluster,true_ccf=ccf,
                                true_multiplicity=int(float(multiplicity)),major_cn=row['allele_a_cn'],
-                               minor_cn=row['allele_b_cn'],mixed_cn='0'))
+                               minor_cn=row['allele_b_cn'],
+                               mixed_cn=str(mixed_by_id.get(row['mutation_id'], 0))))
     target = directory/'truth.tsv'
     with target.open('x') as stream:
         writer=csv.DictWriter(stream,FIELDS,delimiter='\t',lineterminator='\n')
         writer.writeheader()
         writer.writerows(normalized)
     case.update(truth_path=str(target),truth_sha256=sha(target),
+                truth_schema=TRUTH_SCHEMA,
+                truth_cn_columns='supplied input major/minor CN; mixed_cn from original simulator states',
+                truth_mixed_cn_retained=sum(int(r['mixed_cn']) for r in normalized),
                 truth_sources={str(p):sha(p) for p in truth_paths},
                 truth_k_retained=len({r['true_cluster'] for r in normalized}),
                 truth_unmatched_retained=sorted(retained-set(by_id)),
@@ -192,12 +221,14 @@ def main():
     parser.add_argument('--recover',type=Path)
     args=parser.parse_args()
     args.out = args.out.resolve()
+    if args.recover and args.out == args.recover.resolve():
+        raise ValueError('Recovery requires a new output root; preserve existing truth artifacts')
     args.out.mkdir(parents=True,exist_ok=True)
     cases=inventory()
     imported=[]
     if args.recover:
         previous=json.loads((args.recover/'prepared.json').read_text())
-        imported=[r for r in previous if r['status']=='prepared']
+        imported=[r for r in previous if r['status']=='prepared' and truth_recoverable(r)]
         for r in imported:
             assert sha(r['input_path']) == r['input_sha256']
             assert sha(r['truth_path']) == r['truth_sha256']

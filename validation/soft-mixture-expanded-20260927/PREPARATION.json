@@ -1,0 +1,43 @@
+{
+  "planned": 3097,
+  "case_counts": {
+    "CN-first4K": 2661,
+    "SimClone1000": 385,
+    "PhylogicNDT500": 51
+  },
+  "matched_mutations": 1407569,
+  "single_cluster_controls": 433,
+  "changed_phylogic_mixed_cn_flags": 3550,
+  "scientific_policy_shared": true,
+  "production_adopted": false,
+  "full_cohort": false,
+  "independent_holdout": false,
+  "source": "allocated qualification uses execution-only singleton compiler repair",
+  "preparation_sha256": "211922525e58b75107bffd616732e973771f3f0fe61565e3e7b43a4902f71828",
+  "selection_sha256": "54c4b1e33ef3c127e3fe6a17da03b9aecac049d34eab0f12bd74c59a7698673b",
+  "inference_sha256": "7ab74771875a1de2a5f09e359ef9ebfdd6533fd31c030508a0525712403df32d",
+  "evaluation_sha256": "e2d79521dbc8a3592ed143e80021c7b13909f8e302033e871dfff4b18f3b76fb",
+  "payload_inventory_sha256": "f6360bee18701cf6f47c408e6609e4d243c00d6555bca36a4ce85f42aba477b6",
+  "compiler_repair": {
+    "reason": "Triton operand does not dominate this use in fully unrolled single-slope center M-step",
+    "parent_job_id": "77453550",
+    "parent_failure_sha256": "271ab4a07182da6f010d8a1d127bbe196e49d9970c8eaefb93591841d83274b5",
+    "changes": {
+      "src/clipp1d/cuda/mixture.py": {
+        "previous_sha256": "b7378148e498730d49b589dfd67ba678589479a28fbfd10f82f5688bf32c3b6a",
+        "repaired_sha256": "8cdf12ed24410f2a4a3e2185cbb5fb874dc4b6d71fc71b0b46e358c5b8e897b7"
+      },
+      "tests/test_mixture_estimator.py": {
+        "previous_sha256": "086e63296be31765d56e0ed75b309671b3486f2b664b6c263d041d158786c27e",
+        "repaired_sha256": "ef76355b9799799275f4e9db268202524dc20dfe98cef87e8fe80b5ba67836b6"
+      }
+    },
+    "scientific_policy_unchanged": true,
+    "cpu_reference_math_unchanged": true,
+    "all_36_bisection_updates_preserved": true,
+    "eager_or_cpu_fallback": false,
+    "focused_reference_tests": 15,
+    "test_log_sha256": "8b1b2053c6c71508e7e6f2abd67d89e9b0a18e99adbf94c2208ba71f06a22d6d",
+    "cuda_qualified": false
+  }
+}
