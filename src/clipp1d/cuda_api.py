@@ -24,7 +24,14 @@ from .cuda.selection import fit_tensor_model
 
 SCHEMA = "clipp1d.cuda.run.v3"
 PARTITION_SCHEMA = "clipp1d.cuda.run.v5"
+REFIT_RELOCATION_SCHEMA = "clipp1d.cuda.run.v6"
 BASE_COMMIT = "371003ffcadcc57e23c62df5901d9463085cceea"
+
+
+def _output_schema(partition_search, refit_relocations=False):
+    if not partition_search:
+        return SCHEMA
+    return REFIT_RELOCATION_SCHEMA if refit_relocations else PARTITION_SCHEMA
 
 
 @dataclass(frozen=True)
@@ -260,6 +267,9 @@ def _export(device_fit, source, *, wall_started=None):
         raise QualificationError("Uploaded numerical model does not match its canonical source identity")
     source["model_sha256"] = model_sha
     source["policy"] = asdict(d.policy)
+    from .cuda.solver import PRECISION_POLICY
+    source["numerical_recovery_policy"] = PRECISION_POLICY
+    source["scalar_bound_policy"] = "posterior_mass_variance_envelope_v1"
     if source.get("backend") == "cuda" and (m.device.type != "cuda" or not m.kernels.compiled):
         raise QualificationError("CPU or eager reference cannot inherit compiled CUDA execution identity")
     # This is the numerical pipeline's final bulk device-to-host boundary.
@@ -504,7 +514,8 @@ def _write_bundle(result, data, destination, records, *, preparation_started=Non
     hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in destination.glob("*.tsv")}
     result = _prepared_result(result, preparation_started, wall_started, tables_written=True)
     receipt_sha256 = _json(destination / "run.json", dict(
-          schema=SCHEMA if result.partition_estimate is None else PARTITION_SCHEMA,
+          schema=_output_schema(result.partition_estimate is not None,
+              result.provenance.get("partition_search", {}).get("refit_relocations", False)),
           partition_estimate=None if result.partition_estimate is None else result.partition_estimate.receipt(),
           status="success", search_status=result.search_status,
           selected_lambda=result.selected_lambda, raw_objective=result.raw_objective,
@@ -609,11 +620,14 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
         from .policy import Policy
         input_policy = Policy(max_major_cn=max_major_cn)
         policy = CudaPolicy()
+        from .cuda.solver import PRECISION_POLICY
         data = read_tumor(input_file, input_policy)
         canonical = compile_model(data, input_policy)
         canonical = canonical.subset(np.argsort(np.asarray(canonical.mutation_ids), kind="stable"))
         source.update(input_sha256=data.input_sha256, max_major_cn=max_major_cn,
                       policy=asdict(policy), dtype="float64", backend="cuda", device=str(d),
+                      numerical_recovery_policy=PRECISION_POLICY,
+                      scalar_bound_policy="posterior_mass_variance_envelope_v1",
                       clonal_constraint=False, clonal_label_rule="nearest_to_one_l2_v1",
                       torch_version=torch.__version__, cuda_runtime=torch.version.cuda,
                       compiled_kernel_policy="torch.compile(fullgraph=True, dynamic=True); bounded_structural_families_v1; no CPU fallback")
@@ -621,14 +635,19 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
             {key: getattr(canonical, key) for key in ("alt", "ref", "lower", "upper", "slope", "log_prior", "valid")})
         props = torch.cuda.get_device_properties(d)
         free, total = torch.cuda.mem_get_info(d)
+        from .cuda.managed_memory import current_capacity
+        managed = current_capacity(d)
         # Conservative preflight, not a claimed exact memory bound for compiler allocations.
         estimated = 32 * 8 * len(canonical) ** 2 + 64 * 4096 * 8 * 4
         if partition_search:
             # Each retained seed can own an independent dense raw dual. This
             # bound also accounts for the baseline and preserved current winner.
             estimated += (4 + 2*search.seed_bank_size) * 8 * len(canonical) ** 2
-        if estimated > policy.memory_fraction * free:
+        capacity = free if managed is None else managed['capacity_bytes']
+        if estimated > policy.memory_fraction * capacity:
             raise MemoryError(f"Dense complete-graph preflight needs approximately {estimated} bytes; {free} free")
+        if managed is not None:
+            source['managed_memory_admission'] = managed
         source.update(gpu_name=props.name, capability=list(torch.cuda.get_device_capability(d)),
                       total_device_bytes=total, free_device_bytes_at_start=free,
                       estimated_workspace_bytes=estimated, cpu_numeric_fallback=False)
@@ -664,7 +683,8 @@ def fit(input_file, outdir=None, *, max_major_cn=4, verbose=False, device="cuda:
         return result
     except Exception as error:
         if destination is not None and not (destination / "run.json").exists():
-            _json(destination / "run.json", dict(schema=PARTITION_SCHEMA if partition_search else SCHEMA,
+            _json(destination / "run.json", dict(schema=_output_schema(partition_search,
+                  getattr(partition_policy, "refit_relocations", False)),
                   status="failure", search_status="not_completed",
                   error_type=type(error).__name__, message=str(error), provenance=source,
                   diagnostics=getattr(error, "diagnostics", {})))

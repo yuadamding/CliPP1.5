@@ -11,7 +11,7 @@ from .policy import CudaPolicy, QualificationError
 
 @dataclass(frozen=True)
 class PartitionSearchPolicy:
-    policy_id: str = "explicit_partition_birth_v2"
+    policy_id: str = "explicit_partition_birth_refit_v3"
     all_starts: bool = True
     separate_exact_one: bool = True  # Retained baseline; False is a distinct grouping ablation.
     max_rounds: int = 4
@@ -24,13 +24,18 @@ class PartitionSearchPolicy:
     birth_max_rounds: int = 20
     birth_max_parents: int = 8
     birth_generations: int = 1
+    refit_relocations: bool = False
+    refit_max_scans: int = 2
+    refit_max_candidates: int = 100000  # Global across the selected-endpoint phase.
+    refit_batch_candidates: int = 16
 
     def __post_init__(self):
-        for name in ("all_starts", "separate_exact_one"):
+        for name in ("all_starts", "separate_exact_one", "refit_relocations"):
             if not isinstance(getattr(self, name), bool):
                 raise ValueError(f"{name} must be boolean")
         for name in ("max_rounds", "max_moves", "cost_block_size", "seed_bank_size",
-                     "birth_refine_seeds", "birth_max_rounds", "birth_max_parents", "birth_generations"):
+                     "birth_refine_seeds", "birth_max_rounds", "birth_max_parents", "birth_generations",
+                     "refit_max_scans", "refit_max_candidates", "refit_batch_candidates"):
             v = getattr(self, name)
             if isinstance(v, bool) or not isinstance(v, int) or v < 1:
                 raise ValueError(f"{name} must be a positive integer")

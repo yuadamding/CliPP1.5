@@ -231,7 +231,7 @@ def test_unchanged_cold_checkpoint_reuses_failed_original_certificate(monkeypatc
     kernels.admm_step = lambda *args: (x, q, q)
     monkeypatch.setattr(qp, 'polish_quadratic', lambda *args: x)
     fit = qp.solve_qp(h, target, lower, upper, caps, kernels,
-                      CudaPolicy(inner_max_iterations=16), start=x)
+                      CudaPolicy(inner_max_iterations=16), start=x, _allow_precision=False)
     assert not fit.qualified
     # One original certificate. Identical flow outputs, raw check and the two
     # remaining tolerance proposals reuse it within this same checkpoint.

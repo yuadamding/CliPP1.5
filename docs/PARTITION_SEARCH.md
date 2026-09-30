@@ -138,6 +138,33 @@ same memberships in all 193 cases. This is not an ablation of every path start.
 
 ## Evidence and reproduction
 
+### Optional joint-refit relocation search
+
+`--partition-search --partition-refit-relocations` enables a repository-wide
+experimental neighborhood after the ordinary candidate search. It scans each
+mutation's move to every other occupied group, refitting the affected groups on
+their common original feasible boxes. A destination's old center cannot rule
+out a move: its new jointly refitted center may make the move feasible. The
+whole child partition is independently refitted before acceptance, and its
+score upper bound must be below the parent's score lower bound with the
+existing numerical margin. Empty source groups are removed canonically.
+
+The default limits are two scans, 100,000 candidates across the whole phase,
+and batches of 16 candidates. Each accepted child requires a fresh neighborhood
+scan; completion of its parent's scan does not certify the child. Scalar
+failures and unexamined candidates remain explicit. A completed scan proves
+only resolution of this single-mutation neighborhood, not global optimality or
+biological validity. It does not add a size prior, merge small groups by rule,
+or change the raw estimator.
+
+Accepted moves have a distinct `refit_relocation` ancestry operation with
+parent/child identities, refit score bounds and coverage. Enabling this feature
+uses run schema `clipp1d.cuda.run.v6` and partition schema
+`clipp1d.partition_estimate.v3`; feature-off outputs retain v5/v2. This feature is off
+by default pending allocated-CUDA, paired-fit and three-cohort acceptance.
+The six research inputs that motivated the diagnosis serve as regression data;
+their IDs and prior memberships are not part of the implementation.
+
 `benchmarks/replay_partition_search.py` accepts a portable, hash-bound bundle of
 canonical input TSVs, published memberships/centers, independent expected
 assignments, truth for evaluation, and matched-mutation masks. It invokes no new

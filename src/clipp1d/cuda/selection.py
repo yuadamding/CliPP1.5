@@ -11,7 +11,8 @@ import torch
 from .graph import build_graph, penalty_reference
 from .scalar import pilot
 from .partition import LastPartitionCache, QualifiedPilot, refit
-from .solver import PrimalWarmState, fit_lambda
+from .solver import (PRECISION_POLICY, PRECISION_TOTAL_FIELDS, RAW_PRECISION_TOTAL_FIELDS,
+                     PrimalWarmState, fit_lambda)
 from .policy import CudaPolicy, QualificationError
 
 
@@ -132,7 +133,8 @@ def _fit_tensor_model(model, policy, *, lambda_values, partition_search=None):
                 record["refit_status"] = "unresolved"
             record.update(error=str(error), failure_diagnostics=error.diagnostics, search_complete=False)
             for name in ("qp_seconds", "audit_seconds", "qp_calls", "qp_admm_iterations", "audit_calls", "qp_dual_warm_starts",
-                         "qp_dual_warm_resets", "qp_polish_iterations"):
+                         "qp_dual_warm_resets", "qp_polish_iterations",
+                         *PRECISION_TOTAL_FIELDS, *RAW_PRECISION_TOTAL_FIELDS):
                 if name in error.diagnostics:
                     record[name] = error.diagnostics[name]
         record["seconds"] = _synchronized_time(model) - begin
@@ -174,6 +176,9 @@ def _fit_tensor_model(model, policy, *, lambda_values, partition_search=None):
                           qp_dual_warm_starts=sum(r.get("qp_dual_warm_starts", 0) for r in records),
                           qp_dual_warm_resets=sum(r.get("qp_dual_warm_resets", 0) for r in records),
                           qp_polish_iterations=sum(r.get("qp_polish_iterations", 0) for r in records),
+                          numerical_recovery_policy=PRECISION_POLICY,
+                          **{name: sum(r.get(name, 0) for r in records) for name in PRECISION_TOTAL_FIELDS},
+                          **{name: sum(r.get(name, 0) for r in records) for name in RAW_PRECISION_TOTAL_FIELDS},
                           lambda_reference=float(reference), extensions=extensions,
                           candidate_family="qualified_complete_graph_path",
                           raw_unresolved_penalties=sum(r["raw_status"] != "qualified" for r in records),

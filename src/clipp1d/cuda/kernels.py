@@ -140,6 +140,15 @@ def admm_step(h, weighted_target, lower, upper, caps, z, v, rho):
     return x, next_z, next_v
 
 
+def directional_cut_step(a, caps, allowed, q, t, extrapolated, tau, sigma):
+    """One complete-graph primal-dual step, with certification kept outside."""
+    next_q = torch.maximum(-caps, torch.minimum(caps, q + sigma * differences(extrapolated)))
+    next_t = torch.maximum(
+        torch.zeros_like(t), torch.minimum(allowed, t - tau * (a + adjoint(next_q)))
+    )
+    return next_q, next_t, 2 * next_t - t
+
+
 def flow_polish_step(q, same, external, gradient, fixed,
                      at_lower, at_upper, sizes, caps):
     """Projected dual step for distance to the candidate's box-normal cone.
@@ -158,6 +167,31 @@ def flow_polish_step(q, same, external, gradient, fixed,
     correction = torch.where(fixed, 0.0, correction)
     delta = -differences(correction) / sizes[:, None]
     proposal = q + torch.where(same, delta, 0.0)
+    return torch.maximum(-caps, torch.minimum(caps, proposal))
+
+
+
+def raw_residual(dual, nominal, left, right, at_lower, at_upper, fixed):
+    """Original componentwise box/kink residual, without changing the primal."""
+    divergence = adjoint(dual)
+    chosen = torch.maximum(left, torch.minimum(right, -divergence))
+    gradient = torch.where(left <= right, chosen, nominal)
+    gradient = torch.where(at_lower, right, gradient)
+    gradient = torch.where(at_upper, left, gradient)
+    residual = gradient + divergence
+    residual = torch.where(at_lower, residual.clamp_max(0.), residual)
+    residual = torch.where(at_upper, residual.clamp_min(0.), residual)
+    residual = torch.where(fixed, 0., residual)
+    return residual, gradient, divergence
+
+
+def raw_dual_step(dual, caps, same, external, sizes, nominal, left, right,
+                  at_lower, at_upper, fixed):
+    """Complete fused-block projected flow; every output remains capped/skew."""
+    current = torch.where(same, dual, external)
+    residual = raw_residual(current, nominal, left, right, at_lower, at_upper, fixed)[0]
+    delta = -(residual[None, :] - residual[:, None]) / sizes[:, None]
+    proposal = current + torch.where(same, delta, 0.)
     return torch.maximum(-caps, torch.minimum(caps, proposal))
 
 
@@ -234,12 +268,13 @@ class StructuralCompileBank:
     miss still compiles strictly, and compilation errors propagate unchanged.
     """
 
-    def __init__(self, function, *, backend="inductor", max_families=32):
+    def __init__(self, function, *, backend="inductor", max_families=32, options=None):
         if isinstance(max_families, bool) or not isinstance(max_families, int) or max_families < 1:
             raise ValueError("Compile-family capacity must be a positive integer")
         self.function = function
         self.backend = backend
         self.max_families = max_families
+        self.options = {} if options is None else dict(options)
         self._entries = OrderedDict()
         self.families_created = 0
         self.evictions = 0
@@ -314,7 +349,11 @@ class StructuralCompileBank:
                 self.function.__defaults__,
                 self.function.__closure__,
             )
-            compiled = torch.compile(isolated, backend=self.backend, fullgraph=True, dynamic=True)
+            # Compilation may consume options; each structural family owns a
+            # fresh copy and never changes global compiler configuration.
+            compile_options = {"options": dict(self.options)} if self.options else {}
+            compiled = torch.compile(isolated, backend=self.backend, fullgraph=True, dynamic=True,
+                                     **compile_options)
             self._entries[key] = compiled
             self.families_created += 1
             if len(self._entries) > self.max_families:
@@ -329,6 +368,7 @@ class StructuralCompileBank:
         return dict(
             policy="bounded_structural_families_v1",
             backend=self.backend if isinstance(self.backend, str) else "test_reference_backend",
+            options=dict(self.options),
             fullgraph=True,
             max_families=self.max_families,
             active_families=len(self._entries),
@@ -355,16 +395,22 @@ class Kernels:
             if not bool(probe(torch.zeros((), device=device, dtype=torch.float64)) == 1.0):
                 raise RuntimeError("CUDA compilation was disabled; compiled-path admission failed")
         for name in ("likelihood", "loss_only", "loss_gradient", "boxed_rank_one", "edge_update",
-                     "admm_step", "flow_polish_step", "gap_kkt"):
+                     "admm_step", "directional_cut_step", "flow_polish_step", "raw_dual_step", "gap_kkt"):
             fn = globals()[name]
             if self.compiled:
-                fn = StructuralCompileBank(fn)
+                # Multi-reduction likelihood programs need these local compiler
+                # guards to preserve posterior scaling. Equations, inputs and
+                # numerical gates remain identical to the eager CUDA reference.
+                options = {"inplace_buffers": False, "max_fusion_size": 1} if name in (
+                    "likelihood", "loss_gradient"
+                ) else None
+                fn = StructuralCompileBank(fn, options=options)
             setattr(self, name, fn)
 
     def compilation_diagnostics(self):
         return {
             name: getattr(self, name).diagnostics()
             for name in ("likelihood", "loss_only", "loss_gradient", "boxed_rank_one", "edge_update",
-                         "admm_step", "flow_polish_step", "gap_kkt")
+                         "admm_step", "directional_cut_step", "flow_polish_step", "raw_dual_step", "gap_kkt")
             if isinstance(getattr(self, name), StructuralCompileBank)
         }

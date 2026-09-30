@@ -37,7 +37,7 @@ before uploading the numerical model.
 PyTorch CUDA tensors hold the float64 likelihood, posteriors, one-sided
 derivatives, curvature, pilots, grouped scalar refits, graph weights, ADMM states,
 raw certificates, path scores and final multiplicity computations. Pure tensor
-hot kernels use `torch.compile(fullgraph=True, dynamic=True)`. Each of the eight
+hot kernels use `torch.compile(fullgraph=True, dynamic=True)`. Each compiled
 compiled kernels has its own per-fit LRU bank of up to 32 structural families.
 These separate singleton dimensions, dimension-equality patterns, layouts and
 aliases using independent Python code objects; numeric extents remain dynamic
@@ -64,7 +64,10 @@ loss–gradient and full-term interfaces. Scalar search and objective comparison
 request only the outputs they need. Full terms remain available for curvature,
 one-sided audits and final posteriors; the other compiled kernels implement the
 bounded node update, edge update, combined ADMM step, prepared flow-repair step
-and QP certificates. Compilation covers these functions, while data-dependent
+directional cut steps and QP certificates. The multi-reduction likelihood and
+loss-gradient kernels disable compiler in-place buffer reuse and fusion between
+reductions; their equations and float64 admission gates remain unchanged.
+Compilation covers these functions, while data-dependent
 admission remains in Python. `fullgraph=True` applies to each compiled function,
 not the entire fit; see the [PyTorch compilation contract](https://docs.pytorch.org/docs/stable/generated/torch.compile).
 
@@ -138,6 +141,26 @@ numerical proposal settings only; exported memberships still use `fusion_tol`.
 An unsuccessful repair remains unqualified, including when bound-normal
 allocation prevents its projections from converging.
 
+The repository also provides a terminal precision recovery for a finite
+unqualified QP. It proposes an ordered bounded isotonic solution, releases
+coordinates or collective equality-block directions when that order obstructs
+stationarity, and repairs the dual using projected accelerated flow. A proposal
+must pass the original objective check and independent eager and compiled full
+gap/KKT certificates. An unsuccessful proposal returns the original negative
+state. No case identifier, saved partition, mutation identifier, or truth label
+is an algorithm input.
+
+Each raw start can consume this recovery at most once. Its ceilings are 32
+ordered rounds, 2,048 coordinate minimizations, eight collective reorderings,
+256 cut steps per sign per collective call, and 1,024 projected-flow steps.
+These are additional numerical work, separate from the unchanged 20,000 ADMM
+and 150 outer-iteration limits. The `qp_precision_*` counters and per-start
+records include unsuccessful work; path totals include failed penalties.
+Numerical implementation identity is recorded separately from the unchanged
+scientific policy. Fresh allocated-CUDA and paired-fit qualification must bind
+the complete current repository source; an earlier exploratory overlay is not
+qualification for this implementation.
+
 Each equality proposal now owns its fixed group geometry, bound-active masks,
 quadratic gradient, nonfused-edge values and a copy of the caps. Repeated flow
 steps update only the dual against those prepared values. The context exists
@@ -191,6 +214,35 @@ against the original objective. An unresolved audit is not success. Raw
 stationarity, inner QP qualification, scalar refit gaps and global optimality are
 separate claims.
 
+After an otherwise final negative raw audit, a bounded terminal repair may reuse
+the last **accepted** literal surrogate. The solver retains only references to
+its `h`, target, starting primal and accepted primal, then captures O(N) vector
+snapshots once at finalization. Rejected outer trials cannot replace that
+context; any directional restart clears it. Reuse requires the exact accepted
+primal, an independently reconstructed original target, and fresh eager and
+compiled QP certificates for the current dual. It consumes the same once-per-start
+QP precision allowance described above. The original MM and observed-objective
+gates must still accept any repaired QP endpoint.
+
+If both original signed-subset gates pass but componentwise stationarity remains
+unresolved, terminal repair can apply at most 512 fixed-primal raw-dual projections
+and eight scalar proposals in total. The dual step uses the normal compiled
+kernel bank and each exact fused block's incidence scale. Scalar proposals shift
+an entire exact block within its original common box and strictly between its
+nearest distinct neighbors. All edge signs therefore remain unchanged. The
+external TV derivative is a constant affine term in that interval; the scalar
+solver minimizes the original grouped likelihood plus that term, using the
+ordinary 4,096-subdivision budget and unchanged tolerances. It explicitly
+bypasses the untilted analytical shortcut.
+
+Only original-objective nonincrease and a fresh full raw audit admit the final
+terminal proposal. A scalar or surrogate certificate cannot substitute for it.
+If the final gate fails, the original primal, dual, objective and matching
+negative audit are returned. The `raw_precision_*` records count unsuccessful
+audits, signed-cut iterations, raw-dual projections, scalar subdivisions and
+timing separately from ordinary outer/ADMM work. This source-level mechanism
+still requires source-bound allocated-CUDA and paired-fit qualification.
+
 ## Memberships, selection and labels
 
 Partitions derive from raw fitted CCFs. Tolerance-connected runs whose total
@@ -214,6 +266,28 @@ building search grids, separates them from general groups, and restores
 canonical group order. General groups refine only detected seed wells in a
 bounded padded batch, preserving seed order and tie behavior. Interval lower
 bounds, rather than golden-search initialization, qualify general scalar fits.
+
+On intervals without a clipping crossing, scalar search additionally bounds
+mixture-score variance using conservative posterior-mass bounds. For component
+log likelihood extrema `L_j <= loglik_j(phi) <= U_j`, concavity gives the lower
+extremum at an endpoint and the upper extremum at the clipped empirical mode.
+Consequently `posterior_j <= min(1, exp(U_j - logsumexp(L)))`. For any fixed
+finite center `c`,
+
+    Var(score) <= sum_j posterior_upper_j
+                     * max_endpoint(abs(score_j - c))**2.
+
+The smaller of this bound and the existing score-range variance bound supplies
+the smooth likelihood envelope. Outward allowances cover probability endpoints,
+component logs, the denominator reduction, exponentiation (including underflow),
+score arithmetic and the final weighted reduction. Invalid supports are masked
+before products. Nonfinite calculations retain the original bound; inclusive
+clipping crossings retain the original nonsmooth envelope. Existing input and
+output roundoff margins, scalar budgets and tolerance gates remain unchanged.
+An affine scalar objective uses derivative `g+c` with the same curvature bound,
+and includes separate rounding protection for the uncombined derivative and
+affine terms. These remain float64 numerical bounds, rather than a claim of
+directed-rounding proof or completed numerical qualification.
 
 A cache retains only the last qualified membership refit, alongside the selected
 best candidate. Reuse requires the same immutable model, policy and canonical

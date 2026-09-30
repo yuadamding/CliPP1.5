@@ -101,10 +101,10 @@ def test_literal_small_qp_return_is_unchanged_and_failed_states_are_preserved(tm
     kernels = Kernels("cpu", compiled=False)
     policy = CudaPolicy(inner_max_iterations=1)
     original = capture.qp.solve_qp
-    expected = original(h, target, lower, upper, caps, kernels, policy)
+    expected = original(h, target, lower, upper, caps, kernels, policy, _allow_precision=False)
     assert not expected.qualified
     with result.instrument():
-        actual = capture.qp.solve_qp(h, target, lower, upper, caps, kernels, policy)
+        actual = capture.qp.solve_qp(h, target, lower, upper, caps, kernels, policy, _allow_precision=False)
     assert capture.qp.solve_qp is original
     for name in ("x", "dual", "gap", "scale", "kkt"):
         assert torch.equal(getattr(actual, name), getattr(expected, name))

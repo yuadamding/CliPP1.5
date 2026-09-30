@@ -55,6 +55,12 @@ def test_path_total_retains_failed_penalty_and_separable_zero(model, monkeypatch
     def with_unresolved_penalty(*args, **kwargs):
         result = original(*args, **kwargs)
         if float(args[3]) == .1:
+            # A failed penalty must retain separately budgeted work as well as
+            # ordinary ADMM counts, even when it cannot enter selection.
+            result.diagnostics.update(qp_precision_attempts=1, qp_precision_qualified=0,
+                                      qp_precision_projected_flow_steps=17,
+                                      raw_precision_attempts=1, raw_precision_accepted=0,
+                                      raw_precision_scalar_calls=2, raw_precision_dual_steps=16)
             raise QualificationError("injected failure after QP work", **result.diagnostics)
         return result
 
@@ -69,3 +75,11 @@ def test_path_total_retains_failed_penalty_and_separable_zero(model, monkeypatch
     assert result.timings["qp_admm_iterations"] == sum(
         row["qp_admm_iterations"] for row in result.records)
     assert "unresolved" in result.timings["qp_work_scope"]
+    assert failed["qp_precision_attempts"] == 1
+    assert failed["qp_precision_qualified"] == 0
+    assert failed["qp_precision_projected_flow_steps"] == 17
+    assert failed["raw_precision_attempts"] == 1
+    assert failed["raw_precision_scalar_calls"] == 2
+    assert failed["raw_precision_dual_steps"] == 16
+    for field in (*solver.PRECISION_TOTAL_FIELDS, *solver.RAW_PRECISION_TOTAL_FIELDS):
+        assert result.timings[field] == sum(row[field] for row in result.records)

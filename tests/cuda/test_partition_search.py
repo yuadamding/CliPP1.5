@@ -301,6 +301,8 @@ def test_every_qualified_start_is_streamed_even_when_raw_objective_loses(monkeyp
         work = {k: 0 for k in ('qp_calls', 'qp_admm_iterations', 'qp_dual_warm_starts',
                                'qp_dual_warm_resets', 'qp_polish_iterations', 'qp_seconds',
                                'audit_calls', 'audit_seconds')}
+        work.update(solver.precision_work_diagnostics([]))
+        work.update(solver.raw_precision_diagnostics())
         answer = RawFit(x, torch.zeros_like(graph.weights), tensor(float(count)), None, True, work)
         count += 1
         return answer

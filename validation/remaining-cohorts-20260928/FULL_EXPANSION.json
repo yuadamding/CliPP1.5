@@ -1,0 +1,44 @@
+{
+  "snapshot": "2026-09-28 05:06:19 PM CDT",
+  "gpu_pools": {
+    "a100": {
+      "parallelism": 10,
+      "running": 10,
+      "ready": 10,
+      "verified": 10
+    },
+    "h100": {
+      "parallelism": 4,
+      "running": 4,
+      "ready": 4,
+      "verified": 4
+    }
+  },
+  "lsf_state_counts": {
+    "PEND": 15
+  },
+  "main_jobs": [
+    "77501680",
+    "77501909",
+    "77501910",
+    "77501911",
+    "77501912",
+    "77501913",
+    "77501914",
+    "77501915",
+    "77501916",
+    "77501917",
+    "77501919",
+    "77501920",
+    "77501928",
+    "77501941"
+  ],
+  "memory_job": "77501830",
+  "ordinary_case_cap": 14,
+  "total_lsf_cap": 15,
+  "new_validated": 224,
+  "all_validated": 3321,
+  "failures": [],
+  "original_qualification_job_preserved": "77501680",
+  "main_controller_alive": true
+}

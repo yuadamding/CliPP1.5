@@ -215,6 +215,100 @@ supersedes the older 1,754-case performance snapshot. Read the current study
 pointer for the local report and per-sample tables; do not restart a retired
 controller or resolve replacement output paths from the original input root.
 
+## Remaining three-cohort campaign and large seeds, September 28
+
+The subsequent user request extends Experimental to every remaining case:
+1,339 CN-first4K, 371 SimClone and 449 PhylogicNDT, preserving the 3,097
+validated results. The authorized capacity is ten A100 plus four H100 workers
+and fifteen scalar LSF GPUs. Follow `results/CURRENT_MIXTURE_STUDY.json` for
+the live generation; the completed 3,097-case controller remains retired.
+
+The frozen published estimator is based on `fc9d349`. Of 2,159 remaining
+cases, 956 have validated complete-graph seeds and 1,203 need fresh seeds.
+The ordinary queue admits 2,041 cases. The other 118 SimClone cases exceed
+the unchanged H100 resource preflight (largest estimate 234.01 GiB). They
+must not silently skip the complete-graph seed or use an unguarded mixture.
+The user explicitly chose development of a memory-efficient GPU seed stage
+while preserving the method.
+
+`cuda/managed_memory.py` is an explicit execution experiment: a PyTorch
+`MemPool` uses CUDA managed allocation, backed by a verified LSF host-memory
+reservation. All graph, likelihood, solver and refit arithmetic remains CUDA
+float64. The ordinary VRAM preflight is unchanged outside that context. The
+managed admission uses the minimum of reserved host bytes, available host
+memory and cgroup headroom, subtracts 16 GiB, and retains the existing 0.7
+memory fraction. The native library contains allocation plumbing only;
+its source, compiler, CUDA runtime and binary are all bound by receipts.
+
+Reserve one of the fifteen LSF slots for this development. The ordinary
+controller admits at most fourteen scalar jobs. Managed work initially uses
+one GPU and 384 GB host RAM. It can inherit up to fifteen LSF slots only after
+its CUDA gates pass, the ordinary scalar controller exits, and every accepted
+ordinary job has a terminal reconciliation. Pending, unknown and draining
+jobs retain their slots. The A100/H100 pools remain independent of that
+LSF handoff and share disjoint case claims with the ordinary scalar queue.
+
+The later instruction to "rush to full expansion" replaces the ordinary
+serial-start controller with `full-expansion-v1`. It adopts the already
+accepted qualification job, preserves its ID, and immediately fills the
+remaining ordinary slots with tasks whose seeds are already validated. This
+scope reuses the original A40 qualification only after matching all 46
+scientific source files and compiler settings. It does not declare the new
+seed stage qualified. Fresh-seed LSF tasks remain blocked until the original
+job publishes its source-bound current qualification. A100/H100 continue
+their existing, fully qualified ten/four-worker Jobs without interruption.
+The current scalar process is in `receipts/controller-current.json`; the
+original process receipt is retained as predecessor evidence. The total
+LSF cap remains fourteen ordinary jobs plus one managed-memory job.
+
+The September 29 [complete CN-first evaluation](../validation/remaining-cohorts-20260928/CNFIRST_PERFORMANCE.md)
+includes all 4,000 tumors and 1,983,489 common mutation IDs. It combines the
+2,661 previously evaluated outputs with 1,339 new outputs after confirming
+identical scientific source and policy. CliPP1.5 leads mean ARI, sMF CCC and
+CCF/sMF errors, but PhylogicNDT leads exact cluster-count recovery. Follow
+`latest_cnfirst_performance` in the study pointer for its report and PDF;
+do not substitute this CN-first result for unfinished three-cohort acceptance.
+
+The explicit September 28 resubmission request is recorded in
+[the requeue evidence](../validation/remaining-cohorts-20260928/LSF_REQUEUE.json).
+All fifteen jobs had never started. The transaction paused both verified scalar
+controller process groups so transient EXIT states could not trigger failure
+handling or duplicate submissions, held the jobs, cancelled them, then used
+`brequeue -e -H` to retain their IDs. Effective worker commands and resources
+were revalidated before release and controller resumption. This procedure is
+specific to that reviewed owner lifecycle; do not repeat consumed transaction
+scripts or use it to interrupt Running work.
+
+Local Pending jobs are not eligible for `brequeue -p`; that option applies to
+forwarded multi-cluster Pending jobs. Requeue can reset dispatch ordering even
+when the original ID/submission timestamp remains. `btop` changes only eligible
+ordering among the user's own same-priority jobs, not global priority, resource
+availability or closed-host status. All fifteen ordering requests succeeded in
+this transaction, but all fifteen jobs were still Pending at the final snapshot.
+No GPU model, host-memory reservation or scientific setting was changed. The
+ten A100 and four H100 Kubernetes workers were left running.
+
+The managed CUDA gates require an ordinary-versus-managed complete fit in
+separate processes, matching graph/labels/multiplicity/public outputs and
+scores, plus actual compiled CUDA arithmetic on a tensor larger than VRAM.
+Passing that allocation probe does not qualify a complete large fit or prove
+acceptable throughput. Host paging can be slow; keep logical managed bytes,
+resident VRAM, host reservation and wall-time limits separate. Local resource
+tests and native compilation are not allocated-CUDA qualification.
+
+Packaging lessons from the retained startup failures:
+
+- Ship the posterior stress fixture and the complete test import closure;
+  collect the exact staged tests before submitting. Exclude bytecode and use
+  `-B` when inspecting a frozen package.
+- Validate both PVC `subPath` and `mountPath` against the new project root.
+  Replacing full paths alone leaves stale relative mounts. The current
+  `mount-recovery-v1` preserves the valid scalar owner and changes only the
+  failed Kubernetes generation.
+- Status must follow the active generation's exact Job UID and qualification
+  directory. If a failed Job has been cleaned, retain and report its terminal
+  receipt instead of interpreting absence as a healthy empty pool.
+
 ## Preserve execution and scientific identity
 
 | Identity | What it establishes | What it does not establish |
@@ -489,6 +583,13 @@ tolerance, mutation removal or inherited certificate.
   either vector is constant. State the actual aggregation convention rather
   than relying on a plotting library's defaults. See
   [cohort validator](validate_cpu_cohort.py) and [metric helper](compare_clipp2.py).
+- When auditing preserved estimates, use `float_precision='round_trip'` when
+  reading both TSVs; default decimal parsing can differ by one floating-point
+  unit. Verify true-subclonal integer counts and matched mutation IDs exactly,
+  and apply the declared numeric tolerance to serialized fractions. Original
+  imported LSF terminals identify `job_id`, while newer terminals also bind an
+  `owner`; validate the recorded schema and hash-bound result index rather than
+  requiring a newer field in every historical receipt.
 - CNA-only means `(major_cn != 1) | (minor_cn != 1)`, including equal amplified
   CN. Specify the multiplicity truth target, exact-class F1 aggregation, missing
   calls and coverage. A metric on early easy cases is not full-cohort accuracy.

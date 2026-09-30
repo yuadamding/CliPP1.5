@@ -1,4 +1,4 @@
-"""Rolling 22-slot scalar LSF owner sharing claims with the two GPU pools."""
+"""Plan-capped scalar LSF owner sharing claims with the two GPU pools."""
 from collections import Counter
 import fcntl
 import os
@@ -30,6 +30,10 @@ def states_for(active):
 
 def controller(root):
     p = plan(root)
+    reserved = p.get('reserved_lsf_slots', 0)
+    if not isinstance(reserved, int) or not 0 <= reserved < p['max_submitted']:
+        raise ValueError('Invalid separately owned qualification reservation')
+    case_cap = p['max_submitted'] - reserved
     lock = (root/'receipts/controller.lock').open('x')
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     for _ in range(30):
@@ -64,20 +68,21 @@ def controller(root):
                     raise RuntimeError('Case failure; stop LSF refills without duplicating remaining owners')
                 if phase == 'new_worker_canary':
                     write(root/'receipts/parallel-admitted.json', dict(key=a['key'], job_id=job,
-                          terminal_sha256=sha(root/'receipts'/a['key']/'terminal.json'), cap=22, utc=now()))
+                          terminal_sha256=sha(root/'receipts'/a['key']/'terminal.json'), cap=case_cap, utc=now()))
                     phase = 'parallel'
-            capacity = 1 if phase == 'new_worker_canary' else p['max_submitted']
+            capacity = 1 if phase == 'new_worker_canary' else case_cap
             exhausted = False
             while len(active) < capacity and not (root/'STOP').exists():
                 task = claim(root, dict(scheduler='lsf', controller=owner))
                 if task is None:
                     exhausted = True
                     break
-                a = submit(root, p, task, p['case_wall_minutes'])
+                a = submit(root, p, task, task.get('wall_minutes', p['case_wall_minutes']))
                 active[a['job_id']] = a
             progress = dict(utc=now(), phase=phase, active=active, states=states,
                 finished=len(finished), outcomes=dict(Counter(finished.values())),
-                imported=len(read(root/'payload/IMPORTED.json')), max_submitted=22,
+                imported=len(read(root/'payload/IMPORTED.json')), max_submitted=p['max_submitted'],
+                case_cap=case_cap, reserved_lsf_slots=reserved,
                 controller_identity=owner, stopped=(root/'STOP').exists())
             write(root/'PROGRESS.json', progress, replace=True)
             if not active and (exhausted or (root/'STOP').exists()):

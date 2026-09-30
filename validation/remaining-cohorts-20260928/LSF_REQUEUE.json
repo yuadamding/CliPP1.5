@@ -1,0 +1,51 @@
+{
+  "schema": "clipp1d.lsf_requeue.v1",
+  "user_authority": "Resubmit 15 LSF jobs to skip the queue",
+  "scope": "Exactly 15 previously pending jobs; no additional LSF slots and no Kubernetes changes",
+  "completion": {
+    "utc": "2026-09-29T02:46:23.176030+00:00",
+    "requeued": 15,
+    "states": {
+      "77501680": "PEND",
+      "77501909": "PEND",
+      "77501910": "PEND",
+      "77501911": "PEND",
+      "77501912": "PEND",
+      "77501913": "PEND",
+      "77501914": "PEND",
+      "77501915": "PEND",
+      "77501916": "PEND",
+      "77501917": "PEND",
+      "77501919": "PEND",
+      "77501920": "PEND",
+      "77501928": "PEND",
+      "77501941": "PEND",
+      "77501830": "PEND"
+    },
+    "ordering_success": 15,
+    "controllers_resumed": true,
+    "job_ids_preserved": true,
+    "scientific_and_resource_settings_unchanged": true,
+    "kubernetes_unchanged": true,
+    "pending_is_not_started": true
+  },
+  "remote_receipts": "/rsrch8/home/bcb/yding4/clipp1d_experimental_full29_20260928c/receipts/requeue-20260928-v1",
+  "local_receipts": "/storage/CliPP2/CliPP1.5/results/experimental-full29-20260928-v3/requeue-20260928-v1",
+  "release_transport_sha256": "5264c127c5013a4157297b48966ec5ec488ba60994b92b739e41f3a534f85ea7",
+  "post_release_snapshot": "/storage/CliPP2/CliPP1.5/results/experimental-full29-20260928-v3/status_20260929T024635Z-snapshot.json",
+  "post_release_snapshot_sha256": "a2472fa7d9c34e5d83b4659bebc9dfd459c4cebf15a0d5f4c0c932f021cf959f",
+  "post_release_lsf_states": {
+    "PEND": 15
+  },
+  "post_release_controllers_alive": true,
+  "post_release_k8s_running_ready": {
+    "A100": 10,
+    "H100": 4
+  },
+  "method": "Pause verified LSF controller process groups; hold and cancel never-started jobs; brequeue -e -H retaining job IDs; verify admitted resources; resume jobs; btop within own priority; resume controllers",
+  "limits": "Requeue and btop cannot bypass scheduler policies or unavailable resources; btop changes only the owner ordering within eligible same-priority jobs.",
+  "ordinary_jobs": 14,
+  "managed_memory_jobs": 1,
+  "scientific_and_resource_settings_unchanged": true,
+  "job_ids_preserved": true
+}

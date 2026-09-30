@@ -22,6 +22,87 @@ class ScalarBatch:
     subdivisions: int
 
 
+def posterior_variance_bound(model, probability_left, probability_right, moving, valid, original):
+    """Upper-bound mixture score variance on one smooth probability interval.
+
+    Each component log likelihood is concave in its probability: its minimum
+    is at an endpoint and its maximum is at the clipped empirical fraction.
+    If these extrema are L_j and U_j, posterior mass is bounded above by
+    exp(U_j - logsumexp(L)). For any fixed finite c,
+
+        Var(score) <= sum_j mass_upper_j * max_endpoint |score_j - c|**2.
+
+    The center need not be accurate: every fixed finite center is valid. Use
+    the midpoint score of the component with largest lower log likelihood.
+    Probability, log/exp, score and reduction error allowances are applied
+    outwards before the new bound is minimized with the existing range bound.
+    Nonfinite intermediates retain the original bound. Callers use this only
+    on intervals without an original clipping crossing, including endpoints.
+    As with Problems.bounds, this is a float64 numerical qualification, not a
+    directed-rounding proof for arbitrary transcendental implementations.
+    """
+    eps = torch.finfo(torch.float64).eps
+    up = probability_left.new_tensor(float("inf"))
+    down = -up
+    # Include rounded slope*phi before taking extrema or reciprocal scores.
+    pl = torch.nextafter(probability_left - 8 * eps * probability_left.abs(), down).clamp_min(model.eps)
+    pr = torch.nextafter(probability_right + 8 * eps * probability_right.abs(), up).clamp_max(1 - model.eps)
+    alt, ref = model.alt[:, None, None], model.ref[:, None, None]
+    prior = torch.where(valid, model.log_prior[:, None, :], 0.)
+    moving = torch.where(valid, moving, 0.)
+    empirical = alt / (alt + ref)
+    peak = torch.maximum(pl, torch.minimum(pr, empirical))
+
+    def log_terms(probability):
+        a, r = alt * probability.log(), ref * torch.log1p(-probability)
+        value = a + r + prior
+        sensitivity = alt / probability + ref / (1 - probability)
+        error = 64 * eps * (1 + a.abs() + r.abs() + prior.abs() + sensitivity)
+        return value, error
+
+    left, le = log_terms(pl)
+    right, re = log_terms(pr)
+    maximum, ue = log_terms(peak)
+    lower = torch.minimum(left - le, right - re)
+    lower = torch.where(valid, torch.nextafter(lower, down), -torch.inf)
+    upper = torch.where(valid, torch.nextafter(maximum + ue, up), -torch.inf)
+    support = valid.sum(-1)
+    denominator = torch.logsumexp(lower, -1)
+    denominator_scale = torch.where(valid, lower.abs(), 0.).amax(-1)
+    denominator_error = 64 * (support + 2) * eps * (1 + denominator_scale)
+    denominator = torch.nextafter(denominator - denominator_error, down)
+    log_mass = upper - denominator[..., None]
+    log_mass += 8 * eps * (1 + upper.abs() + denominator[..., None].abs())
+    # Only now use the mathematical posterior<=1 bound. Clamp before exp to
+    # avoid overflow. Raise underflowed positive upper bounds above zero.
+    log_mass = torch.where(valid, torch.minimum(log_mass, torch.zeros_like(log_mass)), -torch.inf)
+    mass = torch.exp(log_mass)
+    smallest = torch.nextafter(mass.new_tensor(0.), mass.new_tensor(1.))
+    mass = torch.where(valid, torch.minimum(torch.ones_like(mass),
+        torch.nextafter(mass + 64 * eps * mass + 8 * smallest, up)), 0.)
+
+    al, rl = moving * alt / pl, moving * ref / (1 - pl)
+    ar, rr = moving * alt / pr, moving * ref / (1 - pr)
+    score_left, score_right = al - rl, ar - rr
+    score_error = 64 * eps * (1 + al.abs() + rl.abs() + ar.abs() + rr.abs())
+    score_hi = torch.nextafter(score_left + score_error, up)
+    score_lo = torch.nextafter(score_right - score_error, down)
+    preferred = lower.argmax(-1, keepdim=True)
+    center = (.5 * score_lo + .5 * score_hi).gather(-1, preferred)
+    distance = torch.maximum((score_hi - center).abs(), (score_lo - center).abs())
+    distance += 8 * eps * (1 + score_hi.abs() + score_lo.abs() + center.abs())
+    distance = torch.nextafter(distance, up)
+    distance = torch.where(valid, distance, 0.)
+    terms = mass * distance.square()
+    weighted = terms.sum(-1)
+    weighted = torch.nextafter(weighted + 128 * (support + 2) * eps * (1 + weighted.abs()), up)
+    finite = (torch.isfinite(weighted) & torch.isfinite(center[..., 0])
+              & torch.isfinite(denominator) & (weighted >= 0)
+              & torch.where(valid, torch.isfinite(upper) & torch.isfinite(lower)
+                            & torch.isfinite(score_hi) & torch.isfinite(score_lo), True).all(-1))
+    return torch.where(finite, torch.minimum(original, weighted), original)
+
+
 class Problems:
     """Rows sorted into groups; no dense group-by-mutation membership matrix."""
 
@@ -145,7 +226,8 @@ class Problems:
         spread = (torch.where(valid, score_l, -float("inf")).amax(-1)
                   - torch.where(valid, score_r, float("inf")).amin(-1))
         spread = torch.where(valid.sum(-1) == 1, 0., spread)
-        negative_curvature = self.reduce(spread.square() / 4)
+        variance = posterior_variance_bound(m, pl, pr, moving, valid, spread.square() / 4)
+        negative_curvature = self.reduce(variance)
         # The represented midpoint can equal an endpoint on one-ULP intervals.
         radius = torch.maximum(mid - left, right - mid)
         smooth = loss - gradient.abs() * radius - .5 * negative_curvature * radius.square()

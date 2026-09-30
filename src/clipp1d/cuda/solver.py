@@ -11,6 +11,45 @@ from .qp import QualifiedDualWarmState, solve_qp
 from .audit import audit_raw
 from .policy import CudaPolicy, QualificationError
 
+PRECISION_POLICY = "bounded_qp_and_raw_terminal_recovery_v1"
+_PRECISION_COUNTERS = (
+    "pava_rounds", "coordinate_minimizations", "collective_calls",
+    "collective_reorderings", "cut_steps", "projected_flow_steps",
+    "momentum_restarts", "objective_evaluations", "certificate_evaluations",
+    "eager_certificate_evaluations", "compiled_certificate_evaluations",
+)
+PRECISION_TOTAL_FIELDS = ("qp_precision_attempts", "qp_precision_qualified", "qp_precision_candidates_accepted",
+                          *("qp_precision_" + key for key in _PRECISION_COUNTERS))
+_RAW_PRECISION_COUNTERS = (
+    "audit_calls", "audit_seconds", "audit_cut_iterations", "scalar_calls",
+    "scalar_subdivisions", "scalar_seconds", "dual_steps", "objective_evaluations",
+    "context_eager_certificate_evaluations", "context_compiled_certificate_evaluations", "qp_seconds",
+)
+RAW_PRECISION_TOTAL_FIELDS = ("raw_precision_attempts", "raw_precision_accepted", "raw_precision_seconds",
+                              *("raw_precision_" + key for key in _RAW_PRECISION_COUNTERS))
+
+
+def precision_work_diagnostics(records):
+    """Separate additional numerical work from ordinary ADMM and raw budgets."""
+    return dict(
+        numerical_recovery_policy=PRECISION_POLICY,
+        qp_precision_attempts=len(records),
+        qp_precision_qualified=sum(bool(row["qualified"]) for row in records),
+        qp_precision_candidates_accepted=sum(bool(row["candidate_accepted"]) for row in records),
+        qp_precision_records=records,
+        **{"qp_precision_" + key: sum(row[key] for row in records)
+           for key in _PRECISION_COUNTERS},
+    )
+
+
+def raw_precision_diagnostics(work=None, seconds=0.):
+    """A terminal proposal is separate from ordinary surrogate iterations."""
+    return dict(raw_precision_attempts=int(bool(work and work["attempted"])),
+                raw_precision_accepted=int(bool(work and work["candidate_accepted"])),
+                raw_precision_seconds=seconds, raw_precision_work=work,
+                **{"raw_precision_" + key: 0 if work is None else work[key]
+                   for key in _RAW_PRECISION_COUNTERS})
+
 
 @dataclass
 class RawFit:
@@ -158,6 +197,11 @@ def _solve_start(model, graph, lam, start, policy, *,
     lambda_literal = float(lam)
     qp_seconds = audit_seconds = 0.0
     audit_calls = dual_warm_starts = dual_warm_resets = 0
+    precision_records = []
+    raw_precision_work, raw_precision_seconds = None, 0.
+    # Retain references only when the full likelihood trial was accepted.
+    # A later rejected QP cannot replace this literal surrogate context.
+    accepted_surrogate = None
 
     def run_audit():
         nonlocal audit_seconds, audit_calls
@@ -193,6 +237,8 @@ def _solve_start(model, graph, lam, start, policy, *,
                            audit_diagnostics={} if audit is None else audit.diagnostics,
                            audit_signed_direction_count=0 if audit is None else audit.signed_direction_count,
                            inner_polish_iterations=0 if last_inner is None else last_inner.polish_iterations,
+                           **precision_work_diagnostics(precision_records),
+                           **raw_precision_diagnostics(raw_precision_work, raw_precision_seconds),
                            **inner_certificate_diagnostics(last_inner, policy))
         diagnostics.update(extra)
         return RawFit(x, q, current, None, qualified, diagnostics)
@@ -217,12 +263,19 @@ def _solve_start(model, graph, lam, start, policy, *,
             initial_dual = None if warm_dual is None else warm_dual.for_problem(graph, lambda_literal)
             began = perf_counter()
             last_inner = solve_qp(h, target, model.lower, model.upper, caps,
-                                  model.kernels, policy, start=x, dual=initial_dual)
+                                  model.kernels, policy, start=x, dual=initial_dual,
+                                  _allow_precision=not precision_records)
             qp_seconds += perf_counter() - began
             dual_warm_starts += initial_dual is not None
             surrogate_calls += 1
             inner += last_inner.iterations
             polish_iterations += last_inner.polish_iterations
+            work = last_inner.precision_work
+            if work is not None and work["attempted"]:
+                if precision_records:
+                    raise ArithmeticError("A raw start exceeded its one terminal-QP recovery budget")
+                precision_records.append(dict(work, outer_iteration=iteration,
+                                              backtrack_index=backtrack_index))
             if not last_inner.qualified:
                 if observer is not None:
                     observer("unresolved_qp", dict(
@@ -262,6 +315,7 @@ def _solve_start(model, graph, lam, start, policy, *,
             if bool(gate):
                 accepted = True
                 old_value = current
+                accepted_surrogate = (h, target, x, trial)
                 x, q, current = trial, last_inner.dual, trial_value
                 inflation = (inflation / 2.).clamp_min(1.) if coordinate else max(1., inflation / 2.)
                 decrease = old_value - current
@@ -289,6 +343,7 @@ def _solve_start(model, graph, lam, start, policy, *,
                 current = objective(model, x, caps)
                 q = torch.zeros_like(caps)
                 warm_dual = None
+                accepted_surrogate = None
                 inflation = torch.ones_like(x) if coordinate else 1.
                 restarts += 1
                 continue
@@ -300,6 +355,28 @@ def _solve_start(model, graph, lam, start, policy, *,
         if not accepted:
             break
     audit = run_audit()
+    if (not audit.qualified and not audit.status.endswith("_invalid_cut")
+            and audit.status not in ("infeasible", "nonfinite_likelihood_derivatives")):
+        from .raw_precision import AcceptedQPContext, recover_raw
+        context = None if accepted_surrogate is None else AcceptedQPContext(*accepted_surrogate)
+        began = perf_counter()
+        recovered = recover_raw(model, x, q, caps, policy, accepted_qp_context=context,
+                                allow_qp_precision=not precision_records)
+        raw_precision_seconds = perf_counter() - began
+        raw_precision_work = recovered.work
+        audit_calls += raw_precision_work["audit_calls"]
+        audit_seconds += raw_precision_work["audit_seconds"]
+        qp_seconds += raw_precision_work["qp_seconds"]
+        if recovered.qp_work is not None and recovered.qp_work["attempted"]:
+            if precision_records:
+                raise ArithmeticError("A raw start exceeded its one terminal-QP recovery budget")
+            precision_records.append(dict(recovered.qp_work, outer_iteration=iteration,
+                                          backtrack_index=None, stage="raw_terminal"))
+            polish_iterations += recovered.qp_work["projected_flow_steps"]
+        if recovered.accepted:
+            x, q, current, audit = recovered.x, recovered.dual, recovered.objective, recovered.audit
+            tail.append(float(current))
+            tail = tail[-8:]
     return result(audit, audit.qualified, "qualified" if audit.qualified else "outer_unresolved", iteration + 1)
 
 
@@ -371,6 +448,8 @@ def _fit_lambda(model, graph, pilots, lam, previous, policy, *, on_qualified=Non
                            inner_iterations=0, qp_admm_iterations=0, outer_iterations=0, surrogate_qp_calls=0,
                            qp_calls=0, qp_dual_warm_starts=0, qp_seconds=0.0,
                            qp_dual_warm_resets=0,
+                           **precision_work_diagnostics([]),
+                           **raw_precision_diagnostics(),
                            qp_polish_iterations=0, inner_polish_iterations=0,
                            audit_calls=1, audit_seconds=audit_seconds,
                            phase_timing_scope="host wall through device-qualified QP/audit returns",
@@ -410,6 +489,8 @@ def _fit_lambda(model, graph, pilots, lam, previous, policy, *, on_qualified=Non
                     search_policy="unconstrained_complete_graph_multistart_v1", clonal_constraint=False)
     # Selected-start diagnostics remain in starts; phase totals cover all attempted starts.
     for name in ("qp_calls", "qp_admm_iterations", "qp_dual_warm_starts", "qp_dual_warm_resets", "qp_polish_iterations", "qp_seconds", "audit_calls", "audit_seconds"):
+        coverage[name] = sum(row[name] for row in diagnostics)
+    for name in (*PRECISION_TOTAL_FIELDS, *RAW_PRECISION_TOTAL_FIELDS):
         coverage[name] = sum(row[name] for row in diagnostics)
     if best is None:
         raise QualificationError("No qualified unconstrained complete-graph start", **coverage)

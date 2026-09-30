@@ -8,6 +8,7 @@ from .policy import QualificationError
 from .refinement import refine_memberships
 from .birth import birth_candidates
 from .ancestry import ancestry_step
+from .refit_relocation import scan_refit_relocations, neighborhood_size
 
 
 @dataclass
@@ -55,13 +56,17 @@ class PartitionSearchResult:
     policy: object
     seconds: float
     preserved: object
+    refit_relocation: dict | None = None
 
     def __post_init__(self):
         self.records = deepcopy(self.records)
-        self._metadata = (id(self.candidate), deepcopy(self.records), self.status, self.policy, self.seconds, id(self.preserved))
+        self.refit_relocation = deepcopy(self.refit_relocation)
+        self._metadata = (id(self.candidate), deepcopy(self.records), self.status, self.policy, self.seconds,
+                          id(self.preserved), deepcopy(self.refit_relocation))
 
     def validate_identity(self):
-        if (id(self.candidate), self.records, self.status, self.policy, self.seconds, id(self.preserved)) != self._metadata:
+        if (id(self.candidate), self.records, self.status, self.policy, self.seconds,
+                id(self.preserved), self.refit_relocation) != self._metadata:
             raise QualificationError("Partition search evidence was modified")
         self.candidate.validate_identity()
         self.preserved.validate_identity()
@@ -145,6 +150,58 @@ class PartitionSearch:
                                  proposal_status=status, coverage_status=status, rounds=rounds))
         return seed
 
+    def _relocate_selected(self):
+        """Spend one global bounded budget on the final selected neighborhood."""
+        from .ancestry import refit_identity
+
+        policy = self.search_policy
+        seed = self.best
+        scans = []
+        remaining = policy.refit_max_candidates
+        historical_unresolved = 0
+        endpoint_complete = False
+        status = "scan_budget_exhausted"
+        for scan_index in range(policy.refit_max_scans):
+            seed.validate_identity()
+            fitted, record = scan_refit_relocations(self.model, seed.refit, self.policy,
+                max_candidates=remaining, batch_candidates=policy.refit_batch_candidates,
+                minimum_decrease=policy.minimum_decrease)
+            seed.validate_identity()
+            planned = neighborhood_size(self.model.n, int(seed.refit.centers.numel()))
+            charged = record["evaluated_candidates"] + record["infeasible_candidates"]
+            if (record["planned_candidates"] != planned or charged > remaining
+                    or charged + record["remaining_candidates"] != planned):
+                raise QualificationError("Global refit relocation budget does not reconcile")
+            record.update(scan_index=scan_index, candidate_budget_before=remaining,
+                          candidate_budget_after=remaining-charged)
+            remaining -= charged
+            historical_unresolved += len(record["unresolved_candidates"])
+            if record.get("independent_refit_error") is not None:
+                historical_unresolved += 1  # An independent child validation failed.
+            scans.append(deepcopy(record))
+            self.records.append(dict(origin=f"refit_scan_{len(self.records)}:{seed.origin}",
+                candidate_family="direct_partition", search_phase="refit_relocation",
+                status=record["status"], coverage_status=record["status"], details=deepcopy(record)))
+            if record["accepted"]:
+                # An accepted child's neighborhood has not yet been examined.
+                endpoint_complete = False
+                seed = self._direct(seed, fitted, "refit_relocation", record, "endpoint_unscanned")
+                self.records[-1]["search_phase"] = "refit_relocation"
+                continue
+            status = record["status"]
+            endpoint_complete = record["selected_endpoint_complete"]
+            break
+        if historical_unresolved:
+            status = "unresolved"
+        return dict(enabled=True, neighborhood="all_mutations_to_existing_groups",
+            fixed_point_criterion="no_interval_certified_decrease_above_margin",
+            status=status, scans=scans, max_scans=policy.refit_max_scans,
+            max_candidates=policy.refit_max_candidates,
+            charged_candidates=policy.refit_max_candidates-remaining,
+            remaining_candidate_budget=remaining, historical_unresolved=historical_unresolved,
+            selected_endpoint=refit_identity(seed.refit),
+            selected_endpoint_complete=endpoint_complete, global_partition_optimum_proven=False)
+
     def observe(self, raw, start):
         begin = perf_counter()
         origin = f"penalty_{self.penalty_index}:{start}"
@@ -222,10 +279,15 @@ class PartitionSearch:
             seeds = sorted(next_seeds, key=self.key)[:self.search_policy.birth_refine_seeds]
             if not seeds:
                 break
+        relocation = self._relocate_selected() if self.search_policy.refit_relocations else None
         self.best.validate_identity()
         if not bool(self.best.refit.score <= preserved.refit.score):
             raise QualificationError("Partition search discarded the preserved current result")
-        coverage = "incomplete" if any(r['status'] == 'unresolved' or
-            r.get('coverage_status', 'fixed_point') != 'fixed_point' for r in self.records) else "complete"
+        incomplete = any(r['status'] == 'unresolved' or
+            r.get('coverage_status', 'fixed_point') != 'fixed_point'
+            for r in self.records if r.get('search_phase') != 'refit_relocation')
+        incomplete |= relocation is not None and relocation['status'] != 'fixed_point'
+        coverage = "incomplete" if incomplete else "complete"
         self.seconds += perf_counter() - begin
-        return PartitionSearchResult(self.best, self.records, coverage, self.search_policy, self.seconds, preserved)
+        return PartitionSearchResult(self.best, self.records, coverage, self.search_policy, self.seconds, preserved,
+                                     refit_relocation=relocation)

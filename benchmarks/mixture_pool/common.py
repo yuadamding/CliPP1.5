@@ -84,7 +84,13 @@ def plan(root):
     if root.resolve() != root or root.stat().st_uid != os.getuid() or os.getuid() != 307469:
         raise ValueError('Unexpected remote root or owner')
     p = read(root/'payload/RUN_PLAN.json')
-    if p['remote_root'] != str(root) or p['max_submitted'] != 22 or p['schema'] != 'clipp1d.experimental_shared_pool.v1':
+    old = p['schema'] == 'clipp1d.experimental_shared_pool.v1' and p['max_submitted'] == 22
+    full = (p['schema'] == 'clipp1d.experimental_full_cohorts.v1' and p['max_submitted'] == 15
+            and {f: v['workers'] for f, v in p['pools'].items()} == {'a100': 10, 'h100': 4})
+    managed = (p['schema'] == 'clipp1d.experimental_managed_seeds.v1' and
+               p['max_submitted'] == 15 and p['host_memory_gb'] == 384 and
+               p['seed_memory_backend'] == 'cuda_managed' and p['pools'] == {})
+    if p['remote_root'] != str(root) or not (old or full or managed):
         raise ValueError('Unexpected study identity or admission cap')
     return p
 
@@ -111,9 +117,15 @@ def validate_outputs(root, task, output_base=None):
     """Read back the complete, single-case experimental output and ancestry."""
     output_base = root/'outputs' if output_base is None else output_base
     payload = root/'payload'
-    manifest_path = payload/task['manifest']
-    if sha(manifest_path) != task['manifest_sha256']:
-        raise ValueError('Changed single-case manifest')
+    if task.get('requires_seed'):
+        from seeding import prepared_manifest
+        manifest_path = prepared_manifest(root, task, output_base/task['key'])
+        manifest_sha256 = sha(manifest_path)
+    else:
+        manifest_path = payload/task['manifest']
+        manifest_sha256 = task['manifest_sha256']
+        if sha(manifest_path) != manifest_sha256:
+            raise ValueError('Changed single-case manifest')
     manifest = read(manifest_path)
     expected_case, = manifest['cases']
     for kind in ('input', 'seed'):
@@ -134,7 +146,7 @@ def validate_outputs(root, task, output_base=None):
         folder = output_base/task['key']/mode
         binding, complete = read(folder/'BINDING.json'), read(folder/'COMPLETE.json')
         if (binding['policy'] != manifest['policy'] or
-                binding['manifest_sha256'] != task['manifest_sha256'] or
+                binding['manifest_sha256'] != manifest_sha256 or
                 not complete['source_unchanged'] or not complete['manifest_unchanged'] or complete['failures']):
             raise ValueError('Invalid completion binding')
         result, = complete['results']

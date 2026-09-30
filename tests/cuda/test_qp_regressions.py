@@ -211,7 +211,8 @@ def test_iteration_budget_exhaustion_is_unresolved():
     hi = torch.ones_like(h)
     caps = build_graph(target).weights * 0.2
     fit = solve_qp(
-        h, target, lo, hi, caps, Kernels("cpu"), replace(CudaPolicy(), inner_max_iterations=1)
+        h, target, lo, hi, caps, Kernels("cpu"), replace(CudaPolicy(), inner_max_iterations=1),
+        _allow_precision=False
     )
     assert not fit.qualified
 

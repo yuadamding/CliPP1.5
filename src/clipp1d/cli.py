@@ -20,12 +20,16 @@ def main(argv=None):
                          help="Separate proposal mode; default reproduces the tested single-cluster repair")
     fitting.add_argument("--partition-seeds", type=int, default=1,
                          help="Bounded seed-bank size; values above one enable the multi-seed experiment")
+    fitting.add_argument("--partition-refit-relocations", action="store_true",
+                         help="Experimental joint-refit relocation search from the selected partition")
     args = parser.parse_args(argv)
     try:
         from .cuda.refinement import PartitionSearchPolicy
-        if not args.partition_search and (args.partition_birth != "single_cluster" or args.partition_seeds != 1):
+        if not args.partition_search and (args.partition_birth != "single_cluster" or args.partition_seeds != 1
+                                          or args.partition_refit_relocations):
             raise ValueError("Partition proposal options require --partition-search")
         policy = PartitionSearchPolicy(birth_mode=args.partition_birth, seed_bank_size=args.partition_seeds,
+                                       refit_relocations=args.partition_refit_relocations,
                                        separate_exact_one=not args.generic_partition_grouping) if args.partition_search else None
         result = fit(args.input_file, args.outdir, max_major_cn=args.max_major_cn,
                      verbose=args.verbose, device=args.device, partition_search=args.partition_search,

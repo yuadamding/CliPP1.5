@@ -31,17 +31,20 @@ def field(pattern, raw):
 
 def verify_admission(raw, accepted, worker_command):
     model = accepted['gpu_model']
+    memory = accepted.get('memory_gb', 32)
+    if memory not in (32, 384):
+        raise ValueError('Unsupported host memory contract')
     if model not in GPU_MODELS.values():
         raise ValueError('Unsupported requested GPU model')
     expected = [(r'^Job <(\d+)>', accepted['job_id']),
         (r'Job Name <([^>]+)>', accepted['job_name']), (r'User <([^>]+)>', 'yding4'),
         (r'Queue <([^>]+)>', 'egpu'), (r'Command <([^>]+)>', worker_command),
-        (r'Requested Resources <([^>]+)>', 'rusage[mem=32] span[hosts=1]'),
+        (r'Requested Resources <([^>]+)>', f'rusage[mem={memory}] span[hosts=1]'),
         (r'Requested GPU <([^>]+)>', f'num=1:mode=exclusive_process:gmodel={model}')]
     for pattern, value in expected:
         if field(pattern, raw) != value:
             raise ValueError('Different admitted scheduler resources/identity')
-    if (float(field(r'^ MEMLIMIT\s*\n\s*(\d+(?:\.\d+)?) G\b', raw)) != 32 or
+    if (float(field(r'^ MEMLIMIT\s*\n\s*(\d+(?:\.\d+)?) G\b', raw)) != memory or
             float(field(r'^ RUNLIMIT\s*\n\s*(\d+(?:\.\d+)?) min\b', raw)) != accepted['wall_minutes'] or
             re.findall(r',\s*(\d+)\s+Task\(s\)', raw) not in ([], ['1'])):
         raise ValueError('Different admitted memory, runtime or CPU count')
@@ -97,13 +100,26 @@ def sizing(task, canaries):
 
 def submit(root, p, task, minutes):
     model = admitted_gpu_model(root)
+    memory = p.get('host_memory_gb', 32)
+    if memory not in (32, 384):
+        raise ValueError('Unsupported host memory contract')
     key = task['key']
     folder = root/'receipts'/key
     folder.mkdir()  # Never repeat a submitted/uncertain case.
     name = p['job_prefix']+key
-    worker = f'{p["python"]} -B {root}/payload/ops/worker.py {root} {key}'
-    argv = ['bsub', '-H', '-q', 'egpu', '-J', name, '-n', '1', '-M', '32',
-        '-R', 'rusage[mem=32] span[hosts=1]', '-gpu', f'num=1:mode=exclusive_process:gmodel={model}',
+    entry = root/'payload/ops/worker.py'
+    generation_sha = p.get('worker_generation_sha256')
+    if generation_sha is not None:
+        from pathlib import Path
+        entry = Path(p['worker_entrypoint'])
+        control = entry.parent
+        if (control.resolve() != control or not control.is_relative_to(root/'control') or
+                sha(control/'GENERATION.json') != generation_sha or
+                read(control/'GENERATION.json')['inventory'].get(entry.name) != sha(entry)):
+            raise ValueError('Unbound scalar worker generation')
+    worker = f'{p["python"]} -B {entry} {root} {key}'
+    argv = ['bsub', '-H', '-q', 'egpu', '-J', name, '-n', '1', '-M', str(memory),
+        '-R', f'rusage[mem={memory}] span[hosts=1]', '-gpu', f'num=1:mode=exclusive_process:gmodel={model}',
         '-W', str(minutes), '-cwd', str(root), '-oo', str(root/'lsf-logs'/f'{key}.%J.out'),
         '-eo', str(root/'lsf-logs'/f'{key}.%J.err'), worker]
     write(folder/'submit-intent.json', dict(argv=argv, utc=now(), plan_sha256=sha(root/'payload/RUN_PLAN.json')))
@@ -112,8 +128,10 @@ def submit(root, p, task, minutes):
     ids = re.findall(r'Job <(\d+)> is submitted', response['stdout'])
     if len(ids) == 1:
         accepted = dict(key=key, job_id=ids[0], job_name=name, initially_held=True,
-            wall_minutes=minutes, cpu=1, memory_gb=32, gpus=1, gpu_model=model,
+            wall_minutes=minutes, cpu=1, memory_gb=memory, gpus=1, gpu_model=model,
             plan_sha256=sha(root/'payload/RUN_PLAN.json'))
+        if generation_sha is not None:
+            accepted.update(worker_entrypoint=str(entry), worker_generation_sha256=generation_sha)
         write(folder/'accepted.json', accepted)
     if response['code'] != 0 or len(ids) != 1 or 'queue <egpu>' not in response['stdout']:
         raise RuntimeError('Ambiguous submission; reconcile before any new action')

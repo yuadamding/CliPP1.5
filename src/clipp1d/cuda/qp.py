@@ -17,6 +17,7 @@ class QuadraticFit:
     qualified: bool
     iterations: int
     polish_iterations: int = 0
+    precision_work: dict | None = None
 
 
 @dataclass(frozen=True)
@@ -290,8 +291,11 @@ def _refine_polish(x, q, h, target, lower, upper, caps, kernels, policy, *,
 
 
 def solve_qp(
-    h, target, lower, upper, caps, kernels: Kernels, policy=CudaPolicy(), start=None, dual=None
+    h, target, lower, upper, caps, kernels: Kernels, policy=CudaPolicy(), start=None, dual=None,
+    *, _allow_precision=True,
 ):
+    if not isinstance(_allow_precision, bool):
+        raise ValueError('The precision recovery allowance must be boolean')
     n = h.numel()
     if (
         n == 0
@@ -456,4 +460,11 @@ def solve_qp(
             next_rho = next_rho.clamp(base_rho * 1e-8, base_rho * 1e8)
             v = v * (rho / next_rho)
             rho = next_rho
+    if _allow_precision and bool(torch.isfinite(stats).all()):
+        from .qp_precision import recover_quadratic
+        recovered = recover_quadratic(x, q, h, target, lower, upper, caps, kernels, policy)
+        return QuadraticFit(recovered.x, recovered.dual, *recovered.stats, recovered.qualified,
+                            policy.inner_max_iterations,
+                            polish_iterations + recovered.work['projected_flow_steps'],
+                            recovered.work)
     return QuadraticFit(x, q, *stats, False, policy.inner_max_iterations, polish_iterations)
