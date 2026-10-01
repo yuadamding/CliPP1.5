@@ -1,6 +1,0 @@
-{
-  "command": "env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=src taskset -c 30,31 /home/yding1995/miniforge3/envs/ml1/bin/python -m pytest -q tests/test_prior_cuda_startup.py tests/test_prior_perturbation.py tests/test_prior_proposal_search.py tests/test_prior_panels_and_evaluation.py",
-  "elapsed_seconds": 26.85,
-  "passed": 31,
-  "scope": "CPU reference and startup-order/controller regression checks; not allocated-CUDA proof"
-}

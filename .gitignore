@@ -1,9 +1,24 @@
+.DS_Store
+*/.DS_Store
 __pycache__/
 *.py[cod]
+*.so
+*.o
+*.a
+*.egg-info/
 .pytest_cache/
 .ruff_cache/
-*.egg-info/
 build/
 dist/
 .venv/
 results/
+# Legacy vendor tree; the current chain kernels do not use Eigen.
+eigen-3.4.0/
+Results_nosub/
+intermediate/
+Rplots.pdf
+Final_res/
+sample_id/
+venv/
+.idea/
+.vscode/settings.json
