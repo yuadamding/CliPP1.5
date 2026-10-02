@@ -1,9 +1,7 @@
-"""Import-safe command line: fit, verify, doctor."""
+"""Import-safe command line: fit, verify, validate, doctor."""
 
 import argparse
 import json
-import shutil
-import subprocess
 import sys
 
 from . import __version__
@@ -21,27 +19,26 @@ def _parser():
     fit.add_argument("cn_input")
     fit.add_argument("purity_input")
     fit.add_argument("--output", required=True)
-    fit.add_argument("-i", "--sample-id", "--sample_id", default="sample")
+    fit.add_argument("--sample-id", default="sample")
     fit.add_argument(
         "--assembly",
         default="unspecified",
         help="Assembly label; inputs must share an assembly (no conversion)",
     )
     capacities = fit.add_mutually_exclusive_group()
-    capacities.add_argument("--clusters", "--K", type=int)
+    capacities.add_argument("--clusters", type=int)
     capacities.add_argument("--max-clusters", type=int, default=10)
     fit.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
-    fit.add_argument("--center-refit", choices=["conditional"], default="conditional")
-    fit.add_argument(
-        "-b", "--subsampling", action="store_true", help="Legacy alias; requires --subsample-size"
-    )
-    fit.add_argument("-s", "--subsample-size", "--subsample_size", type=int)
-    fit.add_argument("-n", "--replicates", "--rep_num", type=int, default=1)
+    fit.add_argument("--subsample-size", type=int)
+    fit.add_argument("--replicates", type=int, default=1)
     fit.add_argument("--seed", type=int, default=0)
-    fit.add_argument("-w", "--window-size", "--window_size", type=float, default=0.05)
-    fit.add_argument("--overlap", "--overlap_size", type=float, default=0.0)
+    fit.add_argument("--window-size", type=float, default=0.05)
+    fit.add_argument("--overlap", type=float, default=0.0)
     verify = commands.add_parser("verify", help="Independently verify a complete published run")
     verify.add_argument("directory")
+    validate = commands.add_parser("validate", help="Preflight inputs and resource estimates without fitting")
+    for name in ("snv_input", "cn_input", "purity_input"):
+        validate.add_argument(name)
     commands.add_parser("doctor", help="Report native identity and external dependency availability")
     return parser
 
@@ -52,7 +49,6 @@ def doctor():
     report = {
         "software_version": __version__,
         "native": None,
-        "rscript": shutil.which("Rscript"),
         "cuda_qualification": "unqualified in this revision",
         "container_qualification": "unqualified",
     }
@@ -60,15 +56,7 @@ def doctor():
         _, report["native"] = load_native()
     except (OSError, RuntimeError) as error:
         report["native_error"] = str(error)
-    if report["rscript"]:
-        checked = subprocess.run(
-            [report["rscript"], "-e", 'cat(as.character(packageVersion("data.table")))'],
-            text=True,
-            capture_output=True,
-            check=False,
-        )
-        report["data_table"] = checked.stdout.strip() if checked.returncode == 0 else None
-    report["ready_cpu"] = report["native"] is not None and bool(report.get("data_table"))
+    report["ready_cpu"] = report["native"] is not None
     return report
 
 
@@ -79,8 +67,6 @@ def main(argv=None):
         if args.command == "fit":
             from .api import fit
 
-            if args.subsampling and args.subsample_size is None:
-                parser.error("--subsampling requires --subsample-size")
             config = FitConfig(
                 sample_id=args.sample_id,
                 device=args.device,
@@ -98,6 +84,10 @@ def main(argv=None):
             from .verify import verify_run
 
             result = verify_run(args.directory)
+        elif args.command == "validate":
+            from .preprocessing import validate_inputs
+
+            result = validate_inputs(args.snv_input, args.cn_input, args.purity_input)
         else:
             result = doctor()
         print(json.dumps(result, indent=2, allow_nan=False))

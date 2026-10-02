@@ -49,7 +49,7 @@ def load_native():
     }
     actual = {str(p.relative_to(root)): sha256(p) for p in root.rglob("*") if p.suffix in {".py", ".R"}}
     if actual != expected:
-        raise RuntimeError("Python/R source does not match the native build; rebuild before fitting")
+        raise RuntimeError("Python source does not match the native build; rebuild before fitting")
     library = ctypes.CDLL(str(path))
     for symbol, value in (
         ("CliPPBuildId", info["native_build_id"]),

@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from numpy import genfromtxt
 import ctypes
 
 
@@ -28,47 +27,16 @@ def _get_clipp_entrypoint(clipp_lib):
     return clipp_lib.CliPPChainStatus
 
 
-def _load_inputs(prefix):
-    with open(os.path.join(prefix, "multiplicity_model.txt")) as handle:
-        if handle.read().strip() != "uniform_1_to_major_v1":
-            raise ValueError("Rerun preprocessing for the multiplicity mixture model.")
-    arrays = [
-        np.atleast_1d(genfromtxt(os.path.join(prefix, name + ".txt")))
-        for name in ("r", "n", "major", "total")
-    ]
-    if not arrays[0].size or any(a.ndim != 1 or a.size != arrays[0].size for a in arrays):
-        raise ValueError("Preprocessed count and copy-number vectors must have matching nonzero lengths.")
-    for a in arrays:
-        if (
-            not np.all(np.isfinite(a))
-            or np.any(a != np.floor(a))
-            or np.any(a > np.iinfo(np.int32).max)
-            or np.any(a < 0)
-        ):
-            raise ValueError("Counts and copy numbers must be nonnegative int32 integers.")
-    r, n, major, total = arrays
-    if np.any(n <= 0) or np.any(r > n) or np.any(major < 1) or np.any(major > total):
-        raise ValueError("Invalid read counts or multiplicity support.")
-    purity = float(np.loadtxt(os.path.join(prefix, "purity_ploidy.txt")))
-    if not np.isfinite(purity) or not 0 < purity <= 1:
-        raise ValueError("Purity must be in (0, 1].")
-    return tuple(np.ascontiguousarray(a, dtype=np.int32) for a in arrays) + (purity,)
-
-
-def _prepare_chain(prefix, preliminary_result):
+def _prepare_chain(canonical, preliminary_result):
     import json
     from .model import MultiplicityModel
     from .initialization import pooled_cp_initialization
-    import pandas as pd
 
-    inputs = _load_inputs(prefix)
-    model = MultiplicityModel(*inputs)
-    coordinates = pd.read_csv(os.path.join(prefix, "multiplicity.txt"), sep=r"\s+", header=None, dtype=str)
-    if len(coordinates) != len(model) or coordinates[[0, 1]].duplicated().any():
-        raise ValueError("Expected one unique mutation coordinate per input row.")
-    pilot, diagnostics = pooled_cp_initialization(model)
-    # This order is frozen for every K and every continuation step.
-    order = np.lexsort((coordinates[1].to_numpy(), coordinates[0].to_numpy(), pilot))
+    inputs = canonical.arrays
+    pilot, diagnostics = pooled_cp_initialization(MultiplicityModel(*inputs))
+    coordinates = canonical.retained
+    # Coordinate strings preserve the historical R spelling and tie policy.
+    order = np.lexsort((coordinates.position.to_numpy(), coordinates.chromosome_index.to_numpy(), pilot))
     os.makedirs(preliminary_result, exist_ok=True)
     np.savetxt(os.path.join(preliminary_result, "chain_order.txt"), order, fmt="%d")
     np.savetxt(os.path.join(preliminary_result, "pilot_cp.txt"), pilot, fmt="%.17g")
@@ -105,10 +73,3 @@ def _run_kernel(r, n, major, total, purity, pilot, preliminary_result, cluster_l
     )
     if status != 0:
         raise RuntimeError("CliPP chain fit failed with status %s" % status)
-
-
-def run_clipp_nosub(prefix, preliminary_result, cluster_list):
-    (r, n, major, total, purity), pilot, order = _prepare_chain(prefix, preliminary_result)
-    _run_kernel(
-        r[order], n[order], major[order], total[order], purity, pilot[order], preliminary_result, cluster_list
-    )

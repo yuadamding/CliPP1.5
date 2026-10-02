@@ -15,9 +15,9 @@ observed-mixture weights are fitted only for BIC. No fusion/allocation penalty e
 from collections import OrderedDict
 import hashlib
 import itertools
+import json
 import math
 import os
-import shutil
 
 import numpy as np
 import pandas as pd
@@ -32,6 +32,22 @@ from .output import _write_table, _write_result
 MODEL_VERSION = "uniform_1_to_major_v1"
 BIC_DEFINITION = "observed_cluster_multiplicity_2K_minus_1_v1"
 CANDIDATE_SEARCH_VERSION = "native_chain_boundary_polish_supported_weights_v2"
+
+
+def _parameters(result, order):
+    """Lossless O(q) evidence; label visits need not follow the center order."""
+    ordered = result["labels"][order]
+    cuts = np.flatnonzero(np.diff(ordered)) + 1
+    return json.dumps(
+        {
+            "cuts": cuts.tolist(),
+            "block_labels": ordered[np.r_[0, cuts]].tolist(),
+            "centers": result["centers"].tolist(),
+            "weights": result["cluster_weights"].tolist(),
+        },
+        separators=(",", ":"),
+        allow_nan=False,
+    )
 
 
 class _ChainRefitCache(dict):
@@ -130,10 +146,6 @@ def refit_partition(model, labels, cache=None, chain_order=None):
         "bic": bic,
         "bic_definition": BIC_DEFINITION,
     }
-
-
-def _load_vector(directory, filename):
-    return np.atleast_1d(np.loadtxt(os.path.join(directory, filename)))
 
 
 def _integer_vector(values, name, length=None):
@@ -302,6 +314,7 @@ def search_chain_coarsenings(model, seeds, chain_order, budgets, cache=None):
                 "chain_cuts": ",".join(map(str, cuts)),
                 "num_input_blocks": len(cuts) + 1,
                 "num_clusters": result["num_clusters"],
+                "partition_parameters": _parameters(result, chain_order),
                 "bic": result["bic"],
                 "log_likelihood": result["log_likelihood"],
                 "conditional_log_likelihood": result["conditional_log_likelihood"],
@@ -424,6 +437,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
             records.append(record)
         record.update(
             {
+                "partition_parameters": _parameters(result, chain_order),
                 "publication_eligible": admissible(result),
                 "active_mixture_components": int(np.count_nonzero(result["cluster_weights"] > 0)),
                 "minimum_mixture_weight": float(np.min(result["cluster_weights"])),
@@ -556,9 +570,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
     }
 
 
-def run_model_selection(
-    preprocess_dir, preliminary_result, final_result, cluster_list, reps=None, center_refit="conditional"
-):
+def run_model_selection(canonical, chain_order, preliminary_result, final_result, cluster_list, reps=None):
     """Improve fixed-K chain proposals and publish the minimum BIC-form score.
 
     K is a block budget: q occupied blocks contribute 2q-1 parameters, including
@@ -567,36 +579,9 @@ def run_model_selection(
     Subsample boundaries expand in chain-rank space before full-data refits;
     all candidate BICs use exactly the same N mutations and likelihood.
     """
-    if center_refit != "conditional":
-        raise ValueError("Only conditional center refitting is supported; got %r" % center_refit)
-    with open(os.path.join(preprocess_dir, "multiplicity_model.txt")) as handle:
-        if handle.read().strip() != MODEL_VERSION:
-            raise ValueError("Preprocessing does not declare the uniform multiplicity model")
-    model = MultiplicityModel(
-        *[_load_vector(preprocess_dir, f) for f in ("r.txt", "n.txt", "major.txt", "total.txt")],
-        purity=float(_load_vector(preprocess_dir, "purity_ploidy.txt")[0]),
-    )
-    index = pd.read_csv(os.path.join(preprocess_dir, "multiplicity.txt"), sep=r"\s+", header=None, dtype=str)
-    if index.shape != (len(model), 4):
-        raise ValueError("Multiplicity coordinates must have four columns and one row per mutation")
-    if not np.array_equal(index[2].astype(float), model.total) or not np.array_equal(
-        index[3].astype(float), model.major
-    ):
-        raise ValueError("Multiplicity coordinate CN does not match the model inputs")
-    coordinates = index[[0, 1]].copy()
-    coordinates.columns = ["chromosome_index", "position"]
-    if coordinates.duplicated().any():
-        raise ValueError("Mutation coordinates must be unique")
-    retained_path = os.path.join(preprocess_dir, "retained.tsv")
-    if os.path.isfile(retained_path):
-        retained = pd.read_csv(retained_path, sep="\t", dtype={"mutation_id": str}, keep_default_na=False)
-        if len(retained) != len(model):
-            raise ValueError("Retained mutation identity count mismatch")
-        coordinates["mutation_id"] = retained["mutation_id"].to_numpy()
-        coordinates["original_row"] = retained["original_row"].to_numpy()
-    chain_order = _integer_vector(
-        _load_vector(preliminary_result, "chain_order.txt"), "Frozen chain order", len(model)
-    )
+    model = MultiplicityModel(*canonical.arrays)
+    coordinates = canonical.retained[["chromosome_index", "position", "mutation_id", "original_row"]].copy()
+    chain_order = _integer_vector(chain_order, "Frozen chain order", len(model))
     if not np.array_equal(np.sort(chain_order), np.arange(len(model))):
         raise ValueError("Frozen chain order must be a permutation of original row indices")
     budgets = _integer_vector(cluster_list, "Cluster budgets")
@@ -634,7 +619,8 @@ def run_model_selection(
             sample_indices = None
             if reps is not None:
                 sample_indices = _integer_vector(
-                    _load_vector(preliminary_result, "sample_indices_rep%d.txt" % rep), "Subsample indices"
+                    np.loadtxt(os.path.join(preliminary_result, "sample_indices_rep%d.txt" % rep), ndmin=1),
+                    "Subsample indices",
                 )
                 if requested_k > len(sample_indices):
                     record["status"] = "k_exceeds_subsample_size"
@@ -676,7 +662,7 @@ def run_model_selection(
         for requested_k, candidate in search["winners"].items():
             record = by_attempt[(requested_k, rep)]
             result = candidate["result"]
-            record["center_refit"] = center_refit
+            record["center_refit"] = "conditional"
             record.update(
                 {
                     key: result[key]
@@ -727,8 +713,7 @@ def run_model_selection(
     winners = []
     for requested_k, best in sorted(best_by_k.items()):
         best[4]["selected_for_k"] = True
-        files = _write_result(model, coordinates, best[3], final_result, requested_k)
-        winners.append((best[0], best[1], requested_k, best[2], files, best[4]))
+        winners.append((best[0], best[1], requested_k, best[2], best[3], best[4]))
     if not winners:
         _write_table(pd.DataFrame(search_records), os.path.join(final_result, "chain_candidates.tsv"))
         _write_table(pd.DataFrame(records), os.path.join(final_result, "bic_selection.tsv"))
@@ -745,13 +730,5 @@ def run_model_selection(
         row["selected"] = row["selected_for_k"] and row["requested_k"] == winner[2]
     _write_table(pd.DataFrame(search_records), os.path.join(final_result, "chain_candidates.tsv"))
     _write_table(pd.DataFrame(records), os.path.join(final_result, "bic_selection.tsv"))
-    destination = os.path.join(final_result, "Best_K")
-    os.makedirs(destination, exist_ok=True)
-    for filename in os.listdir(destination):
-        if filename.endswith(".txt") and filename.startswith(
-            ("mutation_assignments_K", "subclonal_structure_K", "posterior_multiplicity_K")
-        ):
-            os.remove(os.path.join(destination, filename))
-    for filename in winner[4]:
-        shutil.copyfile(os.path.join(final_result, filename), os.path.join(destination, filename))
+    _write_result(model, coordinates, winner[4], final_result)
     return int(winner[2])

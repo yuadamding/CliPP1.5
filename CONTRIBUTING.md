@@ -1,67 +1,49 @@
-# Contributing and release gates
+# Contributing
 
-Changes remain under the existing AGPLv3 license. Preserve author attribution.
-Separate scientific model/search/score changes from engineering repairs. Do not
-update golden outputs merely to make a regression disappear. Explain any changed
-input or output contract and increment its scoped identity.
-
-## Local development
-
-Use an isolated environment with Python, a C++17 compiler, R/data.table, and the
-project's test dependencies. Editable installation is not required; the following
-source-test route rebuilds identity after Python/R/native changes:
+Preserve AGPLv3 attribution. Keep scientific model/search/score changes separate
+from engineering changes. Model and output contracts have explicit identities.
 
 ```bash
-python -m pip install '.[test]'
-CLIPP_USE_CUDA=0 python setup.py build_ext --inplace
-OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=src \
-  python -m pytest -q
-python -m ruff check src/clipp tests benchmarks setup.py run_clipp_main.py
-python -m compileall -q src/clipp tests benchmarks run_clipp_main.py
+python -m pip install '.[dev]'
+python -m ruff check src/clipp setup.py
+python -m compileall -q src/clipp
 git diff --check
 CLIPP_USE_CUDA=0 python -m build
 ```
 
-`setup.py build_ext --inplace` is a development rebuild, not an installation
-recipe. Production users install wheels or use `pip install .`. Check wheels and
-sdists in fresh environments outside the checkout, including read-only installed
-package files and new external output directories. CPU CI runs these contracts;
-check its real status before claiming the Python matrix passed.
+Rebuild after package/native source changes. Install wheels and source distributions
+in separate clean environments, then run `clipp doctor`, `clipp validate`,
+`clipp fit --device cpu` and `clipp verify` on the supplied sample outside the
+checkout, with a new output directory. Use the input paths and `--output` option
+shown by `clipp fit --help` and the README. For source development, rebuild with
+`CLIPP_USE_CUDA=0 python setup.py build_ext --inplace`.
 
-CUDA tests require an authorized allocated device and a prepared CUDA build:
+## Validation scope
 
-```bash
-CLIPP_USE_CUDA=1 python -m pip install --no-build-isolation .
-CLIPP_TEST_CUDA=1 python -m pytest -q tests/test_cuda.py
-```
+Current CI checks lint, compilation, wheel/sdist installation and sample fitting
+and verification on Python 3.12 and 3.13. It does not run a numerical regression
+suite: the docs, tests and benchmark directories were deliberately removed after
+archiving their evidence. The manual artifact workflow also uses these smoke gates
+before uploading artifacts; it does not publish a package or tag.
 
-CPU skips are not CUDA qualification. Retain build/device/runtime identity and
-paired full-fit outputs. Container qualification must build from a complete
-source archive, execute a real fit as a non-root user with a writable external
-volume, then verify the result. Save image ID/digest and dependencies. The current
-Docker recipe has not passed that gate.
+The archived pre-removal validation passed 180 tests with six CUDA skips, installed
+wheel suites on Python 3.12/3.13, and 240 exact capacity comparisons across 24 small
+engineering cases. The numerical source remains unchanged by the directory removal.
+These are historical engineering results, not broad-cohort accuracy claims.
 
-## Scientific evaluation
+The local, unpublished evidence bundle is
+`/storage/CliPP2/clipp15_readiness_19f310b_20261002/validation-capsule.tar.gz`, SHA-256
+`db1036435bfc4d40d49d0e4ecbb12dcaa9d73fe0e8c4fb50a038db8517c929b9`.
+It contains the original regression fixture, Python/R migration evidence,
+source-bound outputs, failures and reproduction instructions. This machine-local
+archive is not a public download or the current reduced source distribution.
+Do not regenerate a golden fixture to conceal a regression.
 
-See `benchmarks/README.md`. Freeze the source/build/protocol before protected
-validation. Retain failed attempts in the denominator. A development smoke panel
-or improvement in score alone does not qualify accuracy on the three historical
-cohorts. A new scientific policy needs its own identity, an independently
-specified comparison and a protected comparison against the prior estimator.
+Python 3.10 with SciPy 1.15.3 failed candidate-partition equivalence; version 1.6.0
+requires Python 3.12+ and SciPy 1.18.x. CUDA and container execution remain
+unqualified. A sample fit cannot establish global optimization, calibrated
+uncertainty or biological accuracy.
 
-## Release process
-
-1. Complete CPU regression, fresh wheel and sdist tests; retain logs and artifact
-   SHA-256 values. Confirm source-only archive contents and AGPL license.
-2. Record which Python/platform/backend/container combinations actually passed.
-   Keep any unqualified combinations plainly experimental in the README.
-3. Review model/input/output identities, documentation, changelog and citation.
-4. Build from an immutable source commit. The manual artifact workflow produces
-   wheels/sdist, checksums and dependency records; it does not publish to PyPI,
-   push tags, or certify a release by itself.
-5. An authorized maintainer may publish immutable artifacts after checking the
-   evidence. Never replace an artifact under the same release identity.
-
-Report defects with exact software/native build IDs, command/configuration,
-`doctor` output, failure status and a minimal non-sensitive reproducer. Do not
-attach private tumor data to public issues.
+Publish only immutable source-bound artifacts after their exact gates pass; keep
+previous artifacts and failures. Report bugs with exact source/native build IDs,
+configuration, `doctor` output and a minimal non-sensitive input.

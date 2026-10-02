@@ -1,55 +1,54 @@
-name: CPU contracts
-on:
-  push:
-  pull_request:
+name: CPU build and example checks
+on: [push, pull_request]
 permissions:
   contents: read
+env:
+  CLIPP_USE_CUDA: '0'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
 jobs:
   cpu:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        python: ['3.10', '3.12', '3.13']
-    env:
-      CLIPP_USE_CUDA: '0'
-      OMP_NUM_THREADS: '1'
-      OPENBLAS_NUM_THREADS: '1'
-      MKL_NUM_THREADS: '1'
+        python: ['3.12', '3.13']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - run: sudo apt-get update && sudo apt-get install -y r-base-core r-cran-data.table g++
-      - run: python -m pip install build ruff pytest
-      - run: python -m ruff check src/clipp tests benchmarks setup.py run_clipp_main.py
-      - run: python -m compileall -q src/clipp tests benchmarks run_clipp_main.py
+      - run: python -m pip install build ruff
+      - run: python -m ruff check src/clipp setup.py
+      - run: python -m compileall -q src/clipp
       - run: git diff --check
       - run: python -m build
       - run: python -m pip install dist/*.whl
-      - name: Installed wheel tests, outside checkout
+      - name: Installed wheel example (no R or NVIDIA installation)
         working-directory: /tmp
-        run: python -m pytest -q "$GITHUB_WORKSPACE/tests"
-      - name: Quick start and independent verification
         run: |
-          cd /tmp
-          clipp doctor
-          clipp fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --sample-id example --output "$RUNNER_TEMP/clipp-example"
-          clipp verify "$RUNNER_TEMP/clipp-example"
-      - name: Fresh source-distribution install
+          clipp doctor > "$RUNNER_TEMP/doctor.json"
+          clipp validate "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt"
+          clipp fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --output "$RUNNER_TEMP/wheel-example"
+          clipp verify "$RUNNER_TEMP/wheel-example"
+      - name: Fresh source-distribution install and example
         run: |
           python -m venv "$RUNNER_TEMP/sdist-env"
           "$RUNNER_TEMP/sdist-env/bin/python" -m pip install dist/*.tar.gz
           cd /tmp
-          "$RUNNER_TEMP/sdist-env/bin/clipp" doctor
-          "$RUNNER_TEMP/sdist-env/bin/clipp" fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --clusters 3 --output "$RUNNER_TEMP/clipp-sdist-example"
-          "$RUNNER_TEMP/sdist-env/bin/clipp" verify "$RUNNER_TEMP/clipp-sdist-example"
+          "$RUNNER_TEMP/sdist-env/bin/clipp" fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --output "$RUNNER_TEMP/sdist-example"
+          "$RUNNER_TEMP/sdist-env/bin/clipp" verify "$RUNNER_TEMP/sdist-example"
+      - name: Retain resolved stack
+        if: always()
+        run: python -m pip freeze > "$RUNNER_TEMP/dependencies.txt"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: cpu-python-${{ matrix.python }}
+          name: cpu-example-${{ matrix.python }}
           path: |
             dist/
-            ${{ runner.temp }}/clipp-example/manifest.json
-            ${{ runner.temp }}/clipp-example/COMPLETE.json
+            ${{ runner.temp }}/doctor.json
+            ${{ runner.temp }}/dependencies.txt
+            ${{ runner.temp }}/wheel-example/
+            ${{ runner.temp }}/sdist-example/

@@ -1,10 +1,10 @@
 import os
 import numpy as np
-from .kernel import _prepare_chain, _run_kernel
+from .kernel import _run_kernel
 
 
 def run_clipp_sub(
-    prefix, preliminary_result, cluster_list, No_subsampling, rep, window_size, overlap, seed=0, prepared=None
+    prepared, preliminary_result, cluster_list, No_subsampling, rep, window_size, overlap, seed=0
 ):
     if No_subsampling < 1 or rep < 1:
         raise ValueError("Subsample size and replicate count must be positive.")
@@ -15,9 +15,7 @@ def run_clipp_sub(
         or not 0 <= overlap < window_size
     ):
         raise ValueError("Require 0 <= overlap < window_size <= 1.")
-    (r_all, n_all, major_all, total_all, purity), pilot, order = (
-        prepared if prepared is not None else _prepare_chain(prefix, preliminary_result)
-    )
+    (r_all, n_all, major_all, total_all, purity), pilot, order = prepared
     count = len(r_all)
     size = min(No_subsampling, count)
     if max(cluster_list) > size:

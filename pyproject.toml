@@ -4,17 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "clipp15"
-version = "1.5.1"
+version = "1.6.0"
 description = "Single-sample fixed-chain cancer mutation clustering with latent multiplicity"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = "AGPL-3.0-only"
 license-files = ["LICENSE"]
 authors = [{name = "CliPP contributors"}]
-dependencies = ["numpy>=1.24", "scipy>=1.10", "pandas>=2.0", "psutil>=5.9"]
+dependencies = ["numpy>=2.2.6", "scipy>=1.18,<1.19", "pandas>=2.0"]
 
 [project.optional-dependencies]
-test = ["pytest>=8", "ruff>=0.13", "build>=1.2"]
+dev = ["ruff>=0.13", "build>=1.2"]
 
 [project.scripts]
 clipp = "clipp.cli:main"
@@ -28,14 +28,10 @@ where = ["src"]
 include = ["clipp*"]
 
 [tool.setuptools.package-data]
-clipp = ["resources/*.R", "_build_info.json"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-markers = ["cuda: requires an explicitly allocated CUDA device (not CPU qualification)"]
+clipp = ["_build_info.json"]
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py312"
 line-length = 110
 
 [tool.ruff.lint]

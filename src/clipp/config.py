@@ -1,6 +1,6 @@
 """Resolve fitting configuration once, before any work or output creation."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 import math
 import os
 
@@ -21,14 +21,24 @@ class FitConfig:
     assembly: str = "unspecified"
 
     def __post_init__(self):
-        if not self.sample_id.strip() or any(c in self.sample_id for c in "/\\\t\r\n"):
+        if (
+            not isinstance(self.sample_id, str)
+            or not self.sample_id.strip()
+            or any(c in self.sample_id for c in "/\\\t\r\n")
+        ):
             raise ValueError("sample_id must be a nonempty name, separate from the output path")
-        if not self.assembly.strip() or any(c in self.assembly for c in "\t\r\n"):
+        if (
+            not isinstance(self.assembly, str)
+            or not self.assembly.strip()
+            or any(c in self.assembly for c in "\t\r\n")
+        ):
             raise ValueError("assembly must be a nonempty label")
-        if self.device not in {"auto", "cpu", "cuda"}:
+        if not isinstance(self.device, str) or self.device not in {"auto", "cpu", "cuda"}:
             raise ValueError("device must be auto, cpu or cuda")
         for name, value in (("max_clusters", self.max_clusters), ("clusters", self.clusters)):
-            if value is not None and (type(value) is not int or not 1 <= value <= 10):
+            if (name == "max_clusters" or value is not None) and (
+                type(value) is not int or not 1 <= value <= 10
+            ):
                 raise ValueError(f"{name} must be an integer in 1..10")
         if self.subsample_size is not None and (
             type(self.subsample_size) is not int or self.subsample_size < 1
@@ -41,11 +51,20 @@ class FitConfig:
         if type(self.seed) is not int or not 0 <= self.seed <= 2**32 - 1 - self.replicates:
             raise ValueError("seed + replicate must fit uint32")
         if not (
-            math.isfinite(self.window_size)
+            type(self.window_size) in (float, int)
+            and type(self.overlap) in (float, int)
+            and math.isfinite(self.window_size)
             and math.isfinite(self.overlap)
             and 0 <= self.overlap < self.window_size <= 1
         ):
             raise ValueError("Require 0 <= overlap < window_size <= 1")
+
+    @classmethod
+    def from_dict(cls, value):
+        """Deserialize the complete recorded contract without resolving environment flags."""
+        if not isinstance(value, dict) or set(value) != {field.name for field in fields(cls)}:
+            raise ValueError("Recorded configuration must contain exactly the FitConfig fields")
+        return cls(**value)
 
     def resolved_device(self):
         forced = parse_flag(os.environ.get("CLIPP_FORCE_CPU"), "CLIPP_FORCE_CPU") is True

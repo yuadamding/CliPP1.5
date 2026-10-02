@@ -4,22 +4,19 @@ from contextlib import contextmanager
 from dataclasses import asdict
 from datetime import datetime, timezone
 import ctypes
-import importlib.metadata
 import json
 import os
 from pathlib import Path
-import platform
 import shutil
-import subprocess
 import threading
 import time
 import uuid
 
 import numpy as np
-import pandas as pd
-import psutil
 
 from .config import FitConfig
+from .environment import fingerprint
+from .preprocessing import preprocess
 from .kernel import _prepare_chain, _run_kernel
 from .native import load_native, sha256
 from .selection import run_model_selection
@@ -47,22 +44,6 @@ def write_json(path, value):
 class _Profile:
     def __init__(self):
         self.stages = {}
-        self.peak = 0
-        self.stop = threading.Event()
-        self.process = psutil.Process()
-        self.thread = threading.Thread(target=self.sample, daemon=True)
-
-    def sample(self):
-        while True:
-            rss = 0
-            for process in [self.process, *self.process.children(recursive=True)]:
-                try:
-                    rss += process.memory_info().rss
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
-                    pass
-            self.peak = max(self.peak, rss)
-            if self.stop.wait(0.02):
-                return
 
     @contextmanager
     def stage(self, name):
@@ -111,7 +92,7 @@ def fit(snv_input, cn_input, purity_input, output, *, config=None):
     marker. Concurrent callers in one process are serialized; use processes for
     independent fits. Fitting never reads simulation truth.
     """
-    config = config or FitConfig()
+    config = FitConfig() if config is None else config
     if not isinstance(config, FitConfig):
         raise TypeError("config must be a FitConfig")
     with _FIT_LOCK:
@@ -141,7 +122,6 @@ def _fit(snv_input, cn_input, purity_input, output, config):
             lock_fd, json.dumps({"pid": os.getpid(), "output": str(out), "started_utc": started_utc}).encode()
         )
         work.mkdir()
-        profile.thread.start()
         with profile.stage("native_identity"):
             library, native = load_native()
         copied = work / "inputs"
@@ -163,31 +143,10 @@ def _fit(snv_input, cn_input, purity_input, output, config):
             work / name for name in ("preprocess_result", "preliminary_result", "final_result")
         )
         with profile.stage("preprocessing"):
-            rscript = shutil.which("Rscript")
-            if rscript is None:
-                raise RuntimeError("Rscript is required; install R and its data.table package")
-            with (
-                (work / "preprocess.stdout.log").open("w") as stdout,
-                (work / "preprocess.stderr.log").open("w") as stderr,
-            ):
-                process = subprocess.run(
-                    [
-                        rscript,
-                        str(package / "resources/preprocess.R"),
-                        *(str(copied / (name + ".txt")) for name in ("snv", "cna", "purity")),
-                        config.sample_id,
-                        str(pre),
-                    ],
-                    stdout=stdout,
-                    stderr=stderr,
-                    check=False,
-                )
-            if process.returncode:
-                detail = (work / "preprocess.stderr.log").read_text().strip()
-                raise ValueError(f"Preprocessing failed: {detail}")
-            retained = pd.read_csv(
-                pre / "retained.tsv", sep="\t", dtype={"mutation_id": str}, keep_default_na=False
+            canonical = preprocess(
+                *(copied / (name + ".txt") for name in ("snv", "cna", "purity")), output=pre
             )
+            retained = canonical.retained
             capacities = config.capacities(len(retained))
         with profile.stage("backend_warmup"):
             actual_device = _choose_backend(library, requested, len(retained))
@@ -200,7 +159,7 @@ def _fit(snv_input, cn_input, purity_input, output, config):
                     raise RuntimeError("CUDA device metadata unavailable after warmup")
                 cuda_info = json.loads(metadata.decode())
         with profile.stage("initialization"):
-            prepared = _prepare_chain(pre, raw)
+            prepared = _prepare_chain(canonical, raw)
         with _backend_environment(actual_device), profile.stage("native_candidates"):
             if config.subsample_size is None:
                 (r, n, major, total, purity), pilot, order = prepared
@@ -209,7 +168,7 @@ def _fit(snv_input, cn_input, purity_input, output, config):
                 )
             else:
                 run_clipp_sub(
-                    pre,
+                    prepared,
                     raw,
                     capacities,
                     config.subsample_size,
@@ -217,17 +176,17 @@ def _fit(snv_input, cn_input, purity_input, output, config):
                     config.window_size,
                     config.overlap,
                     config.seed,
-                    prepared,
                 )
         with profile.stage("refit_and_selection"):
             selected_k = run_model_selection(
-                pre,
+                canonical,
+                prepared[2],
                 raw,
                 final,
                 capacities,
                 reps=config.replicates if config.subsample_size is not None else None,
             )
-        ledger = pd.read_csv(pre / "input_ledger.tsv", sep="\t")
+        ledger = canonical.ledger
         replicas = []
         for indices_file in sorted(raw.glob("sample_indices_rep*.txt")):
             rep = int(indices_file.stem.split("rep")[-1])
@@ -257,33 +216,17 @@ def _fit(snv_input, cn_input, purity_input, output, config):
             "num_retained": len(retained),
             "num_excluded": int((ledger.status == "excluded").sum()),
             "selected_k": selected_k,
+            "purity": canonical.purity,
+            "selected_outputs": {
+                "mutations": "final_result/mutations.tsv",
+                "clusters": "final_result/clusters.tsv",
+            },
             "canonical_input_sha256": sha256(pre / "retained.tsv"),
             "mutation_identity_sha256": sha256(pre / "input_ledger.tsv"),
             "chain_order_sha256": sha256(raw / "chain_order.txt"),
             "initializer": json.loads((raw / "chain_initialization.json").read_text()),
             "subsamples": replicas,
-            "environment": {
-                "python": platform.python_version(),
-                "platform": platform.platform(),
-                "cuda": cuda_info,
-                "machine": platform.machine(),
-                "processor": platform.processor(),
-                "cpu_count": os.cpu_count(),
-                "threads": {
-                    name: os.environ.get(name)
-                    for name in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS")
-                },
-                "dependencies": {
-                    name: importlib.metadata.version(name) for name in ("numpy", "scipy", "pandas", "psutil")
-                },
-                "rscript": rscript,
-                "r_version": subprocess.check_output(
-                    [rscript, "--version"], stderr=subprocess.STDOUT, text=True
-                ).strip(),
-                "data_table_version": subprocess.check_output(
-                    [rscript, "-e", 'cat(as.character(packageVersion("data.table")))'], text=True
-                ).strip(),
-            },
+            "environment": {**fingerprint(), "cuda": cuda_info},
             "artifacts": {
                 str(p.relative_to(work)): sha256(p) for p in sorted(work.rglob("*")) if p.is_file()
             },
@@ -309,8 +252,9 @@ def _fit(snv_input, cn_input, purity_input, output, config):
             "manifest_sha256": sha256(out / "manifest.json"),
             "stage_seconds": profile.stages,
             "end_to_end_seconds": time.perf_counter() - started,
-            "peak_process_tree_rss_bytes_sampled": profile.peak,
-            "memory_sampling_interval_seconds": 0.02,
+            "peak_process_tree_rss_bytes_sampled": None,
+            "memory_measurement": "unmeasured; use the isolated benchmark runner for sampled RSS",
+            "memory_sampling_interval_seconds": None,
             "timing_scope": "API entry through verified directory publication; excludes final completion-record write",
             "gpu_peak_memory_bytes": None,
         }
@@ -331,8 +275,5 @@ def _fit(snv_input, cn_input, purity_input, output, config):
             )
         raise
     finally:
-        profile.stop.set()
-        if profile.thread.is_alive():
-            profile.thread.join(timeout=1)
         os.close(lock_fd)
         lock.unlink()

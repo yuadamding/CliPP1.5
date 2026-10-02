@@ -100,6 +100,9 @@ class BuildExt(build_ext):
             "cuda_compiled": use_cuda,
             "source_hashes": source_hashes,
             "compiler": self.compiler.compiler_cxx,
+            "compiler_version": subprocess.check_output(
+                [*self.compiler.compiler_cxx, "--version"], text=True
+            ).strip(),
             "compiler_so": self.compiler.compiler_so,
             "linker_so": self.compiler.linker_so,
             "compile_args": ["-O3", "-std=c++17"],
