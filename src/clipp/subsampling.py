@@ -4,7 +4,16 @@ from .kernel import _run_kernel
 
 
 def run_clipp_sub(
-    prepared, preliminary_result, cluster_list, No_subsampling, rep, window_size, overlap, seed=0
+    prepared,
+    preliminary_result,
+    cluster_list,
+    No_subsampling,
+    rep,
+    window_size,
+    overlap,
+    seed=0,
+    *,
+    library=None,
 ):
     if No_subsampling < 1 or rep < 1:
         raise ValueError("Subsample size and replicate count must be positive.")
@@ -49,6 +58,7 @@ def run_clipp_sub(
             pilot[sample_index],
             preliminary_result,
             cluster_list,
+            library=library,
         )
         for capacity in cluster_list:
             for suffix, extension in (("phi", "txt"), ("label", "txt"), ("fit", "tsv")):

@@ -45,7 +45,7 @@ def load_native():
     expected = {
         key.removeprefix("src/clipp/"): value
         for key, value in info["source_hashes"].items()
-        if key.startswith("src/clipp/")
+        if key.startswith("src/clipp/") and Path(key).suffix in {".py", ".R"}
     }
     actual = {str(p.relative_to(root)): sha256(p) for p in root.rglob("*") if p.suffix in {".py", ".R"}}
     if actual != expected:

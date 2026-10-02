@@ -1,6 +1,7 @@
 """Import-safe command line: fit, verify, validate, doctor."""
 
 import argparse
+from dataclasses import asdict, fields
 import json
 import sys
 
@@ -19,21 +20,21 @@ def _parser():
     fit.add_argument("cn_input")
     fit.add_argument("purity_input")
     fit.add_argument("--output", required=True)
-    fit.add_argument("--sample-id", default="sample")
+    fit.add_argument("--sample-id")
     fit.add_argument(
         "--assembly",
-        default="unspecified",
         help="Assembly label; inputs must share an assembly (no conversion)",
     )
     capacities = fit.add_mutually_exclusive_group()
     capacities.add_argument("--clusters", type=int)
-    capacities.add_argument("--max-clusters", type=int, default=10)
-    fit.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
+    capacities.add_argument("--max-clusters", type=int, help="Maximum capacity to compare (default: 20)")
+    fit.add_argument("--device", choices=["auto", "cpu", "cuda"])
     fit.add_argument("--subsample-size", type=int)
-    fit.add_argument("--replicates", type=int, default=1)
-    fit.add_argument("--seed", type=int, default=0)
-    fit.add_argument("--window-size", type=float, default=0.05)
-    fit.add_argument("--overlap", type=float, default=0.0)
+    fit.add_argument("--replicates", type=int)
+    fit.add_argument("--seed", type=int)
+    fit.add_argument("--window-size", type=float)
+    fit.add_argument("--overlap", type=float)
+    fit.set_defaults(**asdict(FitConfig()))
     verify = commands.add_parser("verify", help="Independently verify a complete published run")
     verify.add_argument("directory")
     validate = commands.add_parser("validate", help="Preflight inputs and resource estimates without fitting")
@@ -67,18 +68,7 @@ def main(argv=None):
         if args.command == "fit":
             from .api import fit
 
-            config = FitConfig(
-                sample_id=args.sample_id,
-                device=args.device,
-                clusters=args.clusters,
-                max_clusters=args.max_clusters,
-                subsample_size=args.subsample_size,
-                replicates=args.replicates,
-                seed=args.seed,
-                window_size=args.window_size,
-                overlap=args.overlap,
-                assembly=args.assembly,
-            )
+            config = FitConfig(**{field.name: getattr(args, field.name) for field in fields(FitConfig)})
             result = fit(args.snv_input, args.cn_input, args.purity_input, args.output, config=config)
         elif args.command == "verify":
             from .verify import verify_run

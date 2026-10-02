@@ -6,13 +6,15 @@ import os
 
 from ._flags import parse_flag
 
+MAX_CLUSTERS = 20
+
 
 @dataclass(frozen=True)
 class FitConfig:
     sample_id: str = "sample"
     device: str = "auto"
     clusters: int | None = None
-    max_clusters: int = 10
+    max_clusters: int = MAX_CLUSTERS
     subsample_size: int | None = None
     replicates: int = 1
     seed: int = 0
@@ -37,9 +39,9 @@ class FitConfig:
             raise ValueError("device must be auto, cpu or cuda")
         for name, value in (("max_clusters", self.max_clusters), ("clusters", self.clusters)):
             if (name == "max_clusters" or value is not None) and (
-                type(value) is not int or not 1 <= value <= 10
+                type(value) is not int or not 1 <= value <= MAX_CLUSTERS
             ):
-                raise ValueError(f"{name} must be an integer in 1..10")
+                raise ValueError(f"{name} must be an integer in 1..{MAX_CLUSTERS}")
         if self.subsample_size is not None and (
             type(self.subsample_size) is not int or self.subsample_size < 1
         ):

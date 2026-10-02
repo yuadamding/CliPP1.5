@@ -28,7 +28,7 @@ def _numbers(values):
     # an integer. Match R's hex support without Python's digit separators.
     for index, token in enumerate(values):
         token = str(token)
-        if "_" in token:
+        if not token.isascii() or "_" in token:
             continue
         try:
             numbers[index] = (

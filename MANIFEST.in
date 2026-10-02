@@ -1,4 +1,0 @@
-include LICENSE README.md CHANGELOG.md CITATION.cff CONTRIBUTING.md Dockerfile
-recursive-include src *.py *.cpp *.h *.inc
-recursive-include sample *.txt *.md *.json
-exclude src/clipp/_build_info.json

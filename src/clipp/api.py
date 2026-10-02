@@ -14,6 +14,7 @@ import uuid
 
 import numpy as np
 
+from ._io import write_json
 from .config import FitConfig
 from .environment import fingerprint
 from .preprocessing import preprocess
@@ -28,17 +29,6 @@ _FIT_LOCK = threading.Lock()  # Native environment flags are process-global.
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat()
-
-
-def write_json(path, value):
-    path = Path(path)
-    temporary = path.with_name(path.name + ".tmp")
-    with temporary.open("w") as stream:
-        json.dump(value, stream, indent=2, sort_keys=True, allow_nan=False)
-        stream.write("\n")
-        stream.flush()
-        os.fsync(stream.fileno())
-    os.replace(temporary, path)
 
 
 class _Profile:
@@ -164,7 +154,15 @@ def _fit(snv_input, cn_input, purity_input, output, config):
             if config.subsample_size is None:
                 (r, n, major, total, purity), pilot, order = prepared
                 _run_kernel(
-                    r[order], n[order], major[order], total[order], purity, pilot[order], raw, capacities
+                    r[order],
+                    n[order],
+                    major[order],
+                    total[order],
+                    purity,
+                    pilot[order],
+                    raw,
+                    capacities,
+                    library=library,
                 )
             else:
                 run_clipp_sub(
@@ -176,9 +174,10 @@ def _fit(snv_input, cn_input, purity_input, output, config):
                     config.window_size,
                     config.overlap,
                     config.seed,
+                    library=library,
                 )
         with profile.stage("refit_and_selection"):
-            selected_k = run_model_selection(
+            selection = run_model_selection(
                 canonical,
                 prepared[2],
                 raw,
@@ -215,7 +214,8 @@ def _fit(snv_input, cn_input, purity_input, output, config):
             "num_input_rows": len(ledger),
             "num_retained": len(retained),
             "num_excluded": int((ledger.status == "excluded").sum()),
-            "selected_k": selected_k,
+            "selected_k": selection["selected_k"],
+            "fits": selection["fits"],
             "purity": canonical.purity,
             "selected_outputs": {
                 "mutations": "final_result/mutations.tsv",
@@ -235,7 +235,12 @@ def _fit(snv_input, cn_input, purity_input, output, config):
         from .verify import verify_run
 
         with profile.stage("independent_verification"):
-            verified = verify_run(work, require_complete=False)
+            verified = verify_run(
+                work,
+                require_complete=False,
+                _candidate_evidence=(selection["selection"], selection["candidates"]),
+            )
+        del selection  # The full proposal bank is never part of the published run.
         manifest["verification"] = verified
         manifest["status"] = "verified_fit"
         manifest["stage_seconds"] = profile.stages.copy()
@@ -253,7 +258,7 @@ def _fit(snv_input, cn_input, purity_input, output, config):
             "stage_seconds": profile.stages,
             "end_to_end_seconds": time.perf_counter() - started,
             "peak_process_tree_rss_bytes_sampled": None,
-            "memory_measurement": "unmeasured; use the isolated benchmark runner for sampled RSS",
+            "memory_measurement": "unmeasured; use an external process-tree monitor for sampled RSS",
             "memory_sampling_interval_seconds": None,
             "timing_scope": "API entry through verified directory publication; excludes final completion-record write",
             "gpu_peak_memory_bytes": None,

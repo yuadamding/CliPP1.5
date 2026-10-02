@@ -52,7 +52,7 @@ extern "C" int CliPPEvaluateCPU(int n,const int* r,const int* depth,const int* m
     return 0;
 }
 extern "C" int CliPPProject(int n,const double* x,int k,double* z){
-    if(n<1 || k<1 || k>std::min(n,10) || !x || !z) return 1;
+    if(n<1 || k<1 || k>std::min(n,kMaxClusters) || !x || !z) return 1;
     try {
         for(int i=0;i<n;++i) if(!std::isfinite(x[i])) return 1;
         const auto result=project_chain_jumps(std::vector<double>(x,x+n),k);

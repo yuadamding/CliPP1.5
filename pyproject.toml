@@ -26,9 +26,10 @@ Issues = "https://github.com/yuadamding/CliPP1.5/issues"
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["clipp*"]
+namespaces = false
 
-[tool.setuptools.package-data]
-clipp = ["_build_info.json"]
+[tool.setuptools]
+include-package-data = false
 
 [tool.ruff]
 target-version = "py312"

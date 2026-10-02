@@ -1,4 +1,4 @@
-name: CPU build and example checks
+name: CPU artifact checks
 on: [push, pull_request]
 permissions:
   contents: read
@@ -21,7 +21,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -m pip install build ruff
       - run: python -m ruff check src/clipp setup.py
-      - run: python -m compileall -q src/clipp
+      - run: python -m compileall -q src/clipp setup.py
       - run: git diff --check
       - run: python -m build
       - run: python -m pip install dist/*.whl
@@ -30,14 +30,14 @@ jobs:
         run: |
           clipp doctor > "$RUNNER_TEMP/doctor.json"
           clipp validate "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt"
-          clipp fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --output "$RUNNER_TEMP/wheel-example"
+          clipp fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --max-clusters 10 --output "$RUNNER_TEMP/wheel-example"
           clipp verify "$RUNNER_TEMP/wheel-example"
       - name: Fresh source-distribution install and example
         run: |
           python -m venv "$RUNNER_TEMP/sdist-env"
           "$RUNNER_TEMP/sdist-env/bin/python" -m pip install dist/*.tar.gz
           cd /tmp
-          "$RUNNER_TEMP/sdist-env/bin/clipp" fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --output "$RUNNER_TEMP/sdist-example"
+          "$RUNNER_TEMP/sdist-env/bin/clipp" fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --max-clusters 10 --output "$RUNNER_TEMP/sdist-example"
           "$RUNNER_TEMP/sdist-env/bin/clipp" verify "$RUNNER_TEMP/sdist-example"
       - name: Retain resolved stack
         if: always()

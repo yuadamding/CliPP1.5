@@ -22,20 +22,17 @@ import os
 import numpy as np
 import pandas as pd
 
+from .config import MAX_CLUSTERS
 from .refinement import polish_chain_partition
 from .model import MultiplicityModel
 from .refitting import refit_center
 from .scoring import fit_cluster_weights
-from .output import _write_table, _write_result
-
-
-MODEL_VERSION = "uniform_1_to_major_v1"
-BIC_DEFINITION = "observed_cluster_multiplicity_2K_minus_1_v1"
-CANDIDATE_SEARCH_VERSION = "native_chain_boundary_polish_supported_weights_v2"
+from .output import _write_result
+from .versions import IDENTITIES
 
 
 def _parameters(result, order):
-    """Lossless O(q) evidence; label visits need not follow the center order."""
+    """Lossless O(blocks + q) evidence; visits need not follow center order."""
     ordered = result["labels"][order]
     cuts = np.flatnonzero(np.diff(ordered)) + 1
     return json.dumps(
@@ -144,7 +141,7 @@ def refit_partition(model, labels, cache=None, chain_order=None):
         "num_parameters": parameters,
         "num_mutations": len(model),
         "bic": bic,
-        "bic_definition": BIC_DEFINITION,
+        "bic_definition": IDENTITIES["scoring_version"],
     }
 
 
@@ -217,24 +214,30 @@ def search_chain_coarsenings(model, seeds, chain_order, budgets, cache=None):
     if not np.array_equal(np.sort(chain_order), np.arange(n)):
         raise ValueError("Frozen chain order must be a permutation of original row indices")
     budgets = _integer_vector(budgets, "Cluster budgets")
-    if len(np.unique(budgets)) != len(budgets) or np.any(budgets < 1) or np.any(budgets > min(10, n)):
-        raise ValueError("Expected unique K in 1..min(10,N)")
+    if (
+        len(np.unique(budgets)) != len(budgets)
+        or np.any(budgets < 1)
+        or np.any(budgets > min(MAX_CLUSTERS, n))
+    ):
+        raise ValueError(f"Expected unique K in 1..min({MAX_CLUSTERS},N)")
     allowed = set(int(k) for k in budgets)
     cache = _ChainRefitCache(model, chain_order) if cache is None else cache
-    chain_bytes = np.asarray(chain_order, dtype="<i8").tobytes()
+    chain_digest = hashlib.sha256(np.asarray(chain_order, dtype="<i8").tobytes())
 
     def fingerprint(cuts):
-        return hashlib.sha256(chain_bytes + np.asarray(cuts, dtype="<i8").tobytes()).hexdigest()
+        digest = chain_digest.copy()
+        digest.update(np.asarray(cuts, dtype="<i8").tobytes())
+        return digest.hexdigest()
 
     proposals = {}
 
-    def add(cuts, target, source_k, rep, parent_cuts, kind):
+    def add(cuts, target, source_k, rep, parent_digest, kind):
         provenance = {
             "requested_k": target,
             "parent_requested_k": source_k,
             "parent_replicate": rep,
             "candidate_kind": kind,
-            "parent_partition_sha256": fingerprint(parent_cuts),
+            "parent_partition_sha256": parent_digest,
         }
         by_budget = proposals.setdefault(cuts, {})
 
@@ -254,7 +257,7 @@ def search_chain_coarsenings(model, seeds, chain_order, budgets, cache=None):
         rep = int(seed.get("replicate", 1))
         if (
             source_k != seed["requested_k"]
-            or not 1 <= source_k <= min(10, n)
+            or not 1 <= source_k <= min(MAX_CLUSTERS, n)
             or rep != seed.get("replicate", 1)
             or rep < 1
         ):
@@ -262,18 +265,19 @@ def search_chain_coarsenings(model, seeds, chain_order, budgets, cache=None):
         labels = _integer_vector(seed["labels"], "Native chain labels", n)
         ordered = validate_chain_labels(labels[chain_order], n, source_k)
         cuts = tuple(int(i) for i in np.flatnonzero(ordered[1:] != ordered[:-1]) + 1)
+        parent_digest = fingerprint(cuts)
         if source_k in allowed:
-            add(cuts, source_k, source_k, rep, cuts, "native")
+            add(cuts, source_k, source_k, rep, parent_digest, "native")
         for target in sorted(allowed):
             if target > len(cuts) + 1:
                 continue
             for subset in itertools.combinations(cuts, target - 1):
                 kind = "adjacent_coarsening" if subset != cuts else "capacity_reuse"
-                add(subset, target, source_k, rep, cuts, kind)
+                add(subset, target, source_k, rep, parent_digest, kind)
 
     winners, winner_keys, records = {}, {}, []
 
-    # Group by source where possible to reuse its at-most-55 interval centers.
+    # Group by source to reuse its K*(K+1)/2 possible interval centers.
     def proposal_order(item):
         cuts, sources = item
         parent = min((p["parent_requested_k"], p["parent_replicate"]) for p in sources.values())
@@ -296,14 +300,15 @@ def search_chain_coarsenings(model, seeds, chain_order, budgets, cache=None):
                         "error": str(error),
                         "proposal_partition_sha256": proposal_digest,
                         "chain_cuts": ",".join(map(str, cuts)),
-                        "candidate_search_version": CANDIDATE_SEARCH_VERSION,
+                        "candidate_search_version": IDENTITIES["candidate_search_version"],
                         "selected_for_k": False,
                     }
                 )
             continue
         ordered_result = result["labels"][chain_order]
         final_cuts = tuple(int(i) for i in np.flatnonzero(ordered_result[1:] != ordered_result[:-1]) + 1)
-        digest = fingerprint(final_cuts)
+        digest = proposal_digest if final_cuts == cuts else fingerprint(final_cuts)
+        parameters = _parameters(result, chain_order)
         for budget, provenance in sorted(by_budget.items()):
             validate_chain_labels(result["labels"][chain_order], n, budget)
             record = {
@@ -314,14 +319,14 @@ def search_chain_coarsenings(model, seeds, chain_order, budgets, cache=None):
                 "chain_cuts": ",".join(map(str, cuts)),
                 "num_input_blocks": len(cuts) + 1,
                 "num_clusters": result["num_clusters"],
-                "partition_parameters": _parameters(result, chain_order),
+                "partition_parameters": parameters,
                 "bic": result["bic"],
                 "log_likelihood": result["log_likelihood"],
                 "conditional_log_likelihood": result["conditional_log_likelihood"],
                 "weight_optimality_gap": result["weight_optimality_gap"],
                 "weight_active_score_gap": result["weight_active_score_gap"],
                 "active_mixture_components": int(np.count_nonzero(result["cluster_weights"] > 0)),
-                "candidate_search_version": CANDIDATE_SEARCH_VERSION,
+                "candidate_search_version": IDENTITIES["candidate_search_version"],
                 "selected_for_k": False,
             }
             records.append(record)
@@ -365,7 +370,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
     adjacent merges and refits, not by relabeling or a positive weight floor.
     """
     n = len(model)
-    chain_bytes = np.asarray(chain_order, dtype="<i8").tobytes()
+    chain_digest = hashlib.sha256(np.asarray(chain_order, dtype="<i8").tobytes())
     records = search["candidates"]
     winners = {}
     seen = set()
@@ -375,7 +380,9 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
         return tuple(int(i) for i in np.flatnonzero(np.diff(ordered)) + 1)
 
     def fingerprint(cuts):
-        return hashlib.sha256(chain_bytes + np.asarray(cuts, dtype="<i8").tobytes()).hexdigest()
+        digest = chain_digest.copy()
+        digest.update(np.asarray(cuts, dtype="<i8").tobytes())
+        return digest.hexdigest()
 
     def admissible(result):
         return bool(np.all(result["cluster_weights"] > 0))
@@ -417,7 +424,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
                     "chain_cuts": ",".join(map(str, cuts)),
                     "num_input_blocks": len(cuts) + 1,
                     "selected_for_k": False,
-                    "candidate_search_version": CANDIDATE_SEARCH_VERSION,
+                    "candidate_search_version": IDENTITIES["candidate_search_version"],
                     "refinement_parent_partition_sha256": parent["partition_sha256"],
                 }
             )
@@ -489,7 +496,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
                         "parent_partition_sha256": parent["parent_partition_sha256"],
                         "proposal_partition_sha256": fingerprint(reduced_cuts),
                         "chain_cuts": ",".join(map(str, reduced_cuts)),
-                        "candidate_search_version": CANDIDATE_SEARCH_VERSION,
+                        "candidate_search_version": IDENTITIES["candidate_search_version"],
                     }
                 )
                 continue
@@ -497,7 +504,8 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
 
     # Preserve every admissible old winner before adding improvements, so a
     # conditional-likelihood improvement cannot silently worsen the BIC winner.
-    starts = []
+    # Duplicate starts were already ignored by polishing; avoid refitting them.
+    starts, start_partitions = [], set()
     for budget, candidate in sorted(search["winners"].items()):
         original = next(
             row
@@ -507,23 +515,30 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
         )
         consider(candidate["result"], candidate, candidate["candidate_kind"], existing=original)
         starts.append(candidate)
+        start_partitions.add((budget, candidate["partition_sha256"]))
         eligible = [row for row in records if row["requested_k"] == budget and row["publication_eligible"]]
         if eligible:
             baseline = min(eligible, key=lambda row: (row["bic"], row["num_clusters"], row["candidate_id"]))
+            if (budget, baseline["partition_sha256"]) in start_partitions:
+                continue
             cuts = tuple(int(x) for x in baseline["chain_cuts"].split(",") if x)
             labels = np.empty(n, dtype=int)
             labels[chain_order] = np.searchsorted(cuts, np.arange(n), side="right")
             fitted = refit_partition(model, labels, cache, chain_order)
             consider(fitted, baseline, baseline["candidate_kind"], existing=baseline)
             starts.append({**baseline, "result": fitted})
+            start_partitions.add((budget, baseline["partition_sha256"]))
     for seed in seeds:
         budget = seed["requested_k"]
         record = next(
             row for row in records if row["requested_k"] == budget and row["candidate_kind"] == "native"
         )
+        if (budget, record["partition_sha256"]) in start_partitions:
+            continue
         fitted = refit_partition(model, seed["labels"], cache, chain_order)
         consider(fitted, record, "native", existing=record)
         starts.append({**record, "result": fitted})
+        start_partitions.add((budget, record["partition_sha256"]))
     polished = set()
     for parent in starts:
         key = (parent["requested_k"], cuts_of(parent["result"]))
@@ -571,7 +586,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
 
 
 def run_model_selection(canonical, chain_order, preliminary_result, final_result, cluster_list, reps=None):
-    """Improve fixed-K chain proposals and publish the minimum BIC-form score.
+    """Write the selected result and return compact fits plus transient audit tables.
 
     K is a block budget: q occupied blocks contribute 2q-1 parameters, including
     mixture weights. Unsupported components require actual adjacent refits.
@@ -588,10 +603,10 @@ def run_model_selection(canonical, chain_order, preliminary_result, final_result
     if (
         len(np.unique(budgets)) != len(budgets)
         or np.any(budgets < 1)
-        or np.any(budgets > min(10, len(model)))
+        or np.any(budgets > min(MAX_CLUSTERS, len(model)))
         or (reps is not None and (isinstance(reps, bool) or int(reps) != reps or reps < 1))
     ):
-        raise ValueError("Expected unique K in 1..min(10,N) and a positive replicate count")
+        raise ValueError(f"Expected unique K in 1..min({MAX_CLUSTERS},N) and a positive replicate count")
     os.makedirs(final_result, exist_ok=True)
     replicate_count = 1 if reps is None else int(reps)
     records = [
@@ -612,19 +627,21 @@ def run_model_selection(canonical, chain_order, preliminary_result, final_result
     best_by_k, search_records = {}, []
     for rep in range(1, replicate_count + 1):
         seeds, raw_diagnostics = [], {}
+        suffix = "_rep%d" % rep if reps is not None else ""
+        sample_indices = (
+            _integer_vector(
+                np.loadtxt(os.path.join(preliminary_result, "sample_indices_rep%d.txt" % rep), ndmin=1),
+                "Subsample indices",
+            )
+            if reps is not None
+            else None
+        )
         for requested_k in budgets:
             record = by_attempt[(int(requested_k), rep)]
-            suffix = "_rep%d" % rep if reps is not None else ""
             labels_path = os.path.join(preliminary_result, "K%d_label%s.txt" % (requested_k, suffix))
-            sample_indices = None
-            if reps is not None:
-                sample_indices = _integer_vector(
-                    np.loadtxt(os.path.join(preliminary_result, "sample_indices_rep%d.txt" % rep), ndmin=1),
-                    "Subsample indices",
-                )
-                if requested_k > len(sample_indices):
-                    record["status"] = "k_exceeds_subsample_size"
-                    continue
+            if sample_indices is not None and requested_k > len(sample_indices):
+                record["status"] = "k_exceeds_subsample_size"
+                continue
             if not os.path.isfile(labels_path):
                 continue
             ordered_labels = np.atleast_1d(np.loadtxt(labels_path))
@@ -715,8 +732,6 @@ def run_model_selection(canonical, chain_order, preliminary_result, final_result
         best[4]["selected_for_k"] = True
         winners.append((best[0], best[1], requested_k, best[2], best[3], best[4]))
     if not winners:
-        _write_table(pd.DataFrame(search_records), os.path.join(final_result, "chain_candidates.tsv"))
-        _write_table(pd.DataFrame(records), os.path.join(final_result, "bic_selection.tsv"))
         raise RuntimeError("No requested K produced a partition for BIC selection")
     winner = min(winners, key=lambda item: item[:4])
     winner[5]["selected"] = True
@@ -728,7 +743,41 @@ def run_model_selection(canonical, chain_order, preliminary_result, final_result
             and row["candidate_id"] == best["candidate_id"]
         )
         row["selected"] = row["selected_for_k"] and row["requested_k"] == winner[2]
-    _write_table(pd.DataFrame(search_records), os.path.join(final_result, "chain_candidates.tsv"))
-    _write_table(pd.DataFrame(records), os.path.join(final_result, "bic_selection.tsv"))
     _write_result(model, coordinates, winner[4], final_result)
-    return int(winner[2])
+    candidates = {(row["replicate"], row["candidate_id"]): row for row in search_records}
+    fields = (
+        "requested_k",
+        "replicate",
+        "candidate_id",
+        "candidate_kind",
+        "parent_requested_k",
+        "parent_replicate",
+        "parent_partition_sha256",
+        "proposal_partition_sha256",
+        "partition_sha256",
+        "num_clusters",
+        "bic",
+        "log_likelihood",
+        "conditional_log_likelihood",
+        "weight_optimality_gap",
+        "weight_active_score_gap",
+    )
+    fits = []
+    for record in records:
+        candidate = candidates[record["replicate"], record["candidate_id"]]
+        fits.append(
+            {
+                **{
+                    name: record[name].item() if isinstance(record[name], np.generic) else record[name]
+                    for name in fields
+                },
+                "proposal_cuts": [int(cut) for cut in candidate["chain_cuts"].split(",") if cut],
+                "partition_parameters": json.loads(candidate["partition_parameters"]),
+            }
+        )
+    return {
+        "selected_k": int(winner[2]),
+        "fits": fits,
+        "selection": pd.DataFrame(records),
+        "candidates": pd.DataFrame(search_records),
+    }

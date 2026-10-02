@@ -5,6 +5,7 @@ Statistical checks use scipy.stats.binom and independently enumerated support.
 Certificates remain scoped; verification does not establish global optimality.
 """
 
+from collections import OrderedDict
 import hashlib
 import json
 from pathlib import Path
@@ -14,6 +15,7 @@ import pandas as pd
 from scipy.special import logsumexp
 from scipy.stats import binom
 
+from ._io import read_table as _table
 from .config import FitConfig
 from .native import sha256, build_identity
 from .versions import IDENTITIES, NUMERICS
@@ -28,23 +30,16 @@ def _close(value, expected, name, *, atol=2e-7, rtol=2e-9):
     _require(np.allclose(value, expected, atol=atol, rtol=rtol, equal_nan=False), name)
 
 
-def _table(path):
-    return pd.read_csv(
-        path,
-        sep="\t",
-        float_precision="round_trip",
-        converters={
-            name: str
-            for name in (
-                "mutation_id",
-                "chromosome_index",
-                "position",
-                "original_chromosome",
-                "original_position",
-                "chain_cuts",
-            )
-        },
+def _integer_vector(path):
+    # Writers serialize decimal integers. Parse without float rounding/truncation.
+    tokens = [line.strip() for line in Path(path).read_text().splitlines() if line.strip()]
+    _require(
+        bool(tokens) and all(token.isascii() and token.isdecimal() for token in tokens),
+        "nonnegative integer vector " + str(path),
     )
+    values = [int(token) for token in tokens]
+    _require(max(values) < 2**63, "integer vector overflow")
+    return np.asarray(values, dtype=np.int64)
 
 
 def _kernel(data, cp, purity, *, posterior=True):
@@ -82,10 +77,20 @@ def _partition_hash(order, cuts):
 def _verify_input_mapping(root, data, ledger, purity):
     """Independently reconstruct the R interval join and row-exclusion policy."""
 
-    def read(name):
-        return pd.read_csv(
-            root / "inputs" / (name + ".txt"), sep=r"\s+", dtype=str, keep_default_na=False, quoting=3
+    def read(name, columns):
+        rows = [
+            line.split()
+            for line in (root / "inputs" / (name + ".txt")).read_text().splitlines()
+            if line.strip()
+        ]
+        _require(
+            len(rows) >= 2
+            and len(set(rows[0])) == len(rows[0])
+            and set(columns) <= set(rows[0])
+            and all(len(row) == len(rows[0]) for row in rows),
+            "original input header/row widths " + name,
         )
+        return pd.DataFrame(rows[1:], columns=rows[0], dtype=str)
 
     def chrom(values):
         text = values.str.replace(r"(?i)^chr", "", regex=True)
@@ -108,8 +113,8 @@ def _verify_input_mapping(root, data, ledger, purity):
         numbers = np.empty(len(values), dtype=float)
         for index, value in enumerate(values):
             try:
-                if "_" in value:
-                    raise ValueError("Underscores are not R numeric literals")
+                if not value.isascii() or "_" in value:
+                    raise ValueError("Invalid numeric literal")
                 numbers[index] = float.fromhex(value) if "0x" in value.lower() else float(value)
             except (ValueError, OverflowError):
                 numbers[index] = np.nan
@@ -120,7 +125,10 @@ def _verify_input_mapping(root, data, ledger, purity):
         scientific = mantissa.rstrip("0").rstrip(".") + "e" + exponent
         return min((str(int(position)), scientific), key=len)
 
-    snv, cn = read("snv"), read("cna")
+    snv = read("snv", ("chromosome_index", "position", "ref_count", "alt_count"))
+    cn = read(
+        "cna", ("chromosome_index", "start_position", "end_position", "major_cn", "minor_cn", "total_cn")
+    )
     tokens = (root / "inputs/purity.txt").read_text().split()
     original_purity = numeric(tokens)[0] if len(tokens) == 1 else np.nan
     _require(
@@ -217,7 +225,7 @@ def _verify_input_mapping(root, data, ledger, purity):
 def _raw_check(root, data, purity, order, k, rep, subsampling, actual_backend):
     raw = root / "preliminary_result"
     suffix = f"_rep{rep}" if subsampling else ""
-    indices = np.loadtxt(raw / f"sample_indices_rep{rep}.txt", dtype=int, ndmin=1) if subsampling else order
+    indices = _integer_vector(raw / f"sample_indices_rep{rep}.txt") if subsampling else order
     _require(
         len(np.unique(indices)) == len(indices) and np.all((indices >= 0) & (indices < len(data))),
         "sample indices",
@@ -231,7 +239,7 @@ def _raw_check(root, data, purity, order, k, rep, subsampling, actual_backend):
         [row.ccf_lower_bound, row.ccf_upper_bound] == NUMERICS["native"]["ccf_bounds"], "raw numerical bounds"
     )
     cp = np.loadtxt(raw / f"K{k}_phi{suffix}.txt", ndmin=1)
-    labels = np.loadtxt(raw / f"K{k}_label{suffix}.txt", dtype=int, ndmin=1)
+    labels = _integer_vector(raw / f"K{k}_label{suffix}.txt")
     _require(cp.shape == labels.shape == (len(indices),), "raw shape")
     x = cp / purity
     _require(
@@ -270,8 +278,8 @@ def _raw_check(root, data, purity, order, k, rep, subsampling, actual_backend):
     bounds = np.r_[0, _cuts(labels), len(labels)]
     ranges = [np.ptp(x[a:b]) for a, b in zip(bounds[:-1], bounds[1:])]
     _close(row.max_block_range_CCF, max(ranges), "raw block range", atol=1e-14)
-    _require(int(row.longest_block) == int(np.diff(bounds).max()), "raw longest block")
-    _require(int(row.requested_K) == k and int(row.actual_blocks) == len(bounds) - 1, "raw capacity")
+    _require(row.longest_block == np.diff(bounds).max(), "raw longest block")
+    _require(row.requested_K == k and row.actual_blocks == len(bounds) - 1, "raw capacity")
     expected_backend = "cuda_likelihood_host_chain" if actual_backend == "cuda" else "cpu"
     _require(row.backend == expected_backend, "actual backend")
     _require(not bool(row.constrained_optimum_certified), "raw must not claim global optimality")
@@ -304,7 +312,9 @@ def _boolean_columns(frame, names):
 
 
 def _candidate_parameters(row, order, purity):
-    parameters = json.loads(row.partition_parameters)
+    parameters = row.partition_parameters
+    if isinstance(parameters, str):
+        parameters = json.loads(parameters)
     _require(set(parameters) == {"cuts", "block_labels", "centers", "weights"}, "candidate parameter fields")
     cuts, visits, centers, weights = (
         np.asarray(parameters[key]) for key in ("cuts", "block_labels", "centers", "weights")
@@ -335,6 +345,42 @@ def _candidate_parameters(row, order, purity):
     labels = np.empty(len(order), dtype=int)
     labels[order] = visits[np.searchsorted(cuts, np.arange(len(order)), side="right")]
     return labels, centers, weights
+
+
+def _verify_fit_statistics(row, labels, centers, weights, data, purity, cache):
+    """Replay fit arithmetic, with bounded reusable independent likelihood columns."""
+    columns, bytes_used = cache
+    values = []
+    for cp in centers:
+        column = columns.pop(float(cp), None)
+        if column is None:
+            column = _kernel(data, cp, purity, posterior=False)[0]
+            while columns and bytes_used + column.nbytes > 32 * 1024**2:
+                bytes_used -= columns.popitem(last=False)[1].nbytes
+            bytes_used += column.nbytes
+        columns[float(cp)] = column
+        values.append(column)
+    cache[1] = bytes_used
+    kernel = np.column_stack(values)
+    with np.errstate(divide="ignore"):
+        mixture = logsumexp(kernel + np.log(weights), axis=1)
+    likelihood = float(mixture.sum())
+    _close(row.log_likelihood, likelihood, "candidate observed likelihood")
+    _close(
+        row.conditional_log_likelihood,
+        kernel[np.arange(len(data)), labels].sum(),
+        "candidate conditional likelihood",
+    )
+    _close(row.bic, -2 * likelihood + (2 * len(centers) - 1) * np.log(len(data)), "candidate BIC-form score")
+    score = np.exp(kernel - mixture[:, None]).mean(axis=0)
+    _close(row.weight_optimality_gap, len(data) * max(0, float(score.max() - 1)), "declared weight gap")
+    _close(
+        row.weight_active_score_gap,
+        float(score.max() - score[weights > 0].min()),
+        "declared active weight gap",
+    )
+    _require(max(0, float(score.max() - 1)) <= 1.1e-8, "candidate weight optimality")
+    _require(np.max(np.abs(score[weights > 0] - 1)) <= 1.1e-8, "candidate active weight optimality")
 
 
 def _verify_candidates(candidates, selection, capacities, replicates, parents, order, data, purity):
@@ -460,10 +506,7 @@ def _verify_candidates(candidates, selection, capacities, replicates, parents, o
             row.selected == (row.requested_k == chosen.requested_k and row.replicate == chosen.replicate),
             "overall selection flags",
         )
-    # Bound reusable independent likelihood columns, not the whole candidate bank.
-    from collections import OrderedDict
-
-    columns, bytes_used = OrderedDict(), 0
+    cache = [OrderedDict(), 0]
     for row in candidates.itertuples():
         parent = parents.get((row.parent_requested_k, row.parent_replicate))
         _require(
@@ -558,52 +601,171 @@ def _verify_candidates(candidates, selection, capacities, replicates, parents, o
                     _require(value == expected_value, "candidate distinct centers")
                 else:
                     _close(value, expected_value, "candidate minimum weight", atol=1e-14)
-        values = []
-        for cp in centers:
-            column = columns.pop(float(cp), None)
-            if column is None:
-                column = _kernel(data, cp, purity, posterior=False)[0]
-                while columns and bytes_used + column.nbytes > 32 * 1024**2:
-                    bytes_used -= columns.popitem(last=False)[1].nbytes
-                bytes_used += column.nbytes
-            columns[float(cp)] = column
-            values.append(column)
-        kernel = np.column_stack(values)
-        with np.errstate(divide="ignore"):
-            mixture = logsumexp(kernel + np.log(weights), axis=1)
-        likelihood = float(mixture.sum())
-        _close(row.log_likelihood, likelihood, "candidate observed likelihood")
-        _close(
-            row.conditional_log_likelihood,
-            kernel[np.arange(len(data)), labels].sum(),
-            "candidate conditional likelihood",
-        )
-        _close(
-            row.bic, -2 * likelihood + (2 * len(centers) - 1) * np.log(len(data)), "candidate BIC-form score"
-        )
-        score = np.exp(kernel - mixture[:, None]).mean(axis=0)
-        _close(row.weight_optimality_gap, len(data) * max(0, float(score.max() - 1)), "declared weight gap")
-        _close(
-            row.weight_active_score_gap,
-            float(score.max() - score[weights > 0].min()),
-            "declared active weight gap",
-        )
-        _require(max(0, float(score.max() - 1)) <= 1.1e-8, "candidate weight optimality")
-        _require(np.max(np.abs(score[weights > 0] - 1)) <= 1.1e-8, "candidate active weight optimality")
+        _verify_fit_statistics(row, labels, centers, weights, data, purity, cache)
 
 
-def verify_run(directory, *, require_complete=True):
-    """Verify an entire run, including input identities and all published K fits."""
+def _verify_finalists(fits, capacities, replicates, parents, order, data, purity, evidence):
+    """Check compact finalists; discarded proposal ancestry is checked before publication."""
+    integer_fields = {
+        "requested_k",
+        "replicate",
+        "candidate_id",
+        "parent_requested_k",
+        "parent_replicate",
+        "num_clusters",
+    }
+    score_fields = {
+        "bic",
+        "log_likelihood",
+        "conditional_log_likelihood",
+        "weight_optimality_gap",
+        "weight_active_score_gap",
+    }
+    fields = (
+        integer_fields
+        | score_fields
+        | {
+            "candidate_kind",
+            "parent_partition_sha256",
+            "proposal_partition_sha256",
+            "partition_sha256",
+            "proposal_cuts",
+            "partition_parameters",
+        }
+    )
+    _require(
+        isinstance(fits, list) and all(isinstance(record, dict) and set(record) == fields for record in fits),
+        "compact finalist fields",
+    )
+    for record in fits:
+        _require(
+            all(type(record[name]) is int for name in integer_fields)
+            and all(
+                type(record[name]) in (int, float) and np.isfinite(record[name]) for name in score_fields
+            ),
+            "compact finalist numeric values",
+        )
+        parameters = record["partition_parameters"]
+        _require(
+            isinstance(parameters, dict)
+            and set(parameters) == {"cuts", "block_labels", "centers", "weights"},
+            "compact finalist parameter fields",
+        )
+        for name, values in {"proposal_cuts": record["proposal_cuts"], **parameters}.items():
+            allowed = (int, float) if name in {"centers", "weights"} else (int,)
+            _require(
+                isinstance(values, list) and all(type(value) in allowed for value in values),
+                "compact finalist vector " + name,
+            )
+    expected = [(k, rep) for k in capacities for rep in range(1, replicates + 1)]
+    _require(
+        [(row["requested_k"], row["replicate"]) for row in fits] == expected,
+        "configuration/finalist attempts",
+    )
+    selection = pd.DataFrame(fits)
+    _require(
+        not selection.duplicated(["replicate", "candidate_id"]).any() and (selection.candidate_id >= 0).all(),
+        "finalist candidate IDs",
+    )
+    if evidence is not None:
+        _require(isinstance(evidence, tuple) and len(evidence) == 2, "transient candidate evidence")
+        transient_selection, candidates = evidence
+        _verify_candidates(
+            candidates, transient_selection, capacities, replicates, parents, order, data, purity
+        )
+    cache = [OrderedDict(), 0]
+    for row in selection.itertuples():
+        _require(1 <= row.num_clusters <= row.requested_k, "finalist occupied q <= K")
+        labels, centers, weights = _candidate_parameters(row, order, purity)
+        _require(np.all(weights > 0), "finalist occupied weights")
+        parent = parents.get((row.parent_requested_k, row.parent_replicate))
+        _require(
+            parent is not None
+            and parent["partition_sha256"] == row.parent_partition_sha256
+            and row.parent_replicate == row.replicate,
+            "finalist raw parent",
+        )
+        proposal = row.proposal_cuts
+        _require(
+            all(0 < cut < len(data) for cut in proposal)
+            and proposal == sorted(set(proposal))
+            and row.proposal_partition_sha256 == _partition_hash(order, proposal),
+            "finalist proposal identity",
+        )
+        final_cuts, parent_cuts = set(row.partition_parameters["cuts"]), set(parent["cuts"])
+        if row.candidate_kind in {"native", "adjacent_coarsening", "capacity_reuse"}:
+            _require(final_cuts <= set(proposal), "finalist conditional refit cannot introduce cuts")
+            if row.candidate_kind == "native":
+                _require(
+                    row.proposal_partition_sha256 == row.parent_partition_sha256
+                    and row.requested_k == row.parent_requested_k,
+                    "finalist native proposal parent",
+                )
+            else:
+                relation = (
+                    set(proposal) < parent_cuts
+                    if row.candidate_kind == "adjacent_coarsening"
+                    else set(proposal) == parent_cuts
+                )
+                _require(
+                    relation and len(proposal) + 1 == row.requested_k, "finalist coarsening proposal parent"
+                )
+        else:
+            _require(
+                row.candidate_kind
+                in {
+                    "chain_boundary_polish",
+                    "unsupported_component_coarsening",
+                    "supported_single_block_fallback",
+                }
+                and final_cuts == set(proposal),
+                "finalist refinement identity",
+            )
+            if row.candidate_kind == "supported_single_block_fallback":
+                _require(not final_cuts, "finalist single block fallback")
+        if evidence is None:
+            _verify_fit_statistics(row, labels, centers, weights, data, purity, cache)
+        else:
+            selected = transient_selection[
+                (transient_selection.requested_k == row.requested_k)
+                & (transient_selection.replicate == row.replicate)
+            ].iloc[0]
+            candidate = candidates[
+                (candidates.replicate == row.replicate) & (candidates.candidate_id == row.candidate_id)
+            ]
+            _require(len(candidate) == 1, "finalist/transient candidate identity")
+            candidate = candidate.iloc[0]
+            for name in fields - {"partition_parameters", "proposal_cuts"}:
+                _require(
+                    getattr(row, name) == selected[name] == candidate[name],
+                    "finalist/transient " + name,
+                )
+            _require(
+                row.partition_parameters == json.loads(candidate.partition_parameters)
+                and proposal == [int(cut) for cut in candidate.chain_cuts.split(",") if cut],
+                "finalist/transient parameters",
+            )
+    # One finalist per attempt: comparing all attempts has the same two-stage
+    # tie order as per-K replicate selection followed by global selection.
+    return selection.sort_values(["bic", "num_clusters", "requested_k", "replicate"], kind="stable").iloc[0]
+
+
+def verify_run(directory, *, require_complete=True, _candidate_evidence=None):
+    """Verify saved fits; schema 4 retains finalists, not the complete proposal bank."""
     root = Path(directory)
     manifest_path = root / "manifest.json"
     manifest = json.loads(manifest_path.read_text())
+    schema = manifest.get("output_schema_version")
     _require(
-        manifest.get("output_schema_version") == 3,
+        schema in (3, 4),
         "unsupported output schema; schema 2 requires pinned CliPP1.5 19f310b",
     )
     for name, value in IDENTITIES.items():
-        if name != "software_version":
+        if name not in {"software_version", "output_schema_version"}:
             _require(manifest.get(name) == value, "contract identity " + name)
+    _require(
+        _candidate_evidence is None or (schema == 4 and not require_complete), "transient verification scope"
+    )
     _require(manifest.get("numerics") == NUMERICS, "resolved numerical configuration")
     _require(
         build_identity(manifest["native"]) == manifest["native"]["native_build_id"], "native build record"
@@ -623,8 +785,12 @@ def verify_run(directory, *, require_complete=True):
         path = Path(name)
         _require(not path.is_absolute() and ".." not in path.parts, "unsafe artifact path")
         _require(sha256(root / path) == digest, "checksum " + name)
-    for record in manifest["inputs"].values():
-        _require(artifacts.get(record["path"]) == record["sha256"], "original input identity")
+    _require(set(manifest["inputs"]) == {"snv", "cna", "purity"}, "original input records")
+    for name, record in manifest["inputs"].items():
+        _require(
+            record["path"] == f"inputs/{name}.txt" and artifacts.get(record["path"]) == record["sha256"],
+            "original input identity",
+        )
     pre, raw, final = (root / name for name in ("preprocess_result", "preliminary_result", "final_result"))
     for path, name in (
         (pre / "retained.tsv", "canonical_input_sha256"),
@@ -650,7 +816,7 @@ def verify_run(directory, *, require_complete=True):
     purity = manifest["purity"]
     _require(isinstance(purity, (float, int)) and 0 < purity <= 1, "purity")
     _verify_input_mapping(root, data, ledger, purity)
-    order = np.loadtxt(raw / "chain_order.txt", dtype=int, ndmin=1)
+    order = _integer_vector(raw / "chain_order.txt")
     pilot = np.loadtxt(raw / "pilot_cp.txt", ndmin=1)
     _require(np.array_equal(np.sort(order), np.arange(n)), "chain permutation")
     _require(
@@ -693,7 +859,10 @@ def verify_run(directory, *, require_complete=True):
     )
     _require(
         {p.name for p in final.iterdir()}
-        == {"bic_selection.tsv", "chain_candidates.tsv", "mutations.tsv", "clusters.tsv"},
+        == (
+            {"mutations.tsv", "clusters.tsv"}
+            | ({"bic_selection.tsv", "chain_candidates.tsv"} if schema == 3 else set())
+        ),
         "compact result inventory",
     )
     _require(
@@ -713,7 +882,11 @@ def verify_run(directory, *, require_complete=True):
                 root, data, purity, order, k, rep, subsampling, manifest["backend_actual"]
             )
     for record in manifest["subsamples"]:
-        indices = np.loadtxt(root / record["indices_file"], dtype=int, ndmin=1)
+        _require(
+            record["indices_file"] == f"preliminary_result/sample_indices_rep{record['replicate']}.txt",
+            "subsample indices reference",
+        )
+        indices = _integer_vector(root / record["indices_file"])
         _require(
             data.iloc[indices].mutation_id.tolist() == record["mutation_ids"]
             and record["seed"] == config["seed"] + record["replicate"],
@@ -739,123 +912,103 @@ def verify_run(directory, *, require_complete=True):
         )
         replay = replay[np.argsort(np.argsort(order)[replay])]
         _require(np.array_equal(indices, replay), "subsample seed/quota replay")
-    selection = _table(final / "bic_selection.tsv")
-    candidates = _table(final / "chain_candidates.tsv")
-    _verify_candidates(
-        candidates,
-        selection,
-        manifest["capacities"],
-        config["replicates"],
-        parent_hashes,
-        order,
-        data,
-        purity,
-    )
-    selected_rows = selection[selection.selected]
-    _require(len(selected_rows) == 1, "exactly one selected result")
-    selected = selected_rows.iloc[0]
-    valid = selection[selection.selected_for_k]
-    _require(valid.requested_k.tolist() == manifest["capacities"], "one result per requested capacity")
-    best = valid.sort_values(["bic", "num_clusters", "requested_k", "replicate"], kind="stable").iloc[0]
-    _require(
-        int(best.requested_k) == int(selected.requested_k) == manifest["selected_k"]
-        and int(best.replicate) == int(selected.replicate),
-        "BIC-form selection",
-    )
+    if schema == 3:
+        selection = _table(final / "bic_selection.tsv")
+        candidates = _table(final / "chain_candidates.tsv")
+        _verify_candidates(
+            candidates,
+            selection,
+            manifest["capacities"],
+            config["replicates"],
+            parent_hashes,
+            order,
+            data,
+            purity,
+        )
+        selected_rows = selection[selection.selected]
+        _require(len(selected_rows) == 1, "exactly one selected result")
+        selected = selected_rows.iloc[0]
+        valid = selection[selection.selected_for_k]
+        _require(valid.requested_k.tolist() == manifest["capacities"], "one result per requested capacity")
+        best = valid.sort_values(["bic", "num_clusters", "requested_k", "replicate"], kind="stable").iloc[0]
+        _require(
+            int(best.requested_k) == int(selected.requested_k)
+            and int(best.replicate) == int(selected.replicate),
+            "BIC-form selection",
+        )
+        evidence = candidates[
+            (candidates.replicate == selected.replicate) & (candidates.candidate_id == selected.candidate_id)
+        ].iloc[0]
+    else:
+        selected = _verify_finalists(
+            manifest["fits"],
+            manifest["capacities"],
+            config["replicates"],
+            parent_hashes,
+            order,
+            data,
+            purity,
+            _candidate_evidence,
+        )
+        evidence = selected
+    _require(selected.requested_k == manifest["selected_k"], "selected capacity")
     _require(
         manifest["selected_outputs"]
         == {"mutations": "final_result/mutations.tsv", "clusters": "final_result/clusters.tsv"},
         "selected output references",
     )
-    for record in selected_rows.itertuples():
-        k = int(record.requested_k)
-        assignments = calls = _table(final / "mutations.tsv")
-        structure = _table(final / "clusters.tsv")
-        for column in ("mutation_id", "original_row", "chromosome_index", "position"):
-            _require(np.array_equal(calls[column], data[column]), "posterior " + column)
+    # Finalist likelihoods, scores, weights and retained provenance were checked
+    # above. Bind selected tables exactly to that evidence, then replay only
+    # the posterior quantities unique to the selected mutation output.
+    labels, centers, weights = _candidate_parameters(evidence, order, purity)
+    calls, structure = _table(final / "mutations.tsv"), _table(final / "clusters.tsv")
+    if schema == 4:
         _require(
-            np.array_equal(assignments.mutation_id, data.mutation_id)
-            and np.array_equal(assignments.original_row, data.original_row),
-            "assignment identities",
-        )
-        for column in ("chromosome_index", "position"):
-            _require(np.array_equal(assignments[column], data[column]), "assignment coordinates")
-        labels = assignments.cluster_index.to_numpy()
-        q = len(structure)
-        _require(1 <= q <= k and np.array_equal(np.unique(labels), np.arange(q)), "occupied q <= K")
-        _require(len(_cuts(labels[order])) + 1 == q, "contiguous chain blocks")
-        _require(
-            np.array_equal(structure.cluster_index, np.arange(q))
-            and np.array_equal(structure.num_SNV, np.bincount(labels)),
-            "membership counts",
-        )
-        centers, weights = structure.cellular_prevalence.to_numpy(), structure.mixture_weight.to_numpy()
-        _require(
-            np.isfinite(centers).all()
-            and np.all((centers >= 0) & (centers <= purity))
-            and np.all(np.diff(centers) <= 0),
-            "CP bounds/label order",
-        )
-        _require(np.isfinite(weights).all() and np.all(weights > 0), "positive mixture weights")
-        _close(weights.sum(), 1, "weight normalization", atol=1e-12)
-        _close(structure.cancer_cell_fraction, centers / purity, "CCF conversion")
-        _close(structure.purity, purity, "output purity")
-        _close(structure.assignment_proportion, np.bincount(labels) / n, "assignment proportions")
-        kernel = np.column_stack([_kernel(data, cp, purity)[0] for cp in centers])
-        mixture_ll = logsumexp(kernel + np.log(weights), axis=1)
-        ll = float(mixture_ll.sum())
-        conditional = float(kernel[np.arange(n), labels].sum())
-        _close(record.log_likelihood, ll, "observed likelihood")
-        _close(record.conditional_log_likelihood, conditional, "conditional likelihood")
-        _require(
-            record.num_parameters == 2 * q - 1 and record.num_clusters == q and record.num_mutations == n,
-            "score dimension/full-data N",
-        )
-        _close(record.bic, -2 * ll + (2 * q - 1) * np.log(n), "BIC-form score")
-        weight_score = np.exp(kernel - mixture_ll[:, None]).mean(axis=0)
-        _require(np.max(np.abs(weight_score - 1)) <= 1.1e-8, "fixed-center weight optimality")
-        _, posterior = _kernel(data, centers[labels], purity)
-        _require(
-            np.array_equal(calls.mutation_id, data.mutation_id)
-            and np.array_equal(calls.cluster_index, labels)
-            and np.array_equal(calls.major_cn, data.major_cn),
-            "posterior identities",
-        )
-        _require(np.array_equal(calls.multiplicity, [np.argmax(p) + 1 for p in posterior]), "posterior modes")
-        _close(calls.multiplicity_probability, [p.max() for p in posterior], "posterior mode probabilities")
-        _close(
-            calls.expected_multiplicity, [p @ np.arange(1, len(p) + 1) for p in posterior], "posterior means"
-        )
-        _require(record.partition_sha256 == _partition_hash(order, _cuts(labels[order])), "partition hash")
-        _require(
-            record.parent_partition_sha256
-            == parent_hashes[int(record.parent_requested_k), int(record.parent_replicate)][
-                "partition_sha256"
+            calls.columns.tolist()
+            == [
+                "chromosome_index",
+                "position",
+                "mutation_id",
+                "original_row",
+                "cluster_index",
+                "major_cn",
+                "multiplicity",
+                "expected_multiplicity",
+            ]
+            and structure.columns.tolist()
+            == [
+                "cluster_index",
+                "num_SNV",
+                "cellular_prevalence",
+                "cancer_cell_fraction",
+                "purity",
+                "assignment_proportion",
             ],
-            "raw parent identity",
+            "minimal selected output columns",
         )
-        evidence = candidates[
-            (candidates.requested_k == k)
-            & (candidates.replicate == record.replicate)
-            & (candidates.candidate_id == record.candidate_id)
-        ]
-        _require(
-            len(evidence) == 1
-            and evidence.iloc[0].partition_sha256 == record.partition_sha256
-            and bool(evidence.iloc[0].publication_eligible)
-            and bool(evidence.iloc[0].selected_for_k),
-            "selected candidate provenance",
-        )
-        _close(evidence.iloc[0].bic, record.bic, "candidate score")
-        bank_labels, bank_centers, bank_weights = _candidate_parameters(evidence.iloc[0], order, purity)
-        _require(
-            np.array_equal(labels, bank_labels)
-            and np.array_equal(centers, bank_centers)
-            and np.array_equal(weights, bank_weights),
-            "selected parameters match candidate bank",
-        )
-        if record.candidate_kind != "native":
-            _require(pd.isna(record.raw_status), "derived candidate inherited raw status")
+    for column in ("mutation_id", "original_row", "chromosome_index", "position", "major_cn"):
+        _require(np.array_equal(calls[column], data[column]), "selected mutation " + column)
+    _require(
+        np.array_equal(calls.cluster_index, labels)
+        and np.array_equal(structure.cellular_prevalence, centers),
+        "selected parameters match fit evidence",
+    )
+    if schema == 3:
+        _require(np.array_equal(structure.mixture_weight, weights), "selected mixture weights")
+    counts = np.bincount(labels)
+    _require(
+        np.array_equal(structure.cluster_index, np.arange(len(centers)))
+        and np.array_equal(structure.num_SNV, counts),
+        "membership counts",
+    )
+    _close(structure.cancer_cell_fraction, centers / purity, "CCF conversion")
+    _close(structure.purity, purity, "output purity")
+    _close(structure.assignment_proportion, counts / n, "assignment proportions")
+    _, posterior = _kernel(data, centers[labels], purity)
+    _require(np.array_equal(calls.multiplicity, [np.argmax(p) + 1 for p in posterior]), "posterior modes")
+    if schema == 3:
+        _close(calls.multiplicity_probability, [p.max() for p in posterior], "posterior mode probabilities")
+    _close(calls.expected_multiplicity, [p @ np.arange(1, len(p) + 1) for p in posterior], "posterior means")
     k = manifest["selected_k"]
     return {
         "status": "verified",
@@ -864,5 +1017,15 @@ def verify_run(directory, *, require_complete=True):
         "num_mutations": n,
         "bic": float(selected.bic),
         "backend": manifest["backend_actual"],
-        "scope": "artifact/statistical/structural consistency; not global optimality or scientific accuracy",
+        "scope": (
+            "artifact/statistical/structural consistency; not global optimality or scientific accuracy"
+            if schema == 3
+            else "artifact/finalist/selected-result statistical consistency; discarded candidate bank and refinement ancestry "
+            + (
+                "verified from transient evidence before publication"
+                if _candidate_evidence is not None
+                else "not replayed"
+            )
+            + "; not global optimality or scientific accuracy"
+        ),
     }

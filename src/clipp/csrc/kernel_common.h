@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+constexpr int kMaxClusters = 20;
 constexpr int kCliPPOk = 0;
 constexpr int kCliPPError = 1;
 constexpr int kCudaUnavailable = 2;
@@ -79,20 +80,14 @@ ChainData prepare_chain_inputs(int count, const int* alt, const int* depth,
     const int* requested_k, int k_count, const char* output);
 
 // Deterministic Euclidean projection onto {z: ||z||_0 <= K-1}; ties use
-// frozen chain edge index. Work and storage are O(N), since K <= 10.
+// frozen chain edge index. Work is O(NK), storage O(N + K); K <= 20.
 std::vector<double> project_chain_jumps(const std::vector<double>& x, int k);
 std::vector<int> chain_labels(const std::vector<double>& projected);
-std::vector<double> boxed_tridiagonal_quadratic(const std::vector<double>& diagonal,
-    const std::vector<double>& rhs, double off_diagonal, bool* solved = nullptr,
-    double lower=0.0, double upper=1.0);
 // Fix only the support of the sparse projection. Its nonzero edges are free:
 // the projected values can follow D*x, so no quadratic coupling crosses them.
 double chain_support_penalty(const std::vector<double>& x,
     const std::vector<double>& projected, double rho);
-std::vector<double> boxed_chain_support_quadratic(const std::vector<double>& diagonal,
-    const std::vector<double>& rhs, const std::vector<double>& projected,
-    double rho, bool* solved = nullptr, double lower=0.0, double upper=1.0);
-// As above, but receive the likelihood curvature separately from rho*D'D.
+// Receive the likelihood curvature separately from rho*D'D.
 // Positive effective-curvature elimination avoids cancellation at large rho.
 std::vector<double> boxed_chain_laplacian_quadratic(const std::vector<double>& curvature,
     const std::vector<double>& rhs, const std::vector<double>& projected,

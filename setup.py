@@ -37,10 +37,10 @@ def _sha(path):
 # Reproducible default: CPU. CUDA is an explicit, separately qualified build.
 use_cuda = parse_flag(os.environ.get("CLIPP_USE_CUDA"), "CLIPP_USE_CUDA") is True
 sources = [
-    "src/kernel_common.cpp",
-    "src/kernel_cpu.cpp",
-    "src/kernel_dispatch.cpp",
-    "src/kernel_contract.cpp",
+    "src/clipp/csrc/kernel_common.cpp",
+    "src/clipp/csrc/kernel_cpu.cpp",
+    "src/clipp/csrc/kernel_dispatch.cpp",
+    "src/clipp/csrc/kernel_contract.cpp",
 ]
 include_dirs, link_args, macros, library_dirs, libraries, rpaths = [], [], [], [], [], []
 if use_cuda:
@@ -67,19 +67,24 @@ if use_cuda:
     library_dirs.append(str(driver))
     libraries.append("cuda")
     macros.append(("USE_CUDA", "1"))
-    sources.append("src/kernel_cuda_backend.cpp")
+    sources.append("src/clipp/csrc/kernel_cuda_backend.cpp")
 
 
 class BuildExt(build_ext):
+    def get_source_files(self):
+        return super().get_source_files() + [
+            str(p.relative_to(ROOT)) for p in sorted((ROOT / "sample").glob("*")) if p.is_file()
+        ]
+
     def finalize_options(self):
         super().finalize_options()
         self.force = True
 
     def build_extensions(self):
         source_paths = sorted(
-            p for p in (ROOT / "src").rglob("*") if p.suffix in {".py", ".cpp", ".h", ".inc", ".R"}
+            p for p in (ROOT / "src").rglob("*") if p.suffix in {".py", ".cpp", ".h", ".inc"}
         )
-        source_paths += [ROOT / name for name in ("setup.py", "pyproject.toml", "MANIFEST.in")]
+        source_paths += [ROOT / name for name in ("setup.py", "pyproject.toml")]
         source_hashes = {str(p.relative_to(ROOT)): _sha(p) for p in source_paths}
         try:
             top = subprocess.check_output(
@@ -138,6 +143,11 @@ setup(
         Extension(
             "clipp._native",
             sources,
+            depends=[
+                "src/clipp/csrc/kernel_common.h",
+                "src/clipp/csrc/kernel_cuda_backend.cpp",
+                "src/clipp/csrc/kernel_cuda_kernels.inc",
+            ],
             language="c++",
             include_dirs=include_dirs,
             define_macros=macros,

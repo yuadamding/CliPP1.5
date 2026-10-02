@@ -14,13 +14,13 @@ ChainData prepare_chain_inputs(int count, const int* alt, const int* depth,
         throw std::invalid_argument("Nonempty chain inputs and output directory are required.");
     if(!std::isfinite(purity) || purity <= 0.0 || purity > 1.0)
         throw std::invalid_argument("Purity must be finite and in (0,1].");
-    if(k_count < 1 || k_count > std::min(10,count))
-        throw std::invalid_argument("Require 1..min(10,N) requested K values.");
+    if(k_count < 1 || k_count > std::min(kMaxClusters,count))
+        throw std::invalid_argument("Require 1..min(20,N) requested K values.");
     std::vector<int> seen;
     for(int j=0;j<k_count;++j){
-        if(requested_k[j]<1 || requested_k[j]>std::min(10,count) ||
+        if(requested_k[j]<1 || requested_k[j]>std::min(kMaxClusters,count) ||
             std::find(seen.begin(),seen.end(),requested_k[j])!=seen.end())
-            throw std::invalid_argument("Requested K must be distinct and in 1..min(10,N).");
+            throw std::invalid_argument("Requested K must be distinct and in 1..min(20,N).");
         seen.push_back(requested_k[j]);
     }
     ChainData data;
@@ -66,57 +66,6 @@ std::vector<int> chain_labels(const std::vector<double>& projected)
     return labels;
 }
 
-std::vector<double> boxed_tridiagonal_quadratic(const std::vector<double>& diagonal,
-    const std::vector<double>& rhs,double off,bool* solved,double lower,double upper)
-{
-    const int n=int(diagonal.size());
-    std::vector<double> x(n,lower), pivots(n), temporary(n);
-    std::vector<int> active(n,0);
-    if(solved) *solved=false;
-    // Each sweep is linear in chain length. Releasing one incorrect bound per
-    // sweep can require O(N) sweeps, so the QP's worst-case work is quadratic;
-    // storage remains O(N). Outer line search safeguards an inexact QP.
-    const long long active_set_budget=2LL*n+64;
-    for(long long sweep=0;sweep<active_set_budget;++sweep){
-        int first=0;
-        while(first<n){
-            if(active[first]){++first;continue;}
-            int end=first+1;
-            while(end<n && !active[end]) ++end;
-            for(int i=first;i<end;++i){
-                double b=rhs[i];
-                if(i==first && i>0) b-=off*x[i-1];
-                if(i==end-1 && i+1<n) b-=off*x[i+1];
-                if(i==first){pivots[i]=diagonal[i];temporary[i]=b;}
-                else{const double multiplier=off/pivots[i-1];pivots[i]=diagonal[i]-multiplier*off;temporary[i]=b-multiplier*temporary[i-1];}
-                if(!(pivots[i]>0.0) || !std::isfinite(pivots[i]))
-                    throw std::runtime_error("Nonpositive tridiagonal quadratic pivot.");
-            }
-            x[end-1]=temporary[end-1]/pivots[end-1];
-            for(int i=end-2;i>=first;--i) x[i]=(temporary[i]-off*x[i+1])/pivots[i];
-            first=end;
-        }
-        bool bound=false;
-        for(int i=0;i<n;++i){
-            if(!active[i] && x[i]<lower){x[i]=lower;active[i]=-1;bound=true;}
-            else if(!active[i] && x[i]>upper){x[i]=upper;active[i]=1;bound=true;}
-        }
-        if(bound) continue;
-        int release=-1;double violation=1e-9;
-        for(int i=0;i<n;++i){
-            double g=diagonal[i]*x[i]-rhs[i];
-            if(i>0) g+=off*x[i-1];
-            if(i+1<n) g+=off*x[i+1];
-            const double wrong=active[i]<0?-g:(active[i]>0?g:0.0);
-            if(wrong>violation){violation=wrong;release=i;}
-        }
-        if(release<0){if(solved)*solved=true;return x;}
-        active[release]=0;
-    }
-    for(double& value:x) value=std::max(lower,std::min(upper,value));
-    return x;
-}
-
 double chain_support_penalty(const std::vector<double>& x,
     const std::vector<double>& projected,double rho)
 {
@@ -127,28 +76,6 @@ double chain_support_penalty(const std::vector<double>& x,
         value+=difference*difference;
     }
     return 0.5*rho*value;
-}
-
-std::vector<double> boxed_chain_support_quadratic(const std::vector<double>& diagonal,
-    const std::vector<double>& rhs,const std::vector<double>& projected,
-    double rho,bool* solved,double lower,double upper)
-{
-    const int n=int(diagonal.size());
-    std::vector<double> result(n);
-    if(solved) *solved=true;
-    for(int begin=0;begin<n;){
-        int end=begin+1;
-        while(end<n && projected[end-1]==0.0) ++end;
-        bool block_solved=false;
-        const auto block=boxed_tridiagonal_quadratic(
-            std::vector<double>(diagonal.begin()+begin,diagonal.begin()+end),
-            std::vector<double>(rhs.begin()+begin,rhs.begin()+end),-rho,
-            &block_solved,lower,upper);
-        std::copy(block.begin(),block.end(),result.begin()+begin);
-        if(solved && !block_solved) *solved=false;
-        begin=end;
-    }
-    return result;
 }
 
 std::vector<double> boxed_chain_laplacian_quadratic(const std::vector<double>& curvature,
