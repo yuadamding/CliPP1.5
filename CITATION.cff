@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "Cite the exact CliPP1.5 commit and native build identity in addition to this software reference. Historical CliPP papers describe a different estimator."
+type: software
+title: "CliPP1.5: single-sample conditional fixed-chain mutation clustering"
+authors:
+  - name: "CliPP contributors"
+version: 1.5.1
+repository-code: "https://github.com/yuadamding/CliPP1.5"
+license: AGPL-3.0-only
+abstract: "Research software using a uniform latent-multiplicity binomial likelihood, a frozen mutation chain and conditional block refitting."

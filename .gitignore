@@ -22,3 +22,12 @@ sample_id/
 venv/
 .idea/
 .vscode/settings.json
+# Installed package and release products; tiny tests/fixtures remain tracked.
+*.egg-info/
+dist/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+src/clipp/_build_info.json
+*.whl
+.venv*/

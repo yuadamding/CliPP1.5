@@ -11,6 +11,11 @@ constexpr int kCudaUnavailable = 2;
 constexpr int kCudaFailedAfterWork = 3;
 constexpr double kChainLowerCCF = 1e-8;
 constexpr double kChainUpperCCF = 1.0-1e-8;
+constexpr int kChainLevels = 20;
+constexpr int kChainIterationsPerLevel = 300;
+constexpr double kChainStationarityTolerance = 1e-6;
+constexpr double kChainConstraintTolerance = 1e-6;
+constexpr double kChainMaximumRho = 1e12;
 
 struct MultiplicityLikelihood {
     double nll;

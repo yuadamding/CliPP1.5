@@ -2,17 +2,23 @@
 #include <cstdlib>
 #include <iostream>
 
-extern "C" int CliPPMultiplicityVersion(){return 2;}
+extern "C" int CliPPParseFlag(const char*,int*);
+extern "C" int CliPPMultiplicityVersion(){return 3;}
 extern "C" int CliPPChainStatus(int count,int* alt,int* depth,int* major,int* total,
     double purity,double* pilot_cp,int* requested_k,int k_count,char* output)
 {
-    const bool require_cuda=std::getenv("CLIPP_REQUIRE_CUDA")!=nullptr;
-    if(require_cuda && std::getenv("CLIPP_FORCE_CPU")!=nullptr){
+    int required=-1,forced=-1;
+    if(CliPPParseFlag(std::getenv("CLIPP_REQUIRE_CUDA"),&required) ||
+       CliPPParseFlag(std::getenv("CLIPP_FORCE_CPU"),&forced)){
+        std::cerr<<"Invalid CLIPP Boolean environment flag."<<std::endl;return kCliPPError;
+    }
+    const bool require_cuda=required==1;
+    if(require_cuda && forced==1){
         std::cerr<<"Conflicting CLIPP_REQUIRE_CUDA and CLIPP_FORCE_CPU."<<std::endl;
         return kCliPPError;
     }
 #ifdef USE_CUDA
-    if(std::getenv("CLIPP_FORCE_CPU")==nullptr){
+    if(forced!=1){
         const int status=CliPPChainCUDA(count,alt,depth,major,total,purity,pilot_cp,requested_k,k_count,output);
         if(status!=kCudaUnavailable) return status;
         if(require_cuda) return status;

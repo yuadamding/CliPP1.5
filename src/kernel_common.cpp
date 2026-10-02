@@ -281,12 +281,12 @@ void feasible_support_warm_start(const std::vector<double>& raw,const std::vecto
 int run_chain_candidates(const ChainData& data,const int* requested_k,int k_count,
     const char* output,const ChainEvaluator& evaluate,const char* backend)
 {
-    constexpr int levels=20, iterations_per_level=300;
-    constexpr double stationarity_tolerance=1e-6, constraint_tolerance=1e-6;
+    constexpr int levels=kChainLevels, iterations_per_level=kChainIterationsPerLevel;
+    constexpr double stationarity_tolerance=kChainStationarityTolerance, constraint_tolerance=kChainConstraintTolerance;
     // An engineering guard, not an assertion that this finite penalty attains
     // the constrained solution. Higher rho makes rho*diff(x) unreliable in
     // double precision even with a stable tridiagonal factorization.
-    constexpr double maximum_rho=1e12;
+    constexpr double maximum_rho=kChainMaximumRho;
     const int n=data.count;
     for(int request=0;request<k_count;++request){
         const int k=requested_k[request];

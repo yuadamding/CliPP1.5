@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <sstream>
 
 namespace {
 void check_cuda(cudaError_t status,const char* action){
@@ -64,14 +65,69 @@ template<typename T> struct DeviceArray {
 };
 bool device_available(){
     int count=0;const auto status=cudaGetDeviceCount(&count);
-    return status==cudaSuccess && count>0;
+    if(status==cudaErrorNoDevice || status==cudaErrorInsufficientDriver) return false;
+    check_cuda(status,"Query CUDA availability");
+    return count>0;
 }
 }
 
 extern "C" int CliPPWarmupCUDA(){
-    if(!device_available())return kCudaUnavailable;
-    try{Program program;return kCliPPOk;}
+    try{if(!device_available())return kCudaUnavailable;Program program;return kCliPPOk;}
     catch(const std::exception& error){std::cerr<<"CUDA chain warmup failed: "<<error.what()<<std::endl;return kCudaFailedAfterWork;}
+}
+
+extern "C" const char* CliPPCUDADeviceInfo(){
+    static thread_local std::string information;
+    try{
+        if(!device_available())return nullptr;
+        cudaDeviceProp properties;
+        check_cuda(cudaGetDeviceProperties(&properties,0),"Query CUDA metadata");
+        int runtime=0,driver=0,major=0,minor=0;
+        check_cuda(cudaRuntimeGetVersion(&runtime),"Query CUDA runtime version");
+        check_cuda(cudaDriverGetVersion(&driver),"Query CUDA driver version");
+        check_nvrtc(nvrtcVersion(&major,&minor),"Query NVRTC version");
+        std::string name;
+        for(char c:std::string(properties.name)){
+            if(c=='"' || c=='\\')name+='\\';
+            if(static_cast<unsigned char>(c)>=32)name+=c;
+        }
+        std::ostringstream out;
+        out<<"{\"name\":\""<<name<<"\",\"runtime_version\":"<<runtime
+           <<",\"driver_version\":"<<driver<<",\"nvrtc_major\":"<<major<<",\"nvrtc_minor\":"<<minor
+           <<",\"device_total_memory_bytes\":"<<properties.totalGlobalMem
+           <<",\"compute_capability\":\""<<properties.major<<'.'<<properties.minor<<"\"}";
+        information=out.str();return information.c_str();
+    }catch(...){return nullptr;}
+}
+
+// Allocation-backed differential tests use the same compiled kernel as fitting.
+extern "C" int CliPPEvaluateCUDA(int count,int* alt,int* depth,int* major,int* total,
+    double purity,double* x,double* output){
+    try{
+        if(count<1 || !x || !output) return kCliPPError;
+        std::vector<double> cp(count);
+        for(int i=0;i<count;++i){
+            if(!std::isfinite(x[i]) || x[i]<0 || x[i]>1) return kCliPPError;
+            cp[i]=purity*x[i];
+        }
+        int k=1;
+        const auto data=prepare_chain_inputs(count,alt,depth,major,total,purity,cp.data(),&k,1,"diagnostic");
+        if(!device_available())return kCudaUnavailable;
+        Program program;
+        DeviceArray<int> d_alt(count),d_depth(count),d_major(count);
+        DeviceArray<double> d_scale(count),d_log_choose(count),d_x(count),d_values(count),d_gradient(count),d_curvature(count);
+        d_alt.upload(data.alt);d_depth.upload(data.depth);d_major.upload(data.major);
+        d_scale.upload(data.scale);d_log_choose.upload(data.log_choose);
+        d_x.upload(std::vector<double>(x,x+count));
+        void* arguments[]={&count,&d_x.pointer,&d_alt.pointer,&d_depth.pointer,&d_major.pointer,
+            &d_scale.pointer,&d_log_choose.pointer,&d_values.pointer,&d_gradient.pointer,&d_curvature.pointer};
+        check_driver(cuLaunchKernel(program.function,(count+255)/256,1,1,256,1,1,0,nullptr,arguments,nullptr),"Evaluate diagnostic likelihood");
+        std::vector<double> values,gradient,curvature;
+        d_values.download(values);d_gradient.download(gradient);d_curvature.download(curvature);
+        for(int i=0;i<count;++i){output[3*i]=values[i];output[3*i+1]=gradient[i];output[3*i+2]=curvature[i];}
+        return kCliPPOk;
+    }catch(const std::invalid_argument& error){return kCliPPError;}
+    catch(const std::exception& error){std::cerr<<error.what()<<std::endl;return kCudaFailedAfterWork;}
 }
 
 int CliPPChainCUDA(int count,int* alt,int* depth,int* major,int* total,

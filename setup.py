@@ -1,154 +1,73 @@
-from setuptools import setup, Extension
-from setuptools.command.build_ext import build_ext
-import sys
-import os
+"""Build one package-owned native library with verifiable source/build identity."""
+
 from pathlib import Path
+import hashlib
+import importlib.util
+import json
+import os
+import subprocess
+import sys
 
-#if not (sys.version_info[0] == 3 and sys.version_info[1] >= 5 and sys.version_info[2] >= 1):
-version_morph = sys.version_info[0]*10000+sys.version_info[1]*100+sys.version_info[2]
-version_base = 30501
-if not (version_morph >= version_base):
-    sys.stderr.write("Error message: CliPP can only run with python >=3.5.1\n")
-    sys.exit(-1)
+from setuptools import Extension, setup
+from setuptools.command.build_ext import build_ext
 
-def _nvidia_package_paths(module_name):
-    import importlib.util
+ROOT = Path(__file__).resolve().parent
+namespace = {}
+exec((ROOT / "src/clipp/_flags.py").read_text(), namespace)
+parse_flag = namespace["parse_flag"]
 
-    spec = importlib.util.find_spec(module_name)
+
+def _nvidia_package_paths(name):
+    try:
+        spec = importlib.util.find_spec(name)
+    except (ModuleNotFoundError, ValueError):
+        return None
     if spec is None or not spec.submodule_search_locations:
         return None
-
     root = Path(next(iter(spec.submodule_search_locations)))
-    include_dir = root / "include"
-    lib_dir = root / "lib"
-    if not include_dir.is_dir() or not lib_dir.is_dir():
-        return None
-    return include_dir, lib_dir
+    return (
+        (root / "include", root / "lib") if (root / "include").is_dir() and (root / "lib").is_dir() else None
+    )
 
 
-def _find_libcuda_dir():
-    import ctypes.util
-
-    found = ctypes.util.find_library("cuda")
-    if found:
-        found_path = Path(found)
-        if found_path.is_absolute() and found_path.parent.is_dir():
-            return found_path.parent
-
-    for candidate in (
-        "/usr/lib/x86_64-linux-gnu",
-        "/usr/lib64",
-        "/usr/local/cuda/lib64",
-        "/usr/local/cuda/lib",
-    ):
-        candidate_path = Path(candidate)
-        if (candidate_path / "libcuda.so").exists() or (candidate_path / "libcuda.so.1").exists():
-            return candidate_path
-
-    return None
+def _sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _env_flag(name):
-    value = os.environ.get(name)
-    if value is None or value == "":
-        return None
-
-    normalized = value.lower()
-    if normalized in {"1", "true", "yes", "on"}:
-        return True
-    if normalized in {"0", "false", "no", "off"}:
-        return False
-
-    sys.stderr.write("Error message: %s must be one of 1/0, true/false, yes/no, or on/off.\n" % name)
-    sys.exit(-1)
-
-
-def _detect_cuda_build():
-    libcuda_dir = _find_libcuda_dir()
-    if libcuda_dir is None:
-        return {
-            "available": False,
-            "runtime_paths": None,
-            "nvrtc_paths": None,
-            "libcuda_dir": None,
-            "missing": ["libcuda"],
-        }
-
-    cuda_runtime_paths = _nvidia_package_paths("nvidia.cuda_runtime")
-    cuda_nvrtc_paths = _nvidia_package_paths("nvidia.cuda_nvrtc")
-
-    missing = []
-    if cuda_runtime_paths is None:
-        missing.append("nvidia-cuda-runtime-cu12")
-    if cuda_nvrtc_paths is None:
-        missing.append("nvidia-cuda-nvrtc-cu12")
-    return {
-        "available": len(missing) == 0,
-        "runtime_paths": cuda_runtime_paths,
-        "nvrtc_paths": cuda_nvrtc_paths,
-        "libcuda_dir": libcuda_dir,
-        "missing": missing,
-    }
-
-
-requested_cuda = _env_flag("CLIPP_USE_CUDA")
-cuda_info = None
-use_cuda = False
-
-if requested_cuda is True:
-    cuda_info = _detect_cuda_build()
-    if not cuda_info["available"]:
-        sys.stderr.write(
-            "Error message: CUDA build requested but CUDA build dependencies were not found. "
-            "Missing: %s.\n" % ", ".join(cuda_info["missing"])
-        )
-        sys.exit(-1)
-    use_cuda = True
-elif requested_cuda is None:
-    cuda_info = _detect_cuda_build()
-    use_cuda = cuda_info["available"]
-
-include_dirs = []
-extra_compile_args = ['-O3', '-std=c++17']
-extra_link_args = ['-O3']
-define_macros = []
-library_dirs = []
-libraries = []
-runtime_library_dirs = []
-sources = ['./src/kernel_cpu.cpp', './src/kernel_common.cpp', './src/kernel_dispatch.cpp']
-
+# Reproducible default: CPU. CUDA is an explicit, separately qualified build.
+use_cuda = parse_flag(os.environ.get("CLIPP_USE_CUDA"), "CLIPP_USE_CUDA") is True
+sources = [
+    "src/kernel_common.cpp",
+    "src/kernel_cpu.cpp",
+    "src/kernel_dispatch.cpp",
+    "src/kernel_contract.cpp",
+]
+include_dirs, link_args, macros, library_dirs, libraries, rpaths = [], [], [], [], [], []
 if use_cuda:
-    if cuda_info is None:
-        cuda_info = _detect_cuda_build()
-
-    cuda_runtime_include, cuda_runtime_lib = cuda_info["runtime_paths"]
-    cuda_nvrtc_include, cuda_nvrtc_lib = cuda_info["nvrtc_paths"]
-    libcuda_dir = cuda_info["libcuda_dir"]
-
-    include_dirs.extend([str(cuda_runtime_include), str(cuda_nvrtc_include)])
-    import importlib.util
-
-    triton_spec = importlib.util.find_spec("triton")
-    if triton_spec is not None and triton_spec.origin:
-        triton_cuda_include = Path(triton_spec.origin).parent / "backends" / "nvidia" / "include"
-        if triton_cuda_include.is_dir():
-            include_dirs.append(str(triton_cuda_include))
-    define_macros.append(("USE_CUDA", "1"))
+    runtime = _nvidia_package_paths("nvidia.cuda_runtime")
+    nvrtc = _nvidia_package_paths("nvidia.cuda_nvrtc")
+    driver = next(
+        (
+            Path(d)
+            for d in ["/usr/lib/x86_64-linux-gnu", "/usr/lib64", "/usr/local/cuda/lib64"]
+            if (Path(d) / "libcuda.so").exists()
+        ),
+        None,
+    )
+    if not runtime or not nvrtc or driver is None:
+        raise RuntimeError(
+            "Explicit CUDA build requires libcuda.so, nvidia-cuda-runtime-cu12 and nvidia-cuda-nvrtc-cu12 in the build environment"
+        )
+    include_dirs += [str(runtime[0]), str(nvrtc[0])]
+    for directory, name in ((runtime[1], "libcudart.so.12"), (nvrtc[1], "libnvrtc.so.12")):
+        if not (directory / name).is_file():
+            raise RuntimeError(f"Missing CUDA build library: {directory / name}")
+        link_args.append(str(directory / name))
+        rpaths.append(str(directory))
+    library_dirs.append(str(driver))
     libraries.append("cuda")
-    library_dirs.append(str(libcuda_dir))
-    runtime_library_dirs.extend([str(cuda_runtime_lib), str(cuda_nvrtc_lib)])
-    extra_link_args.extend([
-        str(cuda_runtime_lib / "libcudart.so.12"),
-        str(cuda_nvrtc_lib / "libnvrtc.so.12"),
-    ])
-    sources.append('./src/kernel_cuda_backend.cpp')
-
-if sys.platform.startswith('darwin'):
-    os.environ['CC'] = "clang"
-    os.environ['CXX'] = "clang++"
-    ext_modules=[Extension('CliPP', sources, include_dirs=include_dirs, define_macros=define_macros, extra_compile_args=extra_compile_args, extra_link_args=extra_link_args),]
-else:
-    ext_modules=[Extension('CliPP', sources, include_dirs=include_dirs, define_macros=define_macros, library_dirs=library_dirs, libraries=libraries, runtime_library_dirs=runtime_library_dirs, extra_compile_args=extra_compile_args + ['-fopenmp'], extra_link_args=extra_link_args + ['-fopenmp']),]
+    macros.append(("USE_CUDA", "1"))
+    sources.append("src/kernel_cuda_backend.cpp")
 
 
 class BuildExt(build_ext):
@@ -156,8 +75,75 @@ class BuildExt(build_ext):
         super().finalize_options()
         self.force = True
 
+    def build_extensions(self):
+        source_paths = sorted(
+            p for p in (ROOT / "src").rglob("*") if p.suffix in {".py", ".cpp", ".h", ".inc", ".R"}
+        )
+        source_paths += [ROOT / name for name in ("setup.py", "pyproject.toml", "MANIFEST.in")]
+        source_hashes = {str(p.relative_to(ROOT)): _sha(p) for p in source_paths}
+        try:
+            top = subprocess.check_output(
+                ["git", "-C", str(ROOT), "rev-parse", "--show-toplevel"],
+                stderr=subprocess.DEVNULL,
+                text=True,
+            ).strip()
+            if Path(top).resolve() != ROOT:
+                raise OSError("Archive is not this Git checkout")
+            commit = subprocess.check_output(
+                ["git", "-C", str(ROOT), "rev-parse", "HEAD"], stderr=subprocess.DEVNULL, text=True
+            ).strip()
+        except (OSError, subprocess.CalledProcessError):
+            commit = None  # Source archives are identified by hashes, never invented commits.
+        self.identity = {
+            "native_abi_version": 3,
+            "model_version": "uniform_1_to_major_v1",
+            "cuda_compiled": use_cuda,
+            "source_hashes": source_hashes,
+            "compiler": self.compiler.compiler_cxx,
+            "compiler_so": self.compiler.compiler_so,
+            "linker_so": self.compiler.linker_so,
+            "compile_args": ["-O3", "-std=c++17"],
+            "link_args": link_args,
+            "include_dirs": include_dirs,
+            "library_dirs": library_dirs,
+            "libraries": libraries,
+            "runtime_library_dirs": rpaths,
+            "compiler_environment": {
+                key: os.environ.get(key) for key in ("CC", "CXX", "CFLAGS", "CPPFLAGS", "CXXFLAGS", "LDFLAGS")
+            },
+            "source_identity_policy": "hashes identify built source; commit is checkout ancestry, not a claim of a clean tree",
+            "python": sys.version,
+            "source_commit": commit,
+        }
+        self.identity["native_build_id"] = hashlib.sha256(
+            json.dumps(self.identity, sort_keys=True).encode()
+        ).hexdigest()
+        for ext in self.extensions:
+            ext.define_macros.append(("CLIPP_BUILD_ID", '"' + self.identity["native_build_id"] + '"'))
+        super().build_extensions()
+
+    def run(self):
+        super().run()
+        for ext in self.extensions:
+            path = Path(self.get_ext_fullpath(ext.name))
+            info = {**self.identity, "library": path.name, "library_sha256": _sha(path)}
+            (path.parent / "_build_info.json").write_text(json.dumps(info, sort_keys=True, indent=2) + "\n")
+
 
 setup(
-    name="CliPP",
-    ext_modules=ext_modules,
-    cmdclass={"build_ext": BuildExt})
+    ext_modules=[
+        Extension(
+            "clipp._native",
+            sources,
+            language="c++",
+            include_dirs=include_dirs,
+            define_macros=macros,
+            libraries=libraries,
+            library_dirs=library_dirs,
+            runtime_library_dirs=rpaths,
+            extra_compile_args=["-O3", "-std=c++17"],
+            extra_link_args=link_args,
+        )
+    ],
+    cmdclass={"build_ext": BuildExt},
+)

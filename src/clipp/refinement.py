@@ -20,9 +20,13 @@ def fixed_center_chain_partition(log_likelihood):
     earliest preceding cut when scores tie. Centers need not increase with j.
     """
     likelihood = np.asarray(log_likelihood, dtype=float)
-    if (likelihood.ndim != 2 or min(likelihood.shape) == 0 or
-            likelihood.shape[1] > likelihood.shape[0] or
-            np.any(np.isnan(likelihood)) or np.any(np.isposinf(likelihood))):
+    if (
+        likelihood.ndim != 2
+        or min(likelihood.shape) == 0
+        or likelihood.shape[1] > likelihood.shape[0]
+        or np.any(np.isnan(likelihood))
+        or np.any(np.isposinf(likelihood))
+    ):
         raise ValueError("Expected an N-by-q finite-or-negative-infinity array, 1 <= q <= N")
     n, q = likelihood.shape
     previous = np.full(n + 1, -np.inf)
@@ -44,8 +48,8 @@ def fixed_center_chain_partition(log_likelihood):
             best = np.maximum.accumulate(proposals)
             improves = proposals > np.r_[-np.inf, best[:-1]]
             cuts = np.maximum.accumulate(np.where(improves, np.arange(start, stop), -1))
-            current[start + 1:stop + 1] = prefix[1:] + best
-            parents[component, start + 1:stop + 1] = cuts
+            current[start + 1 : stop + 1] = prefix[1:] + best
+            parents[component, start + 1 : stop + 1] = cuts
         previous = current
     if not np.isfinite(previous[n]):
         raise RuntimeError("No finite partition uses every ordered component in a nonempty block")
@@ -61,18 +65,27 @@ def fixed_center_chain_partition(log_likelihood):
         raise RuntimeError("Chain dynamic-program backtrack did not cover every observation")
     # Sum the actual selected entries, independently of prefix-sum subtraction.
     score = math.fsum(likelihood[np.arange(n), labels])
-    return {"labels": labels, "cuts": np.flatnonzero(np.diff(labels)) + 1,
-            "conditional_log_likelihood": score, "num_clusters": q,
-            "status": "exact_fixed_center_chain_partition"}
+    return {
+        "labels": labels,
+        "cuts": np.flatnonzero(np.diff(labels)) + 1,
+        "conditional_log_likelihood": score,
+        "num_clusters": q,
+        "status": "exact_fixed_center_chain_partition",
+    }
 
 
 def _partition_state(model, result, chain_order):
     labels = np.asarray(result["labels"])
     centers = np.asarray(result["centers"], dtype=float)
     n = len(model)
-    if (labels.shape != (n,) or not np.isfinite(labels).all() or
-            np.any(labels != np.rint(labels)) or centers.ndim != 1 or
-            not len(centers) or not np.isfinite(centers).all()):
+    if (
+        labels.shape != (n,)
+        or not np.isfinite(labels).all()
+        or np.any(labels != np.rint(labels))
+        or centers.ndim != 1
+        or not len(centers)
+        or not np.isfinite(centers).all()
+    ):
         raise ValueError("Invalid refitted chain labels or centers")
     labels = labels.astype(np.int64)
     if not np.array_equal(np.unique(labels), np.arange(len(centers))):
@@ -90,8 +103,9 @@ def _partition_state(model, result, chain_order):
     return labels, cuts, kernel, score
 
 
-def polish_chain_partition(model, result, chain_order, refit, max_iterations=100,
-                           mean_loglik_tolerance=1e-10):
+def polish_chain_partition(
+    model, result, chain_order, refit, max_iterations=100, mean_loglik_tolerance=1e-10
+):
     """Alternate exact conditional boundaries and caller-supplied block refits.
 
     ``refit(labels)`` receives labels in original mutation-row order and returns
@@ -101,14 +115,21 @@ def polish_chain_partition(model, result, chain_order, refit, max_iterations=100
     iteration history. A finite iteration budget or a local fixed point is
     explicitly distinguished from global constrained optimality.
     """
-    if (not isinstance(max_iterations, (int, np.integer)) or max_iterations < 1 or
-            not np.isfinite(mean_loglik_tolerance) or mean_loglik_tolerance < 0):
+    if (
+        not isinstance(max_iterations, (int, np.integer))
+        or max_iterations < 1
+        or not np.isfinite(mean_loglik_tolerance)
+        or mean_loglik_tolerance < 0
+    ):
         raise ValueError("Require a positive iteration budget and nonnegative finite tolerance")
     order = np.asarray(chain_order)
     n = len(model)
-    if (order.shape != (n,) or not np.isfinite(order).all() or
-            np.any(order != np.rint(order)) or
-            not np.array_equal(np.sort(order), np.arange(n))):
+    if (
+        order.shape != (n,)
+        or not np.isfinite(order).all()
+        or np.any(order != np.rint(order))
+        or not np.array_equal(np.sort(order), np.arange(n))
+    ):
         raise ValueError("Frozen chain order must be a permutation of original rows")
     order = order.astype(np.int64)
     current = result
@@ -123,10 +144,13 @@ def polish_chain_partition(model, result, chain_order, refit, max_iterations=100
         roundoff = 64 * np.finfo(float).eps * max(1.0, abs(score), abs(fixed_score))
         if fixed_score < score - roundoff:
             raise RuntimeError("Exact chain boundary update decreased conditional likelihood")
-        entry = {"iteration": iteration, "num_clusters": kernel.shape[1],
-                 "previous_conditional_log_likelihood": score,
-                 "fixed_center_conditional_log_likelihood": fixed_score,
-                 "boundaries_changed": not np.array_equal(proposal["cuts"], cuts)}
+        entry = {
+            "iteration": iteration,
+            "num_clusters": kernel.shape[1],
+            "previous_conditional_log_likelihood": score,
+            "fixed_center_conditional_log_likelihood": fixed_score,
+            "boundaries_changed": not np.array_equal(proposal["cuts"], cuts),
+        }
         if not entry["boundaries_changed"]:
             entry["status"] = "fixed_center_boundaries_stable"
             history.append(entry)
@@ -145,8 +169,7 @@ def polish_chain_partition(model, result, chain_order, refit, max_iterations=100
         if not set(new_cuts) <= set(proposal["cuts"]):
             raise ValueError("Refit may only preserve boundaries or merge adjacent blocks")
         roundoff = 64 * np.finfo(float).eps * max(1.0, abs(fixed_score), abs(new_score))
-        entry.update(refit_conditional_log_likelihood=new_score,
-                     refit_num_clusters=new_kernel.shape[1])
+        entry.update(refit_conditional_log_likelihood=new_score, refit_num_clusters=new_kernel.shape[1])
         if new_score < fixed_score - roundoff or new_score < score:
             # A numerical scalar refit need not recover its supplied-center
             # witness. Keep the accepted incumbent instead of hiding a loss.
@@ -163,15 +186,22 @@ def polish_chain_partition(model, result, chain_order, refit, max_iterations=100
         if improvement / n <= mean_loglik_tolerance:
             status = "conditional_improvement_tolerance"
             break
-    return {"result": best, "history": history,
-            "diagnostics": {"method": "ordered_conditional_chain_boundary_refinement_v1",
-                            "status": status, "iterations": len(history),
-                            "max_iterations": int(max_iterations),
-                            "mean_loglik_tolerance": float(mean_loglik_tolerance),
-                            "initial_num_clusters": initial_q,
-                            "final_num_clusters": len(best["centers"]),
-                            "initial_conditional_log_likelihood": initial_score,
-                            "conditional_log_likelihood": best_score,
-                            "conditional_log_likelihood_improvement": best_score - initial_score,
-                            "fixed_chain": True, "unconstrained_reassignment": False,
-                            "constrained_optimum_certified": False}}
+    return {
+        "result": best,
+        "history": history,
+        "diagnostics": {
+            "method": "ordered_conditional_chain_boundary_refinement_v1",
+            "status": status,
+            "iterations": len(history),
+            "max_iterations": int(max_iterations),
+            "mean_loglik_tolerance": float(mean_loglik_tolerance),
+            "initial_num_clusters": initial_q,
+            "final_num_clusters": len(best["centers"]),
+            "initial_conditional_log_likelihood": initial_score,
+            "conditional_log_likelihood": best_score,
+            "conditional_log_likelihood_improvement": best_score - initial_score,
+            "fixed_chain": True,
+            "unconstrained_reassignment": False,
+            "constrained_optimum_certified": False,
+        },
+    }
