@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = "AGPL-3.0-only"
 license-files = ["LICENSE"]
-authors = [{name = "CliPP contributors"}]
+authors = [{name = "Yu Ding", email = "yding4@mdanderson.org"}]
 dependencies = ["numpy>=2.2.6", "scipy>=1.18,<1.19", "pandas>=2.0"]
 
 [project.optional-dependencies]
