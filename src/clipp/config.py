@@ -6,7 +6,7 @@ import os
 
 from ._flags import parse_flag
 
-MAX_CLUSTERS = 20
+MAX_CLUSTERS = 10
 
 
 @dataclass(frozen=True)
