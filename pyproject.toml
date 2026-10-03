@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "clipp15"
-version = "1.6.0"
-description = "Single-sample fixed-chain cancer mutation clustering with latent multiplicity"
+version = "1.0.0"
+description = "Single-sample cancer mutation clustering with latent multiplicity"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "AGPL-3.0-only"

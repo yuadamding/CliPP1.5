@@ -35,7 +35,7 @@ use a smaller value to limit the search.
 
 ## Input
 
-Provide two tab-separated tables with headers and one purity file:
+Provide two tab-separated text files with headers and one purity file:
 
 | File | Required contents |
 | --- | --- |
