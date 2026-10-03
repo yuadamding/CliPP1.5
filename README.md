@@ -24,10 +24,10 @@ CLIPP_USE_CUDA=1 python -m pip install --no-build-isolation .
 
 ```bash
 # CPU
-clipp fit snv.tsv cna.tsv purity.txt --device cpu --output ../clipp-cpu
+clipp fit snv.txt cna.txt purity.txt --device cpu --output ../clipp-cpu
 
 # GPU (requires the GPU build)
-clipp fit snv.tsv cna.tsv purity.txt --device cuda --output ../clipp-gpu
+clipp fit snv.txt cna.txt purity.txt --device cuda --output ../clipp-gpu
 ```
 
 Use a new output directory for each run. `--max-clusters` defaults to **10**;
@@ -39,8 +39,8 @@ Provide two tab-separated tables with headers and one purity file:
 
 | File | Required contents |
 | --- | --- |
-| `snv.tsv` | `chromosome_index`, `position`, `ref_count`, `alt_count`; optional unique `mutation_id` |
-| `cna.tsv` | `chromosome_index`, `start_position`, `end_position`, `major_cn`, `minor_cn`, `total_cn` |
+| `snv.txt` | `chromosome_index`, `position`, `ref_count`, `alt_count`; optional unique `mutation_id` |
+| `cna.txt` | `chromosome_index`, `start_position`, `end_position`, `major_cn`, `minor_cn`, `total_cn` |
 | `purity.txt` | One number in `(0, 1]`, without a header |
 
 Use autosomes 1–22, positive 1-based coordinates and inclusive, nonoverlapping
