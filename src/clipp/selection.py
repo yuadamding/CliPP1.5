@@ -620,6 +620,51 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
             # candidate. This is an explicit refit within the at-most-K set.
             records.visited_discard(visited_scope, visit_key(budget, ()))
             consider(fallback, parent, "supported_single_block_fallback")
+    # Visited final partitions suppress repeated exploration, not candidate
+    # ranking. A repair can visit an older eligible record's partition first,
+    # leaving its smaller ID unconsidered. Reconcile only after the search so
+    # its starts, refits and proposal order stay unchanged. Restore the recorded
+    # fit exactly; refitting here could change a tied score or zero-weight support.
+    for budget, winner in winners.items():
+        record = records.best(replicate, budget, eligible=True)
+        if record["candidate_id"] == winner["candidate_id"]:
+            continue
+        parameters = json.loads(record["partition_parameters"])
+        labels = np.empty(n, dtype=int)
+        labels[chain_order] = np.asarray(parameters["block_labels"], dtype=int)[
+            np.searchsorted(parameters["cuts"], np.arange(n), side="right")
+        ]
+        centers = np.asarray(parameters["centers"], dtype=float)
+        weights = np.asarray(parameters["weights"], dtype=float)
+        result = {
+            key: record[key]
+            for key in (
+                "num_clusters",
+                "bic",
+                "log_likelihood",
+                "conditional_log_likelihood",
+                "weight_optimality_gap",
+                "weight_active_score_gap",
+            )
+        }
+        result.update(
+            labels=labels,
+            centers=centers,
+            cluster_weights=weights,
+            num_parameters=2 * record["num_clusters"] - 1,
+            num_mutations=n,
+            bic_definition=IDENTITIES["scoring_version"],
+        )
+        record = records.update(
+            replicate,
+            record["candidate_id"],
+            {
+                "minimum_mixture_weight": float(weights.min()),
+                "distinct_centers": int(len(np.unique(centers))),
+                "joint_mixture_center_mle": False,
+            },
+        )
+        winners[budget] = {**record, "result": result, "cuts": tuple(parameters["cuts"])}
     for winner in winners.values():
         records.update(
             replicate, winner["candidate_id"], {"selected_for_k": True, "selected_for_replicate_k": True}
