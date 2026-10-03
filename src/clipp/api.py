@@ -8,13 +8,16 @@ import json
 import os
 from pathlib import Path
 import shutil
+import sys
 import threading
+import tempfile
 import time
 import uuid
 
 import numpy as np
 
 from ._io import write_json
+from ._candidate_store import CandidateStore
 from .config import FitConfig
 from .environment import fingerprint
 from .preprocessing import preprocess
@@ -25,6 +28,14 @@ from .subsampling import run_clipp_sub
 from .versions import IDENTITIES, NUMERICS
 
 _FIT_LOCK = threading.Lock()  # Native environment flags are process-global.
+
+
+def _progress(record):
+    print(
+        "CLIPP_PROGRESS " + json.dumps({"utc": utc_now(), **record}, sort_keys=True),
+        file=sys.stderr,
+        flush=True,
+    )
 
 
 def utc_now():
@@ -106,11 +117,22 @@ def _fit(snv_input, cn_input, purity_input, output, config):
     lock = out.with_name("." + out.name + ".lock")
     lock_fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     work = out.with_name("." + out.name + ".inprogress." + uuid.uuid4().hex)
+    scratch = Path(tempfile.gettempdir()) / ("clipp-candidates-" + uuid.uuid4().hex + ".sqlite")
     profile = _Profile()
+    candidate_store = None
     try:
         os.write(
-            lock_fd, json.dumps({"pid": os.getpid(), "output": str(out), "started_utc": started_utc}).encode()
+            lock_fd,
+            json.dumps(
+                {
+                    "pid": os.getpid(),
+                    "output": str(out),
+                    "started_utc": started_utc,
+                    "candidate_evidence": str(scratch),
+                }
+            ).encode(),
         )
+        os.fsync(lock_fd)
         work.mkdir()
         with profile.stage("native_identity"):
             library, native = load_native()
@@ -176,6 +198,7 @@ def _fit(snv_input, cn_input, purity_input, output, config):
                     config.seed,
                     library=library,
                 )
+        candidate_store = CandidateStore(scratch)
         with profile.stage("refit_and_selection"):
             selection = run_model_selection(
                 canonical,
@@ -184,6 +207,8 @@ def _fit(snv_input, cn_input, purity_input, output, config):
                 final,
                 capacities,
                 reps=config.replicates if config.subsample_size is not None else None,
+                candidate_store=candidate_store,
+                progress=_progress,
             )
         ledger = canonical.ledger
         replicas = []
@@ -239,8 +264,21 @@ def _fit(snv_input, cn_input, purity_input, output, config):
                 work,
                 require_complete=False,
                 _candidate_evidence=(selection["selection"], selection["candidates"]),
+                _progress=_progress,
             )
-        del selection  # The full proposal bank is never part of the published run.
+        manifest["selection_resources"] = {
+            "candidate_records": len(candidate_store),
+            "peak_scratch_bytes": candidate_store.peak_scratch_bytes,
+            "storage": "transient_sqlite_bounded_cache",
+            "scratch_measurement_scope": (
+                "observed owned SQLite database/journal/sidecar logical file sizes; "
+                "excludes SQLite temporary files, page cache, process memory and unsampled peaks"
+            ),
+            **selection.get("telemetry", {}),
+        }
+        candidate_store.close()
+        candidate_store = None
+        del selection  # Evidence is removed only after independent verification.
         manifest["verification"] = verified
         manifest["status"] = "verified_fit"
         manifest["stage_seconds"] = profile.stages.copy()
@@ -276,9 +314,19 @@ def _fit(snv_input, cn_input, purity_input, output, config):
                     "finished_utc": utc_now(),
                     "stage_seconds": profile.stages,
                     "elapsed_seconds": time.perf_counter() - started,
+                    "candidate_evidence": str(scratch) if scratch.exists() else None,
                 },
             )
         raise
     finally:
-        os.close(lock_fd)
-        lock.unlink()
+        pending_error = sys.exception()
+        try:
+            if candidate_store is not None:
+                candidate_store.close(remove=False)
+        except Exception as cleanup_error:
+            if pending_error is None:
+                raise
+            pending_error.add_note("Candidate scratch close also failed: " + str(cleanup_error))
+        finally:
+            os.close(lock_fd)
+            lock.unlink()

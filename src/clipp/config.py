@@ -14,7 +14,7 @@ class FitConfig:
     sample_id: str = "sample"
     device: str = "auto"
     clusters: int | None = None
-    max_clusters: int = MAX_CLUSTERS
+    max_clusters: int = 10
     subsample_size: int | None = None
     replicates: int = 1
     seed: int = 0

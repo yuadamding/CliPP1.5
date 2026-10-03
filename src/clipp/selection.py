@@ -14,14 +14,17 @@ observed-mixture weights are fitted only for BIC. No fusion/allocation penalty e
 
 from collections import OrderedDict
 import hashlib
-import itertools
 import json
 import math
 import os
+import sys
+import time
 
 import numpy as np
 import pandas as pd
 
+from ._candidate_store import CandidateStore
+from ._proposals import iter_chain_proposals
 from .config import MAX_CLUSTERS
 from .refinement import polish_chain_partition
 from .model import MultiplicityModel
@@ -47,7 +50,7 @@ def _parameters(result, order):
     )
 
 
-class _ChainRefitCache(dict):
+class _ChainRefitCache(OrderedDict):
     """One model/order's interval refits and a bounded LRU of likelihood columns."""
 
     def __init__(self, model, chain_order, max_column_bytes=32 * 1024 * 1024):
@@ -59,6 +62,71 @@ class _ChainRefitCache(dict):
         self.columns = OrderedDict()
         self.column_bytes = 0
         self.max_column_bytes = max_column_bytes
+        self.max_intervals = 16384
+        self.weight_results = OrderedDict()
+        self.weight_bytes = 0
+        self.max_weight_bytes = 8 * 1024 * 1024
+        self.telemetry = dict(
+            interval_cache_hits=0,
+            interval_refits=0,
+            conditional_refit_seconds=0.0,
+            likelihood_cache_hits=0,
+            likelihood_evaluations=0,
+            weight_cache_hits=0,
+            weight_solver_calls=0,
+            weight_solver_failures=0,
+            weight_solver_seconds=0.0,
+        )
+
+    def get(self, key, default=None):
+        value = super().get(key, default)
+        if key in self:
+            self.move_to_end(key)
+            self.telemetry["interval_cache_hits"] += 1
+        return value
+
+    def __setitem__(self, key, value):
+        if key not in self and len(self) >= self.max_intervals:
+            self.popitem(last=False)
+        super().__setitem__(key, value)
+
+    def fit_weights(self, centers, counts):
+        # Model/order and numerical implementation are fixed by this cache.
+        # Ordered float64 centers AND original count initialization are required;
+        # duplicate columns can otherwise change exact-zero support.
+        key = (fit_cluster_weights, centers.dtype.str, centers.tobytes(), counts.dtype.str, counts.tobytes())
+        cached = self.weight_results.pop(key, None)
+        if cached is not None:
+            self.weight_results[key] = cached
+            self.telemetry["weight_cache_hits"] += 1
+            value = cached[0]
+            return {**value, "cluster_weights": value["cluster_weights"].copy()}
+        kernel = self.log_kernel(centers)
+        start = time.perf_counter()
+        self.telemetry["weight_solver_calls"] += 1
+        try:
+            value = fit_cluster_weights(
+                self.model, centers, counts, log_kernel=kernel, telemetry=self.telemetry
+            )
+        except RuntimeError:
+            self.telemetry["weight_solver_failures"] += 1
+            raise
+        finally:
+            self.telemetry["weight_solver_seconds"] += time.perf_counter() - start
+        size = (
+            sys.getsizeof(key)
+            + sum(sys.getsizeof(part) for part in key)
+            + sys.getsizeof(value)
+            + sys.getsizeof(value["cluster_weights"])
+            + 256
+        )
+        if size <= self.max_weight_bytes:
+            while self.weight_bytes + size > self.max_weight_bytes:
+                _, (_, removed_size) = self.weight_results.popitem(last=False)
+                self.weight_bytes -= removed_size
+            self.weight_results[key] = ({**value, "cluster_weights": value["cluster_weights"].copy()}, size)
+            self.weight_bytes += size
+        return value
 
     def block_key(self, rows):
         ranks = self.ranks[rows]
@@ -73,6 +141,7 @@ class _ChainRefitCache(dict):
             key = float(cp)
             column = self.columns.pop(key, None)
             if column is None:
+                self.telemetry["likelihood_evaluations"] += 1
                 column = self.model.log_likelihood(cp)
                 if column.nbytes <= self.max_column_bytes:
                     while self.column_bytes + column.nbytes > self.max_column_bytes:
@@ -81,6 +150,7 @@ class _ChainRefitCache(dict):
                     self.columns[key] = column
                     self.column_bytes += column.nbytes
             else:
+                self.telemetry["likelihood_cache_hits"] += 1
                 self.columns[key] = column
             columns.append(column)
         return np.column_stack(columns)
@@ -106,7 +176,11 @@ def refit_partition(model, labels, cache=None, chain_order=None):
         key = cache.block_key(rows) if isinstance(cache, _ChainRefitCache) else rows.tobytes()
         fitted = cache.get(key) if cache is not None else None
         if fitted is None:
+            start = time.perf_counter()
             fitted = refit_center(model.subset(rows))
+            if isinstance(cache, _ChainRefitCache):
+                cache.telemetry["interval_refits"] += 1
+                cache.telemetry["conditional_refit_seconds"] += time.perf_counter() - start
             if cache is not None:
                 cache[key] = fitted
         centers.append(fitted[0])
@@ -128,8 +202,12 @@ def refit_partition(model, labels, cache=None, chain_order=None):
     centers = centers[order]
     conditional_log_likelihood = math.fsum(log_likelihoods)
     k = len(centers)
-    log_kernel = cache.log_kernel(centers) if isinstance(cache, _ChainRefitCache) else None
-    mixture = fit_cluster_weights(model, centers, np.bincount(labels, minlength=k), log_kernel=log_kernel)
+    counts = np.bincount(labels, minlength=k)
+    mixture = (
+        cache.fit_weights(centers, counts)
+        if isinstance(cache, _ChainRefitCache)
+        else fit_cluster_weights(model, centers, counts)
+    )
     parameters = 2 * k - 1
     bic = -2 * mixture["log_likelihood"] + parameters * math.log(len(model))
     return {
@@ -200,7 +278,9 @@ def _raw_diagnostics(path):
     return {"raw_" + str(key): value for key, value in frame.iloc[0].items()}
 
 
-def search_chain_coarsenings(model, seeds, chain_order, budgets, cache=None):
+def search_chain_coarsenings(
+    model, seeds, chain_order, budgets, cache=None, *, store=None, replicate=1, progress=None
+):
     """Compare native proposals and all their adjacent-block coarsenings.
 
     K remains a requested hyperparameter. A derived q-block partition is routed
@@ -220,7 +300,6 @@ def search_chain_coarsenings(model, seeds, chain_order, budgets, cache=None):
         or np.any(budgets > min(MAX_CLUSTERS, n))
     ):
         raise ValueError(f"Expected unique K in 1..min({MAX_CLUSTERS},N)")
-    allowed = set(int(k) for k in budgets)
     cache = _ChainRefitCache(model, chain_order) if cache is None else cache
     chain_digest = hashlib.sha256(np.asarray(chain_order, dtype="<i8").tobytes())
 
@@ -229,61 +308,32 @@ def search_chain_coarsenings(model, seeds, chain_order, budgets, cache=None):
         digest.update(np.asarray(cuts, dtype="<i8").tobytes())
         return digest.hexdigest()
 
-    proposals = {}
+    records = CandidateStore() if store is None else store
+    winners, winner_keys = {}, {}
+    unique_partitions = 0
+    started = time.perf_counter()
 
-    def add(cuts, target, source_k, rep, parent_digest, kind):
-        provenance = {
-            "requested_k": target,
-            "parent_requested_k": source_k,
-            "parent_replicate": rep,
-            "candidate_kind": kind,
-            "parent_partition_sha256": parent_digest,
-        }
-        by_budget = proposals.setdefault(cuts, {})
+    def append(record):
+        record["replicate"] = replicate
+        record["publication_eligible"] = (
+            record["status"] == "scored" and record["active_mixture_components"] == record["num_clusters"]
+        )
+        return records.append(record)
 
-        def rank(p):
-            return (
-                p["candidate_kind"] != "native",
-                p["parent_requested_k"],
-                p["parent_replicate"],
-                p["candidate_kind"],
+    for cuts, by_budget in iter_chain_proposals(seeds, chain_order, budgets):
+        unique_partitions += 1
+        if progress is not None and (unique_partitions == 1 or unique_partitions % 1024 == 0):
+            progress(
+                dict(
+                    stage="candidate_search",
+                    replicate=replicate,
+                    unique_proposals_started=unique_partitions,
+                    candidate_records=records.next_id(replicate),
+                    elapsed_seconds=time.perf_counter() - started,
+                    scratch_bytes=records.scratch_bytes,
+                    **cache.telemetry,
+                )
             )
-
-        if target not in by_budget or rank(provenance) < rank(by_budget[target]):
-            by_budget[target] = provenance
-
-    for seed in seeds:
-        source_k = int(seed["requested_k"])
-        rep = int(seed.get("replicate", 1))
-        if (
-            source_k != seed["requested_k"]
-            or not 1 <= source_k <= min(MAX_CLUSTERS, n)
-            or rep != seed.get("replicate", 1)
-            or rep < 1
-        ):
-            raise ValueError("Invalid native candidate K or replicate")
-        labels = _integer_vector(seed["labels"], "Native chain labels", n)
-        ordered = validate_chain_labels(labels[chain_order], n, source_k)
-        cuts = tuple(int(i) for i in np.flatnonzero(ordered[1:] != ordered[:-1]) + 1)
-        parent_digest = fingerprint(cuts)
-        if source_k in allowed:
-            add(cuts, source_k, source_k, rep, parent_digest, "native")
-        for target in sorted(allowed):
-            if target > len(cuts) + 1:
-                continue
-            for subset in itertools.combinations(cuts, target - 1):
-                kind = "adjacent_coarsening" if subset != cuts else "capacity_reuse"
-                add(subset, target, source_k, rep, parent_digest, kind)
-
-    winners, winner_keys, records = {}, {}, []
-
-    # Group by source to reuse its K*(K+1)/2 possible interval centers.
-    def proposal_order(item):
-        cuts, sources = item
-        parent = min((p["parent_requested_k"], p["parent_replicate"]) for p in sources.values())
-        return parent, len(cuts), cuts
-
-    for cuts, by_budget in sorted(proposals.items(), key=proposal_order):
         labels = np.empty(n, dtype=int)
         labels[chain_order] = np.searchsorted(cuts, np.arange(n), side="right")
         proposal_digest = fingerprint(cuts)
@@ -293,7 +343,7 @@ def search_chain_coarsenings(model, seeds, chain_order, budgets, cache=None):
             if any(p["candidate_kind"] == "native" for p in by_budget.values()):
                 raise
             for provenance in by_budget.values():
-                records.append(
+                append(
                     {
                         **provenance,
                         "status": "refit_failed",
@@ -329,7 +379,7 @@ def search_chain_coarsenings(model, seeds, chain_order, budgets, cache=None):
                 "candidate_search_version": IDENTITIES["candidate_search_version"],
                 "selected_for_k": False,
             }
-            records.append(record)
+            record = append(record)
             rank = (
                 result["bic"],
                 result["num_clusters"],
@@ -341,18 +391,15 @@ def search_chain_coarsenings(model, seeds, chain_order, budgets, cache=None):
             if budget not in winners or rank < winner_keys[budget]:
                 winners[budget] = {**record, "cuts": cuts, "result": result}
                 winner_keys[budget] = rank
-    for record in records:
-        if record["status"] == "scored":
-            winner = winners[record["requested_k"]]
-            record["selected_for_k"] = (
-                record["proposal_partition_sha256"] == winner["proposal_partition_sha256"]
-            )
+    for winner in winners.values():
+        records.update(replicate, winner["candidate_id"], {"selected_for_k": True})
     return {
+        "replicate": replicate,
         "winners": winners,
         "candidates": records,
         "stats": {
-            "unique_partitions": len(proposals),
-            "scored_budget_candidates": len(records),
+            "unique_partitions": unique_partitions,
+            "scored_budget_candidates": records.count(replicate=replicate),
             "cached_refit_blocks": len(cache),
             "likelihood_cache_bytes": getattr(cache, "column_bytes", 0),
         },
@@ -373,7 +420,8 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
     chain_digest = hashlib.sha256(np.asarray(chain_order, dtype="<i8").tobytes())
     records = search["candidates"]
     winners = {}
-    seen = set()
+    replicate = search["replicate"]
+    visited_scope = f"refine:{replicate}"
 
     def cuts_of(result):
         ordered = result["labels"][chain_order]
@@ -387,21 +435,18 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
     def admissible(result):
         return bool(np.all(result["cluster_weights"] > 0))
 
-    for index, record in enumerate(records):
-        record["candidate_id"] = index
-        record["selected_for_k"] = False
-        record["publication_eligible"] = (
-            record["status"] == "scored" and record["active_mixture_components"] == record["num_clusters"]
-        )
+    for candidate in search["winners"].values():
+        records.update(replicate, candidate["candidate_id"], {"selected_for_k": False})
+
+    def visit_key(budget, cuts):
+        return json.dumps([int(budget), list(cuts)], separators=(",", ":"))
 
     def consider(result, parent, kind, diagnostics=None, existing=None):
         budget = int(parent["requested_k"])
         cuts = cuts_of(result)
         validate_chain_labels(result["labels"][chain_order], n, budget)
-        key = (budget, cuts)
-        if key in seen:
+        if not records.visited_add(visited_scope, visit_key(budget, cuts)):
             return
-        seen.add(key)
         if existing is not None:
             record = existing
         else:
@@ -416,7 +461,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
             }
             record.update(
                 {
-                    "candidate_id": len(records),
+                    "candidate_id": records.next_id(replicate),
                     "candidate_kind": kind,
                     "status": "scored",
                     "proposal_partition_sha256": fingerprint(cuts),
@@ -441,7 +486,6 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
                     )
                 }
             )
-            records.append(record)
         record.update(
             {
                 "partition_parameters": _parameters(result, chain_order),
@@ -454,6 +498,15 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
         )
         if diagnostics:
             record.update({"boundary_" + key: value for key, value in diagnostics.items()})
+        record["replicate"] = replicate
+        if existing is None:
+            record = records.append(record)
+        else:
+            record = records.update(
+                replicate,
+                record["candidate_id"],
+                {k: v for k, v in record.items() if k not in {"replicate", "candidate_id"}},
+            )
         candidate = {**record, "result": result, "cuts": cuts}
         if admissible(result):
             rank = (result["bic"], result["num_clusters"], record["candidate_id"])
@@ -474,17 +527,18 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
                 remove.add(block)
         for edge in sorted(remove):
             reduced_cuts = cuts[:edge] + cuts[edge + 1 :]
-            if (budget, reduced_cuts) in seen:
+            if records.visited_contains(visited_scope, visit_key(budget, reduced_cuts)):
                 continue
             labels = np.empty(n, dtype=int)
             labels[chain_order] = np.searchsorted(reduced_cuts, np.arange(n), side="right")
             try:
                 repaired = refit_partition(model, labels, cache, chain_order)
             except RuntimeError as error:
-                seen.add((budget, reduced_cuts))
+                records.visited_add(visited_scope, visit_key(budget, reduced_cuts))
                 records.append(
                     {
-                        "candidate_id": len(records),
+                        "replicate": replicate,
+                        "candidate_id": records.next_id(replicate),
                         "requested_k": budget,
                         "candidate_kind": "unsupported_component_coarsening",
                         "status": "refit_failed",
@@ -507,18 +561,16 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
     # Duplicate starts were already ignored by polishing; avoid refitting them.
     starts, start_partitions = [], set()
     for budget, candidate in sorted(search["winners"].items()):
-        original = next(
-            row
-            for row in records
-            if row["requested_k"] == budget
-            and row["proposal_partition_sha256"] == candidate["proposal_partition_sha256"]
+        original = records.find_first(
+            replicate=replicate,
+            requested_k=budget,
+            proposal_partition_sha256=candidate["proposal_partition_sha256"],
         )
         consider(candidate["result"], candidate, candidate["candidate_kind"], existing=original)
         starts.append(candidate)
         start_partitions.add((budget, candidate["partition_sha256"]))
-        eligible = [row for row in records if row["requested_k"] == budget and row["publication_eligible"]]
-        if eligible:
-            baseline = min(eligible, key=lambda row: (row["bic"], row["num_clusters"], row["candidate_id"]))
+        baseline = records.best(replicate, budget, eligible=True)
+        if baseline is not None:
             if (budget, baseline["partition_sha256"]) in start_partitions:
                 continue
             cuts = tuple(int(x) for x in baseline["chain_cuts"].split(",") if x)
@@ -530,9 +582,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
             start_partitions.add((budget, baseline["partition_sha256"]))
     for seed in seeds:
         budget = seed["requested_k"]
-        record = next(
-            row for row in records if row["requested_k"] == budget and row["candidate_kind"] == "native"
-        )
+        record = records.find_first(replicate=replicate, requested_k=budget, candidate_kind="native")
         if (budget, record["partition_sha256"]) in start_partitions:
             continue
         fitted = refit_partition(model, seed["labels"], cache, chain_order)
@@ -553,39 +603,51 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
         )
         consider(refinement["result"], parent, "chain_boundary_polish", refinement["diagnostics"])
         # Preserve convergence evidence even when polish leaves the same cuts.
-        parent_id = next(
-            row["candidate_id"]
-            for row in records
-            if row["requested_k"] == parent["requested_k"]
-            and row["proposal_partition_sha256"] == parent["proposal_partition_sha256"]
+        original = records.find_first(
+            replicate=replicate,
+            requested_k=parent["requested_k"],
+            proposal_partition_sha256=parent["proposal_partition_sha256"],
         )
-        records[parent_id].update(
-            {"polish_" + key: value for key, value in refinement["diagnostics"].items()}
+        records.update(
+            replicate,
+            original["candidate_id"],
+            {"polish_" + key: value for key, value in refinement["diagnostics"].items()},
         )
     for budget, parent in search["winners"].items():
         if budget not in winners:
             fallback = refit_partition(model, np.zeros(n, dtype=int), cache, chain_order)
             # A failed optional route must not hide a finite single-block
             # candidate. This is an explicit refit within the at-most-K set.
-            seen.discard((budget, ()))
+            records.visited_discard(visited_scope, visit_key(budget, ()))
             consider(fallback, parent, "supported_single_block_fallback")
-    for record in records:
-        winner = winners.get(record["requested_k"])
-        record["selected_for_k"] = winner is not None and record["candidate_id"] == winner["candidate_id"]
+    for winner in winners.values():
+        records.update(
+            replicate, winner["candidate_id"], {"selected_for_k": True, "selected_for_replicate_k": True}
+        )
     return {
         "winners": winners,
         "candidates": records,
         "original_bank_stats": search["stats"],
         "stats": {
-            "unique_partitions": len({row["proposal_partition_sha256"] for row in records}),
-            "scored_budget_candidates": sum(row["status"] == "scored" for row in records),
+            "unique_partitions": records.distinct_proposals(replicate),
+            "scored_budget_candidates": records.count(replicate=replicate, status="scored"),
             "cached_refit_blocks": len(cache),
             "likelihood_cache_bytes": getattr(cache, "column_bytes", 0),
         },
     }
 
 
-def run_model_selection(canonical, chain_order, preliminary_result, final_result, cluster_list, reps=None):
+def run_model_selection(
+    canonical,
+    chain_order,
+    preliminary_result,
+    final_result,
+    cluster_list,
+    reps=None,
+    *,
+    candidate_store=None,
+    progress=None,
+):
     """Write the selected result and return compact fits plus transient audit tables.
 
     K is a block budget: q occupied blocks contribute 2q-1 parameters, including
@@ -624,7 +686,8 @@ def run_model_selection(canonical, chain_order, preliminary_result, final_result
     ]
     by_attempt = {(int(row["requested_k"]), row["replicate"]): row for row in records}
     cache = _ChainRefitCache(model, chain_order)
-    best_by_k, search_records = {}, []
+    best_by_k = {}
+    search_records = CandidateStore() if candidate_store is None else candidate_store
     for rep in range(1, replicate_count + 1):
         seeds, raw_diagnostics = [], {}
         suffix = "_rep%d" % rep if reps is not None else ""
@@ -662,19 +725,34 @@ def run_model_selection(canonical, chain_order, preliminary_result, final_result
         # Missing/invalid native attempts remain failures, even if another
         # capacity could supply a feasible coarsening for them.
         available = [seed["requested_k"] for seed in seeds]
-        search = search_chain_coarsenings(model, seeds, chain_order, available, cache)
+        search = search_chain_coarsenings(
+            model,
+            seeds,
+            chain_order,
+            available,
+            cache,
+            store=search_records,
+            replicate=rep,
+            progress=progress,
+        )
+        if progress is not None:
+            progress(dict(stage="repair_and_polish", replicate=rep, **search["stats"]))
         search = refine_chain_search(model, search, seeds, chain_order, cache)
-        for row in search["candidates"]:
-            copied = {
-                **row,
-                "replicate": rep,
-                "selected_for_replicate_k": row["selected_for_k"],
-                "selected_for_k": False,
-                "selected": False,
-            }
-            search_records.append(copied)
+        if progress is not None:
+            progress(
+                dict(
+                    stage="selection_complete",
+                    replicate=rep,
+                    scratch_bytes=search_records.scratch_bytes,
+                    **search["stats"],
+                    **cache.telemetry,
+                )
+            )
+        for candidate in search["winners"].values():
+            search_records.update(rep, candidate["candidate_id"], {"selected_for_k": False})
         native_records = {
-            row["requested_k"]: row for row in search["candidates"] if row["candidate_kind"] == "native"
+            row["requested_k"]: row
+            for row in search_records.iter_rows(replicate=rep, candidate_kind="native")
         }
         for requested_k, candidate in search["winners"].items():
             record = by_attempt[(requested_k, rep)]
@@ -717,7 +795,7 @@ def run_model_selection(canonical, chain_order, preliminary_result, final_result
             )
             record["native_bic"] = native_records[requested_k]["bic"]
             record["native_num_clusters"] = native_records[requested_k]["num_clusters"]
-            record["candidate_count"] = sum(row["requested_k"] == requested_k for row in search["candidates"])
+            record["candidate_count"] = search_records.count(replicate=rep, requested_k=requested_k)
             parent_raw = raw_diagnostics[candidate["parent_requested_k"]]
             record.update({"parent_" + key: value for key, value in parent_raw.items()})
             # A derived partition has a raw parent, not its own raw certificate.
@@ -735,16 +813,14 @@ def run_model_selection(canonical, chain_order, preliminary_result, final_result
         raise RuntimeError("No requested K produced a partition for BIC selection")
     winner = min(winners, key=lambda item: item[:4])
     winner[5]["selected"] = True
-    for row in search_records:
-        best = best_by_k[row["requested_k"]][4]
-        row["selected_for_k"] = (
-            row["status"] == "scored"
-            and row["replicate"] == best["replicate"]
-            and row["candidate_id"] == best["candidate_id"]
+    for requested_k, best in best_by_k.items():
+        row = best[4]
+        search_records.update(
+            row["replicate"],
+            row["candidate_id"],
+            {"selected_for_k": True, "selected": requested_k == winner[2]},
         )
-        row["selected"] = row["selected_for_k"] and row["requested_k"] == winner[2]
     _write_result(model, coordinates, winner[4], final_result)
-    candidates = {(row["replicate"], row["candidate_id"]): row for row in search_records}
     fields = (
         "requested_k",
         "replicate",
@@ -764,7 +840,7 @@ def run_model_selection(canonical, chain_order, preliminary_result, final_result
     )
     fits = []
     for record in records:
-        candidate = candidates[record["replicate"], record["candidate_id"]]
+        candidate = search_records.get(record["replicate"], record["candidate_id"])
         fits.append(
             {
                 **{
@@ -779,5 +855,6 @@ def run_model_selection(canonical, chain_order, preliminary_result, final_result
         "selected_k": int(winner[2]),
         "fits": fits,
         "selection": pd.DataFrame(records),
-        "candidates": pd.DataFrame(search_records),
+        "candidates": search_records,
+        "telemetry": cache.telemetry,
     }

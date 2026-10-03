@@ -13,7 +13,7 @@ Requires Python 3.12+ and a C++17 compiler. Run from the repository root.
 CLIPP_USE_CUDA=0 python -m pip install .
 ```
 
-**GPU (experimental):** requires an NVIDIA GPU and driver providing `libcuda.so`.
+**GPU:** requires an NVIDIA GPU and driver providing `libcuda.so`.
 
 ```bash
 python -m pip install 'setuptools>=77' wheel nvidia-cuda-runtime-cu12 nvidia-cuda-nvrtc-cu12
@@ -30,7 +30,7 @@ clipp fit snv.tsv cna.tsv purity.txt --device cpu --output ../clipp-cpu
 clipp fit snv.tsv cna.tsv purity.txt --device cuda --output ../clipp-gpu
 ```
 
-Use a new output directory for each run. `--max-clusters` defaults to **20**;
+Use a new output directory for each run. `--max-clusters` defaults to **10**;
 use a smaller value to limit the search.
 
 ## Input

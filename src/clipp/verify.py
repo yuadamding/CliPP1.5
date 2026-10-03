@@ -6,6 +6,8 @@ Certificates remain scoped; verification does not establish global optimality.
 """
 
 from collections import OrderedDict
+from contextlib import contextmanager
+from types import SimpleNamespace
 import hashlib
 import json
 from pathlib import Path
@@ -355,10 +357,12 @@ def _verify_fit_statistics(row, labels, centers, weights, data, purity, cache):
         column = columns.pop(float(cp), None)
         if column is None:
             column = _kernel(data, cp, purity, posterior=False)[0]
-            while columns and bytes_used + column.nbytes > 32 * 1024**2:
-                bytes_used -= columns.popitem(last=False)[1].nbytes
-            bytes_used += column.nbytes
-        columns[float(cp)] = column
+            if column.nbytes <= 32 * 1024**2:
+                while columns and bytes_used + column.nbytes > 32 * 1024**2:
+                    bytes_used -= columns.popitem(last=False)[1].nbytes
+                bytes_used += column.nbytes
+        if column.nbytes <= 32 * 1024**2:
+            columns[float(cp)] = column
         values.append(column)
     cache[1] = bytes_used
     kernel = np.column_stack(values)
@@ -383,228 +387,323 @@ def _verify_fit_statistics(row, labels, centers, weights, data, purity, cache):
     _require(np.max(np.abs(score[weights > 0] - 1)) <= 1.1e-8, "candidate active weight optimality")
 
 
-def _verify_candidates(candidates, selection, capacities, replicates, parents, order, data, purity):
-    """Check the entire declared bank, including scores of unselected proposals."""
+@contextmanager
+def _candidate_source(candidates):
+    """Use a bounded indexed cursor, importing legacy evidence one row at a time."""
+    if hasattr(candidates, "iter_rows") and hasattr(candidates, "find_ancestor"):
+        yield candidates
+        return
+    from ._candidate_store import CandidateStore
+
+    with CandidateStore() as store:
+        if isinstance(candidates, pd.DataFrame):
+            blocks = (candidates,)
+        elif isinstance(candidates, (str, Path)):
+            blocks = pd.read_csv(
+                candidates,
+                sep="\t",
+                float_precision="round_trip",
+                converters={"chain_cuts": str},
+                chunksize=256,
+            )
+        else:
+            raise ValueError("Verification failed: candidate cursor or legacy table required")
+        for block in blocks:
+            integer_fields = (
+                "requested_k",
+                "replicate",
+                "candidate_id",
+                "parent_requested_k",
+                "parent_replicate",
+            )
+            boolean_fields = (
+                "selected",
+                "selected_for_k",
+                "selected_for_replicate_k",
+                "publication_eligible",
+            )
+            _require(set(integer_fields + boolean_fields) <= set(block.columns), "candidate schema columns")
+            # Scratch append assigns missing IDs/flags for fitter convenience.
+            # Imported evidence must already declare them; never repair it here.
+            _integer_columns(block, integer_fields)
+            _boolean_columns(block, boolean_fields)
+            for row in block.itertuples(index=False):
+                record = row._asdict()
+                # Legacy DataFrames fill fields absent from failed rows with NA.
+                if pd.isna(record.get("partition_parameters", np.nan)):
+                    record.pop("partition_parameters", None)
+                store.append(record)
+        yield store
+
+
+def _integer_record(record, names):
+    for name in names:
+        value = float(record[name])
+        _require(np.isfinite(value) and value == np.floor(value), "integer column " + name)
+
+
+def _verify_candidates(
+    candidates, selection, capacities, replicates, parents, order, data, purity, *, _progress=None
+):
+    """Independently verify an ordered, disk-backed bank with bounded reductions.
+
+    Only one row, per-attempt reductions and independent likelihood columns are
+    retained. The returned records are the small set of verified finalists.
+    Legacy DataFrames/TSVs are imported into the same indexed cursor contract.
+    """
     expected = {(k, rep) for k in capacities for rep in range(1, replicates + 1)}
     _integer_columns(selection, ("requested_k", "replicate", "candidate_id", "num_clusters"))
-    _integer_columns(
-        candidates, ("requested_k", "replicate", "candidate_id", "parent_requested_k", "parent_replicate")
-    )
     _boolean_columns(selection, ("selected", "selected_for_k", "publication_eligible"))
-    _boolean_columns(
-        candidates, ("selected", "selected_for_k", "selected_for_replicate_k", "publication_eligible")
-    )
     _require(
         len(selection) == len(expected)
         and not selection.duplicated(["requested_k", "replicate"]).any()
         and set(zip(selection.requested_k, selection.replicate)) == expected,
         "configuration/selection attempts",
     )
-    _require(not candidates.duplicated(["replicate", "candidate_id"]).any(), "unique candidate IDs")
-    _require(
-        set(zip(candidates.requested_k, candidates.replicate)) == expected, "candidate capacities/replicates"
-    )
-    for rep, block in candidates.groupby("replicate", sort=False):
-        _require(np.array_equal(block.candidate_id, np.arange(len(block))), "ordered candidate IDs")
-    _require(
-        (candidates.candidate_search_version == IDENTITIES["candidate_search_version"]).all(),
-        "candidate search contract",
-    )
-    _require(
-        set(candidates.candidate_kind)
-        <= {
-            "native",
-            "adjacent_coarsening",
-            "capacity_reuse",
-            "chain_boundary_polish",
-            "unsupported_component_coarsening",
-            "supported_single_block_fallback",
-        },
-        "candidate kinds",
-    )
-    for (k, rep), block in candidates.groupby(["requested_k", "replicate"], sort=False):
-        _require(set(block.status) <= {"scored", "refit_failed"}, "candidate status")
-        scored = block[block.status == "scored"]
-        _integer_columns(scored, ("num_clusters", "active_mixture_components"))
-        _require(np.isfinite(scored.bic).all(), "finite candidate scores")
-        eligible = (block.status == "scored") & (block.active_mixture_components == block.num_clusters)
-        _require(np.array_equal(block.publication_eligible, eligible), "candidate eligibility")
-        pool = block[eligible]
-        _require(len(pool) > 0, "supported candidate per attempt")
-        winner = pool.sort_values(["bic", "num_clusters", "candidate_id"], kind="stable").iloc[0]
-        _require(
-            np.array_equal(block.selected_for_replicate_k, block.candidate_id == winner.candidate_id),
-            "candidate-bank ranking",
-        )
-        row = selection[(selection.requested_k == k) & (selection.replicate == rep)].iloc[0]
-        _require(row.candidate_id == winner.candidate_id, "selection/candidate winner")
-        for name in (
-            "partition_sha256",
-            "proposal_partition_sha256",
-            "parent_partition_sha256",
-            "candidate_kind",
-            "parent_requested_k",
-            "parent_replicate",
-            "num_clusters",
-            "publication_eligible",
-            "active_mixture_components",
-            "candidate_search_version",
-            "distinct_centers",
-            "joint_mixture_center_mle",
-        ):
-            _require(row[name] == winner[name], "selection/candidate " + name)
-        for name in (
-            "bic",
-            "log_likelihood",
-            "conditional_log_likelihood",
-            "weight_optimality_gap",
-            "weight_active_score_gap",
-            "minimum_mixture_weight",
-        ):
-            _close(row[name], winner[name], "selection/candidate " + name)
-        _require(
-            row.status == "numerical_multimode_refit"
-            and row.center_refit == "conditional"
-            and row.bic_definition == IDENTITIES["scoring_version"]
-            and row.num_parameters == 2 * row.num_clusters - 1
-            and row.num_mutations == len(data),
-            "selection scientific contract",
-        )
-        native = block[block.candidate_kind == "native"]
-        _require(len(native) == 1, "one native candidate per attempt")
-        _close(row.native_bic, native.iloc[0].bic, "selection native score")
-        _require(row.native_num_clusters == native.iloc[0].num_clusters, "selection native size")
-        parent = parents.get((row.parent_requested_k, row.parent_replicate))
-        _require(parent is not None, "selection raw parent")
-        for name, value in parent["diagnostics"].items():
-            fields = ["parent_raw_" + name]
-            if row.candidate_kind == "native":
-                fields.append("raw_" + name)
-            else:
-                _require(pd.isna(row.get("raw_" + name, np.nan)), "derived candidate inherited raw " + name)
-            for field in fields:
-                if isinstance(value, (bool, np.bool_)):
-                    _require(
-                        isinstance(row[field], (bool, np.bool_)) and row[field] == value,
-                        "selection diagnostic " + field,
-                    )
-                elif isinstance(value, str):
-                    _require(row[field] == value, "selection diagnostic " + field)
-                else:
-                    _close(row[field], value, "selection diagnostic " + field, atol=1e-13, rtol=1e-14)
-        _require(row.candidate_count == len(block), "candidate count")
-    winners = (
-        selection.sort_values(["bic", "num_clusters", "replicate"], kind="stable")
-        .groupby("requested_k", sort=False)
-        .head(1)
-    )
-    chosen = winners.sort_values(["bic", "num_clusters", "requested_k", "replicate"], kind="stable").iloc[0]
-    for row in selection.itertuples():
-        per_k = winners[winners.requested_k == row.requested_k].iloc[0]
-        _require(row.selected_for_k == (row.replicate == per_k.replicate), "replicate selection flags")
-        _require(
-            row.selected == (row.requested_k == chosen.requested_k and row.replicate == chosen.replicate),
-            "overall selection flags",
-        )
+    selected_attempts = {(row.requested_k, row.replicate): row for _, row in selection.iterrows()}
+    counts, next_ids, natives, best = {}, {}, {}, {}
+    kinds = {
+        "native",
+        "adjacent_coarsening",
+        "capacity_reuse",
+        "chain_boundary_polish",
+        "unsupported_component_coarsening",
+        "supported_single_block_fallback",
+    }
     cache = [OrderedDict(), 0]
-    for row in candidates.itertuples():
-        parent = parents.get((row.parent_requested_k, row.parent_replicate))
-        _require(
-            parent is not None and parent["partition_sha256"] == row.parent_partition_sha256,
-            "candidate raw parent",
-        )
-        _require(row.parent_replicate == row.replicate, "candidate replicate parent")
-        cut_text = str(row.chain_cuts)
-        proposal = [] if not cut_text else [int(x) for x in cut_text.split(",")]
-        _require(
-            all(0 < x < len(data) for x in proposal) and proposal == sorted(set(proposal)), "proposal cuts"
-        )
-        _require(row.proposal_partition_sha256 == _partition_hash(order, proposal), "proposal hash")
-        parent_cuts = set(parent["cuts"])
-        if row.candidate_kind == "native":
-            _require(row.proposal_partition_sha256 == row.parent_partition_sha256, "native proposal parent")
-            _require(row.requested_k == row.parent_requested_k, "native capacity parent")
-        elif row.candidate_kind in {"adjacent_coarsening", "capacity_reuse"}:
-            expected_relation = (
-                set(proposal) < parent_cuts
-                if row.candidate_kind == "adjacent_coarsening"
-                else set(proposal) == parent_cuts
+    verified_count = 0
+
+    def progress(phase):
+        if _progress is not None:
+            _progress(
+                {"stage": "candidate_verification", "phase": phase, "verified_candidates": verified_count}
             )
-            _require(expected_relation and len(proposal) + 1 == row.requested_k, "coarsening proposal parent")
-        refinement_parent = None
-        if hasattr(row, "refinement_parent_partition_sha256") and not pd.isna(
-            row.refinement_parent_partition_sha256
-        ):
-            earlier = candidates[
-                (candidates.replicate == row.replicate)
-                & (candidates.requested_k == row.requested_k)
-                & (candidates.candidate_id < row.candidate_id)
-                & (candidates.parent_requested_k == row.parent_requested_k)
-                & (candidates.parent_partition_sha256 == row.parent_partition_sha256)
-                & (candidates.status == "scored")
-            ]
-            earlier = earlier[earlier.partition_sha256 == row.refinement_parent_partition_sha256]
+
+    def checked_row():
+        nonlocal verified_count
+        verified_count += 1
+        if verified_count % 1024 == 0:
+            progress("arithmetic")
+
+    progress("arithmetic")
+    with _candidate_source(candidates) as source:
+        # Pass one independently checks every row and builds small reductions.
+        for record in source.iter_rows():
+            _integer_record(
+                record, ("requested_k", "replicate", "candidate_id", "parent_requested_k", "parent_replicate")
+            )
+            for name in ("selected", "selected_for_k", "selected_for_replicate_k", "publication_eligible"):
+                _require(isinstance(record[name], (bool, np.bool_)), "Boolean column " + name)
+            row = SimpleNamespace(**record)
+            attempt = (row.requested_k, row.replicate)
+            _require(attempt in expected, "candidate capacities/replicates")
+            _require(row.candidate_id == next_ids.get(row.replicate, 0), "ordered candidate IDs")
+            next_ids[row.replicate] = row.candidate_id + 1
+            counts[attempt] = counts.get(attempt, 0) + 1
             _require(
-                len(earlier) > 0,
-                "refinement parent",
+                row.candidate_search_version == IDENTITIES["candidate_search_version"],
+                "candidate search contract",
             )
-            refinement_parent = set(json.loads(earlier.iloc[0].partition_parameters)["cuts"])
-        selected = selection[
-            (selection.requested_k == row.requested_k) & (selection.replicate == row.replicate)
-        ].iloc[0]
-        is_winner = row.candidate_id == selected.candidate_id
-        _require(
-            row.selected_for_k == (is_winner and selected.selected_for_k), "candidate selected-for-K flag"
-        )
-        _require(row.selected == (is_winner and selected.selected), "candidate selected flag")
-        for prefix in ("polish_", "boundary_"):
-            for name, expected_value in (
-                ("fixed_chain", True),
-                ("unconstrained_reassignment", False),
-                ("constrained_optimum_certified", False),
-            ):
-                value = getattr(row, prefix + name, np.nan)
-                if not pd.isna(value):
-                    _require(
-                        isinstance(value, (bool, np.bool_)) and value == expected_value,
-                        "refinement scope " + prefix + name,
-                    )
-        if row.status != "scored":
-            continue
-        _require(1 <= row.num_clusters <= row.requested_k, "candidate occupied q <= K")
-        labels, centers, weights = _candidate_parameters(row, order, purity)
-        final_cuts = set(_cuts(labels[order]))
-        _require(row.num_input_blocks == len(proposal) + 1, "candidate input block count")
-        if row.candidate_kind in {"native", "adjacent_coarsening", "capacity_reuse"}:
-            _require(final_cuts <= set(proposal), "conditional refit cannot introduce cuts")
-        else:
+            _require(row.candidate_kind in kinds, "candidate kinds")
+            _require(row.status in {"scored", "refit_failed"}, "candidate status")
+            if row.status == "scored":
+                _integer_record(record, ("num_clusters", "active_mixture_components"))
+                _require(np.isfinite(row.bic), "finite candidate scores")
+            eligible = row.status == "scored" and row.active_mixture_components == row.num_clusters
+            _require(row.publication_eligible == eligible, "candidate eligibility")
+            if eligible:
+                key = (row.bic, row.num_clusters, row.candidate_id)
+                if attempt not in best or key < best[attempt][0]:
+                    best[attempt] = (key, record)
+            if row.candidate_kind == "native":
+                _require(attempt not in natives, "one native candidate per attempt")
+                _require(row.status == "scored", "native candidate must be scored")
+                natives[attempt] = record
+            parent = parents.get((row.parent_requested_k, row.parent_replicate))
             _require(
-                refinement_parent is not None and final_cuts == set(proposal), "refined proposal identity"
+                parent is not None and parent["partition_sha256"] == row.parent_partition_sha256,
+                "candidate raw parent",
             )
-            if row.candidate_kind == "unsupported_component_coarsening":
-                _require(final_cuts < refinement_parent, "unsupported component coarsening")
-            elif row.candidate_kind == "chain_boundary_polish":
-                _require(len(final_cuts) <= len(refinement_parent), "boundary polish capacity")
+            _require(row.parent_replicate == row.replicate, "candidate replicate parent")
+            cut_text = str(row.chain_cuts)
+            proposal = [] if not cut_text else [int(x) for x in cut_text.split(",")]
+            _require(
+                all(0 < x < len(data) for x in proposal) and proposal == sorted(set(proposal)),
+                "proposal cuts",
+            )
+            _require(row.proposal_partition_sha256 == _partition_hash(order, proposal), "proposal hash")
+            parent_cuts = set(parent["cuts"])
+            if row.candidate_kind == "native":
+                _require(
+                    row.proposal_partition_sha256 == row.parent_partition_sha256, "native proposal parent"
+                )
+                _require(row.requested_k == row.parent_requested_k, "native capacity parent")
+            elif row.candidate_kind in {"adjacent_coarsening", "capacity_reuse"}:
+                relation = (
+                    set(proposal) < parent_cuts
+                    if row.candidate_kind == "adjacent_coarsening"
+                    else set(proposal) == parent_cuts
+                )
+                _require(relation and len(proposal) + 1 == row.requested_k, "coarsening proposal parent")
+            refinement_parent = None
+            if not pd.isna(record.get("refinement_parent_partition_sha256", np.nan)):
+                ancestor = source.find_ancestor(record)
+                _require(ancestor is not None, "refinement parent")
+                refinement_parent = set(json.loads(ancestor["partition_parameters"])["cuts"])
+            for prefix in ("polish_", "boundary_"):
+                for name, value_expected in (
+                    ("fixed_chain", True),
+                    ("unconstrained_reassignment", False),
+                    ("constrained_optimum_certified", False),
+                ):
+                    value = record.get(prefix + name, np.nan)
+                    if not pd.isna(value):
+                        _require(
+                            isinstance(value, (bool, np.bool_)) and value == value_expected,
+                            "refinement scope " + prefix + name,
+                        )
+            if row.status != "scored":
+                checked_row()
+                continue
+            _require(1 <= row.num_clusters <= row.requested_k, "candidate occupied q <= K")
+            labels, centers, weights = _candidate_parameters(row, order, purity)
+            final_cuts = set(_cuts(labels[order]))
+            _require(row.num_input_blocks == len(proposal) + 1, "candidate input block count")
+            if row.candidate_kind in {"native", "adjacent_coarsening", "capacity_reuse"}:
+                _require(final_cuts <= set(proposal), "conditional refit cannot introduce cuts")
             else:
-                _require(not final_cuts, "single block fallback")
-        _require(row.active_mixture_components == np.count_nonzero(weights), "candidate active weights")
-        for name, expected_value in (
-            ("minimum_mixture_weight", float(weights.min())),
-            ("distinct_centers", len(np.unique(centers))),
-            ("joint_mixture_center_mle", False),
-        ):
-            value = getattr(row, name, np.nan)
-            if not pd.isna(value):
-                if name == "joint_mixture_center_mle":
-                    _require(isinstance(value, (bool, np.bool_)) and not value, "conditional center scope")
-                elif name == "distinct_centers":
-                    _require(value == expected_value, "candidate distinct centers")
+                _require(
+                    refinement_parent is not None and final_cuts == set(proposal), "refined proposal identity"
+                )
+                if row.candidate_kind == "unsupported_component_coarsening":
+                    _require(final_cuts < refinement_parent, "unsupported component coarsening")
+                elif row.candidate_kind == "chain_boundary_polish":
+                    _require(len(final_cuts) <= len(refinement_parent), "boundary polish capacity")
                 else:
-                    _close(value, expected_value, "candidate minimum weight", atol=1e-14)
-        _verify_fit_statistics(row, labels, centers, weights, data, purity, cache)
+                    _require(not final_cuts, "single block fallback")
+            _require(row.active_mixture_components == np.count_nonzero(weights), "candidate active weights")
+            for name, value_expected in (
+                ("minimum_mixture_weight", float(weights.min())),
+                ("distinct_centers", len(np.unique(centers))),
+                ("joint_mixture_center_mle", False),
+            ):
+                value = record.get(name, np.nan)
+                if not pd.isna(value):
+                    if name == "joint_mixture_center_mle":
+                        _require(
+                            isinstance(value, (bool, np.bool_)) and not value, "conditional center scope"
+                        )
+                    elif name == "distinct_centers":
+                        _require(value == value_expected, "candidate distinct centers")
+                    else:
+                        _close(value, value_expected, "candidate minimum weight", atol=1e-14)
+            _verify_fit_statistics(row, labels, centers, weights, data, purity, cache)
+            checked_row()
+
+        progress("reconciliation")
+        _require(set(counts) == expected, "candidate capacities/replicates")
+        _require(set(best) == expected, "supported candidate per attempt")
+        _require(set(natives) == expected, "one native candidate per attempt")
+        for attempt, (_, winner) in best.items():
+            row = selected_attempts[attempt]
+            _require(row.candidate_id == winner["candidate_id"], "selection/candidate winner")
+            for name in (
+                "partition_sha256",
+                "proposal_partition_sha256",
+                "parent_partition_sha256",
+                "candidate_kind",
+                "parent_requested_k",
+                "parent_replicate",
+                "num_clusters",
+                "publication_eligible",
+                "active_mixture_components",
+                "candidate_search_version",
+                "distinct_centers",
+                "joint_mixture_center_mle",
+            ):
+                _require(row[name] == winner[name], "selection/candidate " + name)
+            for name in (
+                "bic",
+                "log_likelihood",
+                "conditional_log_likelihood",
+                "weight_optimality_gap",
+                "weight_active_score_gap",
+                "minimum_mixture_weight",
+            ):
+                _close(row[name], winner[name], "selection/candidate " + name)
+            _require(
+                row.status == "numerical_multimode_refit"
+                and row.center_refit == "conditional"
+                and row.bic_definition == IDENTITIES["scoring_version"]
+                and row.num_parameters == 2 * row.num_clusters - 1
+                and row.num_mutations == len(data),
+                "selection scientific contract",
+            )
+            _close(row.native_bic, natives[attempt]["bic"], "selection native score")
+            _require(row.native_num_clusters == natives[attempt]["num_clusters"], "selection native size")
+            parent = parents.get((row.parent_requested_k, row.parent_replicate))
+            _require(parent is not None, "selection raw parent")
+            for name, value in parent["diagnostics"].items():
+                fields = ["parent_raw_" + name]
+                if row.candidate_kind == "native":
+                    fields.append("raw_" + name)
+                else:
+                    _require(
+                        pd.isna(row.get("raw_" + name, np.nan)), "derived candidate inherited raw " + name
+                    )
+                for field in fields:
+                    if isinstance(value, (bool, np.bool_)):
+                        _require(
+                            isinstance(row[field], (bool, np.bool_)) and row[field] == value,
+                            "selection diagnostic " + field,
+                        )
+                    elif isinstance(value, str):
+                        _require(row[field] == value, "selection diagnostic " + field)
+                    else:
+                        _close(row[field], value, "selection diagnostic " + field, atol=1e-13, rtol=1e-14)
+            _require(row.candidate_count == counts[attempt], "candidate count")
+
+        winners = (
+            selection.sort_values(["bic", "num_clusters", "replicate"], kind="stable")
+            .groupby("requested_k", sort=False)
+            .head(1)
+        )
+        chosen = winners.sort_values(["bic", "num_clusters", "requested_k", "replicate"], kind="stable").iloc[
+            0
+        ]
+        per_k = {row.requested_k: row for row in winners.itertuples()}
+        for row in selection.itertuples():
+            _require(
+                row.selected_for_k == (row.replicate == per_k[row.requested_k].replicate),
+                "replicate selection flags",
+            )
+            _require(
+                row.selected == (row.requested_k == chosen.requested_k and row.replicate == chosen.replicate),
+                "overall selection flags",
+            )
+        # Pass two reconciles flags for every candidate, including failed routes.
+        flag_counts, flag_next_ids = {}, {}
+        for record in source.iter_rows():
+            row = SimpleNamespace(**record)
+            attempt = (row.requested_k, row.replicate)
+            _require(row.candidate_id == flag_next_ids.get(row.replicate, 0), "replayed candidate IDs")
+            flag_next_ids[row.replicate] = row.candidate_id + 1
+            flag_counts[attempt] = flag_counts.get(attempt, 0) + 1
+            selected = selected_attempts[attempt]
+            is_winner = row.candidate_id == selected.candidate_id
+            _require(row.selected_for_replicate_k == is_winner, "candidate-bank ranking")
+            _require(
+                row.selected_for_k == (is_winner and selected.selected_for_k), "candidate selected-for-K flag"
+            )
+            _require(row.selected == (is_winner and selected.selected), "candidate selected flag")
+        _require(flag_counts == counts and flag_next_ids == next_ids, "candidate cursor replay completeness")
+    progress("complete")
+    return {(record["replicate"], record["candidate_id"]): record for _, record in best.values()}
 
 
-def _verify_finalists(fits, capacities, replicates, parents, order, data, purity, evidence):
+def _verify_finalists(
+    fits, capacities, replicates, parents, order, data, purity, evidence, *, _progress=None
+):
     """Check compact finalists; discarded proposal ancestry is checked before publication."""
     integer_fields = {
         "requested_k",
@@ -670,8 +769,16 @@ def _verify_finalists(fits, capacities, replicates, parents, order, data, purity
     if evidence is not None:
         _require(isinstance(evidence, tuple) and len(evidence) == 2, "transient candidate evidence")
         transient_selection, candidates = evidence
-        _verify_candidates(
-            candidates, transient_selection, capacities, replicates, parents, order, data, purity
+        verified_candidates = _verify_candidates(
+            candidates,
+            transient_selection,
+            capacities,
+            replicates,
+            parents,
+            order,
+            data,
+            purity,
+            _progress=_progress,
         )
     cache = [OrderedDict(), 0]
     for row in selection.itertuples():
@@ -730,19 +837,16 @@ def _verify_finalists(fits, capacities, replicates, parents, order, data, purity
                 (transient_selection.requested_k == row.requested_k)
                 & (transient_selection.replicate == row.replicate)
             ].iloc[0]
-            candidate = candidates[
-                (candidates.replicate == row.replicate) & (candidates.candidate_id == row.candidate_id)
-            ]
-            _require(len(candidate) == 1, "finalist/transient candidate identity")
-            candidate = candidate.iloc[0]
+            candidate = verified_candidates.get((row.replicate, row.candidate_id))
+            _require(candidate is not None, "finalist/transient candidate identity")
             for name in fields - {"partition_parameters", "proposal_cuts"}:
                 _require(
                     getattr(row, name) == selected[name] == candidate[name],
                     "finalist/transient " + name,
                 )
             _require(
-                row.partition_parameters == json.loads(candidate.partition_parameters)
-                and proposal == [int(cut) for cut in candidate.chain_cuts.split(",") if cut],
+                row.partition_parameters == json.loads(candidate["partition_parameters"])
+                and proposal == [int(cut) for cut in candidate["chain_cuts"].split(",") if cut],
                 "finalist/transient parameters",
             )
     # One finalist per attempt: comparing all attempts has the same two-stage
@@ -750,7 +854,7 @@ def _verify_finalists(fits, capacities, replicates, parents, order, data, purity
     return selection.sort_values(["bic", "num_clusters", "requested_k", "replicate"], kind="stable").iloc[0]
 
 
-def verify_run(directory, *, require_complete=True, _candidate_evidence=None):
+def verify_run(directory, *, require_complete=True, _candidate_evidence=None, _progress=None):
     """Verify saved fits; schema 4 retains finalists, not the complete proposal bank."""
     root = Path(directory)
     manifest_path = root / "manifest.json"
@@ -914,8 +1018,8 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None):
         _require(np.array_equal(indices, replay), "subsample seed/quota replay")
     if schema == 3:
         selection = _table(final / "bic_selection.tsv")
-        candidates = _table(final / "chain_candidates.tsv")
-        _verify_candidates(
+        candidates = final / "chain_candidates.tsv"
+        verified_candidates = _verify_candidates(
             candidates,
             selection,
             manifest["capacities"],
@@ -924,6 +1028,7 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None):
             order,
             data,
             purity,
+            _progress=_progress,
         )
         selected_rows = selection[selection.selected]
         _require(len(selected_rows) == 1, "exactly one selected result")
@@ -936,9 +1041,7 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None):
             and int(best.replicate) == int(selected.replicate),
             "BIC-form selection",
         )
-        evidence = candidates[
-            (candidates.replicate == selected.replicate) & (candidates.candidate_id == selected.candidate_id)
-        ].iloc[0]
+        evidence = SimpleNamespace(**verified_candidates[selected.replicate, selected.candidate_id])
     else:
         selected = _verify_finalists(
             manifest["fits"],
@@ -949,6 +1052,7 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None):
             data,
             purity,
             _candidate_evidence,
+            _progress=_progress,
         )
         evidence = selected
     _require(selected.requested_k == manifest["selected_k"], "selected capacity")

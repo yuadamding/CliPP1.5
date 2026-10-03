@@ -27,7 +27,10 @@ def _parser():
     )
     capacities = fit.add_mutually_exclusive_group()
     capacities.add_argument("--clusters", type=int)
-    capacities.add_argument("--max-clusters", type=int, help="Maximum capacity to compare (default: 20)")
+    capacities.add_argument(
+        "--max-clusters", type=int,
+        help=f"Maximum capacity to compare (default: {FitConfig().max_clusters})",
+    )
     fit.add_argument("--device", choices=["auto", "cpu", "cuda"])
     fit.add_argument("--subsample-size", type=int)
     fit.add_argument("--replicates", type=int)
