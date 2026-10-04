@@ -14,7 +14,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy.special import logsumexp
+from scipy.special import logsumexp, xlog1py, xlogy
 from scipy.stats import binom
 
 from ._io import read_table as _table
@@ -64,6 +64,54 @@ def _kernel(data, cp, purity, *, posterior=True):
                 for i, probability in zip(index, np.exp(logs - ll[:, None])):
                     posteriors[i] = probability
     return values, posteriors
+
+
+def _verify_posterior_modes(data, cp, purity, multiplicity, posterior):
+    """Accept independently maximal calls, including float64-indistinguishable ties."""
+    calls = np.asarray(multiplicity)
+    major = data.major_cn.to_numpy()
+    _require(
+        calls.shape == major.shape
+        and np.isfinite(calls).all()
+        and np.all(calls == np.floor(calls))
+        and np.all((calls >= 1) & (calls <= major)),
+        "posterior modes: integer support",
+    )
+    _require(
+        len(posterior) == len(data)
+        and all(np.isfinite(p).all() and np.max(p) > 0 for p in posterior),
+        "posterior modes: defined posterior",
+    )
+    best = np.asarray([np.argmax(p) + 1 for p in posterior])
+    rows = np.flatnonzero(calls != best)
+    if not len(rows):
+        return
+    # Only disagreeing labels need a roundoff comparison. Uniform priors and
+    # normalization cancel in the log odds; retain independent scipy arithmetic.
+    m = np.column_stack((calls[rows], best[rows]))
+    cp = np.broadcast_to(np.asarray(cp), (len(data),))[rows, None]
+    alt = data.alt_count.to_numpy()[rows, None]
+    depth = data.depth.to_numpy()[rows, None]
+    denominator = 2 * (1 - purity) + purity * data.total_cn.to_numpy()[rows, None]
+    p = np.minimum(1, cp * m / denominator)
+    alternate_p = np.minimum(1, cp * (m / denominator))
+    scores = binom.logpmf(alt, depth, p)
+    alternate_scores = binom.logpmf(alt, depth, alternate_p)
+    # Impossible states must never acquire an infinite acceptance tolerance.
+    _require(
+        np.isfinite(scores).all() and np.isfinite(alternate_scores).all(),
+        "posterior modes: finite likelihood",
+    )
+    terms = np.abs(xlogy(alt, p)) + np.abs(xlog1py(depth - alt, -p))
+    # Practical float64 budget for log-term evaluation/addition, separately
+    # accounting for the two multiplication/division associations in p. The
+    # combinatorial constant is bounded by |score| + |log terms|. Eight eps
+    # per magnitude allows both arithmetic paths; this is not a libm interval
+    # certificate or the much broader statistical _close tolerance.
+    error = 8 * np.finfo(float).eps * (
+        1 + np.abs(scores) + 2 * terms + np.log(major[rows, None])
+    ) + np.abs(alternate_scores - scores)
+    _require(np.all(scores[:, 1] - scores[:, 0] <= error.sum(axis=1)), "posterior modes")
 
 
 def _cuts(labels):
@@ -1109,7 +1157,7 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None, _p
     _close(structure.purity, purity, "output purity")
     _close(structure.assignment_proportion, counts / n, "assignment proportions")
     _, posterior = _kernel(data, centers[labels], purity)
-    _require(np.array_equal(calls.multiplicity, [np.argmax(p) + 1 for p in posterior]), "posterior modes")
+    _verify_posterior_modes(data, centers[labels], purity, calls.multiplicity, posterior)
     if schema == 3:
         _close(calls.multiplicity_probability, [p.max() for p in posterior], "posterior mode probabilities")
     _close(calls.expected_multiplicity, [p @ np.arange(1, len(p) + 1) for p in posterior], "posterior means")
