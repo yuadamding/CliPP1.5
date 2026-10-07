@@ -6,6 +6,7 @@ enter this conditional objective; the caller retains responsibility for BIC.
 """
 
 import math
+from contextlib import nullcontext
 
 import numpy as np
 
@@ -74,7 +75,7 @@ def fixed_center_chain_partition(log_likelihood):
     }
 
 
-def _partition_state(model, result, chain_order):
+def _partition_state(model, result, chain_order, likelihood_provider=None):
     labels = np.asarray(result["labels"])
     centers = np.asarray(result["centers"], dtype=float)
     n = len(model)
@@ -95,7 +96,17 @@ def _partition_state(model, result, chain_order):
     visits = ordered[np.r_[0, cuts]]
     if len(visits) != len(centers) or len(np.unique(visits)) != len(visits):
         raise ValueError("Each center must visit exactly one contiguous chain block")
-    kernel = np.column_stack([model.log_likelihood(cp) for cp in centers[visits]])[chain_order]
+    # The provider returns original-row columns in the requested visit order.
+    # Numerically sorting centers here would change the constrained DP problem.
+    visited_centers = centers[visits]
+    kernel = (
+        np.column_stack([model.log_likelihood(cp) for cp in visited_centers])
+        if likelihood_provider is None
+        else np.asarray(likelihood_provider(visited_centers), dtype=float)
+    )
+    if kernel.shape != (n, len(visits)) or np.any(np.isnan(kernel)) or np.any(np.isposinf(kernel)):
+        raise ValueError("Invalid refinement likelihood columns")
+    kernel = kernel[chain_order]
     states = np.searchsorted(cuts, np.arange(n), side="right")
     score = math.fsum(kernel[np.arange(n), states])
     if not np.isfinite(score):
@@ -104,7 +115,15 @@ def _partition_state(model, result, chain_order):
 
 
 def polish_chain_partition(
-    model, result, chain_order, refit, max_iterations=100, mean_loglik_tolerance=1e-10
+    model,
+    result,
+    chain_order,
+    refit,
+    max_iterations=100,
+    mean_loglik_tolerance=1e-10,
+    *,
+    likelihood_provider=None,
+    progress=None,
 ):
     """Alternate exact conditional boundaries and caller-supplied block refits.
 
@@ -133,13 +152,16 @@ def polish_chain_partition(
         raise ValueError("Frozen chain order must be a permutation of original rows")
     order = order.astype(np.int64)
     current = result
-    _, cuts, kernel, score = _partition_state(model, current, order)
+    _, cuts, kernel, score = _partition_state(model, current, order, likelihood_provider)
     initial_score, initial_q = score, kernel.shape[1]
     best, best_score = current, score
     history = []
     status = "iteration_budget"
     for iteration in range(1, max_iterations + 1):
-        proposal = fixed_center_chain_partition(kernel)
+        if progress is not None:
+            progress.update("polish_iteration_started", refinement_iteration=iteration)
+        with progress.timer("boundary_dynamic_programming") if progress is not None else nullcontext():
+            proposal = fixed_center_chain_partition(kernel)
         fixed_score = proposal["conditional_log_likelihood"]
         roundoff = 64 * np.finfo(float).eps * max(1.0, abs(score), abs(fixed_score))
         if fixed_score < score - roundoff:
@@ -155,16 +177,23 @@ def polish_chain_partition(
             entry["status"] = "fixed_center_boundaries_stable"
             history.append(entry)
             status = entry["status"]
+            if progress is not None:
+                progress.update("polish_iteration_completed", refinement_iteration=iteration, status=status)
             break
         labels = np.empty(n, dtype=np.int64)
         labels[order] = proposal["labels"]
         try:
-            candidate = refit(labels)
-            _, new_cuts, new_kernel, new_score = _partition_state(model, candidate, order)
+            with progress.context(refinement_iteration=iteration) if progress is not None else nullcontext():
+                candidate = refit(labels)
+                _, new_cuts, new_kernel, new_score = _partition_state(
+                    model, candidate, order, likelihood_provider
+                )
         except RuntimeError as error:
             entry.update(status="refit_failed", error=str(error))
             history.append(entry)
             status = entry["status"]
+            if progress is not None:
+                progress.update("polish_iteration_completed", refinement_iteration=iteration, status=status)
             break
         if not set(new_cuts) <= set(proposal["cuts"]):
             raise ValueError("Refit may only preserve boundaries or merge adjacent blocks")
@@ -176,10 +205,14 @@ def polish_chain_partition(
             entry["status"] = "refit_conditional_decrease"
             history.append(entry)
             status = entry["status"]
+            if progress is not None:
+                progress.update("polish_iteration_completed", refinement_iteration=iteration, status=status)
             break
         improvement = new_score - score
         entry.update(status="accepted", mean_loglik_improvement=improvement / n)
         history.append(entry)
+        if progress is not None:
+            progress.update("polish_iteration_completed", refinement_iteration=iteration, status="accepted")
         current, cuts, kernel, score = candidate, new_cuts, new_kernel, new_score
         if score > best_score or (score == best_score and len(current["centers"]) < len(best["centers"])):
             best, best_score = current, score

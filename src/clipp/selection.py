@@ -13,6 +13,7 @@ observed-mixture weights are fitted only for BIC. No fusion/allocation penalty e
 """
 
 from collections import OrderedDict
+from contextlib import nullcontext
 import hashlib
 import json
 import math
@@ -25,6 +26,7 @@ import pandas as pd
 
 from ._candidate_store import CandidateStore
 from ._proposals import iter_chain_proposals
+from ._progress import NumericalProgress
 from .config import MAX_CLUSTERS
 from .refinement import polish_chain_partition
 from .model import MultiplicityModel
@@ -51,14 +53,25 @@ def _parameters(result, order):
 
 
 class _ChainRefitCache(OrderedDict):
-    """One model/order's interval refits and a bounded LRU of likelihood columns."""
+    """One immutable model/order's bounded numerical caches, without provenance."""
 
-    def __init__(self, model, chain_order, max_column_bytes=32 * 1024 * 1024):
+    def __init__(
+        self,
+        model,
+        chain_order,
+        max_column_bytes=32 * 1024 * 1024,
+        *,
+        max_partition_bytes=8 * 1024 * 1024,
+        progress=None,
+    ):
         super().__init__()
         self.model = model
         self.order = np.asarray(chain_order, dtype=np.int64).copy()
+        self.order.setflags(write=False)
         self.ranks = np.empty(len(model), dtype=np.int64)
         self.ranks[self.order] = np.arange(len(model))
+        self.ranks.setflags(write=False)
+        self.progress = progress
         self.columns = OrderedDict()
         self.column_bytes = 0
         self.max_column_bytes = max_column_bytes
@@ -66,6 +79,9 @@ class _ChainRefitCache(OrderedDict):
         self.weight_results = OrderedDict()
         self.weight_bytes = 0
         self.max_weight_bytes = 8 * 1024 * 1024
+        self.partition_results = OrderedDict()
+        self.partition_bytes = 0
+        self.max_partition_bytes = max_partition_bytes
         self.telemetry = dict(
             interval_cache_hits=0,
             interval_refits=0,
@@ -76,7 +92,65 @@ class _ChainRefitCache(OrderedDict):
             weight_solver_calls=0,
             weight_solver_failures=0,
             weight_solver_seconds=0.0,
+            partition_cache_hits=0,
+            partition_cache_misses=0,
         )
+
+    def partition_key(self, labels):
+        ordered = validate_chain_labels(labels[self.order], len(self.model), len(self.model))
+        cuts = tuple(int(value) for value in np.flatnonzero(np.diff(ordered)) + 1)
+        # Input cuts are essential: fitting blocks that later merge is not
+        # necessarily numerically identical to directly refitting their union.
+        return refit_center, fit_cluster_weights, cuts
+
+    def get_partition(self, key):
+        cached = self.partition_results.pop(key, None)
+        if cached is None:
+            self.telemetry["partition_cache_misses"] += 1
+            return None
+        self.partition_results[key] = cached
+        self.telemetry["partition_cache_hits"] += 1
+        if self.progress is not None:
+            self.progress.add(partition_cache_hits=1)
+            self.progress.update("partition_cache_hit")
+        cuts, block_labels, value, _ = cached
+        labels = np.empty(len(self.model), dtype=int)
+        labels[self.order] = block_labels[np.searchsorted(cuts, np.arange(len(self.model)), side="right")]
+        return {
+            **value,
+            "labels": labels,
+            "centers": value["centers"].copy(),
+            "cluster_weights": value["cluster_weights"].copy(),
+        }
+
+    def put_partition(self, key, result):
+        ordered = result["labels"][self.order]
+        cuts = np.flatnonzero(np.diff(ordered)) + 1
+        block_labels = ordered[np.r_[0, cuts]].copy()
+        value = {name: item for name, item in result.items() if name != "labels"}
+        for name in ("centers", "cluster_weights"):
+            value[name] = value[name].copy()
+            value[name].setflags(write=False)
+        cuts.setflags(write=False)
+        block_labels.setflags(write=False)
+        # Conservative accounting includes Python containers, key cuts and
+        # owned ndarray buffers; no N-length labels are retained per result.
+        size = (
+            sys.getsizeof(key)
+            + sys.getsizeof(key[2])
+            + sum(sys.getsizeof(cut) for cut in key[2])
+            + sys.getsizeof(cuts)
+            + sys.getsizeof(block_labels)
+            + sys.getsizeof(value)
+            + sum(sys.getsizeof(name) + sys.getsizeof(item) for name, item in value.items())
+            + 256
+        )
+        if size <= self.max_partition_bytes:
+            while self.partition_bytes + size > self.max_partition_bytes:
+                _, removed = self.partition_results.popitem(last=False)
+                self.partition_bytes -= removed[-1]
+            self.partition_results[key] = (cuts, block_labels, value, size)
+            self.partition_bytes += size
 
     def get(self, key, default=None):
         value = super().get(key, default)
@@ -105,9 +179,10 @@ class _ChainRefitCache(OrderedDict):
         start = time.perf_counter()
         self.telemetry["weight_solver_calls"] += 1
         try:
-            value = fit_cluster_weights(
-                self.model, centers, counts, log_kernel=kernel, telemetry=self.telemetry
-            )
+            with self.progress.timer("weight_optimization") if self.progress is not None else nullcontext():
+                value = fit_cluster_weights(
+                    self.model, centers, counts, log_kernel=kernel, telemetry=self.telemetry
+                )
         except RuntimeError:
             self.telemetry["weight_solver_failures"] += 1
             raise
@@ -136,6 +211,14 @@ class _ChainRefitCache(OrderedDict):
         return left, right
 
     def log_kernel(self, centers):
+        if self.progress is not None:
+            self.progress.add(likelihood_matrix_requests=1)
+        with (
+            self.progress.timer("likelihood_column_assembly") if self.progress is not None else nullcontext()
+        ):
+            return self._log_kernel(centers)
+
+    def _log_kernel(self, centers):
         columns = []
         for cp in centers:
             key = float(cp)
@@ -143,6 +226,12 @@ class _ChainRefitCache(OrderedDict):
             if column is None:
                 self.telemetry["likelihood_evaluations"] += 1
                 column = self.model.log_likelihood(cp)
+                if self.progress is not None:
+                    self.progress.add(
+                        likelihood_columns_computed=1,
+                        valid_state_evaluations=self.model.valid_states,
+                    )
+                    self.progress.update("likelihood_column_completed")
                 if column.nbytes <= self.max_column_bytes:
                     while self.column_bytes + column.nbytes > self.max_column_bytes:
                         _, removed = self.columns.popitem(last=False)
@@ -151,6 +240,8 @@ class _ChainRefitCache(OrderedDict):
                     self.column_bytes += column.nbytes
             else:
                 self.telemetry["likelihood_cache_hits"] += 1
+                if self.progress is not None:
+                    self.progress.add(likelihood_column_cache_hits=1)
                 self.columns[key] = column
             columns.append(column)
         return np.column_stack(columns)
@@ -169,7 +260,15 @@ def refit_partition(model, labels, cache=None, chain_order=None):
         cache.model is not model or chain_order is None or not np.array_equal(cache.order, chain_order)
     ):
         raise ValueError("Chain refit cache belongs to a different model or order")
+    # Canonicalize before validating/cache lookup: arbitrary int64 labels can
+    # be distinct above float64's exact-integer range, but cuts depend only on
+    # membership. This is the same inverse used by the original refit path.
     clusters, inverse = np.unique(labels, return_inverse=True)
+    partition_key = cache.partition_key(inverse) if isinstance(cache, _ChainRefitCache) else None
+    if partition_key is not None:
+        cached = cache.get_partition(partition_key)
+        if cached is not None:
+            return cached
     centers, log_likelihoods = [], []
     for index in range(len(clusters)):
         rows = np.flatnonzero(inverse == index)
@@ -177,7 +276,17 @@ def refit_partition(model, labels, cache=None, chain_order=None):
         fitted = cache.get(key) if cache is not None else None
         if fitted is None:
             start = time.perf_counter()
-            fitted = refit_center(model.subset(rows))
+            reporter = cache.progress if isinstance(cache, _ChainRefitCache) else None
+            with (
+                reporter.context(interval_left=key[0], interval_right=key[1])
+                if reporter is not None
+                else nullcontext()
+            ):
+                fitted = (
+                    refit_center(model.subset(rows), progress=reporter)
+                    if reporter is not None
+                    else refit_center(model.subset(rows))
+                )
             if isinstance(cache, _ChainRefitCache):
                 cache.telemetry["interval_refits"] += 1
                 cache.telemetry["conditional_refit_seconds"] += time.perf_counter() - start
@@ -210,7 +319,7 @@ def refit_partition(model, labels, cache=None, chain_order=None):
     )
     parameters = 2 * k - 1
     bic = -2 * mixture["log_likelihood"] + parameters * math.log(len(model))
-    return {
+    result = {
         "labels": labels,
         "centers": centers,
         **mixture,
@@ -221,6 +330,9 @@ def refit_partition(model, labels, cache=None, chain_order=None):
         "bic": bic,
         "bic_definition": IDENTITIES["scoring_version"],
     }
+    if partition_key is not None:
+        cache.put_partition(partition_key, result)
+    return result
 
 
 def _integer_vector(values, name, length=None):
@@ -300,7 +412,14 @@ def search_chain_coarsenings(
         or np.any(budgets > min(MAX_CLUSTERS, n))
     ):
         raise ValueError(f"Expected unique K in 1..min({MAX_CLUSTERS},N)")
-    cache = _ChainRefitCache(model, chain_order) if cache is None else cache
+    cache = (
+        _ChainRefitCache(
+            model, chain_order, progress=NumericalProgress(progress) if progress is not None else None
+        )
+        if cache is None
+        else cache
+    )
+    reporter = getattr(cache, "progress", None)
     chain_digest = hashlib.sha256(np.asarray(chain_order, dtype="<i8").tobytes())
 
     def fingerprint(cuts):
@@ -338,7 +457,17 @@ def search_chain_coarsenings(
         labels[chain_order] = np.searchsorted(cuts, np.arange(n), side="right")
         proposal_digest = fingerprint(cuts)
         try:
-            result = refit_partition(model, labels, cache, chain_order=chain_order)
+            with (
+                reporter.context(
+                    phase="candidate_search",
+                    replicate=replicate,
+                    requested_k=next(iter(by_budget)) if len(by_budget) == 1 else None,
+                    requested_ks=sorted(by_budget),
+                )
+                if reporter is not None
+                else nullcontext()
+            ):
+                result = refit_partition(model, labels, cache, chain_order=chain_order)
         except RuntimeError as error:
             if any(p["candidate_kind"] == "native" for p in by_budget.values()):
                 raise
@@ -422,6 +551,15 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
     winners = {}
     replicate = search["replicate"]
     visited_scope = f"refine:{replicate}"
+    reporter = getattr(cache, "progress", None)
+
+    def fit(labels, budget):
+        with (
+            reporter.context(phase="repair_and_polish", replicate=replicate, requested_k=int(budget))
+            if reporter is not None
+            else nullcontext()
+        ):
+            return refit_partition(model, labels, cache, chain_order)
 
     def cuts_of(result):
         ordered = result["labels"][chain_order]
@@ -532,7 +670,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
             labels = np.empty(n, dtype=int)
             labels[chain_order] = np.searchsorted(reduced_cuts, np.arange(n), side="right")
             try:
-                repaired = refit_partition(model, labels, cache, chain_order)
+                repaired = fit(labels, budget)
             except RuntimeError as error:
                 records.visited_add(visited_scope, visit_key(budget, reduced_cuts))
                 records.append(
@@ -576,7 +714,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
             cuts = tuple(int(x) for x in baseline["chain_cuts"].split(",") if x)
             labels = np.empty(n, dtype=int)
             labels[chain_order] = np.searchsorted(cuts, np.arange(n), side="right")
-            fitted = refit_partition(model, labels, cache, chain_order)
+            fitted = fit(labels, budget)
             consider(fitted, baseline, baseline["candidate_kind"], existing=baseline)
             starts.append({**baseline, "result": fitted})
             start_partitions.add((budget, baseline["partition_sha256"]))
@@ -585,22 +723,36 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
         record = records.find_first(replicate=replicate, requested_k=budget, candidate_kind="native")
         if (budget, record["partition_sha256"]) in start_partitions:
             continue
-        fitted = refit_partition(model, seed["labels"], cache, chain_order)
+        fitted = fit(seed["labels"], budget)
         consider(fitted, record, "native", existing=record)
         starts.append({**record, "result": fitted})
         start_partitions.add((budget, record["partition_sha256"]))
     polished = set()
-    for parent in starts:
+    for start_index, parent in enumerate(starts, 1):
         key = (parent["requested_k"], cuts_of(parent["result"]))
         if key in polished:
             continue
         polished.add(key)
-        refinement = polish_chain_partition(
-            model,
-            parent["result"],
-            chain_order,
-            lambda labels: refit_partition(model, labels, cache, chain_order),
-        )
+        kwargs = {"likelihood_provider": cache.log_kernel} if isinstance(cache, _ChainRefitCache) else {}
+        if reporter is not None:
+            kwargs["progress"] = reporter
+        with (
+            reporter.context(
+                phase="repair_and_polish",
+                replicate=replicate,
+                requested_k=int(parent["requested_k"]),
+                refinement_start=start_index,
+            )
+            if reporter is not None
+            else nullcontext()
+        ):
+            refinement = polish_chain_partition(
+                model,
+                parent["result"],
+                chain_order,
+                lambda labels: fit(labels, parent["requested_k"]),
+                **kwargs,
+            )
         consider(refinement["result"], parent, "chain_boundary_polish", refinement["diagnostics"])
         # Preserve convergence evidence even when polish leaves the same cuts.
         original = records.find_first(
@@ -615,7 +767,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
         )
     for budget, parent in search["winners"].items():
         if budget not in winners:
-            fallback = refit_partition(model, np.zeros(n, dtype=int), cache, chain_order)
+            fallback = fit(np.zeros(n, dtype=int), budget)
             # A failed optional route must not hide a finite single-block
             # candidate. This is an explicit refit within the at-most-K set.
             records.visited_discard(visited_scope, visit_key(budget, ()))
@@ -730,7 +882,8 @@ def run_model_selection(
         for rep in range(1, replicate_count + 1)
     ]
     by_attempt = {(int(row["requested_k"]), row["replicate"]): row for row in records}
-    cache = _ChainRefitCache(model, chain_order)
+    reporter = NumericalProgress(progress) if progress is not None else None
+    cache = _ChainRefitCache(model, chain_order, progress=reporter)
     best_by_k = {}
     search_records = CandidateStore() if candidate_store is None else candidate_store
     for rep in range(1, replicate_count + 1):
@@ -901,5 +1054,5 @@ def run_model_selection(
         "fits": fits,
         "selection": pd.DataFrame(records),
         "candidates": search_records,
-        "telemetry": cache.telemetry,
+        "telemetry": {**cache.telemetry, **(reporter.snapshot() if reporter is not None else {})},
     }

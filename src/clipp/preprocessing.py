@@ -10,6 +10,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from .model import LIKELIHOOD_WORKSPACE_BYTES
+
 INT_MAX = np.iinfo(np.int32).max
 
 
@@ -86,8 +88,8 @@ class CanonicalInput:
 
     def summary(self):
         n, major = len(self.retained), int(self.retained.major_cn.max())
-        # Persistent padded model arrays only: one bool and one float64 per state.
         padded = n * major
+        valid = int(self.retained.major_cn.sum())
         return {
             "num_input_rows": len(self.ledger),
             "num_retained": n,
@@ -101,17 +103,17 @@ class CanonicalInput:
             "scope": "autosomes 1..22; 1-based inclusive intervals",
             "resource_estimate": {
                 "padded_support_states": padded,
-                "model_padded_arrays_bytes": 9 * padded,
-                "one_float64_support_temporary_bytes": 8 * padded,
+                "valid_support_states": valid,
+                "model_grouped_scales_bytes": 8 * valid,
+                "likelihood_workspace_limit_bytes": LIKELIHOOD_WORKSPACE_BYTES,
+                "posterior_output_bytes": 8 * padded,
                 "initializer_matrix_cache_limit_bytes": 64 * 1024**2,
                 "likelihood_column_cache_limit_bytes": 32 * 1024**2,
                 "scope": "allocation estimates, not peak-memory limits; full N is initialized and scored even with subsampling",
             },
             "warnings": (
-                [
-                    "Padded full multiplicity support exceeds 256 MiB before temporaries; profile this input before a large panel"
-                ]
-                if 9 * padded > 256 * 1024**2
+                ["Dense posterior output exceeds 256 MiB; profile publication memory before a large panel"]
+                if 8 * padded > 256 * 1024**2
                 else []
             ),
         }
