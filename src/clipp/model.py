@@ -13,6 +13,17 @@ LIKELIHOOD_WORKSPACE_BYTES = 32 * 1024 * 1024
 _STATE_BYTES = 16 * 8
 
 
+def likelihood_workspace_bytes(count, max_major):
+    """Keep the default unless one complete marginal cannot fit in it.
+
+    Large inputs still need their original-row marginals for exact summation.
+    Reserve the usual state-chunk budget above that unavoidable minimum instead
+    of rejecting the input or reducing the work to one mutation per chunk.
+    """
+    minimum = 16 * int(count) + _STATE_BYTES * int(max_major)
+    return LIKELIHOOD_WORKSPACE_BYTES + minimum if minimum > LIKELIHOOD_WORKSPACE_BYTES else LIKELIHOOD_WORKSPACE_BYTES
+
+
 def _immutable(values):
     values = np.array(values, copy=True)
     values.flags.writeable = False
@@ -56,7 +67,7 @@ class MultiplicityModel:
         )
         self.m = _immutable(np.arange(1, int(self.major.max()) + 1))
         self.valid_states = int(self.major.sum())
-        self.workspace_bytes = LIKELIHOOD_WORKSPACE_BYTES
+        self.workspace_bytes = likelihood_workspace_bytes(len(self), len(self.m))
         self._groups = tuple(
             (_immutable(rows), _immutable(self.m[None, :cn] / self.denominator[rows, None]))
             for cn in np.unique(self.major)

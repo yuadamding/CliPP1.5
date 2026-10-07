@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .model import LIKELIHOOD_WORKSPACE_BYTES
+from .model import likelihood_workspace_bytes
 
 INT_MAX = np.iinfo(np.int32).max
 
@@ -105,7 +105,7 @@ class CanonicalInput:
                 "padded_support_states": padded,
                 "valid_support_states": valid,
                 "model_grouped_scales_bytes": 8 * valid,
-                "likelihood_workspace_limit_bytes": LIKELIHOOD_WORKSPACE_BYTES,
+                "likelihood_workspace_limit_bytes": likelihood_workspace_bytes(n, major),
                 "posterior_output_bytes": 8 * padded,
                 "initializer_matrix_cache_limit_bytes": 64 * 1024**2,
                 "likelihood_column_cache_limit_bytes": 32 * 1024**2,
