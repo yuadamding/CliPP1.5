@@ -20,7 +20,7 @@ from scipy.stats import binom
 from ._io import read_table as _table
 from .config import FitConfig
 from .native import sha256, build_identity
-from .versions import IDENTITIES, NUMERICS
+from .versions import IDENTITIES, NUMERICS, FIT_FIELDS, FIT_INTEGER_FIELDS, FIT_SCORE_FIELDS
 
 
 def _require(condition, message):
@@ -753,42 +753,16 @@ def _verify_finalists(
     fits, capacities, replicates, parents, order, data, purity, evidence, *, _progress=None
 ):
     """Check compact finalists; discarded proposal ancestry is checked before publication."""
-    integer_fields = {
-        "requested_k",
-        "replicate",
-        "candidate_id",
-        "parent_requested_k",
-        "parent_replicate",
-        "num_clusters",
-    }
-    score_fields = {
-        "bic",
-        "log_likelihood",
-        "conditional_log_likelihood",
-        "weight_optimality_gap",
-        "weight_active_score_gap",
-    }
-    fields = (
-        integer_fields
-        | score_fields
-        | {
-            "candidate_kind",
-            "parent_partition_sha256",
-            "proposal_partition_sha256",
-            "partition_sha256",
-            "proposal_cuts",
-            "partition_parameters",
-        }
-    )
+    fields = set(FIT_FIELDS) | {"proposal_cuts", "partition_parameters"}
     _require(
         isinstance(fits, list) and all(isinstance(record, dict) and set(record) == fields for record in fits),
         "compact finalist fields",
     )
     for record in fits:
         _require(
-            all(type(record[name]) is int for name in integer_fields)
+            all(type(record[name]) is int for name in FIT_INTEGER_FIELDS)
             and all(
-                type(record[name]) in (int, float) and np.isfinite(record[name]) for name in score_fields
+                type(record[name]) in (int, float) and np.isfinite(record[name]) for name in FIT_SCORE_FIELDS
             ),
             "compact finalist numeric values",
         )

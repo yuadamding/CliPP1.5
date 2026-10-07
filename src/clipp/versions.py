@@ -2,6 +2,19 @@
 
 from . import __version__
 
+# Scalar finalist fields; proposal cuts and partition parameters are separate vectors.
+FIT_INTEGER_FIELDS = (
+    "requested_k", "replicate", "candidate_id", "parent_requested_k", "parent_replicate", "num_clusters",
+)
+FIT_SCORE_FIELDS = (
+    "bic", "log_likelihood", "conditional_log_likelihood", "weight_optimality_gap", "weight_active_score_gap",
+)
+FIT_FIELDS = (
+    "requested_k", "replicate", "candidate_id", "candidate_kind",
+    "parent_requested_k", "parent_replicate", "parent_partition_sha256",
+    "proposal_partition_sha256", "partition_sha256", "num_clusters", *FIT_SCORE_FIELDS,
+)
+
 IDENTITIES = {
     "software_version": __version__,
     "model_version": "uniform_1_to_major_v1",

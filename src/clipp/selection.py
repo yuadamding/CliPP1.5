@@ -34,7 +34,11 @@ from .model import MultiplicityModel
 from .refitting import refit_center
 from .scoring import fit_cluster_weights
 from .output import _write_result
-from .versions import IDENTITIES
+from .versions import IDENTITIES, FIT_FIELDS, FIT_SCORE_FIELDS
+
+
+_CONDITIONAL_FIELDS = ("num_clusters",) + FIT_SCORE_FIELDS
+_PARENT_FIELDS = ("parent_requested_k", "parent_replicate", "parent_partition_sha256")
 
 
 def _cuts(labels):
@@ -573,15 +577,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
         if existing is not None:
             record = existing
         else:
-            record = {
-                key: parent[key]
-                for key in (
-                    "requested_k",
-                    "parent_requested_k",
-                    "parent_replicate",
-                    "parent_partition_sha256",
-                )
-            }
+            record = {key: parent[key] for key in ("requested_k",) + _PARENT_FIELDS}
             record.update(
                 {
                     "candidate_id": records.next_id(replicate),
@@ -596,19 +592,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
                     "refinement_parent_partition_sha256": parent["partition_sha256"],
                 }
             )
-            record.update(
-                {
-                    key: result[key]
-                    for key in (
-                        "num_clusters",
-                        "bic",
-                        "log_likelihood",
-                        "conditional_log_likelihood",
-                        "weight_optimality_gap",
-                        "weight_active_score_gap",
-                    )
-                }
-            )
+            record.update({key: result[key] for key in _CONDITIONAL_FIELDS})
         record.update(
             {
                 "partition_parameters": _parameters(result, chain_order),
@@ -667,9 +651,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
                         "publication_eligible": False,
                         "selected_for_k": False,
                         "error": str(error),
-                        "parent_requested_k": parent["parent_requested_k"],
-                        "parent_replicate": parent["parent_replicate"],
-                        "parent_partition_sha256": parent["parent_partition_sha256"],
+                        **{key: parent[key] for key in _PARENT_FIELDS},
                         "proposal_partition_sha256": _fingerprint(chain_digest, reduced_cuts),
                         "chain_cuts": ",".join(map(str, reduced_cuts)),
                         "candidate_search_version": IDENTITIES["candidate_search_version"],
@@ -768,17 +750,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
         labels = partition_labels(chain_order, parameters["cuts"], parameters["block_labels"])
         centers = np.asarray(parameters["centers"], dtype=float)
         weights = np.asarray(parameters["weights"], dtype=float)
-        result = {
-            key: record[key]
-            for key in (
-                "num_clusters",
-                "bic",
-                "log_likelihood",
-                "conditional_log_likelihood",
-                "weight_optimality_gap",
-                "weight_active_score_gap",
-            )
-        }
+        result = {key: record[key] for key in _CONDITIONAL_FIELDS}
         result.update(
             labels=labels,
             centers=centers,
@@ -956,9 +928,7 @@ def run_model_selection(
                     key: candidate[key]
                     for key in (
                         "candidate_kind",
-                        "parent_requested_k",
-                        "parent_replicate",
-                        "parent_partition_sha256",
+                        *_PARENT_FIELDS,
                         "proposal_partition_sha256",
                         "partition_sha256",
                         "candidate_search_version",
@@ -999,23 +969,6 @@ def run_model_selection(
             {"selected_for_k": True, "selected": requested_k == winner[2]},
         )
     _write_result(model, coordinates, winner[4], final_result)
-    fields = (
-        "requested_k",
-        "replicate",
-        "candidate_id",
-        "candidate_kind",
-        "parent_requested_k",
-        "parent_replicate",
-        "parent_partition_sha256",
-        "proposal_partition_sha256",
-        "partition_sha256",
-        "num_clusters",
-        "bic",
-        "log_likelihood",
-        "conditional_log_likelihood",
-        "weight_optimality_gap",
-        "weight_active_score_gap",
-    )
     fits = []
     for record in records:
         candidate = search_records.get(record["replicate"], record["candidate_id"])
@@ -1023,7 +976,7 @@ def run_model_selection(
             {
                 **{
                     name: record[name].item() if isinstance(record[name], np.generic) else record[name]
-                    for name in fields
+                    for name in FIT_FIELDS
                 },
                 "proposal_cuts": [int(cut) for cut in candidate["chain_cuts"].split(",") if cut],
                 "partition_parameters": json.loads(candidate["partition_parameters"]),
