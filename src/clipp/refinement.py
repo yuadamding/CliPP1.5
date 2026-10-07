@@ -156,6 +156,15 @@ def polish_chain_partition(
     initial_score, initial_q = score, kernel.shape[1]
     best, best_score = current, score
     history = []
+
+    def completed(entry, iteration_status):
+        entry["status"] = iteration_status
+        history.append(entry)
+        if progress is not None:
+            progress.update(
+                "polish_iteration_completed", refinement_iteration=entry["iteration"], status=iteration_status
+            )
+
     status = "iteration_budget"
     for iteration in range(1, max_iterations + 1):
         if progress is not None:
@@ -174,11 +183,8 @@ def polish_chain_partition(
             "boundaries_changed": not np.array_equal(proposal["cuts"], cuts),
         }
         if not entry["boundaries_changed"]:
-            entry["status"] = "fixed_center_boundaries_stable"
-            history.append(entry)
-            status = entry["status"]
-            if progress is not None:
-                progress.update("polish_iteration_completed", refinement_iteration=iteration, status=status)
+            status = "fixed_center_boundaries_stable"
+            completed(entry, status)
             break
         labels = np.empty(n, dtype=np.int64)
         labels[order] = proposal["labels"]
@@ -189,11 +195,9 @@ def polish_chain_partition(
                     model, candidate, order, likelihood_provider
                 )
         except RuntimeError as error:
-            entry.update(status="refit_failed", error=str(error))
-            history.append(entry)
-            status = entry["status"]
-            if progress is not None:
-                progress.update("polish_iteration_completed", refinement_iteration=iteration, status=status)
+            entry["error"] = str(error)
+            status = "refit_failed"
+            completed(entry, status)
             break
         if not set(new_cuts) <= set(proposal["cuts"]):
             raise ValueError("Refit may only preserve boundaries or merge adjacent blocks")
@@ -202,17 +206,12 @@ def polish_chain_partition(
         if new_score < fixed_score - roundoff or new_score < score:
             # A numerical scalar refit need not recover its supplied-center
             # witness. Keep the accepted incumbent instead of hiding a loss.
-            entry["status"] = "refit_conditional_decrease"
-            history.append(entry)
-            status = entry["status"]
-            if progress is not None:
-                progress.update("polish_iteration_completed", refinement_iteration=iteration, status=status)
+            status = "refit_conditional_decrease"
+            completed(entry, status)
             break
         improvement = new_score - score
-        entry.update(status="accepted", mean_loglik_improvement=improvement / n)
-        history.append(entry)
-        if progress is not None:
-            progress.update("polish_iteration_completed", refinement_iteration=iteration, status="accepted")
+        entry["mean_loglik_improvement"] = improvement / n
+        completed(entry, "accepted")
         current, cuts, kernel, score = candidate, new_cuts, new_kernel, new_score
         if score > best_score or (score == best_score and len(current["centers"]) < len(best["centers"])):
             best, best_score = current, score
