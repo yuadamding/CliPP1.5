@@ -25,7 +25,8 @@ import numpy as np
 import pandas as pd
 
 from ._candidate_store import CandidateStore
-from ._proposals import iter_chain_proposals
+from ._io import partition_labels
+from ._proposals import iter_chain_proposals, _integers as _integer_vector
 from ._progress import NumericalProgress
 from .config import MAX_CLUSTERS
 from .refinement import polish_chain_partition
@@ -36,10 +37,20 @@ from .output import _write_result
 from .versions import IDENTITIES
 
 
+def _cuts(labels):
+    return np.flatnonzero(np.diff(labels)) + 1
+
+
+def _fingerprint(chain_digest, cuts):
+    digest = chain_digest.copy()
+    digest.update(np.asarray(cuts, dtype="<i8").tobytes())
+    return digest.hexdigest()
+
+
 def _parameters(result, order):
     """Lossless O(blocks + q) evidence; visits need not follow center order."""
     ordered = result["labels"][order]
-    cuts = np.flatnonzero(np.diff(ordered)) + 1
+    cuts = _cuts(ordered)
     return json.dumps(
         {
             "cuts": cuts.tolist(),
@@ -98,7 +109,7 @@ class _ChainRefitCache(OrderedDict):
 
     def partition_key(self, labels):
         ordered = validate_chain_labels(labels[self.order], len(self.model), len(self.model))
-        cuts = tuple(int(value) for value in np.flatnonzero(np.diff(ordered)) + 1)
+        cuts = tuple(int(value) for value in _cuts(ordered))
         # Input cuts are essential: fitting blocks that later merge is not
         # necessarily numerically identical to directly refitting their union.
         return refit_center, fit_cluster_weights, cuts
@@ -114,18 +125,16 @@ class _ChainRefitCache(OrderedDict):
             self.progress.add(partition_cache_hits=1)
             self.progress.update("partition_cache_hit")
         cuts, block_labels, value, _ = cached
-        labels = np.empty(len(self.model), dtype=int)
-        labels[self.order] = block_labels[np.searchsorted(cuts, np.arange(len(self.model)), side="right")]
         return {
             **value,
-            "labels": labels,
+            "labels": partition_labels(self.order, cuts, block_labels),
             "centers": value["centers"].copy(),
             "cluster_weights": value["cluster_weights"].copy(),
         }
 
     def put_partition(self, key, result):
         ordered = result["labels"][self.order]
-        cuts = np.flatnonzero(np.diff(ordered)) + 1
+        cuts = _cuts(ordered)
         block_labels = ordered[np.r_[0, cuts]].copy()
         value = {name: item for name, item in result.items() if name != "labels"}
         for name in ("centers", "cluster_weights"):
@@ -335,19 +344,6 @@ def refit_partition(model, labels, cache=None, chain_order=None):
     return result
 
 
-def _integer_vector(values, name, length=None):
-    values = np.atleast_1d(np.asarray(values, dtype=float))
-    if (
-        values.ndim != 1
-        or not values.size
-        or (length is not None and values.size != length)
-        or np.any(~np.isfinite(values))
-        or np.any(values != np.rint(values))
-    ):
-        raise ValueError("%s must be a nonempty integer vector of the expected length" % name)
-    return values.astype(np.int64)
-
-
 def validate_chain_labels(labels, length, requested_k):
     """Allow label permutations, but require each occupied label to be one run."""
     labels = _integer_vector(labels, "Chain labels", length)
@@ -422,11 +418,6 @@ def search_chain_coarsenings(
     reporter = getattr(cache, "progress", None)
     chain_digest = hashlib.sha256(np.asarray(chain_order, dtype="<i8").tobytes())
 
-    def fingerprint(cuts):
-        digest = chain_digest.copy()
-        digest.update(np.asarray(cuts, dtype="<i8").tobytes())
-        return digest.hexdigest()
-
     records = CandidateStore() if store is None else store
     winners, winner_keys = {}, {}
     unique_partitions = 0
@@ -453,9 +444,8 @@ def search_chain_coarsenings(
                     **cache.telemetry,
                 )
             )
-        labels = np.empty(n, dtype=int)
-        labels[chain_order] = np.searchsorted(cuts, np.arange(n), side="right")
-        proposal_digest = fingerprint(cuts)
+        labels = partition_labels(chain_order, cuts)
+        proposal_digest = _fingerprint(chain_digest, cuts)
         try:
             with (
                 reporter.context(
@@ -485,8 +475,8 @@ def search_chain_coarsenings(
                 )
             continue
         ordered_result = result["labels"][chain_order]
-        final_cuts = tuple(int(i) for i in np.flatnonzero(ordered_result[1:] != ordered_result[:-1]) + 1)
-        digest = proposal_digest if final_cuts == cuts else fingerprint(final_cuts)
+        final_cuts = tuple(int(i) for i in _cuts(ordered_result))
+        digest = proposal_digest if final_cuts == cuts else _fingerprint(chain_digest, final_cuts)
         parameters = _parameters(result, chain_order)
         for budget, provenance in sorted(by_budget.items()):
             validate_chain_labels(result["labels"][chain_order], n, budget)
@@ -563,12 +553,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
 
     def cuts_of(result):
         ordered = result["labels"][chain_order]
-        return tuple(int(i) for i in np.flatnonzero(np.diff(ordered)) + 1)
-
-    def fingerprint(cuts):
-        digest = chain_digest.copy()
-        digest.update(np.asarray(cuts, dtype="<i8").tobytes())
-        return digest.hexdigest()
+        return tuple(int(i) for i in _cuts(ordered))
 
     def admissible(result):
         return bool(np.all(result["cluster_weights"] > 0))
@@ -602,8 +587,8 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
                     "candidate_id": records.next_id(replicate),
                     "candidate_kind": kind,
                     "status": "scored",
-                    "proposal_partition_sha256": fingerprint(cuts),
-                    "partition_sha256": fingerprint(cuts),
+                    "proposal_partition_sha256": _fingerprint(chain_digest, cuts),
+                    "partition_sha256": _fingerprint(chain_digest, cuts),
                     "chain_cuts": ",".join(map(str, cuts)),
                     "num_input_blocks": len(cuts) + 1,
                     "selected_for_k": False,
@@ -667,8 +652,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
             reduced_cuts = cuts[:edge] + cuts[edge + 1 :]
             if records.visited_contains(visited_scope, visit_key(budget, reduced_cuts)):
                 continue
-            labels = np.empty(n, dtype=int)
-            labels[chain_order] = np.searchsorted(reduced_cuts, np.arange(n), side="right")
+            labels = partition_labels(chain_order, reduced_cuts)
             try:
                 repaired = fit(labels, budget)
             except RuntimeError as error:
@@ -686,7 +670,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
                         "parent_requested_k": parent["parent_requested_k"],
                         "parent_replicate": parent["parent_replicate"],
                         "parent_partition_sha256": parent["parent_partition_sha256"],
-                        "proposal_partition_sha256": fingerprint(reduced_cuts),
+                        "proposal_partition_sha256": _fingerprint(chain_digest, reduced_cuts),
                         "chain_cuts": ",".join(map(str, reduced_cuts)),
                         "candidate_search_version": IDENTITIES["candidate_search_version"],
                     }
@@ -712,8 +696,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
             if (budget, baseline["partition_sha256"]) in start_partitions:
                 continue
             cuts = tuple(int(x) for x in baseline["chain_cuts"].split(",") if x)
-            labels = np.empty(n, dtype=int)
-            labels[chain_order] = np.searchsorted(cuts, np.arange(n), side="right")
+            labels = partition_labels(chain_order, cuts)
             fitted = fit(labels, budget)
             consider(fitted, baseline, baseline["candidate_kind"], existing=baseline)
             starts.append({**baseline, "result": fitted})
@@ -782,10 +765,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
         if record["candidate_id"] == winner["candidate_id"]:
             continue
         parameters = json.loads(record["partition_parameters"])
-        labels = np.empty(n, dtype=int)
-        labels[chain_order] = np.asarray(parameters["block_labels"], dtype=int)[
-            np.searchsorted(parameters["cuts"], np.arange(n), side="right")
-        ]
+        labels = partition_labels(chain_order, parameters["cuts"], parameters["block_labels"])
         centers = np.asarray(parameters["centers"], dtype=float)
         weights = np.asarray(parameters["weights"], dtype=float)
         result = {

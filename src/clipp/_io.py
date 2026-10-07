@@ -4,7 +4,16 @@ import json
 import os
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
+
+
+def partition_labels(order, cuts, block_labels=None):
+    """Expand validated chain cuts and optional block labels to original rows."""
+    labels = np.empty(len(order), dtype=int)
+    blocks = np.searchsorted(cuts, np.arange(len(order)), side="right")
+    labels[order] = blocks if block_labels is None else np.asarray(block_labels)[blocks]
+    return labels
 
 
 def read_table(path):

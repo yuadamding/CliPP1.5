@@ -29,7 +29,7 @@ class _Parent:
 
 
 def _integers(values, name, length=None):
-    # Match selection._integer_vector, including its accepted input types.
+    # Preserve the shared proposal/selection conversion and accepted input types.
     values = np.atleast_1d(np.asarray(values, dtype=float))
     if (
         values.ndim != 1

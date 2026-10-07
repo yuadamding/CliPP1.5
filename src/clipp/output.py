@@ -4,7 +4,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from ._io import read_table, write_table as _write_table
+from ._io import partition_labels, read_table, write_table as _write_table
 
 
 def _write_result(model, coordinates, result, directory):
@@ -80,12 +80,8 @@ class Result:
             raise ValueError("No unique fit for the requested capacity/replicate")
         record = rows.iloc[0]
         params = self._parameters[int(record.replicate), int(record.candidate_id)]
-        labels = np.empty(len(self._order), dtype=int)
-        labels[self._order] = np.asarray(params["block_labels"])[
-            np.searchsorted(params["cuts"], np.arange(len(labels)), side="right")
-        ]
         return {
-            "labels": labels,
+            "labels": partition_labels(self._order, params["cuts"], params["block_labels"]),
             "centers": np.asarray(params["centers"]),
             "weights": np.asarray(params["weights"]),
             "record": record.to_dict(),
