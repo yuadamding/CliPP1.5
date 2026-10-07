@@ -9,9 +9,13 @@ from contextlib import contextmanager
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
+import shutil
 import sqlite3
 import struct
+import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -100,6 +104,62 @@ def candidate(**changes):
 
 
 class RepresentationTests(unittest.TestCase):
+    def test_legacy_reader_matches_current_partition_reconstruction(self):
+        # Representation-only fixture: independent scientific verification is
+        # exercised separately on actual fits in PublicationTests.
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            final, raw = root / "final_result", root / "preliminary_result"
+            final.mkdir()
+            raw.mkdir()
+            order = np.array([4, 0, 3, 1, 5, 2])
+            np.savetxt(raw / "chain_order.txt", order, fmt="%d")
+            outputs = {"mutations": "final_result/mutations.tsv", "clusters": "final_result/clusters.tsv"}
+            for path in outputs.values():
+                (root / path).write_text("cluster_index\n0\n")
+            fits = [
+                dict(
+                    requested_k=3,
+                    replicate=rep,
+                    candidate_id=0,
+                    bic=10.0,
+                    num_clusters=3,
+                    partition_parameters=dict(
+                        cuts=[rep, 4],
+                        block_labels=[2, 0, 1],
+                        centers=[0.8, 0.6, 0.2],
+                        weights=[0.25, 0.5, 0.25],
+                    ),
+                )
+                for rep in (2, 1)
+            ]
+            pd.DataFrame(
+                [
+                    {
+                        **{name: value for name, value in row.items() if name != "partition_parameters"},
+                        "selected_for_k": row["replicate"] == 1,
+                        "selected": row["replicate"] == 1,
+                    }
+                    for row in fits
+                ]
+            ).to_csv(final / "bic_selection.tsv", sep="\t", index=False)
+            pd.DataFrame(
+                [{**row, "partition_parameters": json.dumps(row["partition_parameters"])} for row in fits]
+            ).to_csv(final / "chain_candidates.tsv", sep="\t", index=False)
+            readers = [
+                Result(root, dict(output_schema_version=schema, selected_outputs=outputs, fits=fits))
+                for schema in (3, 4)
+            ]
+            for rep in (None, 1, 2):
+                legacy, current = (reader.partition(3, rep) for reader in readers)
+                expected = fits[0 if rep == 2 else 1]["partition_parameters"]
+                np.testing.assert_array_equal(
+                    legacy["labels"], labels_by_intervals(order, expected["cuts"], expected["block_labels"])
+                )
+                for name in ("labels", "centers", "weights"):
+                    np.testing.assert_array_equal(legacy[name], current[name])
+                self.assertEqual(legacy["record"], current["record"])
+
     def test_partition_round_trips_and_nonmonotone_centers(self):
         rng = np.random.default_rng(84712)
         for n in (1, 2, 7, 19):
@@ -627,6 +687,38 @@ class PublicationTests(unittest.TestCase):
         if failure["candidate_evidence"] is not None:
             self.assertTrue(Path(failure["candidate_evidence"]).is_file())
         return failure
+
+    def test_malformed_input_does_not_publish(self):
+        self.inputs[0].write_text("chromosome_index\tposition\talt_count\n1\t10\t2\n")
+        with self.assertRaisesRegex(ValueError, "Missing or duplicated input columns"):
+            self.fit()
+        failure = self.assert_failed()
+        self.assertEqual(failure["type"], "ValueError")
+        self.assertNotIn("refit_and_selection", failure["stage_seconds"])
+
+    def test_missing_and_tampered_native_library_fail_in_isolated_copy(self):
+        package = self.root / "isolated" / "clipp"
+        shutil.copytree(
+            Path(api.__file__).parent, package, ignore=shutil.ignore_patterns("__pycache__", "csrc")
+        )
+        library = package / json.loads((package / "_build_info.json").read_text())["library"]
+        original = library.read_bytes()
+        command = [sys.executable, "-B", "-c", "from clipp.native import load_native; load_native()"]
+        environment = {**os.environ, "PYTHONPATH": str(package.parent)}
+        clean = subprocess.run(command, cwd=package.parent, env=environment, capture_output=True, text=True)
+        self.assertEqual(clean.returncode, 0, clean.stderr)
+        for missing in (True, False):
+            with self.subTest(missing=missing):
+                if missing:
+                    library.unlink()
+                else:
+                    library.write_bytes(original + b"tampered fixture")
+                rejected = subprocess.run(
+                    command, cwd=package.parent, env=environment, capture_output=True, text=True
+                )
+                self.assertNotEqual(rejected.returncode, 0)
+                self.assertIn("Native library hash mismatch; rebuild/reinstall this package", rejected.stderr)
+        library.write_bytes(original)
 
     def test_literal_saved_schema_replicates_and_verified_publication(self):
         output = self.fit(subsample_size=3, replicates=2, window_size=1.0, seed=7)

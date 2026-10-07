@@ -1,12 +1,17 @@
 name: CPU artifact checks
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
+defaults:
+  run:
+    shell: bash --noprofile --norc -e -o pipefail {0}
 env:
   CLIPP_USE_CUDA: '0'
   OMP_NUM_THREADS: '1'
   OPENBLAS_NUM_THREADS: '1'
   MKL_NUM_THREADS: '1'
+  PYTHONDONTWRITEBYTECODE: '1'
+  COMPACTION_BASELINE: b10e5c633b15220960b5c40ddcdf4c4fa0ce4c33
 jobs:
   cpu:
     runs-on: ubuntu-24.04
@@ -16,39 +21,118 @@ jobs:
         python: ['3.12', '3.13']
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install build ruff
-      - run: python -m ruff check src/clipp setup.py
-      - run: python -m compileall -q src/clipp setup.py
-      - run: git diff --check
-      - run: python -m build
-      - run: python -m pip install dist/*.whl
-      - name: Installed wheel example (no R or NVIDIA installation)
-        working-directory: /tmp
+      - name: Install build and check tools
+        run: python -m pip install build ruff 'setuptools>=77' wheel
+      - name: Check source and tests
         run: |
-          clipp doctor > "$RUNNER_TEMP/doctor.json"
+          python -m ruff check src/clipp setup.py tests
+          python -m compileall -q src/clipp setup.py tests
+          git diff --check
+      - name: Build wheel and source distribution
+        run: |
+          python -m build 2>&1 | tee "$RUNNER_TEMP/build.log"
+          python - <<'PY'
+          from pathlib import Path
+          import tarfile
+          with tarfile.open(next(Path("dist").glob("*.tar.gz"))) as archive:
+              paths = {Path(name).as_posix().split("/", 1)[-1] for name in archive.getnames()}
+          required = {"tests/test_compaction.py", "tests/compare_sources.py"}
+          if not required <= paths:
+              raise RuntimeError(f"Missing sdist regression tools: {required - paths}")
+          PY
+      - name: Install the exact wheel and freeze its runtime stack
+        run: |
+          python -m pip install dist/*.whl
+          python -m pip check
+          python - <<'PY'
+          from importlib.metadata import version
+          import os
+          from pathlib import Path
+          root = Path(os.environ["RUNNER_TEMP"])
+          root.joinpath("runtime-constraints.txt").write_text(
+              "".join(f"{name}=={version(name)}\n" for name in ("numpy", "scipy", "pandas"))
+          )
+          PY
+          mkdir "$RUNNER_TEMP/checks"
+          cp tests/*.py "$RUNNER_TEMP/checks/"
+      - name: Test installed wheel outside the checkout
+        working-directory: ${{ runner.temp }}
+        run: |
+          clipp doctor > doctor.json
           clipp validate "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt"
-          clipp fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --max-clusters 10 --output "$RUNNER_TEMP/wheel-example"
-          clipp verify "$RUNNER_TEMP/wheel-example"
-      - name: Fresh source-distribution install and example
+          python -B -m unittest discover -s checks -v 2>&1 | tee wheel-tests.log
+          clipp fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --max-clusters 10 --output wheel-example
+          clipp verify wheel-example > wheel-verification.json
+      - name: Build the pinned baseline independently
         run: |
-          python -m venv "$RUNNER_TEMP/sdist-env"
-          "$RUNNER_TEMP/sdist-env/bin/python" -m pip install dist/*.tar.gz
-          cd /tmp
-          "$RUNNER_TEMP/sdist-env/bin/clipp" fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --max-clusters 10 --output "$RUNNER_TEMP/sdist-example"
-          "$RUNNER_TEMP/sdist-env/bin/clipp" verify "$RUNNER_TEMP/sdist-example"
-      - name: Retain resolved stack
+          git worktree add --detach "$RUNNER_TEMP/baseline" "$COMPACTION_BASELINE"
+          cd "$RUNNER_TEMP/baseline"
+          python setup.py build_ext --inplace 2>&1 | tee "$RUNNER_TEMP/baseline-build.log"
+          cd "$RUNNER_TEMP"
+          PYTHONPATH="$RUNNER_TEMP/baseline/src" python -B -m unittest discover -s checks -v 2>&1 | tee baseline-tests.log
+      - name: Compare complete candidate evidence on the identical stack
+        working-directory: ${{ runner.temp }}
+        run: |
+          python checks/compare_sources.py --baseline baseline --candidate baseline --output baseline-self --device cpu
+          installed_root="$(python -c 'from pathlib import Path; import clipp; print(Path(clipp.__file__).resolve().parent.parent)')"
+          python checks/compare_sources.py --baseline baseline --candidate "$installed_root" --output wheel-differential --device cpu
+      - name: Install and test the exact source distribution
+        working-directory: ${{ runner.temp }}
+        run: |
+          python -m venv sdist-env
+          sdist-env/bin/python -m pip install -c runtime-constraints.txt "$GITHUB_WORKSPACE"/dist/*.tar.gz
+          sdist-env/bin/python -m pip check
+          sdist-env/bin/python - <<'PY'
+          from importlib.metadata import version
+          from pathlib import Path
+          expected = Path("runtime-constraints.txt").read_text()
+          actual = "".join(f"{name}=={version(name)}\n" for name in ("numpy", "scipy", "pandas"))
+          if actual != expected:
+              raise RuntimeError("The sdist numerical stack differs from the tested wheel")
+          PY
+          sdist-env/bin/clipp doctor > sdist-doctor.json
+          sdist-env/bin/python -B -m unittest discover -s checks -v 2>&1 | tee sdist-tests.log
+          sdist-env/bin/clipp fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --max-clusters 10 --output sdist-example
+          sdist-env/bin/clipp verify sdist-example > sdist-verification.json
+          cmp wheel-example/final_result/clusters.tsv sdist-example/final_result/clusters.tsv
+          cmp wheel-example/final_result/mutations.tsv sdist-example/final_result/mutations.tsv
+      - name: Seal artifacts only after every check passes
+        run: |
+          sha256sum dist/*.whl dist/*.tar.gz > dist/SHA256SUMS
+          python -m pip freeze > dist/test-environment.txt
+          cp "$RUNNER_TEMP/runtime-constraints.txt" dist/runtime-constraints.txt
+          git rev-parse HEAD > dist/source-commit.txt
+      - name: Retain resolved environments
         if: always()
-        run: python -m pip freeze > "$RUNNER_TEMP/dependencies.txt"
-      - uses: actions/upload-artifact@v4
+        run: |
+          python -m pip freeze > "$RUNNER_TEMP/dependencies.txt"
+          if test -x "$RUNNER_TEMP/sdist-env/bin/python"; then
+            "$RUNNER_TEMP/sdist-env/bin/python" -m pip freeze > "$RUNNER_TEMP/sdist-dependencies.txt"
+          fi
+      - name: Upload qualified CPU artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: clipp15-cpu-artifacts-${{ matrix.python }}
+          path: dist/
+      - name: Retain evidence including failed checks
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: cpu-example-${{ matrix.python }}
+          name: clipp15-cpu-evidence-${{ matrix.python }}
           path: |
             dist/
-            ${{ runner.temp }}/doctor.json
-            ${{ runner.temp }}/dependencies.txt
+            ${{ runner.temp }}/*doctor.json
+            ${{ runner.temp }}/*dependencies.txt
+            ${{ runner.temp }}/runtime-constraints.txt
+            ${{ runner.temp }}/*verification.json
+            ${{ runner.temp }}/*build.log
+            ${{ runner.temp }}/*tests.log
             ${{ runner.temp }}/wheel-example/
             ${{ runner.temp }}/sdist-example/
+            ${{ runner.temp }}/baseline-self/
+            ${{ runner.temp }}/wheel-differential/
