@@ -17,6 +17,12 @@ class CandidateStoreError(RuntimeError):
 
 _FLAGS = ("selected_for_k", "selected_for_replicate_k", "selected", "publication_eligible")
 _SOURCE = ("parent_requested_k", "parent_replicate", "parent_partition_sha256")
+_PROPOSAL = ("chain_cuts", "proposal_partition_sha256")
+_INTERNED = (
+    ("parameters", ("parameters",), ("partition_parameters",)),
+    ("sources", _SOURCE, _SOURCE),
+    ("proposals", _PROPOSAL, _PROPOSAL),
+)
 _INDEXED = (
     "replicate",
     "candidate_id",
@@ -191,19 +197,15 @@ class CandidateStore:
 
     def _values(self, record):
         payload = dict(record)
-        parameter_id = source_id = proposal_id = None
-        if "partition_parameters" in payload:
-            parameters = payload.pop("partition_parameters")
-            if not isinstance(parameters, str):
-                raise TypeError("partition_parameters must be the exact serialized parameter string")
-            parameter_id = self._intern("parameters", ("parameters",), (parameters,))
-        if all(name in payload for name in _SOURCE):
-            source_id = self._intern("sources", _SOURCE, tuple(payload.pop(name) for name in _SOURCE))
-        proposal_fields = ("chain_cuts", "proposal_partition_sha256")
-        if all(name in payload for name in proposal_fields):
-            proposal_id = self._intern(
-                "proposals", proposal_fields, tuple(payload.pop(name) for name in proposal_fields)
-            )
+        interned = []
+        for table, columns, fields in _INTERNED:
+            identity = None
+            if all(name in payload for name in fields):
+                values = tuple(payload.pop(name) for name in fields)
+                if table == "parameters" and not isinstance(values[0], str):
+                    raise TypeError("partition_parameters must be the exact serialized parameter string")
+                identity = self._intern(table, columns, values)
+            interned.append(identity)
         indexed = []
         for name in _INDEXED:
             value = record.get(name)
@@ -216,7 +218,7 @@ class CandidateStore:
             indexed.append(value)
         for name in ("replicate", "candidate_id", *_FLAGS):
             payload.pop(name, None)
-        return (*indexed, parameter_id, source_id, proposal_id, _json(payload))
+        return (*indexed, *interned, _json(payload))
 
     def append(self, record, *, replicate=None):
         row = dict(record)
@@ -255,14 +257,9 @@ class CandidateStore:
         for name in _FLAGS:
             if row[name] is not None:
                 result[name] = bool(row[name])
-        if row["parameters"] is not None:
-            result["partition_parameters"] = row["parameters"]
-        if row["parent_requested_k"] is not None:
-            result.update({name: row[name] for name in _SOURCE})
-        if row["chain_cuts"] is not None:
-            result.update(
-                chain_cuts=row["chain_cuts"], proposal_partition_sha256=row["proposal_partition_sha256"]
-            )
+        for _, columns, fields in _INTERNED:
+            if row[columns[0]] is not None:
+                result.update((name, row[column]) for name, column in zip(fields, columns))
         return result
 
     def get(self, replicate, candidate_id):
@@ -272,9 +269,6 @@ class CandidateStore:
         if row is None:
             raise KeyError((replicate, candidate_id))
         return self._decode(row)
-
-    def __getitem__(self, key):
-        return self.get(*key) if isinstance(key, tuple) else self.get(1, key)
 
     def update(self, replicate, candidate_id, changes):
         if any(name in changes for name in ("replicate", "candidate_id")):
@@ -322,11 +316,6 @@ class CandidateStore:
         finally:
             cursor.close()
 
-    iter_records = iter_rows
-
-    def __iter__(self):
-        return self.iter_rows()
-
     def count(self, **filters):
         expressions, values = self._where(filters)
         where = " WHERE " + " AND ".join(expressions) if expressions else ""
@@ -334,15 +323,6 @@ class CandidateStore:
 
     def __len__(self):
         return self.count()
-
-    def counts(self):
-        return [
-            dict(row)
-            for row in self._execute(
-                "SELECT replicate,requested_k,status,COUNT(*) AS count "
-                "FROM candidates GROUP BY replicate,requested_k,status ORDER BY replicate,requested_k,status"
-            )
-        ]
 
     def distinct_proposals(self, replicate=None):
         where = " AND c.replicate=?" if replicate is not None else ""
@@ -405,27 +385,6 @@ class CandidateStore:
             row["parent_partition_sha256"],
             row["refinement_parent_partition_sha256"],
         )
-
-    def set_selection_flags(self, replicate, winners_by_k, selected_k=None, *, selection_scope="replicate"):
-        """Set small Boolean overlays; winners_by_k maps K to candidate_id."""
-        if selection_scope not in ("replicate", "final"):
-            raise ValueError("Unknown selection flag scope")
-        winners = {int(k): int(v) for k, v in winners_by_k.items()}
-        for k, candidate_id in winners.items():
-            if self.get(replicate, candidate_id).get("requested_k") != k:
-                raise ValueError("Selection winner capacity mismatch")
-        selected_column = "selected_for_replicate_k" if selection_scope == "replicate" else "selected_for_k"
-        self._execute(
-            f"UPDATE candidates SET {selected_column}=0,selected=0 "
-            f"WHERE replicate=? AND ({selected_column}<>0 OR selected<>0)",
-            (replicate,),
-        )
-        for k, candidate_id in winners.items():
-            self._execute(
-                f"UPDATE candidates SET {selected_column}=1,selected=? WHERE replicate=? AND candidate_id=?",
-                (k == selected_k, replicate, candidate_id),
-            )
-        self._changed()
 
     def visited_add(self, scope, key):
         cursor = self._execute(
