@@ -59,14 +59,6 @@ The output directory contains these tables under `final_result/`:
 Cluster 0 has the highest estimated CCF. Input exclusions are recorded in
 `preprocess_result/input_ledger.tsv`.
 
-## Development checks
-
-After installation, run `python -m unittest discover -s tests`.
-
-The private `CandidateStore` conveniences `__getitem__`, `__iter__`, `iter_records`, `counts`, and
-`set_selection_flags` were removed; internal callers use explicit operations
-such as `get()`, `iter_rows()`, `count()`, and `update()`.
-
 ## Contact
 
 For questions or concerns, please submit an issue or email yding4@mdanderson.org.

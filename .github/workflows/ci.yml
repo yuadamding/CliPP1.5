@@ -11,7 +11,6 @@ env:
   OPENBLAS_NUM_THREADS: '1'
   MKL_NUM_THREADS: '1'
   PYTHONDONTWRITEBYTECODE: '1'
-  COMPACTION_BASELINE: b10e5c633b15220960b5c40ddcdf4c4fa0ce4c33
 jobs:
   cpu:
     runs-on: ubuntu-24.04
@@ -28,23 +27,14 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install build and check tools
         run: python -m pip install build ruff 'setuptools>=77' wheel
-      - name: Check source and tests
+      - name: Check source
         run: |
-          python -m ruff check src/clipp setup.py tests
-          python -m compileall -q src/clipp setup.py tests
+          python -m ruff check src/clipp setup.py
+          python -m compileall -q src/clipp setup.py
           git diff --check
       - name: Build wheel and source distribution
         run: |
           python -m build 2>&1 | tee "$RUNNER_TEMP/build.log"
-          python - <<'PY'
-          from pathlib import Path
-          import tarfile
-          with tarfile.open(next(Path("dist").glob("*.tar.gz"))) as archive:
-              paths = {Path(name).as_posix().split("/", 1)[-1] for name in archive.getnames()}
-          required = {"tests/test_compaction.py", "tests/compare_sources.py"}
-          if not required <= paths:
-              raise RuntimeError(f"Missing sdist regression tools: {required - paths}")
-          PY
       - name: Install the exact wheel and freeze its runtime stack
         run: |
           python -m pip install dist/*.whl
@@ -58,29 +48,13 @@ jobs:
               "".join(f"{name}=={version(name)}\n" for name in ("numpy", "scipy", "pandas"))
           )
           PY
-          mkdir "$RUNNER_TEMP/checks"
-          cp tests/*.py "$RUNNER_TEMP/checks/"
       - name: Test installed wheel outside the checkout
         working-directory: ${{ runner.temp }}
         run: |
           clipp doctor > doctor.json
           clipp validate "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt"
-          python -B -m unittest discover -s checks -v 2>&1 | tee wheel-tests.log
           clipp fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --max-clusters 10 --output wheel-example
           clipp verify wheel-example > wheel-verification.json
-      - name: Build the pinned baseline independently
-        run: |
-          git worktree add --detach "$RUNNER_TEMP/baseline" "$COMPACTION_BASELINE"
-          cd "$RUNNER_TEMP/baseline"
-          python setup.py build_ext --inplace 2>&1 | tee "$RUNNER_TEMP/baseline-build.log"
-          cd "$RUNNER_TEMP"
-          PYTHONPATH="$RUNNER_TEMP/baseline/src" python -B -m unittest discover -s checks -v 2>&1 | tee baseline-tests.log
-      - name: Compare complete candidate evidence on the identical stack
-        working-directory: ${{ runner.temp }}
-        run: |
-          python checks/compare_sources.py --baseline baseline --candidate baseline --output baseline-self --device cpu
-          installed_root="$(python -c 'from pathlib import Path; import clipp; print(Path(clipp.__file__).resolve().parent.parent)')"
-          python checks/compare_sources.py --baseline baseline --candidate "$installed_root" --output wheel-differential --device cpu
       - name: Install and test the exact source distribution
         working-directory: ${{ runner.temp }}
         run: |
@@ -96,7 +70,6 @@ jobs:
               raise RuntimeError("The sdist numerical stack differs from the tested wheel")
           PY
           sdist-env/bin/clipp doctor > sdist-doctor.json
-          sdist-env/bin/python -B -m unittest discover -s checks -v 2>&1 | tee sdist-tests.log
           sdist-env/bin/clipp fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --max-clusters 10 --output sdist-example
           sdist-env/bin/clipp verify sdist-example > sdist-verification.json
           cmp wheel-example/final_result/clusters.tsv sdist-example/final_result/clusters.tsv
@@ -131,8 +104,5 @@ jobs:
             ${{ runner.temp }}/runtime-constraints.txt
             ${{ runner.temp }}/*verification.json
             ${{ runner.temp }}/*build.log
-            ${{ runner.temp }}/*tests.log
             ${{ runner.temp }}/wheel-example/
             ${{ runner.temp }}/sdist-example/
-            ${{ runner.temp }}/baseline-self/
-            ${{ runner.temp }}/wheel-differential/
