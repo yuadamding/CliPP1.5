@@ -13,10 +13,10 @@ Requires Python 3.12+ and a C++17 compiler. Run from the repository root.
 CLIPP_USE_CUDA=0 python -m pip install .
 ```
 
-**GPU:** requires an NVIDIA GPU and driver providing `libcuda.so`.
+**GPU:** requires an NVIDIA GPU and a loadable `libcuda.so.1` driver.
 
 ```bash
-python -m pip install 'setuptools>=77' wheel nvidia-cuda-runtime-cu12 nvidia-cuda-nvrtc-cu12
+python -m pip install 'setuptools>=77' wheel nvidia-cuda-runtime-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-nvcc-cu12
 CLIPP_USE_CUDA=1 python -m pip install --no-build-isolation .
 ```
 

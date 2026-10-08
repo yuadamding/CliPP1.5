@@ -111,7 +111,7 @@ def _partition_state(model, result, chain_order, likelihood_provider=None):
     score = math.fsum(kernel[np.arange(n), states])
     if not np.isfinite(score):
         raise ValueError("Supplied chain partition has nonfinite conditional likelihood")
-    return labels, cuts, kernel, score
+    return cuts, kernel, score
 
 
 def polish_chain_partition(
@@ -152,7 +152,7 @@ def polish_chain_partition(
         raise ValueError("Frozen chain order must be a permutation of original rows")
     order = order.astype(np.int64)
     current = result
-    _, cuts, kernel, score = _partition_state(model, current, order, likelihood_provider)
+    cuts, kernel, score = _partition_state(model, current, order, likelihood_provider)
     initial_score, initial_q = score, kernel.shape[1]
     best, best_score = current, score
     history = []
@@ -191,7 +191,7 @@ def polish_chain_partition(
         try:
             with progress.context(refinement_iteration=iteration) if progress is not None else nullcontext():
                 candidate = refit(labels)
-                _, new_cuts, new_kernel, new_score = _partition_state(
+                new_cuts, new_kernel, new_score = _partition_state(
                     model, candidate, order, likelihood_provider
                 )
         except RuntimeError as error:

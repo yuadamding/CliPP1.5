@@ -1,6 +1,7 @@
 """Build one package-owned native library with verifiable source/build identity."""
 
 from pathlib import Path
+import ctypes
 import hashlib
 import importlib.util
 import json
@@ -25,9 +26,30 @@ def _nvidia_package_paths(name):
     if spec is None or not spec.submodule_search_locations:
         return None
     root = Path(next(iter(spec.submodule_search_locations)))
-    return (
-        (root / "include", root / "lib") if (root / "include").is_dir() and (root / "lib").is_dir() else None
-    )
+    return (root / "include", root / "lib") if (root / "include").is_dir() else None
+
+
+def _cuda_driver_library():
+    # Runtime-only driver installations need not provide the libcuda.so link.
+    # Resolve the loaded symbol so nonstandard loader paths also work at link time.
+    class DlInfo(ctypes.Structure):
+        _fields_ = [("filename", ctypes.c_char_p), ("base", ctypes.c_void_p),
+                    ("symbol", ctypes.c_char_p), ("address", ctypes.c_void_p)]
+
+    try:
+        driver = ctypes.CDLL("libcuda.so.1")
+        info = DlInfo()
+        dladdr = ctypes.CDLL(None).dladdr
+        dladdr.argtypes = [ctypes.c_void_p, ctypes.POINTER(DlInfo)]
+        dladdr.restype = ctypes.c_int
+        if not dladdr(ctypes.cast(driver.cuInit, ctypes.c_void_p), ctypes.byref(info)) or not info.filename:
+            raise OSError("Cannot resolve the CUDA driver library")
+        path = Path(os.fsdecode(info.filename)).resolve(strict=True)
+        if not path.is_file():
+            raise OSError("CUDA driver is not a regular file")
+        return path
+    except (OSError, AttributeError) as error:
+        raise RuntimeError("Explicit CUDA build requires a loadable NVIDIA libcuda.so.1 driver") from error
 
 
 def _sha(path):
@@ -46,26 +68,22 @@ include_dirs, link_args, macros, library_dirs, libraries, rpaths = [], [], [], [
 if use_cuda:
     runtime = _nvidia_package_paths("nvidia.cuda_runtime")
     nvrtc = _nvidia_package_paths("nvidia.cuda_nvrtc")
-    driver = next(
-        (
-            Path(d)
-            for d in ["/usr/lib/x86_64-linux-gnu", "/usr/lib64", "/usr/local/cuda/lib64"]
-            if (Path(d) / "libcuda.so").exists()
-        ),
-        None,
-    )
-    if not runtime or not nvrtc or driver is None:
+    nvcc = _nvidia_package_paths("nvidia.cuda_nvcc")
+    if not runtime or not nvrtc or not nvcc:
         raise RuntimeError(
-            "Explicit CUDA build requires libcuda.so, nvidia-cuda-runtime-cu12 and nvidia-cuda-nvrtc-cu12 in the build environment"
+            "Explicit CUDA build requires nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12 "
+            "and nvidia-cuda-nvcc-cu12 in the build environment"
         )
-    include_dirs += [str(runtime[0]), str(nvrtc[0])]
+    for header in (runtime[0] / "cuda_runtime_api.h", nvrtc[0] / "nvrtc.h", nvcc[0] / "crt/host_defines.h"):
+        if not header.is_file():
+            raise RuntimeError(f"Missing CUDA build header: {header}")
+    include_dirs += [str(runtime[0]), str(nvrtc[0]), str(nvcc[0])]
     for directory, name in ((runtime[1], "libcudart.so.12"), (nvrtc[1], "libnvrtc.so.12")):
         if not (directory / name).is_file():
             raise RuntimeError(f"Missing CUDA build library: {directory / name}")
         link_args.append(str(directory / name))
         rpaths.append(str(directory))
-    library_dirs.append(str(driver))
-    libraries.append("cuda")
+    link_args.append(str(_cuda_driver_library()))
     macros.append(("USE_CUDA", "1"))
     sources.append("src/clipp/csrc/kernel_cuda_backend.cpp")
 

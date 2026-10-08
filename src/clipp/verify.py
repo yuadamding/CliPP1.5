@@ -325,7 +325,8 @@ def _raw_check(root, data, purity, order, k, rep, subsampling, actual_backend):
         gradient[i + 1] += contribution
     stationarity = np.max(np.abs(x - np.clip(x - gradient, row.ccf_lower_bound, row.ccf_upper_bound)))
     _close(row.stationarity_CCF, stationarity, "serialized-point stationarity", atol=2e-7)
-    bounds = np.r_[0, _cuts(labels), len(labels)]
+    full_cuts = _cuts(labels)
+    bounds = np.r_[0, full_cuts, len(labels)]
     ranges = [np.ptp(x[a:b]) for a, b in zip(bounds[:-1], bounds[1:])]
     _close(row.max_block_range_CCF, max(ranges), "raw block range", atol=1e-14)
     _require(row.longest_block == np.diff(bounds).max(), "raw longest block")
@@ -344,7 +345,6 @@ def _raw_check(root, data, purity, order, k, rep, subsampling, actual_backend):
         _require(
             row.stationarity_CCF <= 1e-6 and violation <= 1e-6 and max(ranges) <= 1e-6, "raw tolerance claim"
         )
-    full_cuts = _cuts(labels)
     if subsampling:
         full_cuts = (ranks[full_cuts - 1] + ranks[full_cuts]) // 2 + 1
     return {"partition_sha256": _partition_hash(order, full_cuts), "cuts": full_cuts, "diagnostics": row}

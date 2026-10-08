@@ -12,16 +12,17 @@ def _write_result(model, coordinates, result, directory):
         raise ValueError("Published occupied clusters require positive fitted mixture weights")
     mutations = coordinates.copy()
     mutations["cluster_index"] = result["labels"]
+    counts = np.bincount(result["labels"])
     structures = pd.DataFrame(
         {
             "cluster_index": np.arange(result["num_clusters"]),
-            "num_SNV": np.bincount(result["labels"]),
+            "num_SNV": counts,
             "cellular_prevalence": result["centers"],
         }
     )
     structures["cancer_cell_fraction"] = result["centers"] / model.purity
     structures["purity"] = model.purity
-    structures["assignment_proportion"] = np.bincount(result["labels"]) / len(model)
+    structures["assignment_proportion"] = counts / len(model)
     posterior = model.posterior(result["centers"][result["labels"]])
     calls = np.argmax(posterior, axis=1)
     mutations["major_cn"] = model.major

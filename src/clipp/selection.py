@@ -565,26 +565,24 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
     for candidate in search["winners"].values():
         records.update(replicate, candidate["candidate_id"], {"selected_for_k": False})
 
-    def visit_key(budget, cuts):
-        return json.dumps([int(budget), list(cuts)], separators=(",", ":"))
-
     def consider(result, parent, kind, diagnostics=None, existing=None):
         budget = int(parent["requested_k"])
         cuts = cuts_of(result)
         validate_chain_labels(result["labels"][chain_order], n, budget)
-        if not records.visited_add(visited_scope, visit_key(budget, cuts)):
+        if not records.visited_add(visited_scope, (budget, cuts)):
             return
         if existing is not None:
             record = existing
         else:
+            digest = _fingerprint(chain_digest, cuts)
             record = {key: parent[key] for key in ("requested_k",) + _PARENT_FIELDS}
             record.update(
                 {
                     "candidate_id": records.next_id(replicate),
                     "candidate_kind": kind,
                     "status": "scored",
-                    "proposal_partition_sha256": _fingerprint(chain_digest, cuts),
-                    "partition_sha256": _fingerprint(chain_digest, cuts),
+                    "proposal_partition_sha256": digest,
+                    "partition_sha256": digest,
                     "chain_cuts": ",".join(map(str, cuts)),
                     "num_input_blocks": len(cuts) + 1,
                     "selected_for_k": False,
@@ -634,13 +632,14 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
                 remove.add(block)
         for edge in sorted(remove):
             reduced_cuts = cuts[:edge] + cuts[edge + 1 :]
-            if records.visited_contains(visited_scope, visit_key(budget, reduced_cuts)):
+            reduced_key = (budget, reduced_cuts)
+            if records.visited_contains(visited_scope, reduced_key):
                 continue
             labels = partition_labels(chain_order, reduced_cuts)
             try:
                 repaired = fit(labels, budget)
             except RuntimeError as error:
-                records.visited_add(visited_scope, visit_key(budget, reduced_cuts))
+                records.visited_add(visited_scope, reduced_key)
                 records.append(
                     {
                         "replicate": replicate,
@@ -735,7 +734,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
             fallback = fit(np.zeros(n, dtype=int), budget)
             # A failed optional route must not hide a finite single-block
             # candidate. This is an explicit refit within the at-most-K set.
-            records.visited_discard(visited_scope, visit_key(budget, ()))
+            records.visited_discard(visited_scope, (int(budget), ()))
             consider(fallback, parent, "supported_single_block_fallback")
     # Visited final partitions suppress repeated exploration, not candidate
     # ranking. A repair can visit an older eligible record's partition first,
