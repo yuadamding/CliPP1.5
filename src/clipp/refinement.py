@@ -124,6 +124,7 @@ def polish_chain_partition(
     *,
     likelihood_provider=None,
     progress=None,
+    on_evaluated=None,
 ):
     """Alternate exact conditional boundaries and caller-supplied block refits.
 
@@ -132,7 +133,9 @@ def polish_chain_partition(
     adjacent blocks, but cannot add or move boundaries itself. The returned
     result is the best conditional-likelihood candidate, with scalar-only
     iteration history. A finite iteration budget or a local fixed point is
-    explicitly distinguished from global constrained optimality.
+    explicitly distinguished from global constrained optimality. The observer
+    receives detached completed fits and visit metadata before advancement; it
+    must not initiate fitting or alter this conditional trajectory.
     """
     if (
         not isinstance(max_iterations, (int, np.integer))
@@ -181,6 +184,8 @@ def polish_chain_partition(
             "previous_conditional_log_likelihood": score,
             "fixed_center_conditional_log_likelihood": fixed_score,
             "boundaries_changed": not np.array_equal(proposal["cuts"], cuts),
+            "proposed_cuts": proposal["cuts"].tolist(),
+            "preceding_cuts": cuts.tolist(),
         }
         if not entry["boundaries_changed"]:
             status = "fixed_center_boundaries_stable"
@@ -203,13 +208,29 @@ def polish_chain_partition(
             raise ValueError("Refit may only preserve boundaries or merge adjacent blocks")
         roundoff = 64 * np.finfo(float).eps * max(1.0, abs(fixed_score), abs(new_score))
         entry.update(refit_conditional_log_likelihood=new_score, refit_num_clusters=new_kernel.shape[1])
+        advances = not (new_score < fixed_score - roundoff or new_score < score)
+        improvement = new_score - score
+        visit_status = (
+            "refit_conditional_decrease" if not advances else
+            "conditional_improvement_tolerance" if improvement / n <= mean_loglik_tolerance else "accepted"
+        )
+        if on_evaluated is not None:
+            snapshot = dict(candidate)
+            for name in ("labels", "centers", "cluster_weights"):
+                if name in snapshot:
+                    snapshot[name] = np.array(snapshot[name], copy=True)
+                    snapshot[name].flags.writeable = False
+            on_evaluated(snapshot, {
+                **entry, "resulting_cuts": new_cuts.tolist(),
+                "preceding_refinement_visit": iteration - 1,
+                "advanced": advances, "status": visit_status,
+            })
         if new_score < fixed_score - roundoff or new_score < score:
             # A numerical scalar refit need not recover its supplied-center
             # witness. Keep the accepted incumbent instead of hiding a loss.
             status = "refit_conditional_decrease"
             completed(entry, status)
             break
-        improvement = new_score - score
         entry["mean_loglik_improvement"] = improvement / n
         completed(entry, "accepted")
         current, cuts, kernel, score = candidate, new_cuts, new_kernel, new_score

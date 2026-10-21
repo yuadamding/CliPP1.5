@@ -1,6 +1,6 @@
 """CliPP1.5 single-sample fixed-chain estimator."""
 
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 
 
 def fit(*args, **kwargs):

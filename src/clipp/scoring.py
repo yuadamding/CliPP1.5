@@ -4,13 +4,17 @@ import numpy as np
 from scipy.optimize import brentq, minimize
 
 
-def fit_cluster_weights(model, centers, initial_weights=None, *, log_kernel=None, telemetry=None):
+def fit_cluster_weights(
+    model, centers, initial_weights=None, *, log_kernel=None, telemetry=None, allow_boundary=False
+):
     """Maximize the observed likelihood over the simplex at fixed CP centers.
 
     This is a concave weight problem. The reported Frank-Wolfe gap bounds the
     remaining log-likelihood improvement at these centers, even with duplicate
     centers or boundary weights. Zero weights are returned for explicit repair
     by the caller; this optimizer does not change partition memberships.
+    ``allow_boundary`` is an explicit experimental opt-in for nonnegative
+    starting weights. Such starts must still give every row positive mass.
     Center fitting itself remains conditional on the frozen chain partition;
     this function does not claim a joint mixture-center maximum.
     """
@@ -52,9 +56,13 @@ def fit_cluster_weights(model, centers, initial_weights=None, *, log_kernel=None
         }
     kernel = np.exp(log_kernel - offset[:, None])
     weights = np.ones(k) / k if initial_weights is None else np.asarray(initial_weights, dtype=float)
-    if weights.shape != (k,) or np.any(~np.isfinite(weights)) or np.any(weights <= 0):
-        raise ValueError("Initial cluster weights must be positive and finite")
+    invalid = weights < 0 if allow_boundary else weights <= 0
+    if weights.shape != (k,) or np.any(~np.isfinite(weights)) or np.any(invalid) or weights.sum() <= 0:
+        qualifier = "nonnegative" if allow_boundary else "positive"
+        raise ValueError(f"Initial cluster weights must be {qualifier}, finite and have positive total")
     weights = weights / weights.sum()
+    if allow_boundary and np.any(kernel @ weights <= 0):
+        raise ValueError("Initial boundary weights must give every mutation positive likelihood")
 
     mass_key, mass_value = None, None
 

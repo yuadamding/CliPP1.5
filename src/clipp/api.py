@@ -210,6 +210,10 @@ def _fit(snv_input, cn_input, purity_input, output, config):
                 candidate_store=candidate_store,
                 progress=_progress,
             )
+        with profile.stage("candidate_evidence"):
+            evidence_path = work / "evidence/candidates.jsonl.gz"
+            evidence_path.parent.mkdir()
+            candidate_store.export(evidence_path, selection["selection"].to_dict("records"))
         ledger = canonical.ledger
         replicas = []
         for indices_file in sorted(raw.glob("sample_indices_rep*.txt")):
@@ -241,6 +245,10 @@ def _fit(snv_input, cn_input, purity_input, output, config):
             "num_excluded": int((ledger.status == "excluded").sum()),
             "selected_k": selection["selected_k"],
             "fits": selection["fits"],
+            "candidate_evidence": {
+                "path": "evidence/candidates.jsonl.gz", "schema": 1,
+                "count": len(candidate_store),
+            },
             "purity": canonical.purity,
             "selected_outputs": {
                 "mutations": "final_result/mutations.tsv",
@@ -263,13 +271,12 @@ def _fit(snv_input, cn_input, purity_input, output, config):
             verified = verify_run(
                 work,
                 require_complete=False,
-                _candidate_evidence=(selection["selection"], selection["candidates"]),
                 _progress=_progress,
             )
         manifest["selection_resources"] = {
             "candidate_records": len(candidate_store),
             "peak_scratch_bytes": candidate_store.peak_scratch_bytes,
-            "storage": "transient_sqlite_bounded_cache",
+            "storage": "transient_sqlite_bounded_cache_and_persistent_compressed_states",
             "scratch_measurement_scope": (
                 "observed owned SQLite database/journal/sidecar logical file sizes; "
                 "excludes SQLite temporary files, page cache, process memory and unsampled peaks"
@@ -278,7 +285,7 @@ def _fit(snv_input, cn_input, purity_input, output, config):
         }
         candidate_store.close()
         candidate_store = None
-        del selection  # Evidence is removed only after independent verification.
+        del selection  # The verified compressed evidence remains in the published run.
         manifest["verification"] = verified
         manifest["status"] = "verified_fit"
         manifest["stage_seconds"] = profile.stages.copy()

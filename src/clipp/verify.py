@@ -490,8 +490,128 @@ def _integer_record(record, names):
         _require(np.isfinite(value) and value == np.floor(value), "integer column " + name)
 
 
+def _verify_refinement_visit(row, source, origin, order, data, purity, initial_cache):
+    """Replay recorded path arithmetic separately from candidate eligibility."""
+    visit = row.evaluation
+    _require(
+        isinstance(visit, dict) and type(visit.get("advanced")) is bool
+        and type(visit.get("iteration")) is int and visit["iteration"] >= 0,
+        "evaluated state path status",
+    )
+    previous_id = visit.get("preceding_evaluation_visit_id")
+    if row.candidate_kind == "evaluated_fit_revisit":
+        _require(
+            row.status == "scored" and visit["iteration"] == 0 and not visit["advanced"]
+            and previous_id is None
+            and visit.get("status") in {"exploration_duplicate", "existing_partition_reevaluated"},
+            "reevaluated fit status",
+        )
+        return
+    _require(
+        visit["iteration"] >= 1 and type(visit.get("refinement_start")) is int
+        and visit["refinement_start"] >= 1
+        and visit.get("preceding_refinement_visit") == visit["iteration"] - 1,
+        "refinement path identity",
+    )
+    for field in (
+        "initial_conditional_log_likelihood", "previous_conditional_log_likelihood",
+        "fixed_center_conditional_log_likelihood",
+    ) + (("refit_conditional_log_likelihood",) if row.status == "scored" else ()):
+        value = visit.get(field)
+        _require(type(value) in (int, float) and np.isfinite(value), "finite refinement " + field)
+    initial_text = visit.get("initial_partition_parameters")
+    _require(isinstance(initial_text, str), "refinement initial fitted state")
+    initial = json.loads(initial_text)
+    _require(isinstance(initial, dict) and set(initial) == {"cuts", "block_labels", "centers", "weights"},
+             "refinement initial parameter fields")
+    initial_hash = _partition_hash(order, initial["cuts"])
+    if initial_text not in initial_cache:
+        initial_labels, initial_centers, _ = _candidate_parameters(SimpleNamespace(
+            partition_parameters=initial_text, partition_sha256=initial_hash, num_clusters=len(initial["centers"])
+        ), order, purity)
+        initial_score = float(_kernel(data, initial_centers[initial_labels], purity, posterior=False)[0].sum())
+        initial_cache[initial_text] = initial_score
+        if len(initial_cache) > 32:
+            initial_cache.popitem(last=False)
+    _close(visit.get("initial_conditional_log_likelihood"), initial_cache[initial_text],
+           "refinement initial conditional likelihood")
+    # A reevaluated start may differ from the original record's parameters.
+    # Its exact state must already exist as a retained reevaluation, not be
+    # reconstructed from the origin partition or invented in the visit record.
+    if origin["partition_parameters"] != initial_text:
+        matching = next((record for record in source.iter_rows(
+            replicate=row.replicate, requested_k=row.requested_k, status="scored", partition_sha256=initial_hash
+        ) if record["candidate_id"] < row.candidate_id and record["partition_parameters"] == initial_text), None)
+        _require(matching is not None, "refinement initial source state")
+    else:
+        matching = origin
+    _close(visit["initial_conditional_log_likelihood"], matching["conditional_log_likelihood"],
+           "refinement initial source score")
+    if previous_id is None:
+        _require(visit["iteration"] == 1, "first refinement iteration")
+        preceding = initial
+        preceding_score = visit["initial_conditional_log_likelihood"]
+    else:
+        _require(type(previous_id) is int and 0 < previous_id < row.evaluation_visit_id,
+                 "preceding evaluation identity")
+        previous = source.get_visit(row.replicate, previous_id)
+        _require(
+            previous is not None and previous["candidate_id"] < row.candidate_id
+            and previous["candidate_kind"] == "chain_refinement_visit" and previous["status"] == "scored"
+            and previous["origin_candidate_id"] == row.origin_candidate_id
+            and previous["requested_k"] == row.requested_k
+            and previous["evaluation"]["refinement_start"] == visit["refinement_start"]
+            and previous["evaluation"]["initial_partition_parameters"] == initial_text
+            and previous["evaluation"]["iteration"] + 1 == visit["iteration"]
+            and previous["evaluation"]["advanced"] is True,
+            "preceding evaluation provenance",
+        )
+        preceding = json.loads(previous["partition_parameters"])
+        preceding_score = previous["conditional_log_likelihood"]
+    _require(visit.get("preceding_cuts") == preceding["cuts"], "preceding refinement cuts")
+    _close(visit.get("previous_conditional_log_likelihood"), preceding_score, "preceding refinement score")
+    proposed = visit["proposed_cuts"]
+    _require(
+        len(proposed) + 1 == len(preceding["centers"])
+        and visit.get("num_clusters") == len(preceding["centers"])
+        and visit.get("boundaries_changed") is True and proposed != preceding["cuts"],
+        "evaluated boundary proposal",
+    )
+    fixed_cp = np.empty(len(data))
+    fixed_cp[order] = np.asarray(preceding["centers"])[np.asarray(preceding["block_labels"])[
+        np.searchsorted(proposed, np.arange(len(data)), side="right")
+    ]]
+    fixed_score = visit.get("fixed_center_conditional_log_likelihood")
+    _close(fixed_score, float(_kernel(data, fixed_cp, purity, posterior=False)[0].sum()),
+           "fixed-center proposal likelihood")
+    previous_score = visit["previous_conditional_log_likelihood"]
+    roundoff = 64 * np.finfo(float).eps * max(1.0, abs(previous_score), abs(fixed_score))
+    _require(fixed_score >= previous_score - roundoff, "nondecreasing boundary proposal")
+    if row.status == "refit_failed":
+        _require(
+            visit.get("status") == "refit_failed" and visit["advanced"] is False
+            and isinstance(getattr(row, "error", None), str) and bool(row.error)
+            and visit.get("error") == row.error,
+            "failed refinement provenance",
+        )
+        return
+    refit_score = visit.get("refit_conditional_log_likelihood")
+    _close(refit_score, row.conditional_log_likelihood, "evaluated refit likelihood")
+    _require(visit.get("refit_num_clusters") == row.num_clusters, "evaluated refit component count")
+    roundoff = 64 * np.finfo(float).eps * max(1.0, abs(fixed_score), abs(refit_score))
+    advances = not (refit_score < fixed_score - roundoff or refit_score < previous_score)
+    status = (
+        "refit_conditional_decrease" if not advances else
+        "conditional_improvement_tolerance"
+        if (refit_score - previous_score) / len(data) <= NUMERICS["boundary_refinement"]["mean_loglik_tolerance"]
+        else "accepted"
+    )
+    _require(visit["advanced"] == advances and visit.get("status") == status, "refinement advancement arithmetic")
+
+
 def _verify_candidates(
-    candidates, selection, capacities, replicates, parents, order, data, purity, *, _progress=None
+    candidates, selection, capacities, replicates, parents, order, data, purity, *,
+    _progress=None, search_version=None
 ):
     """Independently verify an ordered, disk-backed bank with bounded reductions.
 
@@ -517,8 +637,16 @@ def _verify_candidates(
         "chain_boundary_polish",
         "unsupported_component_coarsening",
         "supported_single_block_fallback",
+        "chain_refinement_visit",
+        "evaluated_fit_revisit",
     }
+    search_version = search_version or IDENTITIES["candidate_search_version"]
+    identity = hashlib.sha256(IDENTITIES["model_version"].encode())
+    for values in (data.alt_count, data.depth, data.major_cn, data.total_cn, [purity]):
+        identity.update(np.asarray(values, dtype="<f8").tobytes())
+    model_identity = identity.hexdigest()
     cache = [OrderedDict(), 0]
+    initial_cache = OrderedDict()
     verified_count = 0
 
     def progress(phase):
@@ -549,7 +677,7 @@ def _verify_candidates(
             next_ids[row.replicate] = row.candidate_id + 1
             counts[attempt] = counts.get(attempt, 0) + 1
             _require(
-                row.candidate_search_version == IDENTITIES["candidate_search_version"],
+                row.candidate_search_version == search_version,
                 "candidate search contract",
             )
             _require(row.candidate_kind in kinds, "candidate kinds")
@@ -598,6 +726,37 @@ def _verify_candidates(
                 ancestor = source.find_ancestor(record)
                 _require(ancestor is not None, "refinement parent")
                 refinement_parent = set(json.loads(ancestor["partition_parameters"])["cuts"])
+            if row.candidate_kind in {"chain_refinement_visit", "evaluated_fit_revisit"}:
+                _integer_record(record, ("origin_candidate_id", "evaluation_visit_id"))
+                _require(
+                    type(record["origin_candidate_id"]) is int and record["origin_candidate_id"] >= 0
+                    and type(record["evaluation_visit_id"]) is int and record["evaluation_visit_id"] >= 1,
+                    "evaluated state identities",
+                )
+                origin = source.get(row.replicate, row.origin_candidate_id)
+                _require(
+                    origin is not None and row.origin_candidate_id < row.candidate_id
+                    and origin["requested_k"] == row.requested_k
+                    and origin["partition_sha256"] == row.refinement_parent_partition_sha256,
+                    "evaluated state origin",
+                )
+                visit = row.evaluation
+                proposed = visit.get("proposed_cuts")
+                _require(
+                    isinstance(proposed, list) and all(type(x) is int and 0 < x < len(data) for x in proposed)
+                    and proposed == sorted(set(proposed)), "evaluated proposed cuts",
+                )
+                _verify_refinement_visit(row, source, origin, order, data, purity, initial_cache)
+                if row.status == "scored":
+                    _require(
+                        visit.get("resulting_cuts") == proposal
+                        and set(proposal) <= set(proposed)
+                        and row.fit_model_identity == model_identity
+                        and row.fit_state_sha256 == hashlib.sha256(
+                            (model_identity + row.partition_parameters).encode()
+                        ).hexdigest(),
+                        "evaluated fit state identity",
+                    )
             for prefix in ("polish_", "boundary_"):
                 for name, value_expected in (
                     ("fixed_chain", True),
@@ -625,9 +784,9 @@ def _verify_candidates(
                 )
                 if row.candidate_kind == "unsupported_component_coarsening":
                     _require(final_cuts < refinement_parent, "unsupported component coarsening")
-                elif row.candidate_kind == "chain_boundary_polish":
+                elif row.candidate_kind in {"chain_boundary_polish", "chain_refinement_visit"}:
                     _require(len(final_cuts) <= len(refinement_parent), "boundary polish capacity")
-                else:
+                elif row.candidate_kind == "supported_single_block_fallback":
                     _require(not final_cuts, "single block fallback")
             _require(row.active_mixture_components == np.count_nonzero(weights), "candidate active weights")
             for name, value_expected in (
@@ -750,7 +909,8 @@ def _verify_candidates(
 
 
 def _verify_finalists(
-    fits, capacities, replicates, parents, order, data, purity, evidence, *, _progress=None
+    fits, capacities, replicates, parents, order, data, purity, evidence, *,
+    _progress=None, search_version=None
 ):
     """Check compact finalists; discarded proposal ancestry is checked before publication."""
     fields = set(FIT_FIELDS) | {"proposal_cuts", "partition_parameters"}
@@ -801,6 +961,7 @@ def _verify_finalists(
             data,
             purity,
             _progress=_progress,
+            search_version=search_version,
         )
     cache = [OrderedDict(), 0]
     for row in selection.itertuples():
@@ -846,6 +1007,8 @@ def _verify_finalists(
                     "chain_boundary_polish",
                     "unsupported_component_coarsening",
                     "supported_single_block_fallback",
+                    "chain_refinement_visit",
+                    "evaluated_fit_revisit",
                 }
                 and final_cuts == set(proposal),
                 "finalist refinement identity",
@@ -877,18 +1040,21 @@ def _verify_finalists(
 
 
 def verify_run(directory, *, require_complete=True, _candidate_evidence=None, _progress=None):
-    """Verify saved fits; schema 4 retains finalists, not the complete proposal bank."""
+    """Replay saved arithmetic; schema 5 includes the complete evaluated bank."""
     root = Path(directory)
     manifest_path = root / "manifest.json"
     manifest = json.loads(manifest_path.read_text())
     schema = manifest.get("output_schema_version")
     _require(
-        schema in (3, 4),
+        schema in (3, 4, 5),
         "unsupported output schema; schema 2 requires pinned CliPP1.5 19f310b",
     )
     for name, value in IDENTITIES.items():
         if name not in {"software_version", "output_schema_version"}:
+            if schema < 5 and name == "candidate_search_version":
+                value = "native_chain_boundary_polish_supported_weights_v2"
             _require(manifest.get(name) == value, "contract identity " + name)
+    search_version = manifest["candidate_search_version"]
     _require(
         _candidate_evidence is None or (schema == 4 and not require_complete), "transient verification scope"
     )
@@ -988,6 +1154,7 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None, _p
         == (
             {"mutations.tsv", "clusters.tsv"}
             | ({"bic_selection.tsv", "chain_candidates.tsv"} if schema == 3 else set())
+            | ({"diagnostics"} if schema >= 5 else set())
         ),
         "compact result inventory",
     )
@@ -1051,6 +1218,7 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None, _p
             data,
             purity,
             _progress=_progress,
+            search_version=search_version,
         )
         selected_rows = selection[selection.selected]
         _require(len(selected_rows) == 1, "exactly one selected result")
@@ -1065,17 +1233,30 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None, _p
         )
         evidence = SimpleNamespace(**verified_candidates[selected.replicate, selected.candidate_id])
     else:
-        selected = _verify_finalists(
-            manifest["fits"],
-            manifest["capacities"],
-            config["replicates"],
-            parent_hashes,
-            order,
-            data,
-            purity,
-            _candidate_evidence,
-            _progress=_progress,
-        )
+        def check_finalists(bank):
+            return _verify_finalists(
+                manifest["fits"], manifest["capacities"], config["replicates"],
+                parent_hashes, order, data, purity, bank,
+                _progress=_progress, search_version=search_version,
+            )
+
+        if schema >= 5:
+            from ._candidate_store import CandidateStore
+
+            record = manifest.get("candidate_evidence", {})
+            _require(
+                set(record) == {"path", "schema", "count"}
+                and record["path"] == "evidence/candidates.jsonl.gz"
+                and record["schema"] == 1 and type(record["count"]) is int
+                and record["path"] in artifacts,
+                "persistent candidate evidence contract",
+            )
+            with CandidateStore() as bank:
+                selection = pd.DataFrame(bank.import_evidence(root / record["path"]))
+                _require(len(bank) == record["count"], "persistent candidate count")
+                selected = check_finalists((selection, bank))
+        else:
+            selected = check_finalists(_candidate_evidence)
         evidence = selected
     _require(selected.requested_k == manifest["selected_k"], "selected capacity")
     _require(
@@ -1088,7 +1269,7 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None, _p
     # the posterior quantities unique to the selected mutation output.
     labels, centers, weights = _candidate_parameters(evidence, order, purity)
     calls, structure = _table(final / "mutations.tsv"), _table(final / "clusters.tsv")
-    if schema == 4:
+    if schema >= 4:
         _require(
             calls.columns.tolist()
             == [
@@ -1135,6 +1316,10 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None, _p
     if schema == 3:
         _close(calls.multiplicity_probability, [p.max() for p in posterior], "posterior mode probabilities")
     _close(calls.expected_multiplicity, [p @ np.arange(1, len(p) + 1) for p in posterior], "posterior means")
+    if schema >= 5:
+        from ._verify_posterior import verify_posterior
+
+        verify_posterior(data, purity, labels, centers, weights, final / "diagnostics")
     k = manifest["selected_k"]
     return {
         "status": "verified",
@@ -1144,6 +1329,8 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None, _p
         "bic": float(selected.bic),
         "backend": manifest["backend_actual"],
         "scope": (
+            "artifact/complete-evaluated-bank/posterior consistency; not global optimality or scientific accuracy"
+            if schema >= 5 else
             "artifact/statistical/structural consistency; not global optimality or scientific accuracy"
             if schema == 3
             else "artifact/finalist/selected-result statistical consistency; discarded candidate bank and refinement ancestry "

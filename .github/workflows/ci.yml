@@ -1,4 +1,4 @@
-name: CPU artifact checks
+name: CPU numerical and artifact checks
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
@@ -55,6 +55,23 @@ jobs:
           clipp validate "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt"
           clipp fit "$GITHUB_WORKSPACE/sample/sample.snv.txt" "$GITHUB_WORKSPACE/sample/sample.cna.txt" "$GITHUB_WORKSPACE/sample/sample.purity.txt" --device cpu --max-clusters 10 --output wheel-example
           clipp verify wheel-example > wheel-verification.json
+          python - <<'PY'
+          from pathlib import Path
+          root = Path("research-smoke-input")
+          root.mkdir()
+          root.joinpath("snv.txt").write_text(
+              "chromosome_index\tposition\talt_count\tref_count\n"
+              "1\t10\t2\t18\n1\t20\t3\t17\n1\t30\t7\t13\n1\t40\t8\t12\n"
+          )
+          root.joinpath("cna.txt").write_text(
+              "chromosome_index\tstart_position\tend_position\tmajor_cn\tminor_cn\ttotal_cn\n"
+              "1\t1\t100\t1\t1\t2\n"
+          )
+          root.joinpath("purity.txt").write_text("1\n")
+          PY
+          clipp fit research-smoke-input/snv.txt research-smoke-input/cna.txt research-smoke-input/purity.txt --device cpu --max-clusters 2 --output wheel-joint-baseline
+          python -m clipp.research refine wheel-joint-baseline --output wheel-joint --max-iterations 500 --no-reductions
+          python -m clipp.research verify wheel-joint > wheel-joint-verification.json
       - name: Install and test the exact source distribution
         working-directory: ${{ runner.temp }}
         run: |
@@ -74,6 +91,9 @@ jobs:
           sdist-env/bin/clipp verify sdist-example > sdist-verification.json
           cmp wheel-example/final_result/clusters.tsv sdist-example/final_result/clusters.tsv
           cmp wheel-example/final_result/mutations.tsv sdist-example/final_result/mutations.tsv
+          sdist-env/bin/clipp fit research-smoke-input/snv.txt research-smoke-input/cna.txt research-smoke-input/purity.txt --device cpu --max-clusters 2 --output sdist-joint-baseline
+          sdist-env/bin/python -m clipp.research refine sdist-joint-baseline --output sdist-joint --max-iterations 500 --no-reductions
+          sdist-env/bin/python -m clipp.research verify sdist-joint > sdist-joint-verification.json
       - name: Seal artifacts only after every check passes
         run: |
           sha256sum dist/*.whl dist/*.tar.gz > dist/SHA256SUMS
@@ -106,3 +126,7 @@ jobs:
             ${{ runner.temp }}/*build.log
             ${{ runner.temp }}/wheel-example/
             ${{ runner.temp }}/sdist-example/
+            ${{ runner.temp }}/wheel-joint-baseline/
+            ${{ runner.temp }}/wheel-joint/
+            ${{ runner.temp }}/sdist-joint-baseline/
+            ${{ runner.temp }}/sdist-joint/

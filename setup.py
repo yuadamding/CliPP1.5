@@ -92,8 +92,7 @@ class BuildExt(build_ext):
     def get_source_files(self):
         return super().get_source_files() + [
             str(p.relative_to(ROOT))
-            for directory in ("sample", "tests")
-            for p in sorted((ROOT / directory).glob("*"))
+            for p in sorted((ROOT / "sample").glob("*"))
             if p.is_file()
         ]
 

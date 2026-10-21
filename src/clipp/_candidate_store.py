@@ -1,10 +1,13 @@
-"""Bounded, transient candidate evidence; SQLite is scratch, never a fit result.
+"""Bounded candidate storage and compressed replayable evidence.
 
 Rows decode to the legacy dictionaries. Exact parameter text, proposal keys,
 and source identities are interned on disk. Digests never establish equality
 for interning: each UNIQUE constraint compares the complete stored value.
+SQLite remains transient scratch; export publishes the complete compact bank.
 """
 
+import gzip
+import io
 import json
 from pathlib import Path
 import sqlite3
@@ -32,6 +35,7 @@ _INDEXED = (
     "partition_sha256",
     "bic",
     "num_clusters",
+    "evaluation_visit_id",
     *_FLAGS,
 )
 _SELECT = """SELECT c.payload, c.replicate, c.candidate_id,
@@ -117,6 +121,7 @@ class CandidateStore:
                 CREATE TABLE candidates(seq INTEGER PRIMARY KEY, replicate INTEGER NOT NULL,
                     candidate_id INTEGER NOT NULL, requested_k INTEGER, status TEXT,
                     candidate_kind TEXT, partition_sha256 TEXT, bic REAL, num_clusters INTEGER,
+                    evaluation_visit_id INTEGER,
                     selected_for_k INTEGER, selected_for_replicate_k INTEGER,
                     selected INTEGER, publication_eligible INTEGER,
                     parameters_id INTEGER REFERENCES parameters(id),
@@ -128,8 +133,11 @@ class CandidateStore:
                     (replicate, requested_k, status, publication_eligible, bic, num_clusters, candidate_id);
                 CREATE INDEX candidate_ancestry ON candidates
                     (replicate, requested_k, source_id, partition_sha256, status, candidate_id);
+                CREATE UNIQUE INDEX candidate_visit ON candidates(replicate, evaluation_visit_id);
                 CREATE TABLE visited(scope TEXT NOT NULL, key TEXT NOT NULL,
                     PRIMARY KEY(scope, key)) WITHOUT ROWID;
+                CREATE TABLE staged(seq INTEGER PRIMARY KEY, scope TEXT NOT NULL, payload TEXT NOT NULL);
+                CREATE INDEX staged_scope ON staged(scope,seq);
             """)
             self._db.commit()
             self._measure()
@@ -250,6 +258,61 @@ class CandidateStore:
             raise ValueError("Candidate replicate must be a positive integer")
         return self._next_ids.get(int(replicate), 0)
 
+    def stage(self, record, *, scope):
+        """Detach a completed observation without reserving IDs or changing exploration."""
+        cursor = self._execute(
+            "INSERT INTO staged(scope,payload) VALUES (?,?)", (_json(scope), _json(record))
+        )
+        self._changed()
+        return int(cursor.lastrowid)
+
+    def staged(self, scope):
+        """Replay compact immutable observations in their original evaluation order."""
+        end = self._execute("SELECT COALESCE(MAX(seq),0) FROM staged").fetchone()[0]
+        cursor = self._execute(
+            "SELECT seq,payload FROM staged WHERE scope=? AND seq<=? ORDER BY seq", (_json(scope), end)
+        )
+        try:
+            for row in cursor:
+                yield row["seq"], json.loads(row["payload"])
+        finally:
+            cursor.close()
+
+    def export(self, path, selection):
+        """Publish replayable compressed evidence, never N-length labels per fit."""
+        header = {"candidate_evidence_schema": 1, "count": len(self), "selection": selection}
+        with Path(path).open("xb") as raw:
+            with gzip.GzipFile(filename="", fileobj=raw, mode="wb", mtime=0) as packed:
+                with io.TextIOWrapper(packed, encoding="utf-8") as output:
+                    output.write(_json(header) + "\n")
+                    for record in self.iter_rows():
+                        output.write(_json(record) + "\n")
+
+    def import_evidence(self, path):
+        """Read a saved bank into this empty indexed store; never repair IDs or flags."""
+        if len(self):
+            raise ValueError("Evidence import requires an empty candidate store")
+        with gzip.open(path, "rt", encoding="utf-8") as source:
+            header = json.loads(next(source))
+            if (
+                not isinstance(header, dict)
+                or set(header) != {"candidate_evidence_schema", "count", "selection"}
+                or type(header["candidate_evidence_schema"]) is not int
+                or header["candidate_evidence_schema"] != 1
+                or type(header["count"]) is not int or header["count"] < 1
+                or not isinstance(header["selection"], list)
+                or not all(isinstance(record, dict) for record in header["selection"])
+            ):
+                raise ValueError("Unsupported candidate evidence schema")
+            for line in source:
+                record = json.loads(line)
+                if not all(key in record for key in ("candidate_id", "replicate", *_FLAGS)):
+                    raise ValueError("Incomplete candidate identity/flags")
+                self.append(record)
+        if len(self) != header["count"]:
+            raise ValueError("Incomplete candidate evidence")
+        return header["selection"]
+
     @staticmethod
     def _decode(row):
         result = json.loads(row["payload"])
@@ -269,6 +332,12 @@ class CandidateStore:
         if row is None:
             raise KeyError((replicate, candidate_id))
         return self._decode(row)
+
+    def get_visit(self, replicate, visit_id):
+        row = self._execute(
+            _SELECT + " WHERE c.replicate=? AND c.evaluation_visit_id=?", (replicate, visit_id)
+        ).fetchone()
+        return None if row is None else self._decode(row)
 
     def update(self, replicate, candidate_id, changes):
         if any(name in changes for name in ("replicate", "candidate_id")):

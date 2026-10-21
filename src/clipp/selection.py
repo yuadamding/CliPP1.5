@@ -545,7 +545,12 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
     winners = {}
     replicate = search["replicate"]
     visited_scope = f"refine:{replicate}"
+    observation_scope = f"evaluated:{replicate}"
     reporter = getattr(cache, "progress", None)
+    identity = hashlib.sha256(IDENTITIES["model_version"].encode())
+    for values in (model.r, model.n, model.major, model.total, [model.purity]):
+        identity.update(np.asarray(values, dtype="<f8").tobytes())
+    model_identity = identity.hexdigest()
 
     def fit(labels, budget):
         with (
@@ -562,6 +567,36 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
     def admissible(result):
         return bool(np.all(result["cluster_weights"] > 0))
 
+    def observe(result, parent, visit, kind="chain_refinement_visit"):
+        """Snapshot only. This never reserves candidate IDs, fits, or visits cuts."""
+        cuts = cuts_of(result)
+        validate_chain_labels(result["labels"][chain_order], n, parent["requested_k"])
+        parameters = _parameters(result, chain_order)
+        finite = all(np.isfinite(result[key]) for key in FIT_SCORE_FIELDS)
+        finite = finite and np.isfinite(result["centers"]).all() and np.isfinite(result["cluster_weights"]).all()
+        if not finite:
+            raise ValueError("Cannot retain a nonfinite completed fit")
+        digest = _fingerprint(chain_digest, cuts)
+        record = {
+            **{key: parent[key] for key in ("requested_k",) + _PARENT_FIELDS},
+            **{key: result[key] for key in _CONDITIONAL_FIELDS},
+            "replicate": replicate, "candidate_kind": kind, "status": "scored",
+            "candidate_search_version": IDENTITIES["candidate_search_version"],
+            "proposal_partition_sha256": digest, "partition_sha256": digest,
+            "chain_cuts": ",".join(map(str, cuts)), "num_input_blocks": len(cuts) + 1,
+            "partition_parameters": parameters, "publication_eligible": admissible(result),
+            "active_mixture_components": int(np.count_nonzero(result["cluster_weights"] > 0)),
+            "minimum_mixture_weight": float(np.min(result["cluster_weights"])),
+            "distinct_centers": int(len(np.unique(result["centers"]))),
+            "joint_mixture_center_mle": False,
+            "origin_candidate_id": int(parent["candidate_id"]),
+            "refinement_parent_partition_sha256": parent["partition_sha256"],
+            "fit_model_identity": model_identity,
+            "fit_state_sha256": hashlib.sha256((model_identity + parameters).encode()).hexdigest(),
+            "evaluation": visit,
+        }
+        return records.stage(record, scope=observation_scope)
+
     for candidate in search["winners"].values():
         records.update(replicate, candidate["candidate_id"], {"selected_for_k": False})
 
@@ -570,9 +605,21 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
         cuts = cuts_of(result)
         validate_chain_labels(result["labels"][chain_order], n, budget)
         if not records.visited_add(visited_scope, (budget, cuts)):
+            observe(result, parent, {"iteration": 0, "advanced": False,
+                    "status": "exploration_duplicate", "proposed_cuts": list(cuts),
+                    "resulting_cuts": list(cuts), "preceding_evaluation_visit_id": None},
+                    "evaluated_fit_revisit")
             return
         if existing is not None:
-            record = existing
+            record = dict(existing)
+            # An old record is a fitted state, not a mutable partition slot.
+            # Keep its exact arithmetic if this reevaluation reached other parameters.
+            if existing["partition_parameters"] != _parameters(result, chain_order):
+                observe(result, existing, {
+                    "iteration": 0, "advanced": False, "status": "existing_partition_reevaluated",
+                    "proposed_cuts": list(cuts), "resulting_cuts": list(cuts),
+                    "preceding_evaluation_visit_id": None,
+                }, "evaluated_fit_revisit")
         else:
             digest = _fingerprint(chain_digest, cuts)
             record = {key: parent[key] for key in ("requested_k",) + _PARENT_FIELDS}
@@ -591,7 +638,7 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
                 }
             )
             record.update({key: result[key] for key in _CONDITIONAL_FIELDS})
-        record.update(
+        fitted_fields = (
             {
                 "partition_parameters": _parameters(result, chain_order),
                 "publication_eligible": admissible(result),
@@ -601,6 +648,8 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
                 "joint_mixture_center_mle": False,
             }
         )
+        if existing is None or existing["partition_parameters"] == fitted_fields["partition_parameters"]:
+            record.update(fitted_fields)
         if diagnostics:
             record.update({"boundary_" + key: value for key, value in diagnostics.items()})
         record["replicate"] = replicate
@@ -700,6 +749,21 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
         kwargs = {"likelihood_provider": cache.log_kernel} if isinstance(cache, _ChainRefitCache) else {}
         if reporter is not None:
             kwargs["progress"] = reporter
+        previous_visit = None
+        initial_state = {
+            "initial_partition_parameters": _parameters(parent["result"], chain_order),
+            "initial_conditional_log_likelihood": float(parent["result"]["conditional_log_likelihood"]),
+            "refinement_start": start_index,
+        }
+
+        def on_evaluated(result, visit):
+            nonlocal previous_visit
+            previous_visit = observe(result, parent, {
+                **visit, **initial_state,
+                "preceding_evaluation_visit_id": previous_visit,
+            })
+
+        kwargs["on_evaluated"] = on_evaluated
         with (
             reporter.context(
                 phase="repair_and_polish",
@@ -718,6 +782,26 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
                 **kwargs,
             )
         consider(refinement["result"], parent, "chain_boundary_polish", refinement["diagnostics"])
+        for visit in refinement["history"]:
+            if visit["status"] != "refit_failed":
+                continue
+            failed_cuts = visit["proposed_cuts"]
+            records.stage({
+                **{key: parent[key] for key in ("requested_k",) + _PARENT_FIELDS},
+                "replicate": replicate, "candidate_kind": "chain_refinement_visit", "status": "refit_failed",
+                "candidate_search_version": IDENTITIES["candidate_search_version"],
+                "origin_candidate_id": int(parent["candidate_id"]),
+                "refinement_parent_partition_sha256": parent["partition_sha256"],
+                "publication_eligible": False,
+                "proposal_partition_sha256": _fingerprint(chain_digest, failed_cuts),
+                "chain_cuts": ",".join(map(str, failed_cuts)),
+                "evaluation": {
+                    **visit, **initial_state, "advanced": False,
+                    "preceding_refinement_visit": visit["iteration"] - 1,
+                    "preceding_evaluation_visit_id": previous_visit,
+                },
+                "error": visit["error"],
+            }, scope=observation_scope)
         # Preserve convergence evidence even when polish leaves the same cuts.
         original = records.find_first(
             replicate=replicate,
@@ -736,15 +820,20 @@ def refine_chain_search(model, search, seeds, chain_order, cache):
             # candidate. This is an explicit refit within the at-most-K set.
             records.visited_discard(visited_scope, (int(budget), ()))
             consider(fallback, parent, "supported_single_block_fallback")
+    # The legacy starts, repairs and their ordering have finished. Append the
+    # detached observed states now; exact ties retain the older candidate IDs.
+    # Do not deduplicate by cuts: different fitted parameters can share them.
+    for visit_id, record in records.staged(observation_scope):
+        records.append({**record, "evaluation_visit_id": visit_id})
     # Visited final partitions suppress repeated exploration, not candidate
     # ranking. A repair can visit an older eligible record's partition first,
     # leaving its smaller ID unconsidered. Reconcile only after the search so
     # its starts, refits and proposal order stay unchanged. Restore the recorded
     # fit exactly; refitting here could change a tied score or zero-weight support.
-    for budget, winner in winners.items():
+    for budget in winners:
         record = records.best(replicate, budget, eligible=True)
-        if record["candidate_id"] == winner["candidate_id"]:
-            continue
+        # Restore every winner from evidence, even if its ID stayed the same:
+        # a reevaluation may have explored different parameters for these cuts.
         parameters = json.loads(record["partition_parameters"])
         labels = partition_labels(chain_order, parameters["cuts"], parameters["block_labels"])
         centers = np.asarray(parameters["centers"], dtype=float)
