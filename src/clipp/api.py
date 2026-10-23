@@ -88,9 +88,9 @@ def _choose_backend(library, requested, count):
 def fit(snv_input, cn_input, purity_input, output, *, config=None):
     """Fit three legacy-format inputs into a *new* external output directory.
 
-    Returns a summary after independent verification. Existing output paths are
-    never reused. Failures retain an isolated attempt and logs, without a success
-    marker. Concurrent callers in one process are serialized; use processes for
+    Returns a summary after independent verification and publishes only
+    final_result/mutations.tsv and final_result/clusters.tsv. Existing output
+    paths are never reused. Concurrent callers in one process are serialized; use processes for
     independent fits. Fitting never reads simulation truth.
     """
     config = FitConfig() if config is None else config
@@ -120,6 +120,7 @@ def _fit(snv_input, cn_input, purity_input, output, config):
     scratch = Path(tempfile.gettempdir()) / ("clipp-candidates-" + uuid.uuid4().hex + ".sqlite")
     profile = _Profile()
     candidate_store = None
+    published = False
     try:
         os.write(
             lock_fd,
@@ -273,10 +274,10 @@ def _fit(snv_input, cn_input, purity_input, output, config):
                 require_complete=False,
                 _progress=_progress,
             )
-        manifest["selection_resources"] = {
+        selection_resources = {
             "candidate_records": len(candidate_store),
             "peak_scratch_bytes": candidate_store.peak_scratch_bytes,
-            "storage": "transient_sqlite_bounded_cache_and_persistent_compressed_states",
+            "storage": "transient_sqlite_bounded_cache_and_compressed_verification_states",
             "scratch_measurement_scope": (
                 "observed owned SQLite database/journal/sidecar logical file sizes; "
                 "excludes SQLite temporary files, page cache, process memory and unsampled peaks"
@@ -285,33 +286,39 @@ def _fit(snv_input, cn_input, purity_input, output, config):
         }
         candidate_store.close()
         candidate_store = None
-        del selection  # The verified compressed evidence remains in the published run.
-        manifest["verification"] = verified
-        manifest["status"] = "verified_fit"
-        manifest["stage_seconds"] = profile.stages.copy()
-        write_json(work / "manifest.json", manifest)
+        del selection
         with profile.stage("publication"):
+            # All numerical/evidence checks above complete before discarding
+            # transient inputs, solver files, manifests and candidate records.
+            for path in work.iterdir():
+                if path != final:
+                    if path.is_dir():
+                        shutil.rmtree(path)
+                    else:
+                        path.unlink()
+            verify_run(work)
             if out.exists() or out.is_symlink():
                 raise FileExistsError(f"Output appeared during fitting: {out}")
             os.rename(work, out)
-            work = out
-        # COMPLETE is the final public record. Its absence always means incomplete.
+            published = True
+        # The directory appears with both verified tables in a single rename.
+        # Execution metadata is returned to the caller, never written as output.
         completion = {
             "status": "complete",
             "finished_utc": utc_now(),
-            "manifest_sha256": sha256(out / "manifest.json"),
             "stage_seconds": profile.stages,
             "end_to_end_seconds": time.perf_counter() - started,
+            "num_excluded": manifest["num_excluded"],
+            "selection_resources": selection_resources,
             "peak_process_tree_rss_bytes_sampled": None,
             "memory_measurement": "unmeasured; use an external process-tree monitor for sampled RSS",
             "memory_sampling_interval_seconds": None,
-            "timing_scope": "API entry through verified directory publication; excludes final completion-record write",
+            "timing_scope": "API entry through verified two-table directory publication",
             "gpu_peak_memory_bytes": None,
         }
-        write_json(out / "COMPLETE.json", completion)
         return {"output": str(out), **verified, **completion}
     except BaseException as error:
-        if work.is_dir() and not (work / "COMPLETE.json").exists():
+        if not published and work.is_dir():
             write_json(
                 work / "FAILURE.json",
                 {

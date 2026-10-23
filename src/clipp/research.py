@@ -135,6 +135,8 @@ and publishes no posterior winner or substituted legacy result.
         raise ValueError("Expected a positive iteration count and Boolean reduction flag")
     if output.resolve().is_relative_to(source):
         raise ValueError("Research output cannot alter the verified source run")
+    if not (source / "manifest.json").is_file():
+        raise ValueError("Joint refinement requires historical schema-5 evidence; two-table outputs have no candidate bank")
     source_hash = sha256(source / "manifest.json")
     source_verification = verify_run(source)
     source_manifest = json.loads((source / "manifest.json").read_text())

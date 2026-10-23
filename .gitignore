@@ -1,0 +1,7 @@
+/build/
+/dist/
+*.egg-info/
+__pycache__/
+*.py[cod]
+/src/clipp/_native*.so
+/src/clipp/_build_info.json

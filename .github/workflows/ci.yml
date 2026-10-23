@@ -57,7 +57,7 @@ jobs:
           clipp verify wheel-example > wheel-verification.json
           python - <<'PY'
           from pathlib import Path
-          root = Path("research-smoke-input")
+          root = Path("small-input")
           root.mkdir()
           root.joinpath("snv.txt").write_text(
               "chromosome_index\tposition\talt_count\tref_count\n"
@@ -65,13 +65,37 @@ jobs:
           )
           root.joinpath("cna.txt").write_text(
               "chromosome_index\tstart_position\tend_position\tmajor_cn\tminor_cn\ttotal_cn\n"
-              "1\t1\t100\t1\t1\t2\n"
+              "1\t1\t25\t1\t1\t2\n1\t26\t100\t3\t1\t4\n"
           )
           root.joinpath("purity.txt").write_text("1\n")
           PY
-          clipp fit research-smoke-input/snv.txt research-smoke-input/cna.txt research-smoke-input/purity.txt --device cpu --max-clusters 2 --output wheel-joint-baseline
-          python -m clipp.research refine wheel-joint-baseline --output wheel-joint --max-iterations 500 --no-reductions
-          python -m clipp.research verify wheel-joint > wheel-joint-verification.json
+          clipp fit small-input/snv.txt small-input/cna.txt small-input/purity.txt --device cpu --max-clusters 2 --output wheel-small
+          clipp verify wheel-small > wheel-small-verification.json
+          python - <<'PYCODE'
+          from pathlib import Path
+          import numpy as np
+          import pandas as pd
+          from scipy.special import logsumexp
+          from scipy.stats import binom
+          from clipp import load_result
+          for directory in ("wheel-example", "wheel-small"):
+              paths = {p.relative_to(directory).as_posix() for p in Path(directory).rglob("*")}
+              assert paths == {"final_result", "final_result/mutations.tsv", "final_result/clusters.tsv"}
+              result = load_result(directory)
+              assert "multiplicity_probability" in result.mutations
+          observations = pd.read_csv("small-input/snv.txt", sep="\t")
+          result = load_result("wheel-small")
+          for row in result.mutations.itertuples():
+              observed = observations.iloc[row.original_row - 1]
+              cluster = result.clusters.iloc[row.cluster_index]
+              total = 2 if int(row.position) <= 25 else 4
+              support = np.arange(1, row.major_cn + 1)
+              denominator = 2 * (1 - cluster.purity) + cluster.purity * total
+              logs = binom.logpmf(observed.alt_count, observed.alt_count + observed.ref_count,
+                                 cluster.cellular_prevalence * support / denominator)
+              expected = np.exp(logs - logsumexp(logs)).max()
+              np.testing.assert_allclose(row.multiplicity_probability, expected, atol=2e-12, rtol=2e-12)
+          PYCODE
       - name: Install and test the exact source distribution
         working-directory: ${{ runner.temp }}
         run: |
@@ -91,9 +115,10 @@ jobs:
           sdist-env/bin/clipp verify sdist-example > sdist-verification.json
           cmp wheel-example/final_result/clusters.tsv sdist-example/final_result/clusters.tsv
           cmp wheel-example/final_result/mutations.tsv sdist-example/final_result/mutations.tsv
-          sdist-env/bin/clipp fit research-smoke-input/snv.txt research-smoke-input/cna.txt research-smoke-input/purity.txt --device cpu --max-clusters 2 --output sdist-joint-baseline
-          sdist-env/bin/python -m clipp.research refine sdist-joint-baseline --output sdist-joint --max-iterations 500 --no-reductions
-          sdist-env/bin/python -m clipp.research verify sdist-joint > sdist-joint-verification.json
+          sdist-env/bin/clipp fit small-input/snv.txt small-input/cna.txt small-input/purity.txt --device cpu --max-clusters 2 --output sdist-small
+          sdist-env/bin/clipp verify sdist-small > sdist-small-verification.json
+          cmp wheel-small/final_result/clusters.tsv sdist-small/final_result/clusters.tsv
+          cmp wheel-small/final_result/mutations.tsv sdist-small/final_result/mutations.tsv
       - name: Seal artifacts only after every check passes
         run: |
           sha256sum dist/*.whl dist/*.tar.gz > dist/SHA256SUMS
@@ -126,7 +151,5 @@ jobs:
             ${{ runner.temp }}/*build.log
             ${{ runner.temp }}/wheel-example/
             ${{ runner.temp }}/sdist-example/
-            ${{ runner.temp }}/wheel-joint-baseline/
-            ${{ runner.temp }}/wheel-joint/
-            ${{ runner.temp }}/sdist-joint-baseline/
-            ${{ runner.temp }}/sdist-joint/
+            ${{ runner.temp }}/wheel-small/
+            ${{ runner.temp }}/sdist-small/

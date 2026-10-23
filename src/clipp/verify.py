@@ -20,6 +20,7 @@ from scipy.stats import binom
 from ._io import read_table as _table
 from .config import FitConfig
 from .native import sha256, build_identity
+from .output import MUTATION_COLUMNS, CLUSTER_COLUMNS
 from .versions import IDENTITIES, NUMERICS, FIT_FIELDS, FIT_INTEGER_FIELDS, FIT_SCORE_FIELDS
 
 
@@ -1039,14 +1040,70 @@ def _verify_finalists(
     return selection.sort_values(["bic", "num_clusters", "requested_k", "replicate"], kind="stable").iloc[0]
 
 
+def _verify_tables(root):
+    """Check two public tables; no saved observations or bank remain to replay."""
+    _require(root.is_dir() and not root.is_symlink(), "result directory")
+    _require({p.name for p in root.iterdir()} == {"final_result"}, "two-table output inventory")
+    final = root / "final_result"
+    _require(final.is_dir() and not final.is_symlink(), "final result directory")
+    _require({p.name for p in final.iterdir()} == {"mutations.tsv", "clusters.tsv"}, "two-table inventory")
+    _require(all(p.is_file() and not p.is_symlink() for p in final.iterdir()), "regular result tables")
+    calls, clusters = _table(final / "mutations.tsv"), _table(final / "clusters.tsv")
+    _require(calls.columns.tolist() == MUTATION_COLUMNS and clusters.columns.tolist() == CLUSTER_COLUMNS,
+             "selected output columns")
+    n, k = len(calls), len(clusters)
+    _require(n > 0 and 0 < k <= n, "nonempty occupied results")
+    _require(calls.mutation_id.map(lambda value: bool(value.strip())).all()
+             and not calls.mutation_id.duplicated().any(), "unique nonempty mutation IDs")
+    for table in (calls.drop(columns="mutation_id"), clusters):
+        values = table.apply(pd.to_numeric, errors="raise").to_numpy(dtype=float)
+        _require(np.isfinite(values).all(), "finite numeric output values")
+    for table, columns in (
+        (calls, ("chromosome_index", "position", "original_row", "cluster_index", "major_cn", "multiplicity")),
+        (clusters, ("cluster_index", "num_SNV")),
+    ):
+        for column in columns:
+            values = pd.to_numeric(table[column], errors="raise").to_numpy()
+            _require(np.all(values == np.floor(values)), "integer output " + column)
+    _require(pd.to_numeric(calls.chromosome_index).between(1, 22).all()
+             and (pd.to_numeric(calls.position) > 0).all(), "autosomal positive coordinates")
+    _require((calls.original_row > 0).all() and not calls.original_row.duplicated().any(), "original row identity")
+    _require(np.array_equal(clusters.cluster_index, np.arange(k)), "consecutive cluster indices")
+    _require(calls.cluster_index.between(0, k - 1).all(), "mutation cluster indices")
+    counts = np.bincount(calls.cluster_index.to_numpy(dtype=int), minlength=k)
+    _require(np.all(counts > 0) and np.array_equal(clusters.num_SNV, counts), "occupied cluster counts")
+    purity = clusters.purity.to_numpy()
+    _require(np.all(purity == purity[0]) and 0 < purity[0] <= 1, "shared purity")
+    _require(clusters.cellular_prevalence.between(0, purity[0]).all()
+             and clusters.cancer_cell_fraction.between(0, 1).all(), "CCF/CP bounds")
+    _require(np.all(np.diff(clusters.cancer_cell_fraction) <= 0), "descending CCF cluster order")
+    _close(clusters.cancer_cell_fraction, clusters.cellular_prevalence / purity, "CCF conversion")
+    _close(clusters.assignment_proportion, counts / n, "assignment proportions")
+    major = calls.major_cn.to_numpy()
+    _require(np.all(major >= 1) and np.all((calls.multiplicity >= 1) & (calls.multiplicity <= major)),
+             "multiplicity support")
+    _require(np.all((calls.expected_multiplicity >= 1 - 1e-12)
+                    & (calls.expected_multiplicity <= major + 1e-12)), "posterior mean bounds")
+    _require(np.all((calls.multiplicity_probability >= 1 / major - 1e-12)
+                    & (calls.multiplicity_probability <= 1)), "maximum multiplicity posterior bounds")
+    return {
+        "status": "verified", "occupied_clusters": k, "num_mutations": n,
+        "scope": "table consistency only; likelihood, posterior arithmetic and candidate selection "
+                 "are checked before publication but cannot be replayed from two tables",
+    }
+
+
 def verify_run(directory, *, require_complete=True, _candidate_evidence=None, _progress=None):
-    """Replay saved arithmetic; schema 5 includes the complete evaluated bank."""
+    """Check compact tables or replay a retained historical/internal evidence bundle."""
     root = Path(directory)
     manifest_path = root / "manifest.json"
+    if not manifest_path.exists():
+        _require(require_complete and _candidate_evidence is None, "full evidence required before publication")
+        return _verify_tables(root)
     manifest = json.loads(manifest_path.read_text())
     schema = manifest.get("output_schema_version")
     _require(
-        schema in (3, 4, 5),
+        schema in (3, 4, 5, 6),
         "unsupported output schema; schema 2 requires pinned CliPP1.5 19f310b",
     )
     for name, value in IDENTITIES.items():
@@ -1154,7 +1211,7 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None, _p
         == (
             {"mutations.tsv", "clusters.tsv"}
             | ({"bic_selection.tsv", "chain_candidates.tsv"} if schema == 3 else set())
-            | ({"diagnostics"} if schema >= 5 else set())
+            | ({"diagnostics"} if schema == 5 else set())
         ),
         "compact result inventory",
     )
@@ -1282,6 +1339,7 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None, _p
                 "multiplicity",
                 "expected_multiplicity",
             ]
+            + (["multiplicity_probability"] if schema >= 6 else [])
             and structure.columns.tolist()
             == [
                 "cluster_index",
@@ -1313,10 +1371,10 @@ def verify_run(directory, *, require_complete=True, _candidate_evidence=None, _p
     _close(structure.assignment_proportion, counts / n, "assignment proportions")
     _, posterior = _kernel(data, centers[labels], purity)
     _verify_posterior_modes(data, centers[labels], purity, calls.multiplicity, posterior)
-    if schema == 3:
+    if schema == 3 or schema >= 6:
         _close(calls.multiplicity_probability, [p.max() for p in posterior], "posterior mode probabilities")
     _close(calls.expected_multiplicity, [p @ np.arange(1, len(p) + 1) for p in posterior], "posterior means")
-    if schema >= 5:
+    if schema == 5:
         from ._verify_posterior import verify_posterior
 
         verify_posterior(data, purity, labels, centers, weights, final / "diagnostics")

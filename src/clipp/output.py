@@ -7,6 +7,15 @@ import pandas as pd
 
 from ._io import partition_labels, read_table, write_table as _write_table
 
+MUTATION_COLUMNS = [
+    "chromosome_index", "position", "mutation_id", "original_row", "cluster_index",
+    "major_cn", "multiplicity", "expected_multiplicity", "multiplicity_probability",
+]
+CLUSTER_COLUMNS = [
+    "cluster_index", "num_SNV", "cellular_prevalence", "cancer_cell_fraction",
+    "purity", "assignment_proportion",
+]
+
 
 def write_posterior_diagnostics(
     model, coordinates, result, directory, *, marginal_multiplicity=False, chain_to_component=None
@@ -81,18 +90,23 @@ def _write_result(model, coordinates, result, directory):
     mutations["major_cn"] = model.major
     mutations["multiplicity"] = calls + 1
     mutations["expected_multiplicity"] = posterior @ model.m
+    mutations["multiplicity_probability"] = posterior.max(axis=1)
     _write_table(mutations, os.path.join(directory, "mutations.tsv"))
     _write_table(structures, os.path.join(directory, "clusters.tsv"))
-    write_posterior_diagnostics(model, coordinates, result, Path(directory) / "diagnostics")
 
 
 class Result:
-    """Verified result tables and lazy O(N) reconstruction of any recorded fit."""
+    """Selected tables; historical evidence bundles also expose recorded fits."""
 
-    def __init__(self, root, manifest):
+    def __init__(self, root, manifest=None):
         import json
 
         self.manifest = manifest
+        if manifest is None:
+            self.mutations = read_table(root / "final_result/mutations.tsv")
+            self.clusters = read_table(root / "final_result/clusters.tsv")
+            self.fits = None
+            return
         self.mutations = read_table(root / manifest["selected_outputs"]["mutations"])
         self.clusters = read_table(root / manifest["selected_outputs"]["clusters"])
         self._parameters = {}
@@ -129,6 +143,8 @@ class Result:
         self._order = np.loadtxt(root / "preliminary_result/chain_order.txt", dtype=int, ndmin=1)
 
     def partition(self, capacity, replicate=None):
+        if self.manifest is None:
+            raise ValueError("Two-table results do not retain the candidate bank")
         rows = self.fits[self.fits.requested_k == capacity]
         rows = rows[rows.selected_for_k] if replicate is None else rows[rows.replicate == replicate]
         if len(rows) != 1:
@@ -144,11 +160,12 @@ class Result:
 
 
 def load_result(directory):
-    """Verify once, then read the selected result and reconstructable per-fit bank."""
+    """Check and read selected tables, or replay a historical evidence bundle."""
     import json
     from pathlib import Path
     from .verify import verify_run
 
     root = Path(directory)
     verify_run(root)
-    return Result(root, json.loads((root / "manifest.json").read_text()))
+    manifest = root / "manifest.json"
+    return Result(root, json.loads(manifest.read_text()) if manifest.is_file() else None)

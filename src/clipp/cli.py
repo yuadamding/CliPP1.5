@@ -38,7 +38,7 @@ def _parser():
     fit.add_argument("--window-size", type=float)
     fit.add_argument("--overlap", type=float)
     fit.set_defaults(**asdict(FitConfig()))
-    verify = commands.add_parser("verify", help="Independently verify a complete published run")
+    verify = commands.add_parser("verify", help="Check output tables or replay a historical evidence bundle")
     verify.add_argument("directory")
     validate = commands.add_parser("validate", help="Preflight inputs and resource estimates without fitting")
     for name in ("snv_input", "cn_input", "purity_input"):
